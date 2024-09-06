@@ -30,14 +30,14 @@ jobs:
         key: opengamedata-common-build-${{ github.run_id }}-${{ github.run_attempt }}
         path: ./dist/
         fail-on-cache-miss: true
+    - name: Fail if Cache Restore Failed
+      if: steps.cached-build.outputs.cache-hit == 'false'
+      run: exit 1
     - name: Publish to PyPI
       if: steps.cached-build.outputs.cache-hit == 'true'
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         print-hash: true
-    - name: Fail if Cache Restore Failed
-      if: steps.cached-build.outputs.cache-hit == 'false'
-      run: exit 1
 
   prerelease:
     name: Publish Prerelease to PyPI
@@ -57,12 +57,12 @@ jobs:
         key: opengamedata-common-build-${{ github.run_id }}-${{ github.run_attempt }}
         path: ./dist/
         fail-on-cache-miss: true
+    - name: Fail if Cache Restore Failed
+      if: steps.cached-build.outputs.cache-hit == 'false'
+      run: exit 1
     - name: Publish to PyPI
       if: steps.cached-build.outputs.cache-hit == 'true'
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         print-hash: true
         repository-url: https://test.pypi.org/legacy/
-    - name: Fail if Cache Restore Failed
-      if: steps.cached-build.outputs.cache-hit == 'false'
-      run: exit 1
