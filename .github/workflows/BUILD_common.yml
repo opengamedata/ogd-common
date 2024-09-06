@@ -52,5 +52,8 @@ jobs:
       with:
         key: opengamedata-common-build-${{ github.run_id }}-${{ github.run_attempt }}
         path: ./dist/
+    - name: Non-Cached Build
+      if: inputs.with_caching != 'true'
+      run: echo "No build cached"
     - name: Print event type
       run: echo ${{ github.event.action }}
