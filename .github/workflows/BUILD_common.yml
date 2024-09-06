@@ -1,0 +1,56 @@
+# Workflow to test building the ogd-common project
+name: Build pyproject - ogd-common
+run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
+on:
+  workflow_dispatch:
+    inputs:
+      with_caching:
+        type: boolean
+        description: "Whether to cache the build for upload in a later job."
+        required: true
+        default: false
+  workflow_call:
+    inputs:
+      with_caching:
+        type: boolean
+        description: "Whether to cache the build for upload in a later job."
+        required: true
+        default: false
+
+env:
+  DEPLOY_URL: ${{ vars.OGD_STAGING_HOST }}/${{ vars.API_BASE_URL }}/${{ github.event.repository.name }}/${{ github.ref_name }}/app.wsgi
+
+jobs:
+
+  build:
+    name: Build Python Package
+    concurrency:
+      group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-build
+      cancel-in-progress: true
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Get Dependencies
+      uses: opengamedata/actions-setup-ogd-py-dependencies@v1.0
+      with:
+        python_version: ${{ vars.OGD_PYTHON_VERSION }}
+    - name: Get Build Dependencies
+      uses: opengamedata/setup-ogd-py-build@v2.0
+    - name: Build Package
+      run: python -m build
+    # - name: Upload Wheel to GitHub Release
+    #   uses: actions/upload-release-asset@v1
+    #   with:
+    #     upload_url: ${{ github.event.release.upload_url }}
+    #     asset_path: ./dist/*.whl
+    #     asset_name: OGDUtils.whl
+        # asset_content_type: application/zip
+    - name: Cache Build for Publishing
+      if: inputs.with_caching == 'true'
+      id: cache-build
+      uses: actions/cache/save@v3
+      with:
+        key: opengamedata-common-build-${{ github.run_id }}-${{ github.run_attempt }}
+        path: ./dist/
+    - name: Print event type
+      run: echo ${{ github.event.action }}
