@@ -1,5 +1,5 @@
 # Workflow to build and deploy a new release of ogd-common to PyPi.
-name: opengamedata-common Release
+name: Release Script - OGD Common
 on:
   release:
     types: [prereleased, released]

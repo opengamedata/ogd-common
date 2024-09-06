@@ -1,5 +1,5 @@
 # Workflow to test building the ogd-common project
-name: Build pyproject - ogd-common
+name: Build pyproject - OGD Common
 run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
 on:
   workflow_dispatch:
