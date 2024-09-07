@@ -1,0 +1,26 @@
+# Workflow to build and test the APIUtils project
+name: CI Script - OGD Common
+run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
+on:
+  workflow_dispatch:
+  push:
+    paths:
+    - '.github/workflows/CI_common.yml'
+    - '.github/workflows/BUILD_common.yml'
+    - '.github/actions/**'
+    - 'pyproject.toml'
+    - 'requirements.txt'
+    - 'src/**'
+
+env:
+  DEPLOY_HOST: ${{ vars.OGD_STAGING_HOST }}
+  DEPLOY_DIR:                              ${{ vars.API_BASE_PATH }}/${{ github.event.repository.name }}/${{ github.ref_name }}
+  DEPLOY_URL:  ${{ vars.OGD_STAGING_HOST }}/${{ vars.API_BASE_URL }}/${{ github.event.repository.name }}/${{ github.ref_name }}/app.wsgi
+
+jobs:
+
+  build:
+    name: Build Python Package
+    uses: ./.github/workflows/BUILD_common.yml
+    with:
+      with_caching: false
