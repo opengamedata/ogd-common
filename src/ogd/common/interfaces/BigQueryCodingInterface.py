@@ -9,7 +9,7 @@ from coding.Code import Code
 from coding.Coder import Coder
 from ogd.common.interfaces.CodingInterface import CodingInterface
 from ogd.common.models.enums.IDMode import IDMode
-from ogd.core.schemas.configs.ConfigSchema import ConfigSchema
+from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.utils.Logger import Logger
 
 # TODO: see about merging this back into BigQueryInterface for a unified interface.
@@ -18,7 +18,7 @@ class BigQueryCodingInterface(CodingInterface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, game_id:str, config:ConfigSchema):
+    def __init__(self, game_id:str, config:GameSourceSchema):
         super().__init__()
         self._game_id : str = game_id
         self._settings = config
@@ -35,10 +35,8 @@ class BigQueryCodingInterface(CodingInterface):
                 self._client = bigquery.Client()
             else:
                 credential_path : str
-                if "GAME_SOURCE_MAP" in self._settings:
-                    credential_path = self._settings["GAME_SOURCE_MAP"][self._game_id]["credential"]
-                else:
-                    credential_path = default_settings["GAME_SOURCE_MAP"][self._game_id]["credential"]
+                if self._settings.Source:
+                    credential_path = self._settings.Source.NonStandardElements.get("credential", default_settings["GAME_SOURCE_MAP"][self._game_id]["credential"])
                 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credential_path
                 self._client = bigquery.Client()
             if self._client != None:
