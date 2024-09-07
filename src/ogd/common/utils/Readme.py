@@ -11,7 +11,7 @@ from typing import Any, Dict, IO, List, Optional, Set
 
 # import local files
 from ogd.common.schemas.games.GameSchema import GameSchema
-from ogd.core.schemas.tables.TableSchema import TableSchema
+from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.utils import ExportRow
 

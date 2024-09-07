@@ -8,7 +8,7 @@ from typing import Any, Dict, IO, List, Tuple, Optional
 from ogd.common.interfaces.EventInterface import EventInterface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
-from ogd.core.schemas.tables.TableSchema import TableSchema
+from ogd.common.schemas.tableseseseses.TableSchema import TableSchema
 from ogd.common.utils.Logger import Logger
 
 class CSVInterface(EventInterface):

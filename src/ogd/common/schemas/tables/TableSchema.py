@@ -10,8 +10,8 @@ from typing import Any, Dict, Final, List, Tuple, Optional, Union
 ## import local files
 from ogd.core import schemas
 from ogd.common.models.Event import Event, EventSource
-from ogd.core.schemas.tables.ColumnMapSchema import ColumnMapSchema
-from ogd.core.schemas.tables.ColumnSchema import ColumnSchema
+from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema
+from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.utils import utils
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map

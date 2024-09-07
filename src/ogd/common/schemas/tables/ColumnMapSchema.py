@@ -2,7 +2,7 @@
 import logging
 from typing import Any, Dict, List, Union
 # import local files
-from ogd.core.schemas.tables.ColumnSchema import ColumnSchema
+from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.utils.Logger import Logger
 
 class ColumnMapSchema:

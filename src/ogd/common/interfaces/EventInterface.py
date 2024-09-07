@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Tuple, Optional, Union
 from ogd.common.interfaces.Interface import Interface
 from ogd.common.models.Event import Event
 from ogd.common.models.enums.IDMode import IDMode
-from ogd.core.schemas.tables.TableSchema import TableSchema
+from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.utils.Logger import Logger
 
