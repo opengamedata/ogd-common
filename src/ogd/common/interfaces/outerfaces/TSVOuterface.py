@@ -22,10 +22,10 @@ from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.schemas.games.GameSchema import GameSchema
 from ogd.core.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.configs.IndexingSchema import FileIndexingSchema
-from ogd.core.utils import utils
-from ogd.core.utils.Logger import Logger
-from ogd.core.utils.utils import ExportRow
-from ogd.core.utils.Readme import Readme
+from ogd.common.utils import utils
+from ogd.common.utils.Logger import Logger
+from ogd.common.utils.utils import ExportRow
+from ogd.common.utils.Readme import Readme
 
 class TSVOuterface(DataOuterface):
 

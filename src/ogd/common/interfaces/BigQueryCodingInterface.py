@@ -10,7 +10,7 @@ from coding.Coder import Coder
 from ogd.common.interfaces.CodingInterface import CodingInterface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.core.schemas.configs.ConfigSchema import ConfigSchema
-from ogd.core.utils.Logger import Logger
+from ogd.common.utils.Logger import Logger
 
 # TODO: see about merging this back into BigQueryInterface for a unified interface.
 

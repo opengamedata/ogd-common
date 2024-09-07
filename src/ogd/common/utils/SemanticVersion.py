@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional, List
 # import 3rd-party libraries
 
 # import OGD libraries
-from ogd.core.utils.Logger import Logger
+from ogd.common.utils.Logger import Logger
 
 # import locals
 

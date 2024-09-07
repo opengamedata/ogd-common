@@ -11,7 +11,7 @@ from ogd.common.models.Event import Event
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.core.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
-from ogd.core.utils.Logger import Logger
+from ogd.common.utils.Logger import Logger
 
 class EventInterface(Interface):
 

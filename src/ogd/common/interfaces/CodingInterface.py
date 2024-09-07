@@ -8,7 +8,7 @@ from coding.Code import Code
 from coding.Coder import Coder
 from ogd.common.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
-from ogd.core.utils.Logger import Logger
+from ogd.common.utils.Logger import Logger
 
 class CodingInterface(Interface):
 

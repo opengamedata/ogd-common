@@ -7,7 +7,7 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Any, Dict, Optional, List
 # import locals
-from ogd.core.utils.Logger import Logger
+from ogd.common.utils.Logger import Logger
 
 map = Dict[str, Any]
 ExportRow = List[Any]

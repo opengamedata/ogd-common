@@ -10,7 +10,7 @@ from ogd.common.interfaces.EventInterface import EventInterface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.schemas.configs.data_sources.BigQuerySourceSchema import BigQuerySchema
-from ogd.core.utils.Logger import Logger
+from ogd.common.utils.Logger import Logger
 
 AQUALAB_MIN_VERSION : Final[float] = 6.2
 

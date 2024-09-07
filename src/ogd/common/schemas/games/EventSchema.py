@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 # import local files
 from ogd.common.schemas.games.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
-from ogd.core.utils.Logger import Logger
+from ogd.common.utils.Logger import Logger
 
 class EventSchema(Schema):
     """

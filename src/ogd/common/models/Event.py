@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta, timezone
 from enum import IntEnum
 from typing import Dict, List, Optional, Union
 
-from ogd.core.utils import utils
+from ogd.common.utils import utils
 class EventSource(IntEnum):
     GAME = 1
     GENERATED = 2

@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 
 # ogd imports
 from ogd.common.schemas.Schema import Schema
-from ogd.core.utils.Logger import Logger
+from ogd.common.utils.Logger import Logger
 
 class DatasetKey:
     """Simple little class to make logic with dataset keys easier

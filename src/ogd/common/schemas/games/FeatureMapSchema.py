@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 from ogd.common.schemas.games.AggregateSchema import AggregateSchema
 from ogd.common.schemas.games.PerCountSchema import PerCountSchema
 from ogd.common.schemas.Schema import Schema
-from ogd.core.utils.Logger import Logger
+from ogd.common.utils.Logger import Logger
 
 class FeatureMapSchema(Schema):
     """

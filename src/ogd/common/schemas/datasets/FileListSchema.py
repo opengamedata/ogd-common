@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 
 # ogd imports
 from ogd.common.schemas.Schema import Schema
-from ogd.core.utils.Logger import Logger
+from ogd.common.utils.Logger import Logger
 
 # local imports
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema

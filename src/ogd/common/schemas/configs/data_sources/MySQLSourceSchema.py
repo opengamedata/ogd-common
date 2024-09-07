@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, Type
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.configs.data_sources.DataSourceSchema import DataSourceSchema
-from ogd.core.utils.Logger import Logger
+from ogd.common.utils.Logger import Logger
 
 class SSHSchema(Schema):
     def __init__(self, name:str, all_elements:Dict[str, Any], fallbacks:Dict[str, Any]={}):

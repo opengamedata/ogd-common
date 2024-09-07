@@ -3,7 +3,7 @@ import logging
 from typing import Any, Dict, List, Optional
 # import local files
 from ogd.common.schemas.Schema import Schema
-from ogd.core.utils.Logger import Logger
+from ogd.common.utils.Logger import Logger
 
 class DataElementSchema(Schema):
     """

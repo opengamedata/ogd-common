@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 # import local files
 from ogd.common.schemas.games.ExtractorSchema import ExtractorSchema
 from ogd.common.schemas.Schema import Schema
-from ogd.core.utils.Logger import Logger
+from ogd.common.utils.Logger import Logger
 
 class SubfeatureSchema(Schema):
     def __init__(self, name:str, all_elements:Dict[str, str]):

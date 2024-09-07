@@ -16,9 +16,9 @@ from ogd.common.schemas.games.FeatureSchema import FeatureSchema
 from ogd.common.schemas.games.FeatureMapSchema import FeatureMapSchema
 from ogd.common.models.enums.IterationMode import IterationMode
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
-from ogd.core.utils import utils
-from ogd.core.utils.utils import loadJSONFile
-from ogd.core.utils.Logger import Logger
+from ogd.common.utils import utils
+from ogd.common.utils.utils import loadJSONFile
+from ogd.common.utils.Logger import Logger
 
 ## @class GameSchema
 #  A fairly simple class that reads a JSON schema with information on how a given
