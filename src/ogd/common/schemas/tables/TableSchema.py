@@ -214,7 +214,7 @@ class TableSchema:
     # *** PUBLIC METHODS ***
 
     _conversion_warnings = []
-    def RowToEvent(self, row:Tuple, concatenator:str = '.', fallbacks:utils.map={}):
+    def RowToEvent(self, row:Tuple, concatenator:str = '.', fallbacks:Map={}):
         """Function to convert a row to an Event, based on the loaded schema.
         In general, columns specified in the schema's column_map are mapped to corresponding elements of the Event.
         If the column_map gave a list, rather than a single column name, the values from each column are concatenated in order with '.' character separators.

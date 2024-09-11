@@ -11,7 +11,7 @@ from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.utils import ExportRow
+from ogd.common.utils.typing import ExportRow
 
 class DataOuterface(Interface):
     """Base class for feature and event output.

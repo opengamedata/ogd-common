@@ -24,7 +24,7 @@ from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.configs.IndexingSchema import FileIndexingSchema
 from ogd.common.utils import utils
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.utils import ExportRow
+from ogd.common.utils.typing import ExportRow
 from ogd.common.utils.Readme import Readme
 
 class TSVOuterface(DataOuterface):

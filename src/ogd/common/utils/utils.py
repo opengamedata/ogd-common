@@ -9,9 +9,6 @@ from typing import Any, Dict, Optional, List
 # import locals
 from ogd.common.utils.Logger import Logger
 
-map = Dict[str, Any]
-ExportRow = List[Any]
-
 ## Function to open a given JSON file, and retrieve the data as a Python object.
 def loadJSONFile(filename:str, path:Path = Path("./"), search_in_src:bool = False, autocorrect_extension:bool = True) -> Dict[str, Any]:
     """Function to open a given JSON file, and retrieve the data as a Python object.

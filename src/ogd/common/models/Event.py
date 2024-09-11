@@ -3,8 +3,12 @@ from datetime import date, datetime, timedelta, timezone
 from enum import IntEnum
 from typing import Dict, List, Optional, Union
 
+from ogd.common.utils.typing import Map
 from ogd.common.utils import utils
+
 class EventSource(IntEnum):
+    """Enum for the possible sources of an event - a game, or a generator.
+    """
     GAME = 1
     GENERATED = 2
 
@@ -14,11 +18,11 @@ class EventSource(IntEnum):
 #  Then the extractors etc. can just access columns in a direct manner.
 class Event:
     def __init__(self, session_id:str, app_id:str,     timestamp:datetime,
-                 event_name:str, event_data:utils.map, event_source:EventSource,
+                 event_name:str,    event_data:Map,    event_source:EventSource,
                  app_version:Optional[str] = None,     app_branch:Optional[str] = None,
                  log_version:Optional[str] = None,     time_offset:Optional[timezone] = None,
-                 user_id:Optional[str] = "",           user_data:Optional[utils.map] = {},
-                 game_state:Optional[utils.map] = {},  event_sequence_index:Optional[int] = None):
+                 user_id:Optional[str] = "",           user_data:Optional[Map] = {},
+                 game_state:Optional[Map] = {},  event_sequence_index:Optional[int] = None):
         """Constructor for an Event object.
 
         :param session_id: An identifier for the session during which the event occurred.
@@ -51,15 +55,15 @@ class Event:
         self.app_id               : str           = app_id
         self.timestamp            : datetime      = timestamp
         self.event_name           : str           = event_name
-        self.event_data           : utils.map     = event_data
+        self.event_data           : Map     = event_data
         self.event_source         : EventSource   = event_source
         self.app_version          : str           = app_version if app_version is not None else "0"
         self.app_branch           : str           = app_branch  if app_branch  is not None else "main"
         self.log_version          : str           = log_version if log_version is not None else "0"
         self.time_offset          : Optional[timezone] = time_offset
         self.user_id              : Optional[str] = user_id
-        self.user_data            : utils.map     = user_data if user_data is not None else {}
-        self.game_state           : utils.map     = game_state if game_state is not None else {}
+        self.user_data            : Map     = user_data if user_data is not None else {}
+        self.game_state           : Map     = game_state if game_state is not None else {}
         self.event_sequence_index : Optional[int] = event_sequence_index
 
     def __str__(self):
@@ -148,13 +152,13 @@ class Event:
                 "log_version", "offset",        "user_id",    "user_data",
                 "game_state",  "index"]
 
-    def ColumnValues(self) -> List[Union[str, datetime, timezone, utils.map, int, None]]:
+    def ColumnValues(self) -> List[Union[str, datetime, timezone, Map, int, None]]:
         """A list of all values for the row, in order they appear in the `ColumnNames` function.
 
         .. todo:: Technically, this should be string representations of each, but we're technically not enforcing that yet.
 
         :return: The list of values.
-        :rtype: List[Union[str, datetime, timezone, utils.map, int, None]]
+        :rtype: List[Union[str, datetime, timezone, Map, int, None]]
         """
         return [self.session_id,  self.app_id,             self.timestamp,   self.event_name,
                 self.event_data,  self.event_source.name,  self.app_version, self.app_branch,
@@ -232,7 +236,7 @@ class Event:
         return self.event_name
 
     @property
-    def EventData(self) -> utils.map:
+    def EventData(self) -> Map:
         """A dictionary containing data specific to Events of this type.
 
         For details, see the documentation in the given game's README.md, included with all datasets.
@@ -298,7 +302,7 @@ class Event:
         return self.user_id
 
     @property
-    def UserData(self) -> utils.map:
+    def UserData(self) -> Map:
         """A dictionary containing any user-specific data tracked across gameplay sessions or individual games.
 
         :return: A dictionary containing any user-specific data tracked across gameplay sessions or individual games
@@ -307,7 +311,7 @@ class Event:
         return self.user_data
 
     @property
-    def GameState(self) -> utils.map:
+    def GameState(self) -> Map:
         """A dictionary containing any game-specific data that is defined across all event types in the given game.
 
         This column typically includes data that offers context to a given Event's data in the EventData column.
