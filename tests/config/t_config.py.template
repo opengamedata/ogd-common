@@ -1,0 +1,8 @@
+settings = {
+    "VERBOSE" : False,
+    "ENABLED" : {
+        "INTERFACES":True,
+        "UTILS":True
+    },
+    "REMOTE_ADDRESS" : "address_placeholder"
+}

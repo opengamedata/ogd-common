@@ -23,8 +23,7 @@ class TestConfigSchema(Schema):
         return TestConfigSchema(
             name            = "DefaultTestConfig",
             verbose         = False,
-            enabled_tests   = {
-            }
+            enabled_tests   = {}
         )
 
     def __init__(self, name:str, verbose:bool, enabled_tests:Dict[str, bool], other_elements:Dict[str, Any]={}):
