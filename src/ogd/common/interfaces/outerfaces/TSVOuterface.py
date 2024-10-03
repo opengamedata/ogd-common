@@ -20,6 +20,7 @@ from ogd.common.schemas.games.GameSchema import GameSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.configs.IndexingSchema import FileIndexingSchema
 from ogd.common.utils import utils
+from ogd.common.utils.DatasetMeta import DatasetMeta
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
 from ogd.common.utils.Readme import Readme
