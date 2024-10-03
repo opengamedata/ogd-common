@@ -1,13 +1,7 @@
-import json
 import logging
 import os
-import re
-import shutil
-import sys
 import traceback
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, IO, List, Optional, Set
 
 # import local files
 from ogd.common.schemas.games.GameSchema import GameSchema
@@ -39,7 +33,7 @@ class Readme:
     def DatasetChangelog(self) -> str:
         return self._changelog
 
-    def GenerateReadme(self, path:Path = Path("./")):
+    def ToFile(self, path:Path = Path("./")):
         try:
             os.makedirs(name=path, exist_ok=True)
             with open(path / "README.md", "w") as readme:
