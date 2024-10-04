@@ -7,7 +7,10 @@ from datetime import datetime
 from typing import Dict, List, Optional, Union
 
 # import local files
+from ogd.common.connectors.StorageConnector import StorageConnector
+from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.utils.Logger import Logger
 
 class Interface(StorageConnector):
     """Base class for all connectors that serve as an interface to some IO resource.
