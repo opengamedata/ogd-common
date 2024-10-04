@@ -8,7 +8,7 @@ from json.decoder import JSONDecodeError
 from pathlib import Path
 from typing import Any, Dict, Final, List, Tuple, Optional, Union
 ## import local files
-from ogd.core import schemas
+from ogd.common import schemas
 from ogd.common.models.Event import Event, EventSource
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema

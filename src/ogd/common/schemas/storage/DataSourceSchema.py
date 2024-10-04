@@ -5,7 +5,9 @@ from pathlib import Path
 from typing import Any, Dict # , overload
 # import local files
 from ogd.common.schemas.Schema import Schema
+from ogd.common.schemas.storage.CredentialSchema import CredentialSchema
 from ogd.common.utils.Logger import Logger
+
 
 class DataSourceSchema(Schema):
     """Dumb struct to contain data pertaining to a data source, which a StorageConnector can connect to.

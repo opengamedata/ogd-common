@@ -1,8 +1,8 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 # import local files
-from ogd.common.schemas.configs.data_sources.DataSourceSchema import DataSourceSchema
+from ogd.common.schemas.storage.DataSourceSchema import DataSourceSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
