@@ -6,6 +6,21 @@ from typing import Any, Dict, List, Optional
 from ogd.common.utils.Logger import Logger
 
 class Schema(abc.ABC):
+
+    # *** ABSTRACTS ***
+
+    @property
+    @abc.abstractmethod
+    def AsMarkdown(self) -> str:
+        pass
+
+    @abc.abstractmethod
+    @staticmethod
+    def FromDict(name):
+        pass
+
+    # *** BUILT-INS & PROPERTIES ***
+
     def __init__(self, name:str, other_elements:Optional[Dict[str, Any]]):
         self._name : str
         self._other_elements : Dict[str, Any]
@@ -23,11 +38,6 @@ class Schema(abc.ABC):
         return f"{type(self).__name__}[{self.Name}]"
 
     @property
-    @abc.abstractmethod
-    def AsMarkdown(self) -> str:
-        pass
-
-    @property
     def Name(self) -> str:
         return self._name
 
@@ -38,6 +48,12 @@ class Schema(abc.ABC):
     @property
     def NonStandardElementNames(self) -> List[str]:
         return list(self._other_elements.keys())
+
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
     
     @staticmethod
     def _parseName(name):
@@ -48,3 +64,5 @@ class Schema(abc.ABC):
             ret_val = str(name)
             Logger.Log(f"Schema name was not a string, defaulting to str(name) == {ret_val}", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***
