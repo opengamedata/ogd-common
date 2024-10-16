@@ -27,9 +27,9 @@ class Schema(abc.ABC):
     def AsMarkdown(self) -> str:
         pass
 
-    @property
+    @classmethod
     @abc.abstractmethod
-    def Default(self) -> Self:
+    def Default(cls) -> Self:
         """Property to get an instance of the Schema with default member values.
 
         Note that these defaults may or may not be a usable configuration.
