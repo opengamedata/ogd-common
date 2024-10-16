@@ -18,8 +18,8 @@ from ogd.common.schemas.Schema import Schema
 # import local files
 
 class TestConfigSchema(Schema):
-    @staticmethod
-    def DEFAULT():
+    @classmethod
+    def Default(cls) -> "TestConfigSchema":
         return TestConfigSchema(
             name            = "DefaultTestConfig",
             verbose         = False,
@@ -38,7 +38,7 @@ class TestConfigSchema(Schema):
         if "VERBOSE" in all_elements.keys():
             _verbose = TestConfigSchema._parseVerbose(all_elements["VERBOSE"], logger=logger)
         else:
-            _verbose = TestConfigSchema.DEFAULT().Verbose
+            _verbose = TestConfigSchema.Default().Verbose
             _msg = f"{name} config does not have an 'VERBOSE' element; defaulting to verbose={_verbose}"
             if logger:
                 logger.warn(_msg, logging.WARN)
@@ -47,7 +47,7 @@ class TestConfigSchema(Schema):
         if "ENABLED" in all_elements.keys():
             _enabled_tests = TestConfigSchema._parseEnabledTests(all_elements["ENABLED"], logger=logger)
         else:
-            _enabled_tests = TestConfigSchema.DEFAULT().EnabledTests
+            _enabled_tests = TestConfigSchema.Default().EnabledTests
             _msg = f"{name} config does not have an 'ENABLED' element; defaulting to enabled={_enabled_tests}"
             if logger:
                 logger.warn(_msg, logging.WARN)
