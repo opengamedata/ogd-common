@@ -1,7 +1,7 @@
 # import standard libraries
 import abc
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Self
 # import local files
 from ogd.common.utils.Logger import Logger
 
@@ -25,6 +25,17 @@ class Schema(abc.ABC):
     @property
     @abc.abstractmethod
     def AsMarkdown(self) -> str:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def Default(self) -> Self:
+        """Property to get an instance of the Schema with default member values.
+
+        Note that these defaults may or may not be a usable configuration.
+        :return: A schema with default member values.
+        :rtype: Self
+        """
         pass
 
     @property
