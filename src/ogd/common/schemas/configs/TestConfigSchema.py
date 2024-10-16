@@ -110,7 +110,7 @@ class TestConfigSchema(Schema):
         if isinstance(enabled, dict):
             ret_val = { str(key) : bool(val) for key, val in enabled.items() }
         else:
-            ret_val = TestConfigSchema.DEFAULT().EnabledTests
+            ret_val = TestConfigSchema.Default().EnabledTests
             _msg = f"Config 'enabled tests' setting was unexpected type {type(enabled)}, defaulting to class default = {ret_val}."
             if logger:
                 logger.warn(_msg, logging.WARN)
