@@ -1,7 +1,7 @@
 # import standard libraries
 import abc
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Self
 # import local files
 from ogd.common.utils.Logger import Logger
 
@@ -15,8 +15,8 @@ class Schema(abc.ABC):
         pass
 
     @abc.abstractmethod
-    @staticmethod
-    def FromDict(name):
+    @classmethod
+    def FromDict(cls, name, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> Self:
         pass
 
     # *** BUILT-INS & PROPERTIES ***
