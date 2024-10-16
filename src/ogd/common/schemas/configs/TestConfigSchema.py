@@ -18,6 +18,31 @@ from ogd.common.schemas.Schema import Schema
 # import local files
 
 class TestConfigSchema(Schema):
+    # *** BUILT-INS & PROPERTIES ***
+
+
+    def __init__(self, name:str, verbose:bool, enabled_tests:Dict[str, bool], other_elements:Dict[str, Any]={}):
+        self._verbose       : bool            = verbose
+        self._enabled_tests : Dict[str, bool] = enabled_tests
+        super().__init__(name=name, other_elements=other_elements)
+
+    @property
+    def Verbose(self) -> bool:
+        return self._verbose
+
+    @property
+    def EnabledTests(self) -> Dict[str, bool]:
+        return self._enabled_tests
+
+    @property
+    def AsMarkdown(self) -> str:
+        ret_val : str
+
+        ret_val = f"{self.Name}"
+        return ret_val
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+    
     @classmethod
     def Default(cls) -> "TestConfigSchema":
         return TestConfigSchema(
@@ -26,10 +51,8 @@ class TestConfigSchema(Schema):
             enabled_tests   = {}
         )
 
-    def __init__(self, name:str, verbose:bool, enabled_tests:Dict[str, bool], other_elements:Dict[str, Any]={}):
-        self._verbose       : bool            = verbose
-        self._enabled_tests : Dict[str, bool] = enabled_tests
-        super().__init__(name=name, other_elements=other_elements)
+
+    # *** PUBLIC STATICS ***
 
     @staticmethod
     def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]):
@@ -58,20 +81,11 @@ class TestConfigSchema(Schema):
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         return TestConfigSchema(name=name, verbose=_verbose, enabled_tests=_enabled_tests, other_elements=_leftovers)
 
-    @property
-    def Verbose(self) -> bool:
-        return self._verbose
+    # *** PUBLIC METHODS ***
 
-    @property
-    def EnabledTests(self) -> Dict[str, bool]:
-        return self._enabled_tests
+    # *** PROPERTIES ***
 
-    @property
-    def AsMarkdown(self) -> str:
-        ret_val : str
-
-        ret_val = f"{self.Name}"
-        return ret_val
+    # *** PRIVATE STATICS ***
 
     @staticmethod
     def _parseVerbose(verbose, logger:Optional[logging.Logger]) -> bool:
@@ -104,3 +118,5 @@ class TestConfigSchema(Schema):
             else:
                 print(_msg)
         return ret_val
+
+    # *** PRIVATE METHODS ***
