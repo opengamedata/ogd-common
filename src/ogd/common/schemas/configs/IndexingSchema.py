@@ -7,6 +7,13 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class FileIndexingSchema(Schema):
+    @classmethod
+    def Default(cls) -> "FileIndexingSchema":
+        return FileIndexingSchema(
+            name            = "DefaultFileIndexingConfig",
+            all_elements    = {}
+        )
+
     def __init__(self, name:str, all_elements:Dict[str, Any]):
         self._local_dir     : Path
         self._remote_url    : Optional[str]
