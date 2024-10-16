@@ -51,7 +51,6 @@ class TestConfigSchema(Schema):
             enabled_tests   = {}
         )
 
-
     # *** PUBLIC STATICS ***
 
     @staticmethod
