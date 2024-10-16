@@ -53,8 +53,8 @@ class TestConfigSchema(Schema):
 
     # *** PUBLIC STATICS ***
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]):
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "TestConfigSchema":
         _verbose         : bool
         _enabled_tests   : Dict[str, bool]
         if "VERBOSE" in all_elements.keys():
