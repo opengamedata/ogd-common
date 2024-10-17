@@ -30,8 +30,8 @@ class FileIndexingSchema(Schema):
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
-    @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "FileIndexingSchema":
+    @staticmethod
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "FileIndexingSchema":
         _local_dir     : Path
         _remote_url    : Optional[str]
         _templates_url : str
@@ -57,7 +57,6 @@ class FileIndexingSchema(Schema):
 
         _used = {"LOCAL_DIR", "REMOTE_URL", "TEMPLATES_URL"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-
         return FileIndexingSchema(name=name, local_dir=_local_dir, remote_url=_remote_url, templates_url=_templates_url, other_elements=_leftovers)
 
 

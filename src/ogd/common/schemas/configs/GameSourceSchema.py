@@ -64,8 +64,8 @@ class GameSourceSchema(Schema):
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
-    @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger], data_sources:Dict[str, DataSourceSchema]) -> "GameSourceSchema":
+    @staticmethod
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger], data_sources:Dict[str, DataSourceSchema]) -> "GameSourceSchema":
         _source_name   : str
         _source_schema : Optional[DataSourceSchema]
         _db_name       : str
@@ -84,7 +84,7 @@ class GameSourceSchema(Schema):
             _source_schema = data_sources[_source_name]
         else:
             _source_schema = None
-            Logger.Log(f"{name} config's 'source' name ({_source_name}) was not found in available source schemas; defaulting to source_schema={self._source_schema}", logging.WARN)
+            Logger.Log(f"{name} config's 'source' name ({_source_name}) was not found in available source schemas; defaulting to source_schema={_source_schema}", logging.WARN)
         if "database" in all_elements.keys():
             _db_name = GameSourceSchema._parseDBName(all_elements["database"])
         else:
