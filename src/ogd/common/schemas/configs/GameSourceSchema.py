@@ -96,10 +96,10 @@ class GameSourceSchema(Schema):
             _table_name = "UNKNOWN"
             Logger.Log(f"{name} config does not have a 'table' element; defaulting to table={_table_name}", logging.WARN)
         if "schema" in all_elements.keys():
-            schema = GameSourceSchema._parseSchema(all_elements["schema"])
+            _table_schema = GameSourceSchema._parseTableSchemaName(all_elements["schema"])
         else:
-            schema = "UNKNOWN"
-            Logger.Log(f"{name} config does not have a 'schema' element; defaulting to schema={schema}", logging.WARN)
+            _table_schema = "UNKNOWN"
+            Logger.Log(f"{name} config does not have a 'schema' element; defaulting to schema={_table_schema}", logging.WARN)
 
         _used = {"source", "database", "table", "schema"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
@@ -111,20 +111,21 @@ class GameSourceSchema(Schema):
 
     @staticmethod
     def EmptySchema() -> "GameSourceSchema":
-        return GameSourceSchema(name="NOT FOUND", all_elements={}, data_sources={})
+        return GameSourceSchema(name="NOT FOUND", source_name="NOT FOUND", source_schema=None, db_name="NOT FOUND",
+                                table_name="NOT FOUND", table_schema="NOT FOUND", other_elements={})
 
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseSchema(schema) -> str:
+    def _parseTableSchemaName(table_schema_name) -> str:
         ret_val : str
-        if isinstance(schema, str):
-            ret_val = schema
+        if isinstance(table_schema_name, str):
+            ret_val = table_schema_name
         else:
-            ret_val = str(schema)
-            Logger.Log(f"Game Source schema type was unexpected type {type(schema)}, defaulting to str(schema)={ret_val}.", logging.WARN)
+            ret_val = str(table_schema_name)
+            Logger.Log(f"Game Source table schema name type was unexpected type {type(table_schema_name)}, defaulting to str(schema)={ret_val}.", logging.WARN)
         return ret_val
 
     @staticmethod
