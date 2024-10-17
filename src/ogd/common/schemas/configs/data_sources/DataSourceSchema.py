@@ -7,6 +7,16 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class DataSourceSchema(Schema):
+
+    # *** ABSTRACTS ***
+
+    @property
+    @abc.abstractmethod
+    def AsConnectionInfo(self) -> str:
+        pass
+
+    # *** BUILT-INS & PROPERTIES ***
+
     def __init__(self, name:str, other_elements:Dict[str, Any]):
         self._db_type : str
         if not isinstance(other_elements, dict):
@@ -34,10 +44,13 @@ class DataSourceSchema(Schema):
         """
         return self._db_type
 
-    @property
-    @abc.abstractmethod
-    def AsConnectionInfo(self) -> str:
-        pass
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
 
     @staticmethod
     def _parseDBType(db_type) -> str:
@@ -48,3 +61,5 @@ class DataSourceSchema(Schema):
             ret_val = str(db_type)
             Logger.Log(f"Data Source DB type was unexpected type {type(db_type)}, defaulting to str(db_type)={ret_val}.", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***
