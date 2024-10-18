@@ -85,12 +85,12 @@ class GameSourceSchema(Schema):
         else:
             _source_schema = None
             Logger.Log(f"{name} config's 'source' name ({_source_name}) was not found in available source schemas; defaulting to source_schema={_source_schema}", logging.WARN)
-        _db_name      = GameSourceSchema.ElementFromDict(all_elements=all_elements,
+        _db_name = GameSourceSchema.ElementFromDict(all_elements=all_elements,
             element_names=["database"],
             parser_function=GameSourceSchema._parseDBName,
             default_value=name
         )
-        _table_name   = GameSourceSchema.ElementFromDict(all_elements=all_elements,
+        _table_name = GameSourceSchema.ElementFromDict(all_elements=all_elements,
             element_names=["table"],
             parser_function=GameSourceSchema._parseTableName,
             default_value="UNKNOWN"
