@@ -31,7 +31,7 @@ class FileIndexingSchema(Schema):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "FileIndexingSchema":
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileIndexingSchema":
         _local_dir     : Path
         _remote_url    : Optional[str]
         _templates_url : str

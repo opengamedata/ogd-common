@@ -16,7 +16,7 @@ class Schema(abc.ABC):
 
     @abc.abstractmethod
     @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "Schema":
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "Schema":
         pass
 
     # *** BUILT-INS & PROPERTIES ***

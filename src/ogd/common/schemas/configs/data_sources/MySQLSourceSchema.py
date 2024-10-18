@@ -50,7 +50,7 @@ class SSHSchema(Schema):
         return ret_val
 
     @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "SSHSchema":
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "SSHSchema":
         _host : Optional[str]
         _user : Optional[str]
         _pass : Optional[str]
@@ -204,7 +204,7 @@ class MySQLSchema(DataSourceSchema):
         return ret_val
 
     @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "MySQLSchema":
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "MySQLSchema":
         _db_host  : str
         _db_port  : int
         _db_user  : str

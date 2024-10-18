@@ -55,7 +55,7 @@ class TestConfigSchema(Schema):
     # *** PUBLIC STATICS ***
 
     @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "TestConfigSchema":
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TestConfigSchema":
         _verbose         : bool
         _enabled_tests   : Dict[str, bool]
 

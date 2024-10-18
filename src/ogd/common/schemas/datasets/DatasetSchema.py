@@ -215,7 +215,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "DatasetSchema":
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DatasetSchema":
         _key                 : DatasetKey
         _date_modified       : date | str
         _start_date          : date | str
@@ -235,6 +235,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
         if not isinstance(all_elements, dict):
             all_elements = {}
+            _msg = f"For {name} dataset schema, all_elements was not a dict, defaulting to empty dict"
+            if logger:
+                logger.warning(_msg)
+            else:
+                Logger.Log(_msg, logging.WARN)
         _game_id = DatasetSchema._parseGameID(name)
         _key = DatasetKey(key=name, game_id=_game_id)
     # 1. Parse dates

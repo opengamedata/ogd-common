@@ -47,7 +47,7 @@ class FileSourceSchema(DataSourceSchema):
         return ret_val
 
     @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "FileSourceSchema":
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileSourceSchema":
         _folder_path : Path
         _file_name   : Optional[str]
 
