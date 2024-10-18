@@ -52,7 +52,7 @@ class Schema(abc.ABC):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def ElementFromDict(cls, all_elements:Dict[str, Any], element_names:List[str], parser_function:Callable, default_value:Any, logger:Optional[logging.Logger]) -> Any:
+    def ElementFromDict(cls, all_elements:Dict[str, Any], element_names:List[str], parser_function:Callable, default_value:Any, logger:Optional[logging.Logger]=None) -> Any:
         for name in element_names:
             if name in all_elements:
                 return parser_function(all_elements[name])
