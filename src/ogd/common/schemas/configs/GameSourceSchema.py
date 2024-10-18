@@ -55,14 +55,14 @@ class GameSourceSchema(Schema):
     def TableSchema(self) -> str:
         return self._table_schema
 
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
     @property
     def AsMarkdown(self) -> str:
         ret_val : str
 
         ret_val = f"{self.Name}: _{self.TableSchema}_ format, source {self.Source.Name if self.Source else 'None'} : {self.DatabaseName}.{self.TableName}"
         return ret_val
-
-    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @staticmethod
     def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger], data_sources:Dict[str, DataSourceSchema]) -> "GameSourceSchema":
