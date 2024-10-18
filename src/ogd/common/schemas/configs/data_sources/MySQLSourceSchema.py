@@ -240,6 +240,7 @@ class MySQLSchema(DataSourceSchema):
             default_value=None
         )
         # Parse SSH info, if it exists. Don't notify, if it doesn't exist.
+        # TODO : probably shouldn't have keys expected for SSH be hardcoded here, maybe need a way to get back what stuff it didn't use?
         _ssh_keys = {"SSH_HOST", "SSH_PORT", "SSH_USER", "SSH_PW", "SSH_PASS"}
         _ssh_elems = { key : all_elements.get(key) for key in _ssh_keys.intersection(all_elements.keys()) }
         _ssh_cfg = SSHSchema.FromDict(name=f"{name}-SSH", all_elements=_ssh_elems, logger=logger)
