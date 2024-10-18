@@ -62,7 +62,10 @@ class TestConfigSchema(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
             _msg = f"For {name} testing config, all_elements was not a dict, defaulting to empty dict"
-            logger.warning(_msg) if logger else Logger.Log(_msg, logging.WARN)
+            if logger:
+                logger.warning(_msg)
+            else:
+                Logger.Log(_msg, logging.WARN)
         _verbose = TestConfigSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["VERBOSE"],
             parser_function=TestConfigSchema._parseVerbose,

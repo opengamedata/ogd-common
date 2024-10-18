@@ -75,7 +75,10 @@ class GameSourceSchema(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
             _msg = f"For {name} Game Source config, all_elements was not a dict, defaulting to empty dict"
-            logger.warning(_msg) if logger else Logger.Log(_msg, logging.WARN)
+            if logger:
+                logger.warning(_msg)
+            else:
+                Logger.Log(_msg, logging.WARN)
         _source_name = GameSourceSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["source"],
             parser_function=GameSourceSchema._parseSource,
