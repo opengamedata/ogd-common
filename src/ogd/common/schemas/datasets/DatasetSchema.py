@@ -2,13 +2,16 @@
 import logging
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Self
 
 # ogd imports
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class DatasetKey:
+
+    # *** BUILT-INS & PROPERTIES ***
+
     """Simple little class to make logic with dataset keys easier
     """
     def __init__(self, key:str, game_id:str):
@@ -58,104 +61,43 @@ class DatasetKey:
     def ToMonth(self) -> int:
         return self._to_month or -1
 
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
+
+    # *** PRIVATE METHODS ***
+
 class DatasetSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, all_elements:Dict[str, Any]):
-        self._key                 : DatasetKey
-        self._date_modified       : date | str
-        self._start_date          : date | str
-        self._end_date            : date | str
-        self._ogd_revision        : str
-        self._session_ct          : Optional[int]
-        self._player_ct           : Optional[int]
-        self._raw_file            : Optional[Path]
-        self._events_file         : Optional[Path]
-        self._events_template     : Optional[Path]
-        self._sessions_file       : Optional[Path]
-        self._sessions_template   : Optional[Path]
-        self._players_file        : Optional[Path]
-        self._players_template    : Optional[Path]
-        self._population_file     : Optional[Path]
-        self._population_template : Optional[Path]
-
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-        _game_id = DatasetSchema._parseGameID(name)
-        self._key = DatasetKey(key=name, game_id=_game_id)
-    # 1. Parse dates
-        if "date_modified" in all_elements.keys():
-            try:
-                self._date_modified = DatasetSchema._parseDateModified(all_elements["date_modified"])
-            except ValueError as err:
-                Logger.Log(f"Invalid date_modified for {name}, expected a date, but got {all_elements['date_modified']}, resulting in error: {err}")
-        else:
-            self._date_modified = "UNKNOWN"
-        if "start_date" in all_elements.keys():
-            self._start_date = DatasetSchema._parseStartDate(all_elements["start_date"])
-        else:
-            self._start_date = "UNKNOWN"
-        if "end_date" in all_elements.keys():
-            self._end_date = DatasetSchema._parseEndDate(all_elements["end_date"])
-        else:
-            self._end_date = "UNKNOWN"
-    # 2. Parse metadata
-        if "ogd_revision" in all_elements.keys():
-            self._ogd_revision = DatasetSchema._parseOGDRevision(all_elements["ogd_revision"])
-        else:
-            self._ogd_revision = "UNKNOWN"
-        if "sessions" in all_elements.keys():
-            self._session_ct = DatasetSchema._parseSessionCount(all_elements["sessions"])
-        else:
-            self._session_ct = None
-        if "players" in all_elements.keys():
-            self._players = DatasetSchema._parsePlayerCount(all_elements["players"])
-        else:
-            self._player_ct = None
-    # 3. Parse file/template paths
-        if "raw_file" in all_elements.keys():
-            self._raw_file = DatasetSchema._parseRawFile(all_elements["raw_file"])
-        else:
-            self._raw_file = None
-        if "events_file" in all_elements.keys():
-            self._events_file = DatasetSchema._parseEventsFile(all_elements["events_file"])
-        else:
-            self._events_file = None
-        if "events_template" in all_elements.keys():
-            self._events_template = DatasetSchema._parseEventsTemplate(all_elements["events_template"])
-        else:
-            self._events_template = None
-        if "sessions_file" in all_elements.keys():
-            self._sessions_file = DatasetSchema._parseSessionsFile(all_elements["sessions_file"])
-        else:
-            self._sessions_file = None
-        if "sessions_template" in all_elements.keys():
-            self._sessions_template = DatasetSchema._parseSessionsTemplate(all_elements["sessions_template"])
-        else:
-            self._sessions_template = None
-        if "players_file" in all_elements.keys():
-            self._players_file = DatasetSchema._parsePlayersFile(all_elements["players_file"])
-        else:
-            self._players_file = None
-        if "players_template" in all_elements.keys():
-            self._players_template = DatasetSchema._parsePlayersTemplate(all_elements["players_template"])
-        else:
-            self._players_template = None
-        if "population_file" in all_elements.keys():
-            self._population_file = DatasetSchema._parsePopulationFile(all_elements["population_file"])
-        else:
-            self._population_file = None
-        if "population_template" in all_elements.keys():
-            self._population_template = DatasetSchema._parsePopulationTemplate(all_elements["population_template"])
-        else:
-            self._population_template = None
-
-        _used = {"date_modified", "start_date", "end_date", "ogd_revision", "sessions", "players",
-                 "raw_file", "events_file", "events_template",
-                 "sessions_file", "sessions_template", "players_file", "players_template",
-                 "population_file", "population_template"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        super().__init__(name=name, other_elements=_leftovers)
+    def __init__(self, name:str,           key:DatasetKey,
+                 date_modified:date|str,   start_date:date|str,      end_date:date|str,
+                 ogd_revision:str,         session_ct:Optional[int], player_ct:Optional[int],
+                 raw_file:Optional[Path],
+                 events_file:Optional[Path],     events_template:Optional[Path],
+                 sessions_file:Optional[Path],   sessions_template:Optional[Path],
+                 players_file:Optional[Path],    players_template:Optional[Path],
+                 population_file:Optional[Path], population_template:Optional[Path],
+                 other_elements:Dict[str, Any]):
+        self._key                 : DatasetKey     = key
+        self._date_modified       : date | str     = date_modified
+        self._start_date          : date | str     = start_date
+        self._end_date            : date | str     = end_date
+        self._ogd_revision        : str            = ogd_revision
+        self._session_ct          : Optional[int]  = session_ct
+        self._player_ct           : Optional[int]  = player_ct
+        self._raw_file            : Optional[Path] = raw_file
+        self._events_file         : Optional[Path] = events_file
+        self._events_template     : Optional[Path] = events_template
+        self._sessions_file       : Optional[Path] = sessions_file
+        self._sessions_template   : Optional[Path] = sessions_template
+        self._players_file        : Optional[Path] = players_file
+        self._players_template    : Optional[Path] = players_template
+        self._population_file     : Optional[Path] = population_file
+        self._population_template : Optional[Path] = population_template
+        super().__init__(name=name, other_elements=other_elements)
 
     def __str__(self) -> str:
         return str(self.Key)
@@ -273,11 +215,120 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "DatasetSchema":
+        _key                 : DatasetKey
+        _date_modified       : date | str
+        _start_date          : date | str
+        _end_date            : date | str
+        _ogd_revision        : str
+        _session_ct          : Optional[int]
+        _player_ct           : Optional[int]
+        _raw_file            : Optional[Path]
+        _events_file         : Optional[Path]
+        _events_template     : Optional[Path]
+        _sessions_file       : Optional[Path]
+        _sessions_template   : Optional[Path]
+        _players_file        : Optional[Path]
+        _players_template    : Optional[Path]
+        _population_file     : Optional[Path]
+        _population_template : Optional[Path]
+
+        if not isinstance(all_elements, dict):
+            all_elements = {}
+        _game_id = DatasetSchema._parseGameID(name)
+        _key = DatasetKey(key=name, game_id=_game_id)
+    # 1. Parse dates
+        if "date_modified" in all_elements.keys():
+            try:
+                _date_modified = DatasetSchema._parseDateModified(all_elements["date_modified"])
+            except ValueError as err:
+                Logger.Log(f"Invalid date_modified for {name}, expected a date, but got {all_elements['date_modified']}, resulting in error: {err}")
+        else:
+            _date_modified = "UNKNOWN"
+        if "start_date" in all_elements.keys():
+            _start_date = DatasetSchema._parseStartDate(all_elements["start_date"])
+        else:
+            _start_date = "UNKNOWN"
+        if "end_date" in all_elements.keys():
+            _end_date = DatasetSchema._parseEndDate(all_elements["end_date"])
+        else:
+            _end_date = "UNKNOWN"
+    # 2. Parse metadata
+        if "ogd_revision" in all_elements.keys():
+            _ogd_revision = DatasetSchema._parseOGDRevision(all_elements["ogd_revision"])
+        else:
+            _ogd_revision = "UNKNOWN"
+        if "sessions" in all_elements.keys():
+            _session_ct = DatasetSchema._parseSessionCount(all_elements["sessions"])
+        else:
+            _session_ct = None
+        if "players" in all_elements.keys():
+            _players = DatasetSchema._parsePlayerCount(all_elements["players"])
+        else:
+            _player_ct = None
+    # 3. Parse file/template paths
+        if "raw_file" in all_elements.keys():
+            _raw_file = DatasetSchema._parseRawFile(all_elements["raw_file"])
+        else:
+            _raw_file = None
+        if "events_file" in all_elements.keys():
+            _events_file = DatasetSchema._parseEventsFile(all_elements["events_file"])
+        else:
+            _events_file = None
+        if "events_template" in all_elements.keys():
+            _events_template = DatasetSchema._parseEventsTemplate(all_elements["events_template"])
+        else:
+            _events_template = None
+        if "sessions_file" in all_elements.keys():
+            _sessions_file = DatasetSchema._parseSessionsFile(all_elements["sessions_file"])
+        else:
+            _sessions_file = None
+        if "sessions_template" in all_elements.keys():
+            _sessions_template = DatasetSchema._parseSessionsTemplate(all_elements["sessions_template"])
+        else:
+            _sessions_template = None
+        if "players_file" in all_elements.keys():
+            _players_file = DatasetSchema._parsePlayersFile(all_elements["players_file"])
+        else:
+            _players_file = None
+        if "players_template" in all_elements.keys():
+            _players_template = DatasetSchema._parsePlayersTemplate(all_elements["players_template"])
+        else:
+            _players_template = None
+        if "population_file" in all_elements.keys():
+            _population_file = DatasetSchema._parsePopulationFile(all_elements["population_file"])
+        else:
+            _population_file = None
+        if "population_template" in all_elements.keys():
+            _population_template = DatasetSchema._parsePopulationTemplate(all_elements["population_template"])
+        else:
+            _population_template = None
+
+        _used = {"date_modified", "start_date", "end_date", "ogd_revision", "sessions", "players",
+                 "raw_file", "events_file", "events_template",
+                 "sessions_file", "sessions_template", "players_file", "players_template",
+                 "population_file", "population_template"}
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        return DatasetSchema(name=name, key=_key,
+                             date_modified=_date_modified, start_date=_start_date, end_date=_end_date,
+                             ogd_revision=_ogd_revision,   session_ct=_session_ct, player_ct=_player_ct,
+                             raw_file=_raw_file,
+                             events_file=_events_file,         events_template=_events_template,
+                             sessions_file=_sessions_file,     sessions_template=_sessions_template,
+                             players_file=_players_file,       players_template=_players_template,
+                             population_file=_population_file, population_template=_population_template,
+                             other_elements=_leftovers)
+
+    # *** PUBLIC STATICS ***
+
+    @staticmethod
     def EmptySchema() -> "DatasetSchema":
-        return DatasetSchema(name="NOT FOUND", all_elements={})
+        return DatasetSchema(name="NOT FOUND", other_elements={})
+
+    # *** PUBLIC METHODS ***
 
     # TODO : once we have official minimum Python up to 3.11, import Self and set other:Optional[Self]
-    def IsNewerThan(self, other) -> bool | None:
+    def IsNewerThan(self, other:Optional[Self]) -> bool | None:
         """
         Check if `self` has a more recent "modified on" date than `other`.
 
@@ -296,10 +347,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         else:
             return None
 
-    # *** Private Functions ***
 
-    # NOTE: Yes, most of these parse functions are redundant, but that's fine,
-    # we just want to have one bit of code to parse each piece of the schema, even if most do the same thing.
+    # *** PRIVATE STATICS ***
 
     @staticmethod
     def _parseGameID(dataset_name) -> str:
@@ -507,3 +556,5 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             ret_val = Path(str(pop_tplate))
             Logger.Log(f"Dataset population template file was unexpected type {type(pop_tplate)}, defaulting to Path(str(pop_tplate))={ret_val}.", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***
