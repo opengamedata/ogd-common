@@ -40,17 +40,17 @@ class FileIndexingSchema(Schema):
             all_elements = {}
             _msg = f"For {name} indexing config, all_elements was not a dict, defaulting to empty dict"
             logger.warning(_msg) if logger else Logger.Log(_msg, logging.WARN)
-        _local_dir = FileIndexingSchema.ElementFromDict(all_elements=all_elements,
+        _local_dir = FileIndexingSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["LOCAL_DIR"],
             parser_function=FileIndexingSchema._parseLocalDir,
             default_value=Path("./data/")
         )
-        _remote_url = FileIndexingSchema.ElementFromDict(all_elements=all_elements,
+        _remote_url = FileIndexingSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["REMOTE_URL"],
             parser_function=FileIndexingSchema._parseRemoteURL,
             default_value=None
         )
-        _templates_url = FileIndexingSchema.ElementFromDict(all_elements=all_elements,
+        _templates_url = FileIndexingSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["TEMPLATES_URL"],
             parser_function=FileIndexingSchema._parseTemplatesURL,
             default_value="https://github.com/opengamedata/opengamedata-samples"
