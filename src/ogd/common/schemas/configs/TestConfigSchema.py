@@ -14,6 +14,7 @@ from typing import Any, Dict, Optional
 
 # import OGD libraries
 from ogd.common.schemas.Schema import Schema
+from ogd.common.utils.Logger import Logger
 
 # import local files
 
@@ -57,24 +58,21 @@ class TestConfigSchema(Schema):
     def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "TestConfigSchema":
         _verbose         : bool
         _enabled_tests   : Dict[str, bool]
-        if "VERBOSE" in all_elements.keys():
-            _verbose = TestConfigSchema._parseVerbose(all_elements["VERBOSE"], logger=logger)
-        else:
-            _verbose = TestConfigSchema.DEFAULT().Verbose
-            _msg = f"{name} config does not have an 'VERBOSE' element; defaulting to verbose={_verbose}"
-            if logger:
-                logger.warn(_msg, logging.WARN)
-            else:
-                print(_msg)
-        if "ENABLED" in all_elements.keys():
-            _enabled_tests = TestConfigSchema._parseEnabledTests(all_elements["ENABLED"], logger=logger)
-        else:
-            _enabled_tests = TestConfigSchema.DEFAULT().EnabledTests
-            _msg = f"{name} config does not have an 'ENABLED' element; defaulting to enabled={_enabled_tests}"
-            if logger:
-                logger.warn(_msg, logging.WARN)
-            else:
-                print(_msg)
+
+        if not isinstance(all_elements, dict):
+            all_elements = {}
+            _msg = f"For {name} testing config, all_elements was not a dict, defaulting to empty dict"
+            logger.warning(_msg) if logger else Logger.Log(_msg, logging.WARN)
+        _verbose = TestConfigSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["VERBOSE"],
+            parser_function=TestConfigSchema._parseVerbose,
+            default_value=TestConfigSchema.DEFAULT().Verbose
+        )
+        _enabled_tests = TestConfigSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["ENABLED"],
+            parser_function=TestConfigSchema._parseEnabledTests,
+            default_value=TestConfigSchema.DEFAULT().EnabledTests
+        )
 
         _used = {"VERBOSE", "ENABLED"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
