@@ -243,11 +243,13 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         _game_id = DatasetSchema._parseGameID(name)
         _key = DatasetKey(key=name, game_id=_game_id)
     # 1. Parse dates
+        _local_dir = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["LOCAL_DIR"],
+            parser_function=DatasetSchema._parseDateModified,
+            default_value=Path("./data/")
+        )
         if "date_modified" in all_elements.keys():
-            try:
-                _date_modified = DatasetSchema._parseDateModified(all_elements["date_modified"])
-            except ValueError as err:
-                Logger.Log(f"Invalid date_modified for {name}, expected a date, but got {all_elements['date_modified']}, resulting in error: {err}")
+            _date_modified = DatasetSchema._parseDateModified(all_elements["date_modified"])
         else:
             _date_modified = "UNKNOWN"
         if "start_date" in all_elements.keys():
@@ -366,39 +368,63 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseDateModified(date_modified) -> date:
-        ret_val : date
+    def _parseDateModified(date_modified) -> date | str:
+        ret_val : date | str
         if isinstance(date_modified, date):
             ret_val = date_modified
         elif isinstance(date_modified, str):
-            ret_val = datetime.strptime(date_modified, "%m/%d/%Y").date()
+            try:
+                ret_val = datetime.strptime(date_modified, "%m/%d/%Y").date()
+            except ValueError as err:
+                ret_val = "UKNOWN DATE"
+                Logger.Log(f"Invalid date_modified for dataset schema, expected a date, but got {date_modified}, resulting in error: {err}\nUsing {ret_val} instead")
         else:
-            ret_val = datetime.strptime(str(date_modified), "%m/%d/%Y").date()
-            Logger.Log(f"Dataset modified date was unexpected type {type(date_modified)}, defaulting to strptime(str(date_modified))={ret_val}.", logging.WARN)
+            try:
+                ret_val = datetime.strptime(str(date_modified), "%m/%d/%Y").date()
+                Logger.Log(f"Dataset modified date was unexpected type {type(date_modified)}, defaulting to strptime(str(date_modified))={ret_val}.", logging.WARN)
+            except ValueError as err:
+                ret_val = "UKNOWN DATE"
+                Logger.Log(f"Invalid date_modified for dataset schema, expected a date, but got {str(date_modified)}, resulting in error: {err}\nUsing {ret_val} instead.")
         return ret_val
 
     @staticmethod
-    def _parseStartDate(start_date) -> date:
-        ret_val : date
+    def _parseStartDate(start_date) -> date | str:
+        ret_val : date | str
         if isinstance(start_date, date):
             ret_val = start_date
         elif isinstance(start_date, str):
-            ret_val = datetime.strptime(start_date, "%m/%d/%Y").date()
+            try:
+                ret_val = datetime.strptime(start_date, "%m/%d/%Y").date()
+            except ValueError as err:
+                ret_val = "UKNOWN DATE"
+                Logger.Log(f"Invalid start_date for dataset schema, expected a date, but got {start_date}, resulting in error: {err}\nUsing {ret_val} instead")
         else:
-            ret_val = datetime.strptime(str(start_date), "%m/%d/%Y").date()
-            Logger.Log(f"Dataset start date was unexpected type {type(start_date)}, defaulting to strptime(str(start_date))={ret_val}.", logging.WARN)
+            try:
+                ret_val = datetime.strptime(str(start_date), "%m/%d/%Y").date()
+                Logger.Log(f"Dataset start date was unexpected type {type(start_date)}, defaulting to strptime(str(start_date))={ret_val}.", logging.WARN)
+            except ValueError as err:
+                ret_val = "UKNOWN DATE"
+                Logger.Log(f"Invalid start_date for dataset schema, expected a date, but got {str(start_date)}, resulting in error: {err}\nUsing {ret_val} instead.")
         return ret_val
 
     @staticmethod
-    def _parseEndDate(end_date) -> date:
-        ret_val : date
+    def _parseEndDate(end_date) -> date | str:
+        ret_val : date | str
         if isinstance(end_date, date):
             ret_val = end_date
         elif isinstance(end_date, str):
-            ret_val = datetime.strptime(end_date, "%m/%d/%Y").date()
+            try:
+                ret_val = datetime.strptime(end_date, "%m/%d/%Y").date()
+            except ValueError as err:
+                ret_val = "UKNOWN DATE"
+                Logger.Log(f"Invalid end_date for dataset schema, expected a date, but got {end_date}, resulting in error: {err}\nUsing {ret_val} instead")
         else:
-            ret_val = datetime.strptime(str(end_date), "%m/%d/%Y").date()
-            Logger.Log(f"Dataset end date was unexpected type {type(end_date)}, defaulting to strptime(str(end_date))={ret_val}.", logging.WARN)
+            try:
+                ret_val = datetime.strptime(str(end_date), "%m/%d/%Y").date()
+                Logger.Log(f"Dataset end date was unexpected type {type(end_date)}, defaulting to strptime(str(end_date))={ret_val}.", logging.WARN)
+            except ValueError as err:
+                ret_val = "UKNOWN DATE"
+                Logger.Log(f"Invalid end_date for dataset schema, expected a date, but got {str(end_date)}, resulting in error: {err}\nUsing {ret_val} instead")
         return ret_val
 
     @staticmethod
