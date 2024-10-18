@@ -66,7 +66,7 @@ class FileSourceSchema(DataSourceSchema):
         _file_name = FileSourceSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["FILENAME"],
             parser_function=FileSourceSchema._parseFilename,
-            default_value=None
+            default_value="UNKNOWN.tsv"
         )
 
         _used = {"LOCAL_DIR", "REMOTE_URL", "TEMPLATES_URL"}
