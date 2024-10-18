@@ -243,73 +243,83 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         _game_id = DatasetSchema._parseGameID(name)
         _key = DatasetKey(key=name, game_id=_game_id)
     # 1. Parse dates
-        _local_dir = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["LOCAL_DIR"],
+        _date_modified = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["date_modified"],
             parser_function=DatasetSchema._parseDateModified,
-            default_value=Path("./data/")
+            default_value="UNKNOWN_DATE"
         )
-        if "date_modified" in all_elements.keys():
-            _date_modified = DatasetSchema._parseDateModified(all_elements["date_modified"])
-        else:
-            _date_modified = "UNKNOWN"
-        if "start_date" in all_elements.keys():
-            _start_date = DatasetSchema._parseStartDate(all_elements["start_date"])
-        else:
-            _start_date = "UNKNOWN"
-        if "end_date" in all_elements.keys():
-            _end_date = DatasetSchema._parseEndDate(all_elements["end_date"])
-        else:
-            _end_date = "UNKNOWN"
+        _start_date = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["start_date"],
+            parser_function=DatasetSchema._parseStartDate,
+            default_value="UNKNOWN_DATE"
+        )
+        _end_date = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["end_date"],
+            parser_function=DatasetSchema._parseEndDate,
+            default_value="UNKNOWN_DATE"
+        )
     # 2. Parse metadata
-        if "ogd_revision" in all_elements.keys():
-            _ogd_revision = DatasetSchema._parseOGDRevision(all_elements["ogd_revision"])
-        else:
-            _ogd_revision = "UNKNOWN"
-        if "sessions" in all_elements.keys():
-            _session_ct = DatasetSchema._parseSessionCount(all_elements["sessions"])
-        else:
-            _session_ct = None
-        if "players" in all_elements.keys():
-            _players = DatasetSchema._parsePlayerCount(all_elements["players"])
-        else:
-            _player_ct = None
+        _ogd_revision = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["ogd_revision"],
+            parser_function=DatasetSchema._parseOGDRevision,
+            default_value="UNKNOWN_DATE"
+        )
+        _session_ct = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["sessions"],
+            parser_function=DatasetSchema._parseSessionCount,
+            default_value=None
+        )
+        _player_ct = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["players"],
+            parser_function=DatasetSchema._parsePlayerCount,
+            default_value=None
+        )
     # 3. Parse file/template paths
-        if "raw_file" in all_elements.keys():
-            _raw_file = DatasetSchema._parseRawFile(all_elements["raw_file"])
-        else:
-            _raw_file = None
-        if "events_file" in all_elements.keys():
-            _events_file = DatasetSchema._parseEventsFile(all_elements["events_file"])
-        else:
-            _events_file = None
-        if "events_template" in all_elements.keys():
-            _events_template = DatasetSchema._parseEventsTemplate(all_elements["events_template"])
-        else:
-            _events_template = None
-        if "sessions_file" in all_elements.keys():
-            _sessions_file = DatasetSchema._parseSessionsFile(all_elements["sessions_file"])
-        else:
-            _sessions_file = None
-        if "sessions_template" in all_elements.keys():
-            _sessions_template = DatasetSchema._parseSessionsTemplate(all_elements["sessions_template"])
-        else:
-            _sessions_template = None
-        if "players_file" in all_elements.keys():
-            _players_file = DatasetSchema._parsePlayersFile(all_elements["players_file"])
-        else:
-            _players_file = None
-        if "players_template" in all_elements.keys():
-            _players_template = DatasetSchema._parsePlayersTemplate(all_elements["players_template"])
-        else:
-            _players_template = None
-        if "population_file" in all_elements.keys():
-            _population_file = DatasetSchema._parsePopulationFile(all_elements["population_file"])
-        else:
-            _population_file = None
-        if "population_template" in all_elements.keys():
-            _population_template = DatasetSchema._parsePopulationTemplate(all_elements["population_template"])
-        else:
-            _population_template = None
+        _raw_file = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["raw_file"],
+            parser_function=DatasetSchema._parseRawFile,
+            default_value=None
+        )
+        _events_file = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["events_file"],
+            parser_function=DatasetSchema._parseEventsFile,
+            default_value=None
+        )
+        _events_template = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["events_template"],
+            parser_function=DatasetSchema._parseEventsTemplate,
+            default_value=None
+        )
+        _sessions_file = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["sessions_file"],
+            parser_function=DatasetSchema._parseSessionsFile,
+            default_value=None
+        )
+        _sessions_template = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["sessions_template"],
+            parser_function=DatasetSchema._parseSessionsTemplate,
+            default_value=None
+        )
+        _players_file = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["players_file"],
+            parser_function=DatasetSchema._parsePlayersFile,
+            default_value=None
+        )
+        _players_template = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["players_template"],
+            parser_function=DatasetSchema._parsePlayersTemplate,
+            default_value=None
+        )
+        _population_file = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["population_file"],
+            parser_function=DatasetSchema._parsePopulationFile,
+            default_value=None
+        )
+        _population_template = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["population_template"],
+            parser_function=DatasetSchema._parsePopulationTemplate,
+            default_value=None
+        )
 
         _used = {"date_modified", "start_date", "end_date", "ogd_revision", "sessions", "players",
                  "raw_file", "events_file", "events_template",
