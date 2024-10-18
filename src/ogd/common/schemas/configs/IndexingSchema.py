@@ -38,22 +38,23 @@ class FileIndexingSchema(Schema):
 
         if not isinstance(all_elements, dict):
             all_elements = {}
-            Logger.Log(f"For {name} base config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        if "LOCAL_DIR" in all_elements.keys():
-            _local_dir = FileIndexingSchema._parseLocalDir(all_elements["LOCAL_DIR"])
-        else:
-            _local_dir = Path("./data/")
-            Logger.Log(f"{name} config does not have a 'LOCAL_DIR' element; defaulting to local_dir={_local_dir}", logging.WARN)
-        if "REMOTE_URL" in all_elements.keys():
-            _remote_url = FileIndexingSchema._parseRemoteURL(all_elements["REMOTE_URL"])
-        else:
-            _remote_url = None
-            Logger.Log(f"{name} config does not have a 'REMOTE_URL' element; defaulting to remote_url={_remote_url}", logging.WARN)
-        if "TEMPLATES_URL" in all_elements.keys():
-            _templates_url = FileIndexingSchema._parseTemplatesURL(all_elements["TEMPLATES_URL"])
-        else:
-            _templates_url = "https://github.com/opengamedata/opengamedata-samples"
-            Logger.Log(f"{name} config does not have a 'TEMPLATES_URL' element; defaulting to templates_url={_templates_url}", logging.WARN)
+            _msg = f"For {name} indexing config, all_elements was not a dict, defaulting to empty dict"
+            logger.warning(_msg) if logger else Logger.Log(_msg, logging.WARN)
+        _local_dir = FileIndexingSchema.ElementFromDict(all_elements=all_elements,
+            element_names=["LOCAL_DIR"],
+            parser_function=FileIndexingSchema._parseLocalDir,
+            default_value=Path("./data/")
+        )
+        _remote_url = FileIndexingSchema.ElementFromDict(all_elements=all_elements,
+            element_names=["REMOTE_URL"],
+            parser_function=FileIndexingSchema._parseRemoteURL,
+            default_value=None
+        )
+        _templates_url = FileIndexingSchema.ElementFromDict(all_elements=all_elements,
+            element_names=["TEMPLATES_URL"],
+            parser_function=FileIndexingSchema._parseTemplatesURL,
+            default_value="https://github.com/opengamedata/opengamedata-samples"
+        )
 
         _used = {"LOCAL_DIR", "REMOTE_URL", "TEMPLATES_URL"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
