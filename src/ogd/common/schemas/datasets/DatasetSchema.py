@@ -369,6 +369,18 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
     @staticmethod
     def _parseDateModified(date_modified) -> date | str:
+        """Function to obtain the modified date from an input of Any type.
+        We expect either a date, or a formatted string.
+
+        Valid string formats are: MM/DD/YYYY
+
+        TODO : handle more date formats
+
+        :param date_modified: The input representation of the dataset modification date
+        :type date_modified: Any
+        :return: The Python date object obtained from the input, or a string if the date could not be parsed
+        :rtype: date | str
+        """
         ret_val : date | str
         if isinstance(date_modified, date):
             ret_val = date_modified
@@ -389,6 +401,18 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
     @staticmethod
     def _parseStartDate(start_date) -> date | str:
+        """Function to obtain the start date from an input of Any type.
+        We expect either a date, or a formatted string.
+
+        Valid string formats are: MM/DD/YYYY
+
+        TODO : handle more date formats
+
+        :param start_date: The input representation of the dataset start date
+        :type start_date: Any
+        :return: The Python date object obtained from the input, or a string if the date could not be parsed
+        :rtype: date | str
+        """
         ret_val : date | str
         if isinstance(start_date, date):
             ret_val = start_date
@@ -409,6 +433,18 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
     @staticmethod
     def _parseEndDate(end_date) -> date | str:
+        """Function to obtain the end date from an input of Any type.
+        We expect either a date, or a formatted string.
+
+        Valid string formats are: MM/DD/YYYY
+
+        TODO : handle more date formats
+
+        :param end_date: The input representation of the dataset end date
+        :type end_date: Any
+        :return: The Python date object obtained from the input, or a string if the date could not be parsed
+        :rtype: date | str
+        """
         ret_val : date | str
         if isinstance(end_date, date):
             ret_val = end_date
