@@ -23,11 +23,11 @@ class DataSourceSchema(Schema):
             other_elements = {}
             Logger.Log(f"For {name} Data Source config, other_elements was not a dict, defaulting to empty dict", logging.WARN)
         # Parse DB info
-        if "DB_TYPE" in other_elements.keys():
-            self._db_type = DataSourceSchema._parseDBType(other_elements["DB_TYPE"])
-        else:
-            self._db_type = "UNKNOWN"
-            Logger.Log(f"{name} config does not have a 'DB_TYPE' element; defaulting to db_host={self._db_type}", logging.WARN)
+        self._db_type = DataSourceSchema.ElementFromDict(all_elements=other_elements, logger=None,
+            element_names=["DB_TYPE"],
+            parser_function=DataSourceSchema._parseDBType,
+            default_value="UNKNOWN"
+        )
 
         _used = {"DB_TYPE"}
         _leftovers = { key : val for key,val in other_elements.items() if key not in _used }
