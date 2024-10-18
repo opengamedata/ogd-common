@@ -323,7 +323,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
     @staticmethod
     def EmptySchema() -> "DatasetSchema":
-        return DatasetSchema(name="NOT FOUND", other_elements={})
+        return DatasetSchema.FromDict(name="NOT FOUND", all_elements={}, logger=None)
 
     # *** PUBLIC METHODS ***
 
