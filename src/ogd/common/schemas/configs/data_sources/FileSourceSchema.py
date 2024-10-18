@@ -69,7 +69,7 @@ class FileSourceSchema(DataSourceSchema):
             default_value="UNKNOWN.tsv"
         )
 
-        _used = {"LOCAL_DIR", "REMOTE_URL", "TEMPLATES_URL"}
+        _used = {"PATH", "FILENAME"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         return FileSourceSchema(name=name, folder_path=_folder_path, file_name=_file_name, other_elements=_leftovers)
 
