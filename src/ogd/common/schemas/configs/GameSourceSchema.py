@@ -75,31 +75,31 @@ class GameSourceSchema(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For {name} Game Source config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        if "source" in all_elements.keys():
-            _source_name = GameSourceSchema._parseSource(all_elements["source"])
-        else:
-            _source_name = "UNKNOWN"
-            Logger.Log(f"{name} config does not have a 'source' element; defaulting to source_name={_source_name}", logging.WARN)
+        _source_name = GameSourceSchema.ElementFromDict(all_elements=all_elements,
+            element_names=["source"],
+            parser_function=GameSourceSchema._parseSource,
+            default_value="UNKNOWN"
+        )
         if _source_name in data_sources.keys():
             _source_schema = data_sources[_source_name]
         else:
             _source_schema = None
             Logger.Log(f"{name} config's 'source' name ({_source_name}) was not found in available source schemas; defaulting to source_schema={_source_schema}", logging.WARN)
-        if "database" in all_elements.keys():
-            _db_name = GameSourceSchema._parseDBName(all_elements["database"])
-        else:
-            _db_name = name
-            Logger.Log(f"{name} config does not have a 'database' element; defaulting to db_name={_db_name}", logging.WARN)
-        if "table" in all_elements.keys():
-            _table_name = GameSourceSchema._parseTableName(all_elements["table"])
-        else:
-            _table_name = "UNKNOWN"
-            Logger.Log(f"{name} config does not have a 'table' element; defaulting to table={_table_name}", logging.WARN)
-        if "schema" in all_elements.keys():
-            _table_schema = GameSourceSchema._parseTableSchemaName(all_elements["schema"])
-        else:
-            _table_schema = "UNKNOWN"
-            Logger.Log(f"{name} config does not have a 'schema' element; defaulting to schema={_table_schema}", logging.WARN)
+        _db_name      = GameSourceSchema.ElementFromDict(all_elements=all_elements,
+            element_names=["database"],
+            parser_function=GameSourceSchema._parseDBName,
+            default_value=name
+        )
+        _table_name   = GameSourceSchema.ElementFromDict(all_elements=all_elements,
+            element_names=["table"],
+            parser_function=GameSourceSchema._parseTableName,
+            default_value="UNKNOWN"
+        )
+        _table_schema = GameSourceSchema.ElementFromDict(all_elements=all_elements,
+            element_names=["schema"],
+            parser_function=GameSourceSchema._parseTableSchemaName,
+            default_value="UNKNOWN"
+        )
 
         _used = {"source", "database", "table", "schema"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
@@ -117,16 +117,6 @@ class GameSourceSchema(Schema):
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
-
-    @staticmethod
-    def _parseTableSchemaName(table_schema_name) -> str:
-        ret_val : str
-        if isinstance(table_schema_name, str):
-            ret_val = table_schema_name
-        else:
-            ret_val = str(table_schema_name)
-            Logger.Log(f"Game Source table schema name type was unexpected type {type(table_schema_name)}, defaulting to str(schema)={ret_val}.", logging.WARN)
-        return ret_val
 
     @staticmethod
     def _parseSource(source) -> str:
@@ -156,6 +146,16 @@ class GameSourceSchema(Schema):
         else:
             ret_val = str(table)
             Logger.Log(f"Game Source table name was unexpected type {type(table)}, defaulting to str(table)={ret_val}.", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def _parseTableSchemaName(table_schema_name) -> str:
+        ret_val : str
+        if isinstance(table_schema_name, str):
+            ret_val = table_schema_name
+        else:
+            ret_val = str(table_schema_name)
+            Logger.Log(f"Game Source table schema name type was unexpected type {type(table_schema_name)}, defaulting to str(schema)={ret_val}.", logging.WARN)
         return ret_val
 
     # *** PRIVATE METHODS ***
