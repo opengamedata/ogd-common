@@ -58,14 +58,16 @@ class FileListConfigSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        if "files_base" in all_elements.keys():
-            _files_base = FileListConfigSchema._parseFilesBase(all_elements["files_base"])
-        else:
-            _files_base = None
-        if "templates_base" in all_elements.keys():
-            _templates_base = FileListConfigSchema._parseTemplatesBase(all_elements["templates_base"])
-        else:
-            _templates_base = None
+        _files_base = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["files_base"],
+            parser_function=FileListConfigSchema._parseFilesBase,
+            default_value=None
+        )
+        _templates_base = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["templates_base"],
+            parser_function=FileListConfigSchema._parseTemplatesBase,
+            default_value=None
+        )
         _used = {"files_base", "templates_base"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         return FileListConfigSchema(name=name, file_base_path=_files_base, template_base_path=_templates_base, other_elements=_leftovers)
@@ -202,10 +204,11 @@ class FileListSchema(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
     # 1. Parse config
-        if "CONFIG" in all_elements.keys():
-            _config = FileListSchema._parseConfig(config=all_elements["CONFIG"])
-        else:
-            _config = FileListConfigSchema.EmptySchema()
+        _config = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["CONFIG"],
+            parser_function=FileListSchema._parseConfig,
+            default_value=FileListConfigSchema.EmptySchema()
+        )
     # 2. Parse games
         _used = {"CONFIG"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
