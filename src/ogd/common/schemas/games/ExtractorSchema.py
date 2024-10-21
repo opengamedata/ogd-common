@@ -1,13 +1,20 @@
 # import standard libraries
 import abc
 import logging
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, Optional, Set
 # import local files
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class ExtractorSchema(Schema):
+    """Base class for all schemas related to defining Generator configurations.
+
+    TODO : Rename to GeneratorSchema
+    """
+
+    # *** BUILT-INS & PROPERTIES ***
+
     def __init__(self, name:str, all_elements:Dict[str, Any]):
         self._enabled     : Set[ExtractionMode]
         self._type_name   : str
@@ -32,7 +39,9 @@ class ExtractorSchema(Schema):
             self._description = "No Description"
             Logger.Log(f"{name} config does not have an 'description' element; defaulting to description='{self._description}'", logging.WARN)
 
-        _leftovers = { key : val for key,val in all_elements.items() if key not in {"type", "enabled", "description"} }
+        _used = {"type", "enabled", "description"}
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+
         super().__init__(name=name, other_elements=_leftovers)
 
     @property
@@ -46,6 +55,14 @@ class ExtractorSchema(Schema):
     @property
     def Description(self) -> str:
         return self._description
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
     
     @staticmethod
     def _parseType(extractor_type):
@@ -93,3 +110,5 @@ class ExtractorSchema(Schema):
             ret_val = str(description)
             Logger.Log(f"Extractor description was not a string, defaulting to str(description) == {ret_val}", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***
