@@ -12,40 +12,76 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 
 class FileListConfigSchema(Schema):
-    def __init__(self, name:str, all_elements:Dict[str, Any]):
-        self._files_base     : Optional[str]
-        self._templates_base : Optional[str]
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-        if "files_base" in all_elements.keys():
-            self._files_base = FileListConfigSchema._parseFilesBase(all_elements["files_base"])
-        else:
-            self._files_base = None
-        if "templates_base" in all_elements.keys():
-            self._templates_base = FileListConfigSchema._parseTemplatesBase(all_elements["templates_base"])
-        else:
-            self._templates_base = None
-        _used = {"files_base", "templates_base"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        super().__init__(name=name, other_elements=_leftovers)
+
+    # *** BUILT-INS & PROPERTIES ***
+
+    DEFAULT_FILE_BASE = "https://fieldday-web.ad.education.wisc.edu/opengamedata/"
+    DEFAULT_TEMPLATE_BASE = "https://github.com/opengamedata/opengamedata-samples"
+
+    def __init__(self, name:str, file_base_path:Optional[str | Path], template_base_path:Optional[str | Path], other_elements:Dict[str, Any]):
+        self._files_base     : Optional[str | Path] = file_base_path
+        self._templates_base : Optional[str | Path] = template_base_path
+        super().__init__(name=name, other_elements=other_elements)
 
     def __str__(self) -> str:
         return str(self.Name)
 
     @property
-    def FilesBase(self) -> Optional[str]:
+    def FilesBase(self) -> Optional[str | Path]:
+        """Property for the base 'path' to a set of dataset files.
+        May be an actual path, or a base URL for accessing from a file server.
+
+        :return: _description_
+        :rtype: Optional[str]
+        """
         return self._files_base
     @property
-    def TemplatesBase(self) -> Optional[str]:
+    def TemplatesBase(self) -> Optional[str | Path]:
         return self._templates_base
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
     @property
     def AsMarkdown(self) -> str:
         ret_val : str = self.Name
         return ret_val
 
     @staticmethod
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileListConfigSchema":
+        _files_base     : Optional[str]
+        _templates_base : Optional[str]
+
+        if not isinstance(all_elements, dict):
+            all_elements = {}
+            _msg = f"For {name} indexing config, all_elements was not a dict, defaulting to empty dict"
+            if logger:
+                logger.warning(_msg)
+            else:
+                Logger.Log(_msg, logging.WARN)
+        if "files_base" in all_elements.keys():
+            _files_base = FileListConfigSchema._parseFilesBase(all_elements["files_base"])
+        else:
+            _files_base = None
+        if "templates_base" in all_elements.keys():
+            _templates_base = FileListConfigSchema._parseTemplatesBase(all_elements["templates_base"])
+        else:
+            _templates_base = None
+        _used = {"files_base", "templates_base"}
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        return FileListConfigSchema(name=name, file_base_path=_files_base, template_base_path=_templates_base, other_elements=_leftovers)
+
+    # *** PUBLIC STATICS ***
+
+    @staticmethod
     def EmptySchema() -> "FileListConfigSchema":
-        return FileListConfigSchema(name="CONFIG NOT FOUND", all_elements={})
+        return FileListConfigSchema(name="CONFIG NOT FOUND",
+            file_base_path=FileListConfigSchema.DEFAULT_FILE_BASE,
+            template_base_path=FileListConfigSchema.DEFAULT_TEMPLATE_BASE,
+            other_elements={})
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
 
     @staticmethod
     def _parseFilesBase(files_base) -> str:
@@ -67,40 +103,61 @@ class FileListConfigSchema(Schema):
             Logger.Log(f"Templates base was unexpected type {type(templates_base)}, defaulting to str(templates_name)={ret_val}.", logging.WARN)
         return ret_val
 
+    # *** PRIVATE METHODS ***
+
 class GameDatasetCollectionSchema(Schema):
+
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, all_elements:Dict[str, Any]):
-        self._game_datasets : Dict[str, DatasetSchema]
+    def __init__(self, name:str, game_datasets:Dict[str, DatasetSchema], other_elements:Dict[str, Any]):
+        self._game_datasets : Dict[str, DatasetSchema] = game_datasets
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-        self._game_datasets = GameDatasetCollectionSchema._parseGameDatasets(datasets=all_elements)
         super().__init__(name=name, other_elements={})
 
     def __str__(self) -> str:
         return str(self.Name)
 
-    # *** Properties ***
-
     @property
     def Datasets(self) -> Dict[str, DatasetSchema]:
         return self._game_datasets
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
     @property
     def AsMarkdown(self) -> str:
         ret_val : str = self.Name
         return ret_val
 
     @staticmethod
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "GameDatasetCollectionSchema":
+        _game_datasets : Dict[str, DatasetSchema]
+
+        if not isinstance(all_elements, dict):
+            all_elements = {}
+            _msg = f"For {name} game dataset collection, all_elements was not a dict, defaulting to empty dict"
+            if logger:
+                logger.warning(_msg)
+            else:
+                Logger.Log(_msg, logging.WARN)
+        _game_datasets = GameDatasetCollectionSchema._parseGameDatasets(datasets=all_elements)
+        return GameDatasetCollectionSchema(name=name, game_datasets=_game_datasets, other_elements={})
+
+    # *** PUBLIC STATICS ***
+
+    @staticmethod
     def EmptySchema() -> "GameDatasetCollectionSchema":
-        return GameDatasetCollectionSchema(name="DATASET COLLECTION NOT FOUND", all_elements={})
+        return GameDatasetCollectionSchema(name="DATASET COLLECTION NOT FOUND", game_datasets={}, other_elements={})
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
 
     @staticmethod
     def _parseGameDatasets(datasets:Dict[str, Any]) -> Dict[str, DatasetSchema]:
         ret_val : Dict[str, DatasetSchema]
         if isinstance(datasets, dict):
             ret_val = {
-                key : DatasetSchema(key, dataset if isinstance(dataset, dict) else {})
+                key : DatasetSchema.FromDict(key, dataset if isinstance(dataset, dict) else {})
                 for key,dataset in datasets.items()
             }
         else:
@@ -108,30 +165,20 @@ class GameDatasetCollectionSchema(Schema):
             Logger.Log(f"Collection of datasets was unexpected type {type(datasets)}, defaulting to empty dictionary.", logging.WARN)
         return ret_val
 
+    # *** PRIVATE METHODS ***
+
 class FileListSchema(Schema):
+
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, all_elements:Dict[str, Any]):
-        self._games_file_lists : Dict[str, GameDatasetCollectionSchema]
-        self._config           : FileListConfigSchema
+    def __init__(self, name:str, game_file_lists:Dict[str, GameDatasetCollectionSchema], file_list_config:FileListConfigSchema, other_elements:Dict[str, Any]):
+        self._games_file_lists : Dict[str, GameDatasetCollectionSchema] = game_file_lists
+        self._config           : FileListConfigSchema                   = file_list_config
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-    # 1. Parse config
-        if "CONFIG" in all_elements.keys():
-            self._config = FileListSchema._parseConfig(config=all_elements["CONFIG"])
-        else:
-            self._date_modified = "UNKNOWN"
-    # 2. Parse games
-        _used = {"CONFIG"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        self._games_file_lists = FileListSchema._parseGamesFileLists(games_dict=_leftovers)
         super().__init__(name=name, other_elements={})
 
     def __str__(self) -> str:
         return self.Name
-
-    # *** Properties ***
 
     @property
     def Games(self) -> Dict[str, GameDatasetCollectionSchema]:
@@ -139,21 +186,43 @@ class FileListSchema(Schema):
     @property
     def Config(self) -> FileListConfigSchema:
         return self._config
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
     @property
     def AsMarkdown(self) -> str:
         ret_val : str = self.Name
         return ret_val
 
-    # *** Private Functions ***
+    @staticmethod
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileListSchema":
+        _games_file_lists : Dict[str, GameDatasetCollectionSchema]
+        _config           : FileListConfigSchema
 
-    # NOTE: Yes, most of these parse functions are redundant, but that's fine,
-    # we just want to have one bit of code to parse each piece of the schema, even if most do the same thing.
+        if not isinstance(all_elements, dict):
+            all_elements = {}
+    # 1. Parse config
+        if "CONFIG" in all_elements.keys():
+            _config = FileListSchema._parseConfig(config=all_elements["CONFIG"])
+        else:
+            _config = FileListConfigSchema.EmptySchema()
+    # 2. Parse games
+        _used = {"CONFIG"}
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        _games_file_lists = FileListSchema._parseGamesFileLists(games_dict=_leftovers)
+        return FileListSchema(name=name, game_file_lists=_games_file_lists, file_list_config=_config, other_elements={})
+
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
 
     @staticmethod
     def _parseConfig(config) -> FileListConfigSchema:
         ret_val : FileListConfigSchema
         if isinstance(config, dict):
-            ret_val = FileListConfigSchema(name="ConfigSchema", all_elements=config)
+            ret_val = FileListConfigSchema.FromDict(name="ConfigSchema", all_elements=config)
         else:
             ret_val = FileListConfigSchema.EmptySchema()
             Logger.Log(f"Config was unexpected type {type(config)}, defaulting to empty ConfigSchema.", logging.WARN)
@@ -164,7 +233,7 @@ class FileListSchema(Schema):
         ret_val : Dict[str, GameDatasetCollectionSchema]
         if isinstance(games_dict, dict):
             ret_val = {
-                key : GameDatasetCollectionSchema(key, datasets if isinstance(datasets, dict) else {})
+                key : GameDatasetCollectionSchema.FromDict(key, datasets if isinstance(datasets, dict) else {})
                 for key, datasets in games_dict.items()
             }
         else:
@@ -172,3 +241,4 @@ class FileListSchema(Schema):
             Logger.Log(f"Collection of games was unexpected type {type(games_dict)}, defaulting to empty dictionary.", logging.WARN)
         return ret_val
 
+    # *** PRIVATE METHODS ***
