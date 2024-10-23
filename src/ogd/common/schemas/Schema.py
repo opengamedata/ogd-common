@@ -14,8 +14,8 @@ class Schema(abc.ABC):
     def AsMarkdown(self) -> str:
         pass
 
-    @abc.abstractmethod
     @staticmethod
+    @abc.abstractmethod
     def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "Schema":
         pass
 
