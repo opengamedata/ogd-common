@@ -100,7 +100,7 @@ class TestConfigSchema(Schema):
             ret_val = bool(verbose)
             _msg = f"Config 'verbose' setting was unexpected type {type(verbose)}, defaulting to bool(verbose)={ret_val}."
             if logger:
-                logger.warn(_msg, logging.WARN)
+                logger.warning(_msg, logging.WARN)
             else:
                 print(_msg)
         return ret_val
