@@ -139,7 +139,6 @@ class t_Schema(TestCase):
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "TestSchema[Test Schema]")
 
-    @unittest.skip("Not yet implemented")
     def test_repr(self):
         _repr = str(self.test_schema)
         self.assertIsInstance(_repr, str)
@@ -159,7 +158,6 @@ class t_Schema(TestCase):
         self.assertIsInstance(self.test_schema.NonStandardElements, dict)
         self.assertEqual(self.test_schema.NonStandardElements, _elems)
 
-    @unittest.skip("Not yet implemented")
     def test_NonStandardElementNames(self):
         _elem_names = ["foo", "bar", "fizz"]
         self.assertIsInstance(self.test_schema.NonStandardElementNames, list)
