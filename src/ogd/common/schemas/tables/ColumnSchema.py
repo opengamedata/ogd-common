@@ -1,49 +1,21 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, Optional
 # import local files
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class ColumnSchema(Schema):
-    def __init__(self, all_elements:Dict[str, Any]):
+
+    # *** BUILT-INS & PROPERTIES ***
+
+    def __init__(self, name:str, readable:str, value_type:str, description:str, other_elements:Dict[str, Any]):
         self._readable    : str
         self._value_type  : str
         self._description : str
 
-        if not isinstance(all_elements, dict):
-            self._name        = "No Name"
-            self._readable    = "No Readable Name"
-            self._description = "No Description"
-            self._value_type  = "No Type"
-            self._elements = {}
-            Logger.Log(f"For {self._name} Extractor config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        if "readable" in all_elements.keys():
-            self._readable = ColumnSchema._parseReadable(all_elements['readable'])
-        else:
-            self._readable = self._name
-            Logger.Log(f"{self._name} config does not have a 'readable' element; defaulting to readable=name", logging.WARN)
-
-        if "description" in all_elements.keys():
-            self._description = ColumnSchema._parseDescription(all_elements['description'])
-        else:
-            self._description = ""
-            Logger.Log(f"{self._name} config does not have an 'description' element; defaulting to description=''", logging.WARN)
-
-        if "type" in all_elements.keys():
-            self._value_type = ColumnSchema._parseValueType(all_elements['type'])
-        else:
-            self._value_type = self._name
-
-        _name : str
-        if "name" in all_elements.keys():
-            _name = ColumnSchema._parseName(all_elements['name'])
-        else:
-            _name = "NOT FOUND"
-            Logger.Log(f"Column config does not have a 'name' element; defaulting to name=NOT FOUND", logging.WARN)
-        _leftovers = { key : val for key,val in all_elements.items() if key not in {"name", "readable", "description", "type"} }
-        super().__init__(name=_name, other_elements=_leftovers)
+        super().__init__(name=name, other_elements=other_elements)
 
     def __str__(self):
         return self.Name
@@ -63,6 +35,8 @@ class ColumnSchema(Schema):
     def ValueType(self) -> str:
         return self._value_type
 
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
     @property
     def AsMarkdown(self) -> str:
         ret_val = f"**{self.Name}** : *{self.ValueType}* - {self.ReadableName}, {self.Description}  "
@@ -72,6 +46,55 @@ class ColumnSchema(Schema):
             ret_val += f"\n    Other Elements: {', '.join(other_elems)}"
 
         return ret_val
+
+    @staticmethod
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "ColumnSchema":
+        _readable    : str
+        _value_type  : str
+        _description : str
+
+        if not isinstance(all_elements, dict):
+            # _name        = "No Name"
+            # _readable    = "No Readable Name"
+            # _description = "No Description"
+            # _value_type  = "No Type"
+            all_elements = {}
+            _msg = f"For {name} Extractor config, all_elements was not a dict, defaulting to empty dict"
+            if logger:
+                logger.warning(_msg)
+            else:
+                Logger.Log(_msg, logging.WARN)
+
+        _readable = ColumnSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["readable"],
+            parser_function=ColumnSchema._parseReadable,
+            default_value=name
+        )
+        _description = ColumnSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["description"],
+            parser_function=ColumnSchema._parseDescription,
+            default_value="NO DESCRIPTION GIVEN"
+        )
+        _value_type = ColumnSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["type"],
+            parser_function=ColumnSchema._parseValueType,
+            default_value="TYPE NOT GIVEN"
+        )
+        _name = ColumnSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["name"],
+            parser_function=ColumnSchema._parseName,
+            default_value=name
+        )
+        _used = {"name", "readable", "description", "type"}
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+
+        return ColumnSchema(name=_name, readable=_readable, value_type=_value_type, description=_description, other_elements=_leftovers)
+
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
     
     @staticmethod
     def _parseName(name):
@@ -112,3 +135,5 @@ class ColumnSchema(Schema):
             ret_val = str(extractor_type)
             Logger.Log(f"Column type was not a string, defaulting to str(type) == {ret_val}", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***

@@ -1,5 +1,6 @@
 # import standard libraries
-from typing import Any, Dict, List
+import logging
+from typing import Any, Dict, Optional
 # import local files
 from ogd.common.schemas.games.FeatureSchema import FeatureSchema
 
@@ -17,3 +18,7 @@ class AggregateSchema(FeatureSchema):
         if len(self.NonStandardElements) > 0:
             ret_val += "*Other elements*:  \n\n" + "\n".join([f"{elem_name} : {elem}" for elem_name,elem in self.NonStandardElements.items()])
         return ret_val
+
+    @staticmethod
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "AggregateSchema":
+        return AggregateSchema(name=name, all_elements=all_elements)

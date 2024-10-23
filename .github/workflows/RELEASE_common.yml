@@ -12,9 +12,14 @@ jobs:
     with:
       with_caching: true
 
+  testbed_schema:
+    name: Schema base class Testbed
+    needs: build
+    uses: ./.github/workflows/TEST_Schema.yml
+
   release:
     name: Publish Release to PyPI
-    needs: build
+    needs: [build, testbed_schema]
     if: github.event.action == 'released'
     runs-on: ubuntu-22.04
     environment:

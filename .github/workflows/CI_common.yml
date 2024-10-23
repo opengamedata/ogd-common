@@ -19,3 +19,8 @@ jobs:
     uses: ./.github/workflows/BUILD_common.yml
     with:
       with_caching: false
+
+  testbed_schema:
+    name: Schema base class Testbed
+    needs: build
+    uses: ./.github/workflows/TEST_Schema.yml
