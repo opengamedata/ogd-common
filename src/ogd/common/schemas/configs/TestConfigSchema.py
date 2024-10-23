@@ -88,7 +88,7 @@ class TestConfigSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseVerbose(verbose, logger:Optional[logging.Logger]) -> bool:
+    def _parseVerbose(verbose, logger:Optional[logging.Logger]=None) -> bool:
         ret_val : bool
         if isinstance(verbose, bool):
             ret_val = verbose
@@ -106,7 +106,7 @@ class TestConfigSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseEnabledTests(enabled, logger:Optional[logging.Logger]) -> Dict[str, bool]:
+    def _parseEnabledTests(enabled, logger:Optional[logging.Logger]=None) -> Dict[str, bool]:
         ret_val : Dict[str, bool]
         if isinstance(enabled, dict):
             ret_val = { str(key) : bool(val) for key, val in enabled.items() }
