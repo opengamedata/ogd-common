@@ -2,11 +2,12 @@
 import json
 import logging
 import re
-from dateutil import parser
-from datetime import datetime, time, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from json.decoder import JSONDecodeError
 from pathlib import Path
 from typing import Any, Dict, Final, List, Tuple, Optional, Union
+## import 3rd-party libraries
+from dateutil import parser
 ## import local files
 from ogd.core import schemas
 from ogd.common.models.Event import Event, EventSource
