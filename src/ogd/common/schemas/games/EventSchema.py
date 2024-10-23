@@ -72,16 +72,16 @@ class EventSchema(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For {name} Event config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        if "description" in all_elements.keys():
-            _description = EventSchema._parseDescription(description=all_elements['description'])
-        else:
-            _description = "No description available"
-            Logger.Log(f"{name} EventSchema config does not have a 'description' element; defaulting to description='{_description}", logging.WARN)
-        if "event_data" in all_elements.keys():
-            _event_data = EventSchema._parseEventDataElements(event_data=all_elements['event_data'])
-        else:
-            _event_data = {}
-            Logger.Log(f"{name} EventSchema config does not have an 'event_data' element; defaulting to empty dict", logging.WARN)
+        _description = EventSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["description"],
+            parser_function=EventSchema._parseDescription,
+            default_value="No description available"
+        )
+        _event_data = EventSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["event_data"],
+            parser_function=EventSchema._parseEventDataElements,
+            default_value={}
+        )
 
         _used = {"description", "event_data"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }

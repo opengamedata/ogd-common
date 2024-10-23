@@ -44,16 +44,16 @@ class PerCountSchema(FeatureSchema):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For {name} Per-count Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        if "count" in all_elements.keys():
-            _count = PerCountSchema._parseCount(all_elements["count"])
-        else:
-            _count = 0
-            Logger.Log(f"{name} config does not have a 'count' element; defaulting to count={_count}", logging.WARN)
-        if "prefix" in all_elements.keys():
-            _prefix = PerCountSchema._parsePrefix(all_elements['prefix'])
-        else:
-            _prefix = "pre"
-            Logger.Log(f"{name} config does not have a 'prefix' element; defaulting to prefix='{_prefix}'", logging.WARN)
+        _count = PerCountSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["count"],
+            parser_function=PerCountSchema._parseCount,
+            default_value=0
+        )
+        _prefix = PerCountSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["prefix"],
+            parser_function=PerCountSchema._parsePrefix,
+            default_value="pre"
+        )
 
         _used = {"count", "prefix"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }

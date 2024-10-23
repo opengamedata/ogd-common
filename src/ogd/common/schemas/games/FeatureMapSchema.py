@@ -61,26 +61,26 @@ class FeatureMapSchema(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For FeatureMap config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        if "legacy" in all_elements.keys():
-            _legacy_mode = FeatureMapSchema._parseLegacyMode(legacy_element=all_elements['legacy'])
-        else:
-            Logger.Log(f"FeatureMap config does not have a 'legacy' element; defaulting to legacy=False", logging.WARN)
-            _legacy_mode = False
-        if "perlevel" in all_elements.keys():
-            _legacy_perlevel_feats = FeatureMapSchema._parsePerLevelFeatures(perlevels=all_elements['perlevel'])
-        else:
-            Logger.Log(f"FeatureMap config does not have a 'perlevel' element; defaulting to empty dictionary", logging.WARN)
-            _legacy_perlevel_feats = {}
-        if "per_count" in all_elements.keys():
-            _percount_feats = FeatureMapSchema._parsePerCountFeatures(percounts=all_elements['per_count'])
-        else:
-            Logger.Log(f"FeatureMap config does not have a 'per_count' element; defaulting to empty dictionary", logging.WARN)
-            _percount_feats = {}
-        if "aggregate" in all_elements.keys():
-            _aggregate_feats = FeatureMapSchema._parseAggregateFeatures(aggregates=all_elements['aggregate'])
-        else:
-            Logger.Log(f"FeatureMap config does not have an 'aggregate' element; defaulting to empty dictionary", logging.WARN)
-            _aggregate_feats = {}
+        _legacy_mode = FeatureMapSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["legacy"],
+            parser_function=FeatureMapSchema._parseLegacyMode,
+            default_value=False
+        )
+        _legacy_perlevel_feats = FeatureMapSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["perlevel", "per_level"],
+            parser_function=FeatureMapSchema._parsePerLevelFeatures,
+            default_value={}
+        )
+        _percount_feats = FeatureMapSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["per_count", "percount"],
+            parser_function=FeatureMapSchema._parsePerCountFeatures,
+            default_value={}
+        )
+        _aggregate_feats = FeatureMapSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["aggregate"],
+            parser_function=FeatureMapSchema._parseAggregateFeatures,
+            default_value={}
+        )
 
         _used = {"legacy", "perlevel", "per_count", "aggregate"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
@@ -117,7 +117,7 @@ class FeatureMapSchema(Schema):
     def _parsePerLevelFeatures(perlevels) -> Dict[str, PerCountSchema]:
         ret_val : Dict[str, PerCountSchema]
         if isinstance(perlevels, dict):
-            ret_val = { key : PerCountSchema(name=key, all_elements=val) for key,val in perlevels.items() }
+            ret_val = { key : PerCountSchema.FromDict(name=key, all_elements=val) for key,val in perlevels.items() }
         else:
             ret_val = {}
             Logger.Log(f"Per-level features map was not a dict, defaulting to empty dict", logging.WARN)
@@ -127,7 +127,7 @@ class FeatureMapSchema(Schema):
     def _parsePerCountFeatures(percounts) -> Dict[str, PerCountSchema]:
         ret_val : Dict[str, PerCountSchema]
         if isinstance(percounts, dict):
-            ret_val = { key : PerCountSchema(name=key, all_elements=val) for key,val in percounts.items() }
+            ret_val = { key : PerCountSchema.FromDict(name=key, all_elements=val) for key,val in percounts.items() }
         else:
             ret_val = {}
             Logger.Log(f"Per-count features map was not a dict, defaulting to empty dict", logging.WARN)

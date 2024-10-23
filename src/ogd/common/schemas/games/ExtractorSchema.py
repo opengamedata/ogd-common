@@ -24,20 +24,21 @@ class ExtractorSchema(Schema):
             all_elements = {}
             Logger.Log(f"For {name} Extractor config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
 
-        if "type" in all_elements.keys():
-            self._type_name = ExtractorSchema._parseType(all_elements['type'])
-        else:
-            self._type_name = name
-        if "enabled" in all_elements.keys():
-            self._enabled = ExtractorSchema._parseEnabled(all_elements['enabled'])
-        else:
-            self._enabled = {ExtractionMode.DETECTOR, ExtractionMode.SESSION, ExtractionMode.PLAYER, ExtractionMode.POPULATION}
-            Logger.Log(f"{name} config does not have an 'enabled' element; defaulting to enabled=True", logging.WARN)
-        if "description" in all_elements.keys():
-            self._description = ExtractorSchema._parseDescription(all_elements['description'])
-        else:
-            self._description = "No Description"
-            Logger.Log(f"{name} config does not have an 'description' element; defaulting to description='{self._description}'", logging.WARN)
+        self._type_name = ExtractorSchema.ElementFromDict(all_elements=all_elements,
+            element_names=["type"],
+            parser_function=ExtractorSchema._parseType,
+            default_value="UNKNOWN"
+        )
+        self._enabled = ExtractorSchema.ElementFromDict(all_elements=all_elements,
+            element_names=["enabled"],
+            parser_function=ExtractorSchema._parseEnabled,
+            default_value={ExtractionMode.DETECTOR, ExtractionMode.SESSION, ExtractionMode.PLAYER, ExtractionMode.POPULATION}
+        )
+        self._description = ExtractorSchema.ElementFromDict(all_elements=all_elements,
+            element_names=["description"],
+            parser_function=ExtractorSchema._parseDescription,
+            default_value="No Description"
+        )
 
         _used = {"type", "enabled", "description"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }

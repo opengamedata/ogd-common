@@ -76,24 +76,25 @@ class FeatureSchema(ExtractorSchema):
         self._subfeatures : Dict[str, SubfeatureSchema]
         self._return_type : str
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
+        if not isinstance(other_elements, dict):
+            other_elements = {}
             Logger.Log(f"For {name} Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
 
-        if "return_type" in all_elements.keys():
-            self._return_type = FeatureSchema._parseReturnType(all_elements['return_type'], feature_name=name)
-        else:
-            self._return_type = ""
-            Logger.Log(f"{name} Feature config does not have an 'return_type' element; defaulting to return_type='{self._return_type}'", logging.WARN)
-        if "subfeatures" in all_elements.keys():
-            self._subfeatures = FeatureSchema._parseSubfeatures(all_elements['subfeatures'])
-        else:
-            self._subfeatures = {}
+        self._return_type = FeatureSchema.ElementFromDict(all_elements=other_elements,
+            element_names=["return_type"],
+            parser_function=FeatureSchema._parseReturnType,
+            default_value="UNKNOWN"
+        )
+        self._subfeatures = FeatureSchema.ElementFromDict(all_elements=other_elements,
+            element_names=["subfeatures"],
+            parser_function=FeatureSchema._parseSubfeatures,
+            default_value={}
+        )
 
         _used = {"return_type", "subfeatures"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        _leftovers = { key : val for key,val in other_elements.items() if key not in _used }
 
-        super().__init__(name=name, all_elements=other_elements)
+        super().__init__(name=name, all_elements=_leftovers)
 
     @property
     def ReturnType(self) -> str:

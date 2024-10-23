@@ -64,20 +64,22 @@ class DataElementSchema(Schema):
             else:
                 all_elements = {}
                 Logger.Log(f"For EventDataElement config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        if "type" in all_elements.keys():
-            _type = DataElementSchema._parseElementType(all_elements['type'])
-        else:
-            _type = "Unknown"
-            Logger.Log(f"{name} EventDataElement config does not have a 'type' element; defaulting to type='{_type}", logging.WARN)
-        if "description" in all_elements.keys():
-            _description = DataElementSchema._parseDescription(all_elements['description'])
-        else:
-            _description = "Unknown"
-            Logger.Log(f"{name} EventDataElement config does not have a 'description' element; defaulting to description='{_description}", logging.WARN)
-        if "details" in all_elements.keys():
-            _details = DataElementSchema._parseDetails(details=all_elements['details'])
-        else:
-            _details = None
+        _type = DataElementSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["type"],
+            parser_function=DataElementSchema._parseElementType,
+            default_value="UNKNOWN"
+        )
+        _description = DataElementSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["description"],
+            parser_function=DataElementSchema._parseDescription,
+            default_value="UNKNOWN"
+        )
+        _details = DataElementSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["details"],
+            parser_function=DataElementSchema._parseDetails,
+            default_value=None
+        )
+
         _used = {"type", "description", "details"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         return DataElementSchema(name=name, element_type=_type, description=_description, details=_details, other_elements=_leftovers)
