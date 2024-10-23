@@ -157,13 +157,19 @@ class ColumnMapSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
+        # for each item in the map above that we expect...
         for key in _map.keys():
+            # if the item was found in the given "column_map" dictionary...
             if key in all_elements:
+                # parse what was mapped to the item. Could get back a string, or a list, or a dict...
                 element = ColumnMapSchema._parseElement(elem=map[key], name=key)
+                # then if we got a string, we just find it in list of column names
                 if isinstance(element, str):
                     _map[key] = column_names.index(element)
+                # but if it's a list, we need to get index of each item in list of column names
                 elif isinstance(element, list):
                     _map[key] = [column_names.index(listelem) for listelem in element]
+                # but if it's a dict, we need to make equivalent dict mapping the key (new name) to the index (in list of column names)
                 elif isinstance(element, dict):
                     _map[key] = {key : column_names.index(listelem) for key,listelem in element.items()}
             else:

@@ -213,9 +213,9 @@ class TableSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _column_specs = all_elements.get('columns', [])
-        _column_schemas    = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), all_elements=column) for column in _column_specs]
-        _column_map = ColumnMapSchema.FromDict(name="Column Map", all_elements=all_elements.get('column_map', {}), column_names=_column_schemas)
+        _column_json_list = all_elements.get('columns', [])
+        _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), all_elements=column) for column in _column_json_list]
+        _column_map       = ColumnMapSchema.FromDict(name="Column Map", all_elements=all_elements.get('column_map', {}), column_names=[col.Name for col in _column_schemas])
         return TableSchema(name=name, column_map=_column_map, columns=_column_schemas)
 
     # *** PUBLIC STATICS ***
