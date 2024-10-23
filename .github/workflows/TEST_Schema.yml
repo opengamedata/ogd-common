@@ -38,6 +38,10 @@ jobs:
   # 2. Build & configure remote environments
 
   # 3. Perform export
+    - name: See what is in working dir
+      run: |
+        pwd
+        ls
     - name: Execute testbed
       run: python -m unittest discover -s tests/cases/schemas -p "t_Schema.py" -t ./
 
