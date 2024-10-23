@@ -1,50 +1,24 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, TypeAlias
 # import local files
+from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.utils.Logger import Logger
 
-class ColumnMapSchema:
-    def __init__(self, map:Dict[str, Any], column_names:List[str]):
-        self._map                  : Dict[str, Union[int, List[int], Dict[str,int], None]] = {
-            "session_id"           : None,
-            "app_id"               : None,
-            "timestamp"            : None,
-            "event_name"           : None,
-            "event_data"           : None,
-            "event_source"         : None,
-            "app_version"          : None,
-            "app_branch"           : None,
-            "log_version"          : None,
-            "time_offset"          : None,
-            "user_id"              : None,
-            "user_data"            : None,
-            "game_state"           : None,
-            "event_sequence_index" : None
-        }
-        self._other_elements       : Dict[str, Any]
-        self._column_names = column_names
+class ColumnMapSchema(Schema):
+    ColumnMapIndex : TypeAlias = Optional[int | List[int] | Dict[str,int]]
 
-        if isinstance(map, dict):
-            for key in self._map.keys():
-                if key in map:
-                    element = ColumnMapSchema._parseElement(elem=map[key], name=key)
-                    if isinstance(element, str):
-                        self._map[key] = column_names.index(element)
-                    elif isinstance(element, list):
-                        self._map[key] = [column_names.index(listelem) for listelem in element]
-                    elif isinstance(element, dict):
-                        self._map[key] = {key : column_names.index(listelem) for key,listelem in element.items()}
-                else:
-                    Logger.Log(f"Column config does not have a '{key}' element, defaulting to {key} : None", logging.WARN)
-            self._other_elements = { key : val for key,val in map.items() if key not in self._map.keys() }
-        else:
-            self._other_elements = {}
-            Logger.Log(f"For TableSchema config, map was not a dict, defaulting all items in map to None", logging.WARN)
+    # *** BUILT-INS & PROPERTIES ***
+
+    def __init__(self, name:str, map:Dict[str, ColumnMapIndex], column_names:List[str], other_elements:Dict[str, Any]={}):
+        self._map            : Dict[str, ColumnMapSchema.ColumnMapIndex] = map
+        self._column_names   : List[str]                                   = column_names
+
+        super().__init__(name=name, other_elements=other_elements)
 
     @property
-    def Map(self) -> Dict[str, Union[int, List[int], Dict[str, int], None]]:
+    def Map(self) -> Dict[str, ColumnMapIndex]:
         """Mapping from Event element names to the indices of the database columns mapped to them.
         There may be a single index, indicating a 1-to-1 mapping of a database column to the element;
         There may be a list of indices, indicating multiple columns will be concatenated to form the element value;
@@ -56,59 +30,59 @@ class ColumnMapSchema:
         return self._map
 
     @property
-    def SessionID(self) -> Union[int, List[int], Dict[str, int], None]:
+    def SessionID(self) -> ColumnMapIndex:
         return self._map['session_id']
 
     @property
-    def AppID(self) -> Union[int, List[int], Dict[str, int], None]:
+    def AppID(self) -> ColumnMapIndex:
         return self._map['app_id']
 
     @property
-    def Timestamp(self) -> Union[int, List[int], Dict[str, int], None]:
+    def Timestamp(self) -> ColumnMapIndex:
         return self._map['timestamp']
 
     @property
-    def EventName(self) -> Union[int, List[int], Dict[str, int], None]:
+    def EventName(self) -> ColumnMapIndex:
         return self._map['event_name']
 
     @property
-    def EventData(self) -> Union[int, List[int], Dict[str, int], None]:
+    def EventData(self) -> ColumnMapIndex:
         return self._map['event_data']
 
     @property
-    def EventSource(self) -> Union[int, List[int], Dict[str, int], None]:
+    def EventSource(self) -> ColumnMapIndex:
         return self._map['event_source']
 
     @property
-    def AppVersion(self) -> Union[int, List[int], Dict[str, int], None]:
+    def AppVersion(self) -> ColumnMapIndex:
         return self._map['app_version']
 
     @property
-    def AppBranch(self) -> Union[int, List[int], Dict[str, int], None]:
+    def AppBranch(self) -> ColumnMapIndex:
         return self._map['app_branch']
 
     @property
-    def LogVersion(self) -> Union[int, List[int], Dict[str, int], None]:
+    def LogVersion(self) -> ColumnMapIndex:
         return self._map['log_version']
 
     @property
-    def TimeOffset(self) -> Union[int, List[int], Dict[str, int], None]:
+    def TimeOffset(self) -> ColumnMapIndex:
         return self._map['time_offset']
 
     @property
-    def UserID(self) -> Union[int, List[int], Dict[str, int], None]:
+    def UserID(self) -> ColumnMapIndex:
         return self._map['user_id']
 
     @property
-    def UserData(self) -> Union[int, List[int], Dict[str, int], None]:
+    def UserData(self) -> ColumnMapIndex:
         return self._map['user_data']
 
     @property
-    def GameState(self) -> Union[int, List[int], Dict[str, int], None]:
+    def GameState(self) -> ColumnMapIndex:
         return self._map['game_state']
 
     @property
-    def EventSequenceIndex(self) -> Union[int, List[int], Dict[str, int], None]:
+    def EventSequenceIndex(self) -> ColumnMapIndex:
         return self._map['event_sequence_index']
 
     @property
@@ -118,6 +92,8 @@ class ColumnMapSchema:
     @property
     def ElementNames(self) -> List[str]:
         return list(self._other_elements.keys())
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
     def AsMarkdown(self) -> str:
@@ -139,10 +115,72 @@ class ColumnMapSchema:
                 event_column_list.append(f"**{evt_col}** = null  ")
         ret_val = "\n".join(event_column_list)
         return ret_val
+
+    @staticmethod
+    def FromDict(name:str, all_elements:Dict[str, Any], column_names:List[str], logger:Optional[logging.Logger]=None)-> "ColumnMapSchema":
+        """Function to generate a ColumnMapSchema from a JSON object
+
+        TODO : find a way around using column_names as a direct parameter.
+
+        :param name: _description_
+        :type name: str
+        :param all_elements: _description_
+        :type all_elements: Dict[str, Any]
+        :param column_names: _description_
+        :type column_names: List[str]
+        :param logger: _description_, defaults to None
+        :type logger: Optional[logging.Logger], optional
+        :return: _description_
+        :rtype: ColumnMapSchema
+        """
+        _map : Dict[str, ColumnMapSchema.ColumnMapIndex] = {
+            "session_id"           : None,
+            "app_id"               : None,
+            "timestamp"            : None,
+            "event_name"           : None,
+            "event_data"           : None,
+            "event_source"         : None,
+            "app_version"          : None,
+            "app_branch"           : None,
+            "log_version"          : None,
+            "time_offset"          : None,
+            "user_id"              : None,
+            "user_data"            : None,
+            "game_state"           : None,
+            "event_sequence_index" : None
+        }
+
+        if not isinstance(all_elements, dict):
+            all_elements = {}
+            _msg = f"For {name} column map schema, all_elements was not a dict, defaulting to empty dict"
+            if logger:
+                logger.warning(_msg)
+            else:
+                Logger.Log(_msg, logging.WARN)
+        for key in _map.keys():
+            if key in all_elements:
+                element = ColumnMapSchema._parseElement(elem=map[key], name=key)
+                if isinstance(element, str):
+                    _map[key] = column_names.index(element)
+                elif isinstance(element, list):
+                    _map[key] = [column_names.index(listelem) for listelem in element]
+                elif isinstance(element, dict):
+                    _map[key] = {key : column_names.index(listelem) for key,listelem in element.items()}
+            else:
+                Logger.Log(f"Column config does not have a '{key}' element, defaulting to {key} : None", logging.WARN)
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _map.keys() }
+
+        return ColumnMapSchema(name=name, map=_map, column_names=column_names, other_elements=_leftovers)
+
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
     
     @staticmethod
-    def _parseElement(elem:Any, name:str) -> Union[str, List[str], Dict[str, str], None]:
-        ret_val : Union[str, List[str], Dict[str, str], None]
+    def _parseElement(elem:Any, name:str) -> Optional[str | List[str] | Dict[str, str]]:
+        ret_val : Optional[str | List[str] | Dict[str, str]]
         if elem is not None:
             if isinstance(elem, str):
                 ret_val = elem
@@ -157,3 +195,5 @@ class ColumnMapSchema:
             ret_val = None
             Logger.Log(f"Column name mapped to {name} was left null, nothing will be mapped to {name}", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***
