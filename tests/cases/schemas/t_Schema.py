@@ -11,7 +11,7 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.schemas.Schema import Schema
 from tests.config.t_config import settings
 
-_config = TestConfigSchema.FromDict(name="ServerConfigSchemaTestConfig", all_elements=settings, logger=None)
+_config = TestConfigSchema.FromDict(name="SchemaTestConfig", all_elements=settings, logger=None)
 
 @unittest.skip("No tests implemented yet")
 class t_Schema(TestCase):
