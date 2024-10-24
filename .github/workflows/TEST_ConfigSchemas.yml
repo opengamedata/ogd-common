@@ -8,9 +8,7 @@ on:
     paths:
     - '.github/workflows/TEST_ConfigSchemas.yml'
     - '.github/actions/test_config/**'
-    - 'tests/cases/schemas/t_GameSourceSchema.py'
-    - 'tests/cases/schemas/t_IndexingSchema.py'
-    - 'tests/cases/schemas/t_TestConfigSchema.py'
+    - 'tests/cases/schemas/config/**'
     - 'tests/config/**'
     - 'requirements.txt'
 
