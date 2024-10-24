@@ -15,7 +15,7 @@ on:
 jobs:
 
   run_testbed_schema:
-    name: Run Schema base class Testbed
+    name: Run Config Schema Testbeds
     runs-on: ubuntu-22.04
     concurrency:
       group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-ConfigSchema
