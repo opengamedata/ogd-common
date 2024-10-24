@@ -75,7 +75,7 @@ class t_TestConfigSchema(TestCase):
         _dict = {
             "VERBOSE" : False,
             "ENABLED" : {
-                "INTERFACES":True,
+                "INTERFACES":False,
                 "SCHEMAS":True,
                 "UTILS":True
             },
