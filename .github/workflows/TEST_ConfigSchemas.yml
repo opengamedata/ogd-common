@@ -1,0 +1,56 @@
+# Workflow to test the schemas from the `config` subfolder
+name: Testbed - Config Schemas
+run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
+on:
+  workflow_dispatch:
+  workflow_call:
+  push:
+    paths:
+    - '.github/workflows/TEST_ConfigSchemas.yml'
+    - '.github/actions/test_config/**'
+    - 'tests/cases/schemas/t_GameSourceSchema.py'
+    - 'tests/cases/schemas/t_IndexingSchema.py'
+    - 'tests/cases/schemas/t_TestConfigSchema.py'
+    - 'tests/config/**'
+    - 'requirements.txt'
+
+jobs:
+
+  run_testbed_schema:
+    name: Run Schema base class Testbed
+    runs-on: ubuntu-22.04
+    concurrency:
+      group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-ConfigSchema
+      cancel-in-progress: true
+
+    steps:
+  # 1. Local checkout 
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Get Dependencies
+      uses: opengamedata/setup-ogd-py-dependencies@v1.0
+      with:
+        python_version: ${{ vars.OGD_PYTHON_VERSION }}
+    - name: Local self-install
+      run: python -m pip install -e .
+    - name: Set up Config File
+      uses: ./.github/actions/test_config
+      with:
+          verbose_output: "True"
+          with_schemas: "True"
+
+  # 2. Build & configure remote environments
+
+  # 3. Perform export
+    - name: Execute testbed
+      run: |
+        python -m unittest discover -s tests/cases/schemas/config -p "t_GameSourceSchema.py" -t ./
+        python -m unittest discover -s tests/cases/schemas/config -p "t_IndexingSchema.py" -t ./
+        python -m unittest discover -s tests/cases/schemas/config -p "t_TestConfigSchema.py" -t ./
+
+  # 4. Cleanup & complete
+    - name: Upload logs as artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: "test-log"
+        path: ./*.log
