@@ -8,7 +8,7 @@ on:
     paths:
     - '.github/workflows/TEST_ConfigSchemas.yml'
     - '.github/actions/test_config/**'
-    - 'tests/cases/schemas/config/**'
+    - 'tests/cases/schemas/config/*.py'
     - 'tests/config/**'
     - 'requirements.txt'
 
