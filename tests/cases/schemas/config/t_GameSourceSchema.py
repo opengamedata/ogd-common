@@ -110,7 +110,7 @@ class t_GameSourceSchema(TestCase):
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "AQUALAB")
         self.assertIsInstance(_schema.SourceName, str)
-        self.assertEqual(_schema.SourceName, "OPENGAMEDATA_BQ")
+        self.assertEqual(_schema.SourceName, "AQUALAB_BQ")
         # self.assertIsInstance(_schema.Source, DataSourceSchema)
         # self.assertEqual(_schema.Source, "AQUALAB")
         self.assertIsInstance(_schema.DatabaseName, str)
