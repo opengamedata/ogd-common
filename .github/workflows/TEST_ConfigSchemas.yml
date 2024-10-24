@@ -40,11 +40,12 @@ jobs:
   # 2. Build & configure remote environments
 
   # 3. Perform export
-    - name: Execute testbed
-      run: |
-        python -m unittest discover -s tests/cases/schemas/config -p "t_GameSourceSchema.py" -t ./
-        python -m unittest discover -s tests/cases/schemas/config -p "t_IndexingSchema.py" -t ./
-        python -m unittest discover -s tests/cases/schemas/config -p "t_TestConfigSchema.py" -t ./
+    - name: Execute GameSourceSchema testbed
+      run: python -m unittest discover -s tests/cases/schemas/config -p "t_GameSourceSchema.py" -t ./
+    - name: Execute IndexingSchema testbed
+      run: python -m unittest discover -s tests/cases/schemas/config -p "t_IndexingSchema.py" -t ./
+    - name: Execute TestConfigSchema testbed
+      run: python -m unittest discover -s tests/cases/schemas/config -p "t_TestConfigSchema.py" -t ./
 
   # 4. Cleanup & complete
     - name: Upload logs as artifacts
