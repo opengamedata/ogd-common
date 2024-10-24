@@ -13,7 +13,6 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
 from tests.config.t_config import settings
 
-@unittest.skip("No tests implemented yet")
 class t_GameSourceSchema(TestCase):
     """Testbed for the GameSourceSchema class.
     """

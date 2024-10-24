@@ -10,7 +10,6 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.schemas.configs.IndexingSchema import FileIndexingSchema
 from tests.config.t_config import settings
 
-@unittest.skip("No tests implemented yet")
 class t_IndexingSchema(TestCase):
     """Testbed for the GameSourceSchema class.
     """

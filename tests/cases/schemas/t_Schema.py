@@ -11,7 +11,6 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.schemas.Schema import Schema
 from tests.config.t_config import settings
 
-@unittest.skip("No tests implemented yet")
 class t_Schema(TestCase):
     """Testbed for the Schema base class.
 
