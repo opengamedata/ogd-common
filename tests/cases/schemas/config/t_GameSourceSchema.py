@@ -92,9 +92,10 @@ class t_GameSourceSchema(TestCase):
         """Test case for whether the FromDict function is working properly.
 
             TODO : Include assertion(s) for DataSourceSchema, as in implementation of test_Source (whenever that gets implemented)
+            TODO : Possibly do additional cases where we check that default replacements for missing elements are correct.
         """
         _dict = {
-            "source":"OPENGAMEDATA_BQ",
+            "source":"AQUALAB_BQ",
             "database":"aqualab",
             "table":"aqualab_daily",
             "schema":"OPENGAMEDATA_BIGQUERY"
