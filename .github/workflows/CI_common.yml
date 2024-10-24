@@ -24,3 +24,8 @@ jobs:
     name: Schema base class Testbed
     needs: build
     uses: ./.github/workflows/TEST_Schema.yml
+
+  testbed_config_schemas:
+    name: Config Schema Testbeds
+    needs: build
+    uses: ./.github/workflows/TEST_ConfigSchemas.yml
