@@ -8,28 +8,11 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class SubfeatureSchema(Schema):
-    def __init__(self, name:str, all_elements:Dict[str, str]):
-        self._return_type : str
-        self._description : str    
+    def __init__(self, name:str, return_type:str, description:str, other_elements:Dict[str, str]):
+        self._return_type : str = return_type
+        self._description : str = description
 
-        if not isinstance(all_elements, dict):
-            self._elements = {}
-            Logger.Log(f"For {name} subfeature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-
-        if "return_type" in all_elements.keys():
-            self._return_type = SubfeatureSchema._parseReturnType(all_elements['return_type'])
-        else:
-            self._return_type = "Unknown"
-            Logger.Log(f"{name} subfeature config does not have an 'return_type' element; defaulting to return_type='{self._return_type}", logging.WARN)
-        if "description" in all_elements.keys():
-            self._description = SubfeatureSchema._parseDescription(all_elements['description'])
-        else:
-            self._description = "No description"
-            Logger.Log(f"{name} subfeature config does not have an 'description' element; defaulting to description='{self._description}'", logging.WARN)
-        
-        _used = {"return_type", "description"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        super().__init__(name=name, other_elements=_leftovers)
+        super().__init__(name=name, other_elements=other_elements)
 
     @property
     def ReturnType(self) -> str:
@@ -45,6 +28,30 @@ class SubfeatureSchema(Schema):
         if len(self.NonStandardElements) > 0:
             ret_val += f'   (other items: {self.NonStandardElements}'
         return ret_val
+
+    @staticmethod
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileIndexingSchema":
+        _return_type : str
+        _description : str    
+
+        if not isinstance(all_elements, dict):
+            _elements = {}
+            Logger.Log(f"For {name} subfeature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
+
+        _return_type = SubfeatureSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["return_type"],
+            parser_function=SubfeatureSchema._parseReturnType,
+            default_value="UNKNOWN"
+        )
+        _description = SubfeatureSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["description"],
+            parser_function=SubfeatureSchema._parseDescription,
+            default_value="No description"
+        )
+        
+        _used = {"return_type", "description"}
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        return SubfeatureSchema(name=name, return_type=_return_type, description=_description, other_elements=_leftovers)
 
     @staticmethod
     def _parseReturnType(return_type):
