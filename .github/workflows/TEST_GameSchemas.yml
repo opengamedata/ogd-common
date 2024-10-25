@@ -17,12 +17,22 @@ jobs:
   run_testbed_schema:
     name: Run Game Schema Testbeds
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        testbed: [
+          t_GameSourceSchema,
+          t_IndexingSchema,
+          t_TestConfigSchema,
+        ]
+      fail-fast: false # we don't want to cancel just because one testbed fails.
+      max-parallel: 20
     concurrency:
       group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-ConfigSchema
       cancel-in-progress: true
 
     steps:
   # 1. Local checkout 
+    - run: echo "::group::Local Checkout & Config"
     - name: Checkout repository
       uses: actions/checkout@v4
     - name: Get Dependencies
@@ -36,16 +46,21 @@ jobs:
       with:
           verbose_output: "True"
           with_schemas: "True"
+    - run: echo "::endgroup::"
 
   # 2. Build & configure remote environments
 
   # 3. Perform export
+    - run: echo "::group::Execute Task"
     - name: Execute AggregateSchema testbed
       run: python -m unittest discover -s tests/cases/schemas/games -p "t_AggregateSchema.py" -t ./
+    - run: echo "::endgroup::"
 
   # 4. Cleanup & complete
+    - run: echo "::group::Cleanup & Complete"
     - name: Upload logs as artifacts
       uses: actions/upload-artifact@v4
       with:
         name: "test-log"
         path: ./*.log
+    - run: echo "::endgroup::"
