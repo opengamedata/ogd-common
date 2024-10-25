@@ -1,26 +1,35 @@
-# Workflow to test the `Schema` base class
-name: Testbed - Schema base class
+# Workflow to test the schemas from the `config` subfolder
+name: Testbed - Config Schemas
 run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
 on:
   workflow_dispatch:
   workflow_call:
   push:
     paths:
-    - '.github/workflows/TEST_Schema.yml'
+    - '.github/workflows/TEST_ConfigSchemas.yml'
     - '.github/actions/test_config/**'
-    - 'tests/cases/schemas/t_Schema.py'
+    - 'tests/cases/schemas/config/*.py'
     - 'tests/config/**'
     - 'requirements.txt'
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-Schema
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-ConfigSchemas
   cancel-in-progress: true
 
 jobs:
 
-  run_testbed_schema:
-    name: Run Schema base class Testbed
+  run_testbeds:
+    name: Run Config Schema Testbeds
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        testbed: [
+          t_GameSourceSchema,
+          t_IndexingSchema,
+          t_TestConfigSchema,
+        ]
+      fail-fast: false # we don't want to cancel just because one testbed fails.
+      max-parallel: 20
 
     steps:
   # 1. Local checkout 
@@ -36,12 +45,12 @@ jobs:
       uses: ./.github/actions/test_config
       with:
           verbose_output: "True"
-          with_schemas:   "True"
+          with_schemas: "True"
 
   # 2. Build & configure remote environments
 
-  # 3. Perform export
-    - name: Execute testbed
-      run: python -m unittest discover -s tests/cases/schemas -p "t_Schema.py" -t ./
+  # 3. Perform work
+    - name: Execute ${{ matrix.testbed }} testbed
+      run: python -m unittest discover -s tests/cases/schemas/config -p "${{ matrix.testbed }}.py" -t ./
 
   # 4. Cleanup & complete

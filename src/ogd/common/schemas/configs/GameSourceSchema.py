@@ -11,6 +11,8 @@ class GameSourceSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     """A simple Schema structure containing configuration information for a particular game's data.
+
+    TODO : use a TableSchema for the table_schema instead of just the name of the schema, like we do with source_schema.
     
     When given to an interface, this schema is treated as the location from which to retrieve data.
     When given to an outerface, this schema is treated as the location in which to store data.
@@ -66,6 +68,19 @@ class GameSourceSchema(Schema):
 
     @staticmethod
     def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger], data_sources:Dict[str, DataSourceSchema]) -> "GameSourceSchema":
+        """Create a GameSourceSchema from a given dictionary
+
+        :param name: _description_
+        :type name: str
+        :param all_elements: _description_
+        :type all_elements: Dict[str, Any]
+        :param logger: _description_
+        :type logger: Optional[logging.Logger]
+        :param data_sources: _description_
+        :type data_sources: Dict[str, DataSourceSchema]
+        :return: _description_
+        :rtype: GameSourceSchema
+        """
         _source_name   : str
         _source_schema : Optional[DataSourceSchema]
         _db_name       : str

@@ -15,7 +15,7 @@ class GameStateSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, game_state:Dict[str, DataElementSchema], other_elements:Dict[str, Dict]):
+    def __init__(self, name:str, game_state:Dict[str, DataElementSchema], other_elements:Dict[str, Any]):
         self._game_state  : Dict[str, DataElementSchema] = game_state
 
         super().__init__(name=name, other_elements=other_elements)

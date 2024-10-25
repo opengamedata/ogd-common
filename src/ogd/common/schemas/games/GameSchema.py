@@ -49,7 +49,7 @@ class GameSchema(Schema):
     def __init__(self, name:str, game_id:str, enum_defs:Dict[str, List[str]],
                  game_state:Map, user_data:Map, event_list:List[EventSchema],
                  detector_map:Dict[str, Dict[str, DetectorSchema]],
-                 aggregate_feats: Dict[str, AggregateSchema], percount_feats:Dict[str, PerCountFeatures],
+                 aggregate_feats: Dict[str, AggregateSchema], percount_feats:Dict[str, PerCountSchema],
                  legacy_perlevel_feats: Dict[str, PerCountSchema], use_legacy_mode:bool,
                  config:Map, min_level:Optional[int], max_level:Optional[int], other_ranges:Dict[str, range],
                  supported_vers:Optional[List[int]], other_elements:Dict[str, Any]):

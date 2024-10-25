@@ -1,0 +1,64 @@
+# Workflow to test the schemas from the `config` subfolder
+name: Testbed - Game Schemas
+run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
+on:
+  workflow_dispatch:
+  workflow_call:
+  push:
+    paths:
+    - '.github/workflows/TEST_GameSchemas.yml'
+    - '.github/actions/test_config/**'
+    - 'tests/cases/schemas/games/**'
+    - 'tests/config/**'
+    - 'requirements.txt'
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-GameSchemas
+  cancel-in-progress: true
+
+jobs:
+
+  run_testbed_schema:
+    name: Run Game Schema Testbeds
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        testbed: [
+          t_AggregateSchema,
+          t_DataElementSchema,
+          t_DetectorMapSchema,
+          t_DetectorSchema,
+          t_EventSchema,
+          t_FeatureMapSchema,
+          t_FeatureSchema,
+          t_GameSchema,
+          t_GameStateSchema,
+          t_GeneratorSchema,
+          t_PerCountSchema,
+        ]
+      fail-fast: false # we don't want to cancel just because one testbed fails.
+      max-parallel: 20
+
+    steps:
+  # 1. Local checkout 
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Get Dependencies
+      uses: opengamedata/setup-ogd-py-dependencies@v1.0
+      with:
+        python_version: ${{ vars.OGD_PYTHON_VERSION }}
+    - name: Local self-install
+      run: python -m pip install -e .
+    - name: Set up Config File
+      uses: ./.github/actions/test_config
+      with:
+          verbose_output: "True"
+          with_schemas: "True"
+
+  # 2. Build & configure remote environments
+
+  # 3. Perform export
+    - name: Execute ${{ matrix.testbed }} testbed
+      run: python -m unittest discover -s tests/cases/schemas/games -p "${{ matrix.testbed }}.py" -t ./
+
+  # 4. Cleanup & complete

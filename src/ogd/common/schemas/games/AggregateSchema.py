@@ -6,7 +6,7 @@ from ogd.common.schemas.games.FeatureSchema import FeatureSchema
 
 class AggregateSchema(FeatureSchema):
     def __init__(self, name:str, all_elements:Dict[str, Any]):
-        super().__init__(name=name, all_elements=all_elements)
+        super().__init__(name=name, other_elements=all_elements)
 
     @property
     def AsMarkdown(self) -> str:
