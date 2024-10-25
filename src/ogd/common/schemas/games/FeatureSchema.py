@@ -3,7 +3,7 @@ import abc
 import logging
 from typing import Any, Dict, List
 # import local files
-from ogd.common.schemas.games.ExtractorSchema import ExtractorSchema
+from ogd.common.schemas.games.GeneratorSchema import GeneratorSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
@@ -65,7 +65,7 @@ class SubfeatureSchema(Schema):
             Logger.Log(f"Extractor description was not a string, defaulting to str(description) == {ret_val}", logging.WARN)
         return ret_val
 
-class FeatureSchema(ExtractorSchema):
+class FeatureSchema(GeneratorSchema):
     def __init__(self, name:str, all_elements:Dict[str, Any]):
         self._subfeatures : Dict[str, SubfeatureSchema]
         self._return_type : str
