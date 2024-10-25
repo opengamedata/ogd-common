@@ -1,6 +1,6 @@
 __all__ = [
     "EventSchema",
-    "ExtractorSchema",
+    "GeneratorSchema",
     "DetectorSchema",
     "FeatureSchema",
     "AggregateSchema",
@@ -9,7 +9,7 @@ __all__ = [
 ]
 
 from . import EventSchema
-from . import ExtractorSchema
+from . import GeneratorSchema
 from . import DetectorSchema
 from . import FeatureSchema
 from . import AggregateSchema
