@@ -1,20 +1,13 @@
 # import standard libraries
 import abc
 import logging
-from typing import Any, Dict, Optional, Set
+from typing import Any, Dict, List, Set
 # import local files
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
-class ExtractorSchema(Schema):
-    """Base class for all schemas related to defining Generator configurations.
-
-    TODO : Rename to GeneratorSchema
-    """
-
-    # *** BUILT-INS & PROPERTIES ***
-
+class GeneratorSchema(Schema):
     def __init__(self, name:str, all_elements:Dict[str, Any]):
         self._enabled     : Set[ExtractionMode]
         self._type_name   : str
@@ -24,25 +17,22 @@ class ExtractorSchema(Schema):
             all_elements = {}
             Logger.Log(f"For {name} Extractor config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
 
-        self._type_name = ExtractorSchema.ElementFromDict(all_elements=all_elements,
-            element_names=["type"],
-            parser_function=ExtractorSchema._parseType,
-            default_value="UNKNOWN"
-        )
-        self._enabled = ExtractorSchema.ElementFromDict(all_elements=all_elements,
-            element_names=["enabled"],
-            parser_function=ExtractorSchema._parseEnabled,
-            default_value={ExtractionMode.DETECTOR, ExtractionMode.SESSION, ExtractionMode.PLAYER, ExtractionMode.POPULATION}
-        )
-        self._description = ExtractorSchema.ElementFromDict(all_elements=all_elements,
-            element_names=["description"],
-            parser_function=ExtractorSchema._parseDescription,
-            default_value="No Description"
-        )
+        if "type" in all_elements.keys():
+            self._type_name = GeneratorSchema._parseType(all_elements['type'])
+        else:
+            self._type_name = name
+        if "enabled" in all_elements.keys():
+            self._enabled = GeneratorSchema._parseEnabled(all_elements['enabled'])
+        else:
+            self._enabled = {ExtractionMode.DETECTOR, ExtractionMode.SESSION, ExtractionMode.PLAYER, ExtractionMode.POPULATION}
+            Logger.Log(f"{name} config does not have an 'enabled' element; defaulting to enabled=True", logging.WARN)
+        if "description" in all_elements.keys():
+            self._description = GeneratorSchema._parseDescription(all_elements['description'])
+        else:
+            self._description = "No Description"
+            Logger.Log(f"{name} config does not have an 'description' element; defaulting to description='{self._description}'", logging.WARN)
 
-        _used = {"type", "enabled", "description"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-
+        _leftovers = { key : val for key,val in all_elements.items() if key not in {"type", "enabled", "description"} }
         super().__init__(name=name, other_elements=_leftovers)
 
     @property
@@ -56,14 +46,6 @@ class ExtractorSchema(Schema):
     @property
     def Description(self) -> str:
         return self._description
-
-    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
-
-    # *** PUBLIC STATICS ***
-
-    # *** PUBLIC METHODS ***
-
-    # *** PRIVATE STATICS ***
     
     @staticmethod
     def _parseType(extractor_type):
@@ -111,5 +93,3 @@ class ExtractorSchema(Schema):
             ret_val = str(description)
             Logger.Log(f"Extractor description was not a string, defaulting to str(description) == {ret_val}", logging.WARN)
         return ret_val
-
-    # *** PRIVATE METHODS ***
