@@ -20,12 +20,21 @@ jobs:
     with:
       with_caching: false
 
-  testbed_schema:
+  testbeds:
     name: Schema base class Testbed
     needs: build
-    uses: ./.github/workflows/TEST_Schema.yml
+    strategy:
+      matrix:
+        testbed: [
+          Schema,
+          ConfigSchemas,
+          GameSchemas,
+        ]
+      fail-fast: false # we don't want to cancel just because one testbed fails.
+      max-parallel: 20
+    uses: ./.github/workflows/TEST_${{ matrix.testbed }}.yml
 
-  testbed_config_schemas:
-    name: Config Schema Testbeds
-    needs: build
-    uses: ./.github/workflows/TEST_ConfigSchemas.yml
+  # testbed_config_schemas:
+  #   name: Config Schema Testbeds
+  #   needs: build
+  #   uses: ./.github/workflows/TEST_ConfigSchemas.yml
