@@ -12,14 +12,15 @@ on:
     - 'tests/config/**'
     - 'requirements.txt'
 
+concurrency:
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-Schema
+  cancel-in-progress: true
+
 jobs:
 
   run_testbed_schema:
     name: Run Schema base class Testbed
     runs-on: ubuntu-22.04
-    concurrency:
-      group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-Schema
-      cancel-in-progress: true
 
     steps:
   # 1. Local checkout 
@@ -34,8 +35,8 @@ jobs:
     - name: Set up Config File
       uses: ./.github/actions/test_config
       with:
-          verbose_output:    "True"
-          with_schemas: "True"
+          verbose_output: "True"
+          with_schemas:   "True"
 
   # 2. Build & configure remote environments
 
