@@ -7,7 +7,7 @@ from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
-class ExtractorSchema(Schema):
+class GeneratorSchema(Schema):
     def __init__(self, name:str, all_elements:Dict[str, Any]):
         self._enabled     : Set[ExtractionMode]
         self._type_name   : str
@@ -18,16 +18,16 @@ class ExtractorSchema(Schema):
             Logger.Log(f"For {name} Extractor config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
 
         if "type" in all_elements.keys():
-            self._type_name = ExtractorSchema._parseType(all_elements['type'])
+            self._type_name = GeneratorSchema._parseType(all_elements['type'])
         else:
             self._type_name = name
         if "enabled" in all_elements.keys():
-            self._enabled = ExtractorSchema._parseEnabled(all_elements['enabled'])
+            self._enabled = GeneratorSchema._parseEnabled(all_elements['enabled'])
         else:
             self._enabled = {ExtractionMode.DETECTOR, ExtractionMode.SESSION, ExtractionMode.PLAYER, ExtractionMode.POPULATION}
             Logger.Log(f"{name} config does not have an 'enabled' element; defaulting to enabled=True", logging.WARN)
         if "description" in all_elements.keys():
-            self._description = ExtractorSchema._parseDescription(all_elements['description'])
+            self._description = GeneratorSchema._parseDescription(all_elements['description'])
         else:
             self._description = "No Description"
             Logger.Log(f"{name} config does not have an 'description' element; defaulting to description='{self._description}'", logging.WARN)
