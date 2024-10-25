@@ -6,11 +6,11 @@ from unittest import TestCase
 from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.schemas.games.ExtractorSchema import ExtractorSchema
+from src.ogd.common.schemas.games.GeneratorSchema import GeneratorSchema
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
-class t_ExtractorSchema(TestCase):
+class t_GeneratorSchema(TestCase):
     """Testbed for the DetectorSchema class.
 
         TODO : Implement tests
@@ -38,7 +38,7 @@ class t_ExtractorSchema(TestCase):
                 }
             }
         }
-        # cls.test_schema = ExtractorSchema(
+        # cls.test_schema = GeneratorSchema(
         #     name="ActiveTime Schema",
         #     all_elements=_elems
         # )
@@ -108,7 +108,7 @@ class t_ExtractorSchema(TestCase):
                 }
             }
         }
-        # _schema = ExtractorSchema.FromDict(name="ActiveTime Schema", all_elements=_dict, logger=None)
+        # _schema = GeneratorSchema.FromDict(name="ActiveTime Schema", all_elements=_dict, logger=None)
         # self.assertIsInstance(_schema.Name, str)
         # self.assertEqual(_schema.Name, "ActiveTime Schema")
         # self.assertIsInstance(_schema.TypeName, str)
