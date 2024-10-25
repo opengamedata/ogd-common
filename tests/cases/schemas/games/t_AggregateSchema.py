@@ -121,7 +121,7 @@ class t_AggregateSchema(TestCase):
         self.assertIsInstance(_schema.Description, str)
         self.assertEqual(_schema.Description, "Active time of a player")
         self.assertIsInstance(_schema.ReturnType, str)
-        self.assertEqual(_schema.Description, "timedelta")
+        self.assertEqual(_schema.ReturnType, "timedelta")
         self.assertIsInstance(_schema.Subfeatures, dict)
         seconds = _schema.Subfeatures.get("Seconds")
         self.assertIsNotNone(seconds)
