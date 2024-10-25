@@ -12,6 +12,10 @@ on:
     - 'tests/config/**'
     - 'requirements.txt'
 
+concurrency:
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
 
   run_testbed_schema:
@@ -20,15 +24,20 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          t_GameSourceSchema,
-          t_IndexingSchema,
-          t_TestConfigSchema,
+          t_AggregateSchema,
+          t_DataElementSchema,
+          t_DetectorMapSchema,
+          t_DetectorSchema,
+          t_EventSchema,
+          t_ExtractorSchema,
+          t_FeatureMapSchema,
+          t_FeatureSchema,
+          t_GameSchema,
+          t_GameStateSchema,
+          t_PerCountSchema,
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20
-    concurrency:
-      group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-ConfigSchema
-      cancel-in-progress: true
 
     steps:
   # 1. Local checkout 
@@ -52,8 +61,8 @@ jobs:
 
   # 3. Perform export
     - run: echo "::group::Execute Task"
-    - name: Execute AggregateSchema testbed
-      run: python -m unittest discover -s tests/cases/schemas/games -p "t_AggregateSchema.py" -t ./
+    - name: Execute ${{ matrix.testbed }} testbed
+      run: python -m unittest discover -s tests/cases/schemas/games -p "${{ matrix.testbed }}.py" -t ./
     - run: echo "::endgroup::"
 
   # 4. Cleanup & complete
