@@ -4,7 +4,7 @@ import unittest
 from unittest import TestCase
 # import ogd libraries.
 from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
-from ogd.common.schemas.games.FeatureSchema import SubfeatureSchema
+from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.schemas.games.AggregateSchema import AggregateSchema
@@ -56,8 +56,9 @@ class t_AggregateSchema(TestCase):
 
     def test_Enabled(self):
         _enabled = self.test_schema.Enabled
-        self.assertIsInstance(_enabled, bool)
-        self.assertEqual(_enabled, True)
+        _modes = { ExtractionMode.SESSION, ExtractionMode.PLAYER, ExtractionMode.POPULATION, ExtractionMode.DETECTOR }
+        self.assertIsInstance(_enabled, set)
+        self.assertEqual(_enabled, _modes)
 
     def test_Description(self):
         _str = self.test_schema.Description
@@ -109,13 +110,14 @@ class t_AggregateSchema(TestCase):
                 }
             }
         }
+        _modes = { ExtractionMode.SESSION, ExtractionMode.PLAYER, ExtractionMode.POPULATION, ExtractionMode.DETECTOR }
         _schema = AggregateSchema.FromDict(name="ActiveTime Schema", all_elements=_dict, logger=None)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "ActiveTime Schema")
         self.assertIsInstance(_schema.TypeName, str)
         self.assertEqual(_schema.TypeName, "ActiveTime")
-        self.assertIsInstance(_schema.Enabled, bool)
-        self.assertEqual(_schema.Enabled, True)
+        self.assertIsInstance(_schema.Enabled, set)
+        self.assertEqual(_schema.Enabled, _modes)
         self.assertIsInstance(_schema.Description, str)
         self.assertEqual(_schema.Description, "Active time of a player")
         self.assertIsInstance(_schema.ReturnType, str)
