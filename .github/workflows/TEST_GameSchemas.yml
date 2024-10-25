@@ -41,7 +41,6 @@ jobs:
 
     steps:
   # 1. Local checkout 
-    - run: echo "::group::Local Checkout & Config"
     - name: Checkout repository
       uses: actions/checkout@v4
     - name: Get Dependencies
@@ -55,21 +54,16 @@ jobs:
       with:
           verbose_output: "True"
           with_schemas: "True"
-    - run: echo "::endgroup::"
 
   # 2. Build & configure remote environments
 
   # 3. Perform export
-    - run: echo "::group::Execute Task"
     - name: Execute ${{ matrix.testbed }} testbed
       run: python -m unittest discover -s tests/cases/schemas/games -p "${{ matrix.testbed }}.py" -t ./
-    - run: echo "::endgroup::"
 
   # 4. Cleanup & complete
-    - run: echo "::group::Cleanup & Complete"
     - name: Upload logs as artifacts
       uses: actions/upload-artifact@v4
       with:
         name: "test-log"
         path: ./*.log
-    - run: echo "::endgroup::"
