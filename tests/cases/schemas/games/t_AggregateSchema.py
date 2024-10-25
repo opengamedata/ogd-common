@@ -12,6 +12,8 @@ from tests.config.t_config import settings
 
 class t_AggregateSchema(TestCase):
     """Testbed for the GameSourceSchema class.
+
+        TODO : Test more 'enabled' options/combinations.
     """
 
     @classmethod

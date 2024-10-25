@@ -10,8 +10,10 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.schemas.games.PerCountSchema import PerCountSchema
 from tests.config.t_config import settings
 
-class t_AggregateSchema(TestCase):
-    """Testbed for the GameSourceSchema class.
+class t_PerCountSchema(TestCase):
+    """Testbed for the PerCountSchema class.
+
+        TODO : Test more 'enabled' options/combinations.
     """
 
     @classmethod
