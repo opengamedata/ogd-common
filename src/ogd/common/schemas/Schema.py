@@ -1,7 +1,7 @@
 # import standard libraries
 import abc
 import logging
-from typing import Any, Callable, Dict, List, Optional, Self
+from typing import Any, Callable, Dict, List, Optional
 # import local files
 from ogd.common.utils.Logger import Logger
 

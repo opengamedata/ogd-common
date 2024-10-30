@@ -2,7 +2,7 @@
 import datetime
 import logging
 import unittest
-from typing import Any, Dict, Optional, Self
+from typing import Any, Dict, Optional
 from unittest import TestCase
 # import ogd libraries.
 from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
