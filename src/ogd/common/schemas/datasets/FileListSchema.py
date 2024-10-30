@@ -61,12 +61,12 @@ class FileListConfigSchema(Schema):
         _files_base = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["files_base"],
             parser_function=FileListConfigSchema._parseFilesBase,
-            default_value=None
+            default_value=FileListConfigSchema.DEFAULT_FILE_BASE
         )
         _templates_base = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["templates_base"],
             parser_function=FileListConfigSchema._parseTemplatesBase,
-            default_value=None
+            default_value=FileListConfigSchema.DEFAULT_TEMPLATE_BASE
         )
         _used = {"files_base", "templates_base"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
@@ -74,12 +74,14 @@ class FileListConfigSchema(Schema):
 
     # *** PUBLIC STATICS ***
 
-    @staticmethod
-    def EmptySchema() -> "FileListConfigSchema":
-        return FileListConfigSchema(name="CONFIG NOT FOUND",
+    @classmethod
+    def Default(cls) -> "FileListConfigSchema":
+        return FileListConfigSchema(
+            name="CONFIG NOT FOUND",
             file_base_path=FileListConfigSchema.DEFAULT_FILE_BASE,
             template_base_path=FileListConfigSchema.DEFAULT_TEMPLATE_BASE,
-            other_elements={})
+            other_elements={}
+        )
 
     # *** PUBLIC METHODS ***
 
@@ -108,6 +110,7 @@ class FileListConfigSchema(Schema):
     # *** PRIVATE METHODS ***
 
 class GameDatasetCollectionSchema(Schema):
+    _DEFAULT_DATASETS = {}
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -146,9 +149,13 @@ class GameDatasetCollectionSchema(Schema):
 
     # *** PUBLIC STATICS ***
 
-    @staticmethod
-    def EmptySchema() -> "GameDatasetCollectionSchema":
-        return GameDatasetCollectionSchema(name="DATASET COLLECTION NOT FOUND", game_datasets={}, other_elements={})
+    @classmethod
+    def Default(cls) -> "GameDatasetCollectionSchema":
+        return GameDatasetCollectionSchema(
+            name="DefaultGameDatasetCollectionSchema",
+            game_datasets=cls._DEFAULT_DATASETS,
+            other_elements={}
+        )
 
     # *** PUBLIC METHODS ***
 
@@ -207,7 +214,7 @@ class FileListSchema(Schema):
         _config = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["CONFIG"],
             parser_function=FileListSchema._parseConfig,
-            default_value=FileListConfigSchema.EmptySchema()
+            default_value=FileListConfigSchema.Default()
         )
     # 2. Parse games
         _used = {"CONFIG"}
@@ -227,7 +234,7 @@ class FileListSchema(Schema):
         if isinstance(config, dict):
             ret_val = FileListConfigSchema.FromDict(name="ConfigSchema", all_elements=config)
         else:
-            ret_val = FileListConfigSchema.EmptySchema()
+            ret_val = FileListConfigSchema.Default()
             Logger.Log(f"Config was unexpected type {type(config)}, defaulting to empty ConfigSchema.", logging.WARN)
         return ret_val
 
