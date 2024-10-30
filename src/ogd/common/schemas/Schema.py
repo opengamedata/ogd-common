@@ -21,7 +21,7 @@ class Schema(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def Default(cls) -> Self:
+    def Default(cls) -> "Schema":
         """Property to get an instance of the Schema with default member values.
 
         Note that these defaults may or may not be a usable configuration.

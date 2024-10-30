@@ -2,7 +2,7 @@
 import datetime
 import logging
 import unittest
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Self
 from unittest import TestCase
 # import ogd libraries.
 from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
@@ -24,6 +24,10 @@ class t_Schema(TestCase):
         @property
         def AsMarkdown(self) -> str:
             return self.Name
+    
+        @classmethod
+        def Default(cls) -> "t_Schema.TestSchema":
+            return t_Schema.TestSchema(name="DefaultTestSchema", other_elements={})
 
         @staticmethod
         def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "t_Schema.TestSchema":
