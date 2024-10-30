@@ -177,6 +177,16 @@ class GameDatasetCollectionSchema(Schema):
     # *** PRIVATE METHODS ***
 
 class FileListSchema(Schema):
+    """_summary_
+
+    TODO : The way this is structured and parsed from a dict is weird, need to see if there's a better way.
+
+    :param Schema: _description_
+    :type Schema: _type_
+    :return: _description_
+    :rtype: _type_
+    """
+    _DEFAULT_GAME_FILE_LISTS = {}
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -221,6 +231,15 @@ class FileListSchema(Schema):
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         _games_file_lists = FileListSchema._parseGamesFileLists(games_dict=_leftovers)
         return FileListSchema(name=name, game_file_lists=_games_file_lists, file_list_config=_config, other_elements={})
+
+    @classmethod
+    def Default(cls) -> "FileListSchema":
+        return FileListSchema(
+            name="DefaultFileListSchema",
+            game_file_lists=cls._DEFAULT_GAME_FILE_LISTS,
+            file_list_config=FileListConfigSchema.Default(),
+            other_elements={}
+        )
 
     # *** PUBLIC STATICS ***
 
