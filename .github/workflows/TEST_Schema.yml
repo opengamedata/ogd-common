@@ -1,0 +1,47 @@
+# Workflow to test the `Schema` base class
+name: Testbed - Schema base class
+run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
+on:
+  workflow_dispatch:
+  workflow_call:
+  push:
+    paths:
+    - '.github/workflows/TEST_Schema.yml'
+    - '.github/actions/test_config/**'
+    - 'tests/cases/schemas/t_Schema.py'
+    - 'tests/config/**'
+    - 'requirements.txt'
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-Schema
+  cancel-in-progress: true
+
+jobs:
+
+  run_testbed_schema:
+    name: Run Schema base class Testbed
+    runs-on: ubuntu-22.04
+
+    steps:
+  # 1. Local checkout 
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Get Dependencies
+      uses: opengamedata/setup-ogd-py-dependencies@v1.2
+      with:
+        python_version: ${{ vars.OGD_PYTHON_VERSION }}
+    - name: Local self-install
+      run: python -m pip install -e .
+    - name: Set up Config File
+      uses: ./.github/actions/test_config
+      with:
+          verbose_output: "True"
+          with_schemas:   "True"
+
+  # 2. Build & configure remote environments
+
+  # 3. Perform export
+    - name: Execute testbed
+      run: python -m unittest discover -s tests/cases/schemas -p "t_Schema.py" -t ./
+
+  # 4. Cleanup & complete

@@ -16,117 +16,105 @@ from ogd.common.schemas.games.FeatureSchema import FeatureSchema
 from ogd.common.schemas.games.FeatureMapSchema import FeatureMapSchema
 from ogd.common.models.enums.IterationMode import IterationMode
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
+from ogd.common.utils.typing import Map
 from ogd.common.utils import utils
 from ogd.common.utils.utils import loadJSONFile
 from ogd.common.utils.Logger import Logger
 
 ## @class GameSchema
-#  A fairly simple class that reads a JSON schema with information on how a given
-#  game's data is structured in the database, and the features we want to extract
-#  for that game.
-#  The class includes several functions for easy access to the various parts of
-#  this schema data.
 class GameSchema(Schema):
+    """A fairly simple class that reads a JSON schema with information on how a given
+    game's data is structured in the database, and the features we want to extract
+    for that game.
+    The class includes several functions for easy access to the various parts of
+    this schema data.
+    """
+    _DEFAULT_ENUMS = {}
+    _DEFAULT_GAME_STATE = {}
+    _DEFAULT_USER_DATA = {}
+    _DEFAULT_EVENT_LIST = []
+    _DEFAULT_DETECTOR_MAP = {'perlevel':{}, 'per_count':{}, 'aggregate':{}}
+    _DEFAULT_AGGREGATES = {}
+    _DEFAULT_PERCOUNTS = {}
+    _DEFAULT_LEGACY_PERCOUNTS = {}
+    _DEFAULT_LEGACY_MODE = False
+    _DEFAULT_CONFIG = {}
+    _DEFAULT_MIN_LEVEL = None
+    _DEFAULT_MAX_LEVEL = None
+    _DEFAULT_OTHER_RANGES = {}
+    _DEFAULT_VERSIONS = None
+
     # *** BUILT-INS & PROPERTIES ***
 
-    # TODO: need to get game_state from schema file.
-
-    def __init__(self, name:str, all_elements:Dict[str, Any]):
+    def __init__(self, name:str, game_id:str, enum_defs:Dict[str, List[str]],
+                 game_state:Map, user_data:Map, event_list:List[EventSchema],
+                 detector_map:Dict[str, Dict[str, DetectorSchema]],
+                 aggregate_feats: Dict[str, AggregateSchema], percount_feats:Dict[str, PerCountSchema],
+                 legacy_perlevel_feats: Dict[str, PerCountSchema], use_legacy_mode:bool,
+                 config:Map, min_level:Optional[int], max_level:Optional[int], other_ranges:Dict[str, range],
+                 supported_vers:Optional[List[int]], other_elements:Dict[str, Any]):
         """Constructor for the GameSchema class.
         Given a path and filename, it loads the data from a JSON schema,
         storing the full schema into a private variable, and compiling a list of
         all features to be extracted.
 
-        :param schema_name: The name of the JSON schema file (if .json is not the file extension, .json will be appended)
-        :type schema_name: str
-        :param schema_path: schema_path Path to the folder containing the JSON schema file; if None is given, defaults to ./ogd/games/{game_id}/schemas/
-        :type schema_path: str, optional
+        TODO: need to get game_state from schema file, and use a GameStateSchema instead of general Map.
+
+        :param name: _description_
+        :type name: str
+        :param game_id: _description_
+        :type game_id: str
+        :param enum_defs: _description_
+        :type enum_defs: Dict[str, List[str]]
+        :param game_state: _description_
+        :type game_state: Map
+        :param user_data: _description_
+        :type user_data: Map
+        :param event_list: _description_
+        :type event_list: List[EventSchema]
+        :param detector_map: _description_
+        :type detector_map: Dict[str, Dict[str, DetectorSchema]]
+        :param aggregate_feats: _description_
+        :type aggregate_feats: Dict[str, AggregateSchema]
+        :param percount_feats: _description_
+        :type percount_feats: Dict[str, PerCountFeatures]
+        :param legacy_perlevel_feats: _description_
+        :type legacy_perlevel_feats: Dict[str, PerCountSchema]
+        :param use_legacy_mode: _description_
+        :type use_legacy_mode: bool
+        :param config: _description_
+        :type config: Map
+        :param min_level: _description_
+        :type min_level: Optional[int]
+        :param max_level: _description_
+        :type max_level: Optional[int]
+        :param other_ranges: _description_
+        :type other_ranges: Dict[str, range]
+        :param supported_vers: _description_
+        :type supported_vers: Optional[List[int]]
+        :param other_elements: _description_
+        :type other_elements: Dict[str, Any]
+        :return: The new instance of GameSchema
+        :rtype: GameSchema
         """
     # 1. define instance vars
-        self._game_id                : str                                  = name
-        self._enum_defs              : Dict[str, List[str]]                 = {}
-        self._game_state             : Dict[str, Any]                       = {}
-        self._user_data              : Dict[str, Any]                       = {}
-        self._event_list             : List[EventSchema]                    = []
-        self._detector_map           : Dict[str, Dict[str, DetectorSchema]] = {'perlevel':{}, 'per_count':{}, 'aggregate':{}}
-        self._aggregate_feats        : Dict[str, AggregateSchema]           = {}
-        self._percount_feats         : Dict[str, PerCountSchema]            = {}
-        self._legacy_perlevel_feats  : Dict[str, PerCountSchema]            = {}
-        self._legacy_mode            : bool                                 = False
-        self._config                 : Dict[str, Any]                       = {}
-        self._min_level              : Optional[int]                        = None
-        self._max_level              : Optional[int]                        = None
-        self._other_ranges           : Dict[str, range]
-        self._supported_vers         : Optional[List[int]]
+        self._game_id                : str                                  = game_id
+        self._enum_defs              : Dict[str, List[str]]                 = enum_defs
+        self._game_state             : Map                                  = game_state
+        self._user_data              : Map                                  = user_data
+        self._event_list             : List[EventSchema]                    = event_list
+        self._detector_map           : Dict[str, Dict[str, DetectorSchema]] = detector_map
+        self._aggregate_feats        : Dict[str, AggregateSchema]           = aggregate_feats
+        self._percount_feats         : Dict[str, PerCountSchema]            = percount_feats
+        self._legacy_perlevel_feats  : Dict[str, PerCountSchema]            = legacy_perlevel_feats
+        self._legacy_mode            : bool                                 = use_legacy_mode
+        self._config                 : Map                                  = config
+        self._min_level              : Optional[int]                        = min_level
+        self._max_level              : Optional[int]                        = max_level
+        self._other_ranges           : Dict[str, range]                     = other_ranges
+        self._supported_vers         : Optional[List[int]]                  = supported_vers
 
-        if not isinstance(all_elements, dict):
-            all_elements   = {}
-            Logger.Log(f"For {self._game_id} GameSchema, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-
-    # 2. set instance vars, starting with event data
-
-        if "enums" in all_elements.keys():
-            self._enum_defs = GameSchema._parseEnumDefs(enums_list=all_elements['enums'])
-        else:
-            Logger.Log(f"{self._game_id} game schema does not specify any custom enums", logging.INFO)
-
-        if "game_state" in all_elements.keys():
-            self._game_state = GameSchema._parseGameState(game_state=all_elements['game_state'])
-        else:
-            Logger.Log(f"{self._game_id} game schema does not specify the structure of the game state colum, defaulting to empty dictn", logging.INFO)
-
-        if "user_data" in all_elements.keys():
-            self._user_data = GameSchema._parseUserData(user_data=all_elements['user_data'])
-        else:
-            Logger.Log(f"{self._game_id} game schema does not specify the structure of the user data colum, defaulting to empty dictn", logging.INFO)
-        if "events" in all_elements.keys():
-            self._event_list = GameSchema._parseEventList(events_list=all_elements['events'])
-        else:
-            Logger.Log(f"{self._game_id} game schema does not document any events.", logging.INFO)
-
-    # 3. Get detector information
-        if "detectors" in all_elements.keys():
-            # TODO : Just have DetectorMapSchema directly
-            _detector_map = GameSchema._parseDetectorMap(detector_map=all_elements['detectors'])
-            self._detector_map = _detector_map.AsDict
-        else:
-            Logger.Log(f"{self._game_id} game schema does not define any detectors.", logging.INFO)
-
-    # 4. Get feature information
-        if "features" in all_elements.keys():
-            # TODO : Just have the FeatureMapSchema directly, not 4 different things.
-            _feat_map = GameSchema._parseFeatureMap(feature_map=all_elements['features'])
-            self._aggregate_feats.update(_feat_map.AggregateFeatures)
-            self._percount_feats.update(_feat_map.PerCountFeatures)
-            self._legacy_perlevel_feats.update(_feat_map.LegacyPerLevelFeatures)
-            self._legacy_mode = _feat_map.LegacyMode
-        else:
-            Logger.Log(f"{self._game_id} game schema does not define any features.", logging.INFO)
-
-    # 5. Get config, if any
-        if "config" in all_elements.keys():
-            self._config = all_elements['config']
-        else:
-            Logger.Log(f"{self._game_id} game schema does not define any config items.", logging.INFO)
-        if "SUPPORTED_VERS" in self._config:
-            self._supported_vers = self._config['SUPPORTED_VERS']
-        else:
-            self._supported_vers = None
-            Logger.Log(f"{self._game_id} game schema does not define supported versions, defaulting to support all versions.", logging.INFO)
-
-    # 6. Get level range and other ranges, if any
-        if "level_range" in all_elements.keys():
-            self._min_level, self._max_level = GameSchema._parseLevelRange(all_elements['level_range'])
-        else:
-            Logger.Log(f"{self._game_id} game schema does not define a level range.", logging.INFO)
-
-        self._other_ranges = {key : range(val.get('min', 0), val.get('max', 1)) for key,val in all_elements.items() if key.endswith("_range")}
-
-    # 7. Collect any other, unexpected elements
-        _leftovers = { key:val for key,val in all_elements.items() if key not in {'enums', 'game_state', 'user_data', 'events', 'detectors', 'features', 'level_range', 'config'}.union(self._other_ranges.keys()) }
-        super().__init__(name=self._game_id, other_elements=_leftovers)
-
-    # *** BUILT-INS & PROPERTIES ***
+        super().__init__(name=self._game_id, other_elements=other_elements)
 
     # def __getitem__(self, key) -> Any:
     #     return _schema[key] if _schema is not None else None
@@ -247,6 +235,8 @@ class GameSchema(Schema):
     def Config(self) -> Dict[str, Any]:
         return self._config
 
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
     @property
     def AsMarkdown(self) -> str:
         event_summary = ["## Logged Events",
@@ -306,14 +296,113 @@ class GameSchema(Schema):
 
         return ret_val
 
+    @staticmethod
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "GameSchema":
+    # 1. define local vars
+        _game_id                : str                                  = name
+        _enum_defs              : Dict[str, List[str]]
+        _game_state             : Dict[str, Any]
+        _user_data              : Dict[str, Any]
+        _event_list             : List[EventSchema]
+        _detector_map           : Dict[str, Dict[str, DetectorSchema]]
+        _aggregate_feats        : Dict[str, AggregateSchema] = {}
+        _percount_feats         : Dict[str, PerCountSchema]  = {}
+        _legacy_perlevel_feats  : Dict[str, PerCountSchema]  = {}
+        _legacy_mode            : bool
+        _config                 : Dict[str, Any]
+        _min_level              : Optional[int]
+        _max_level              : Optional[int]
+        _other_ranges           : Dict[str, range]
+        _supported_vers         : Optional[List[int]]
+
+        if not isinstance(all_elements, dict):
+            all_elements   = {}
+            Logger.Log(f"For {_game_id} GameSchema, all_elements was not a dict, defaulting to empty dict", logging.WARN)
+
+    # 2. set instance vars, starting with event data
+
+        _enum_defs = GameSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["enums"],
+            parser_function=GameSchema._parseEnumDefs,
+            default_value=GameSchema._DEFAULT_ENUMS
+        )
+        _game_state = GameSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["game_state"],
+            parser_function=GameSchema._parseGameState,
+            default_value=GameSchema._DEFAULT_GAME_STATE
+        )
+        _user_data = GameSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["user_data"],
+            parser_function=GameSchema._parseUserData,
+            default_value=GameSchema._DEFAULT_USER_DATA
+        )
+        _event_list = GameSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["events"],
+            parser_function=GameSchema._parseEventList,
+            default_value=GameSchema._DEFAULT_EVENT_LIST
+        )
+
+    # 3. Get detector information
+        _detector_map = GameSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["detectors"],
+            parser_function=GameSchema._parseDetectorMap,
+            default_value=GameSchema._DEFAULT_DETECTOR_MAP
+        )
+        # TODO : Just have DetectorMapSchema directly
+        _detector_map = _detector_map.AsDict
+
+    # 4. Get feature information
+        _feat_map = GameSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["features"],
+            parser_function=GameSchema._parseFeatureMap,
+            default_value={}
+        )
+        # TODO : Just have the FeatureMapSchema directly, not 4 different things.
+        _aggregate_feats.update(_feat_map.AggregateFeatures)
+        _percount_feats.update(_feat_map.PerCountFeatures)
+        _legacy_perlevel_feats.update(_feat_map.LegacyPerLevelFeatures)
+        _legacy_mode = _feat_map.LegacyMode
+
+    # 5. Get config, if any
+    # TODO : make parser functions for config and versions, so we can do ElementFromDict for them as well.
+        if "config" in all_elements.keys():
+            _config = all_elements['config']
+        else:
+            Logger.Log(f"{_game_id} game schema does not define any config items.", logging.INFO)
+        if "SUPPORTED_VERS" in _config:
+            _supported_vers = _config['SUPPORTED_VERS']
+        else:
+            _supported_vers = None
+            Logger.Log(f"{_game_id} game schema does not define supported versions, defaulting to support all versions.", logging.INFO)
+
+    # 6. Get level range and other ranges, if any
+        if "level_range" in all_elements.keys():
+            _min_level, _max_level = GameSchema._parseLevelRange(all_elements['level_range'])
+        else:
+            Logger.Log(f"{_game_id} game schema does not define a level range.", logging.INFO)
+
+        _other_ranges = {key : range(val.get('min', 0), val.get('max', 1)) for key,val in all_elements.items() if key.endswith("_range")}
+
+    # 7. Collect any other, unexpected elements
+        _used = {'enums', 'game_state', 'user_data', 'events', 'detectors', 'features', 'level_range', 'config'}.union(_other_ranges.keys())
+        _leftovers = { key:val for key,val in all_elements.items() if key not in _used }
+        return GameSchema(name=name, game_id=_game_id, enum_defs=_enum_defs,
+                          game_state=_game_state, user_data=_user_data,
+                          event_list=_event_list, detector_map=_detector_map,
+                          aggregate_feats=_aggregate_feats, percount_feats=_percount_feats,
+                          legacy_perlevel_feats=_legacy_perlevel_feats, use_legacy_mode=_legacy_mode,
+                          config=_config, min_level=_min_level, max_level=_max_level,
+                          other_ranges=_other_ranges, supported_vers=_supported_vers,
+                          other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
+
     @staticmethod
     def FromFile(game_id:str, schema_path:Optional[Path] = None):
         # Give schema_path a default, don't think we can use game_id to construct it directly in the function header (so do it here if None)
         schema_path = schema_path or Path("./") / "ogd" / "games" / game_id / "schemas"
         all_elements = GameSchema._loadSchemaFile(game_name=game_id, schema_path=schema_path)
-        return GameSchema(name=game_id, all_elements=all_elements or {})
+        return GameSchema.FromDict(name=game_id, all_elements=all_elements or {})
 
     # *** PUBLIC METHODS ***
 
@@ -473,7 +562,7 @@ class GameSchema(Schema):
     def _parseGameState(game_state:Dict[str, Any]) -> Dict[str, DataElementSchema]:
         ret_val : Dict[str, DataElementSchema]
         if isinstance(game_state, dict):
-            ret_val = {name:DataElementSchema(name=name, all_elements=elems) for name,elems in game_state.items()}
+            ret_val = {name:DataElementSchema.FromDict(name=name, all_elements=elems) for name,elems in game_state.items()}
         else:
             ret_val = {}
             Logger.Log(f"game_state was unexpected type {type(game_state)}, defaulting to empty dict.", logging.WARN)
@@ -483,7 +572,7 @@ class GameSchema(Schema):
     def _parseUserData(user_data:Dict[str, Any]) -> Dict[str, DataElementSchema]:
         ret_val : Dict[str, DataElementSchema]
         if isinstance(user_data, dict):
-            ret_val = {name:DataElementSchema(name=name, all_elements=elems) for name,elems in user_data.items()}
+            ret_val = {name:DataElementSchema.FromDict(name=name, all_elements=elems) for name,elems in user_data.items()}
         else:
             ret_val = {}
             Logger.Log(f"user_data was unexpected type {type(user_data)}, defaulting to empty dict.", logging.WARN)
@@ -493,7 +582,7 @@ class GameSchema(Schema):
     def _parseEventList(events_list:Dict[str, Any]) -> List[EventSchema]:
         ret_val : List[EventSchema]
         if isinstance(events_list, dict):
-            ret_val = [EventSchema(name=key, all_elements=val) for key,val in events_list.items()]
+            ret_val = [EventSchema.FromDict(name=key, all_elements=val) for key,val in events_list.items()]
         else:
             ret_val = []
             Logger.Log(f"events_list was unexpected type {type(events_list)}, defaulting to empty List.", logging.WARN)
@@ -503,9 +592,9 @@ class GameSchema(Schema):
     def _parseDetectorMap(detector_map:Dict[str, Any]) -> DetectorMapSchema:
         ret_val : DetectorMapSchema
         if isinstance(detector_map, dict):
-            ret_val = DetectorMapSchema(name=f"Detectors", all_elements=detector_map)
+            ret_val = DetectorMapSchema.FromDict(name=f"Detectors", all_elements=detector_map)
         else:
-            ret_val = DetectorMapSchema(name="Empty Features", all_elements={})
+            ret_val = DetectorMapSchema.FromDict(name="Empty Features", all_elements={})
             Logger.Log(f"detector_map was unexpected type {type(detector_map)}, defaulting to empty map.", logging.WARN)
         return ret_val
 
@@ -513,9 +602,9 @@ class GameSchema(Schema):
     def _parseFeatureMap(feature_map:Dict[str, Any]) -> FeatureMapSchema:
         ret_val : FeatureMapSchema
         if isinstance(feature_map, dict):
-            ret_val = FeatureMapSchema(name=f"Features", all_elements=feature_map)
+            ret_val = FeatureMapSchema.FromDict(name=f"Features", all_elements=feature_map)
         else:
-            ret_val = FeatureMapSchema(name="Empty Features", all_elements={})
+            ret_val = FeatureMapSchema.FromDict(name="Empty Features", all_elements={})
             Logger.Log(f"feature_map was unexpected type {type(feature_map)}, defaulting to empty map.", logging.WARN)
         return ret_val
 
