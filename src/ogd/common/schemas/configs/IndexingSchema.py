@@ -7,6 +7,9 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class FileIndexingSchema(Schema):
+    _DEFAULT_LOCAL_DIR  = Path("./data/")
+    _DEFAULT_REMOTE_URL = "https://fieldday-web.ad.education.wisc.edu/opengamedata/"
+    _DEFAULT_TEMPLATE_URL  = "https://github.com/opengamedata/opengamedata-samples"
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -33,10 +36,10 @@ class FileIndexingSchema(Schema):
     @classmethod
     def Default(cls) -> "FileIndexingSchema":
         return FileIndexingSchema(
-            name            = "DefaultFileIndexingConfig",
-            local_dir       = Path("./data"),
-            remote_url      = "",
-            templates_url   = "",
+            name            = "DefaultFileIndexingSchema",
+            local_dir       = FileIndexingSchema._DEFAULT_LOCAL_DIR,
+            remote_url      = FileIndexingSchema._DEFAULT_REMOTE_URL,
+            templates_url   = FileIndexingSchema._DEFAULT_TEMPLATE_URL,
             other_elements  = {}
         )
 

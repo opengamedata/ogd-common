@@ -19,8 +19,10 @@ from ogd.common.utils.Logger import Logger
 # import local files
 
 class TestConfigSchema(Schema):
-    # *** BUILT-INS & PROPERTIES ***
+    _DEFAULT_VERBOSE       = False
+    _DEFAULT_ENABLED_TESTS = {}
 
+    # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, verbose:bool, enabled_tests:Dict[str, bool], other_elements:Dict[str, Any]={}):
         self._verbose       : bool            = verbose
@@ -48,8 +50,8 @@ class TestConfigSchema(Schema):
     def Default(cls) -> "TestConfigSchema":
         return TestConfigSchema(
             name            = "DefaultTestConfig",
-            verbose         = False,
-            enabled_tests   = {}
+            verbose         = TestConfigSchema._DEFAULT_VERBOSE,
+            enabled_tests   = TestConfigSchema._DEFAULT_ENABLED_TESTS
         )
 
     # *** PUBLIC STATICS ***

@@ -3,10 +3,16 @@ import logging
 from typing import Any, Dict, List, Optional, Union
 # import local files
 from ogd.common.schemas.configs.data_sources.DataSourceSchema import DataSourceSchema
+from ogd.common.schemas.configs.data_sources.BigQuerySourceSchema import BigQuerySchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class GameSourceSchema(Schema):
+
+    _DEFAULT_SOURCE_NAME   = "OPENGAMEDATA_BQ"
+    _DEFAULT_DB_NAME       = "UNKNOWN GAME"
+    _DEFAULT_TABLE_NAME    = "_daily"
+    _DEFAULT_TABLE_SCHEMA  = "OPENGAMEDATA_BIGQUERY"
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -66,6 +72,18 @@ class GameSourceSchema(Schema):
         ret_val = f"{self.Name}: _{self.TableSchema}_ format, source {self.Source.Name if self.Source else 'None'} : {self.DatabaseName}.{self.TableName}"
         return ret_val
 
+    @classmethod
+    def Default(cls) -> "GameSourceSchema":
+        return GameSourceSchema(
+            name="DefaultGameSourceSchema",
+            source_name=GameSourceSchema._DEFAULT_SOURCE_NAME,
+            source_schema=BigQuerySchema.Default(),
+            db_name=GameSourceSchema._DEFAULT_DB_NAME,
+            table_name=GameSourceSchema._DEFAULT_TABLE_NAME,
+            table_schema=GameSourceSchema._DEFAULT_TABLE_SCHEMA,
+            other_elements={}
+        )
+
     @staticmethod
     def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger], data_sources:Dict[str, DataSourceSchema]) -> "GameSourceSchema":
         """Create a GameSourceSchema from a given dictionary
@@ -97,7 +115,7 @@ class GameSourceSchema(Schema):
         _source_name = GameSourceSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["source"],
             parser_function=GameSourceSchema._parseSource,
-            default_value="UNKNOWN"
+            default_value=GameSourceSchema._DEFAULT_SOURCE_NAME
         )
         if _source_name in data_sources.keys():
             _source_schema = data_sources[_source_name]
@@ -113,12 +131,12 @@ class GameSourceSchema(Schema):
         _table_name = GameSourceSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["table"],
             parser_function=GameSourceSchema._parseTableName,
-            default_value="UNKNOWN"
+            default_value=GameSourceSchema._DEFAULT_TABLE_NAME
         )
         _table_schema = GameSourceSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["schema"],
             parser_function=GameSourceSchema._parseTableSchemaName,
-            default_value="UNKNOWN"
+            default_value=GameSourceSchema._DEFAULT_TABLE_SCHEMA
         )
 
         _used = {"source", "database", "table", "schema"}
