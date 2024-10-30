@@ -71,12 +71,12 @@ class TestConfigSchema(Schema):
         _verbose = TestConfigSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["VERBOSE"],
             parser_function=TestConfigSchema._parseVerbose,
-            default_value=TestConfigSchema.Default().Verbose
+            default_value=TestConfigSchema._DEFAULT_VERBOSE
         )
         _enabled_tests = TestConfigSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["ENABLED"],
             parser_function=TestConfigSchema._parseEnabledTests,
-            default_value=TestConfigSchema.Default().EnabledTests
+            default_value=TestConfigSchema._DEFAULT_ENABLED_TESTS
         )
 
         _used = {"VERBOSE", "ENABLED"}

@@ -59,17 +59,17 @@ class FileIndexingSchema(Schema):
         _local_dir = FileIndexingSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["LOCAL_DIR"],
             parser_function=FileIndexingSchema._parseLocalDir,
-            default_value=Path("./data/")
+            default_value=FileIndexingSchema._DEFAULT_LOCAL_DIR
         )
         _remote_url = FileIndexingSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["REMOTE_URL"],
             parser_function=FileIndexingSchema._parseRemoteURL,
-            default_value=None
+            default_value=FileIndexingSchema._DEFAULT_REMOTE_URL
         )
         _templates_url = FileIndexingSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["TEMPLATES_URL"],
             parser_function=FileIndexingSchema._parseTemplatesURL,
-            default_value="https://github.com/opengamedata/opengamedata-samples"
+            default_value=FileIndexingSchema._DEFAULT_TEMPLATE_URL
         )
 
         _used = {"LOCAL_DIR", "REMOTE_URL", "TEMPLATES_URL"}
