@@ -1,39 +1,29 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, Union
+from typing import Any, Dict, Optional
 # import local files
 from ogd.common.schemas.games.FeatureSchema import FeatureSchema
 from ogd.common.utils.Logger import Logger
 
 class PerCountSchema(FeatureSchema):
-    def __init__(self, name:str, all_elements:Dict[str, Any]):
-        self._count  : Union[int, str]
-        self._prefix : str
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-            Logger.Log(f"For {name} Per-count Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        if "count" in all_elements.keys():
-            self._count = PerCountSchema._parseCount(all_elements["count"])
-        else:
-            self._count = 0
-            Logger.Log(f"{name} config does not have a 'count' element; defaulting to count={self._count}", logging.WARN)
-        if "prefix" in all_elements.keys():
-            self._prefix = PerCountSchema._parsePrefix(all_elements['prefix'])
-        else:
-            self._prefix = "pre"
-            Logger.Log(f"{name} config does not have a 'prefix' element; defaulting to prefix='{self._prefix}'", logging.WARN)
+    # *** BUILT-INS & PROPERTIES ***
 
-        _leftovers = { key : val for key,val in all_elements.items() if key not in {"count", "prefix"} }
-        super().__init__(name=name, all_elements=_leftovers)
+    def __init__(self, name:str, count:int|str, prefix:str, other_elements:Dict[str, Any]):
+        self._count  : int | str = count
+        self._prefix : str       = prefix
+
+        super().__init__(name=name, other_elements=other_elements)
 
     @property
-    def Count(self) -> Union[int, str]:
+    def Count(self) -> int | str:
         return self._count
 
     @property
     def Prefix(self) -> str:
         return self._prefix
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
     def AsMarkdown(self) -> str:
@@ -47,8 +37,37 @@ class PerCountSchema(FeatureSchema):
         return ret_val
 
     @staticmethod
-    def _parseCount(count) -> Union[int, str]:
-        ret_val : Union[int, str]
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "PerCountSchema":
+        _count  : int | str
+        _prefix : str
+
+        if not isinstance(all_elements, dict):
+            all_elements = {}
+            Logger.Log(f"For {name} Per-count Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
+        _count = PerCountSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["count"],
+            parser_function=PerCountSchema._parseCount,
+            default_value=0
+        )
+        _prefix = PerCountSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["prefix"],
+            parser_function=PerCountSchema._parsePrefix,
+            default_value="pre"
+        )
+
+        _used = {"count", "prefix"}
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        return PerCountSchema(name=name, count=_count, prefix=_prefix, other_elements=_leftovers)
+
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
+
+    @staticmethod
+    def _parseCount(count) -> int | str:
+        ret_val : int | str
         if isinstance(count, int):
             ret_val = count
         elif isinstance(count, str):
@@ -67,3 +86,5 @@ class PerCountSchema(FeatureSchema):
             ret_val = str(prefix)
             Logger.Log(f"Extractor prefix was unexpected type {type(prefix)}, defaulting to str(prefix).", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***

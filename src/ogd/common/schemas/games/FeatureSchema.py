@@ -1,34 +1,18 @@
 # import standard libraries
 import abc
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, Optional
 # import local files
-from ogd.common.schemas.games.ExtractorSchema import ExtractorSchema
+from ogd.common.schemas.games.GeneratorSchema import GeneratorSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class SubfeatureSchema(Schema):
-    def __init__(self, name:str, all_elements:Dict[str, str]):
-        self._return_type : str
-        self._description : str    
+    def __init__(self, name:str, return_type:str, description:str, other_elements:Dict[str, str]):
+        self._return_type : str = return_type
+        self._description : str = description
 
-        if not isinstance(all_elements, dict):
-            self._elements = {}
-            Logger.Log(f"For {name} subfeature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-
-        if "return_type" in all_elements.keys():
-            self._return_type = SubfeatureSchema._parseReturnType(all_elements['return_type'])
-        else:
-            self._return_type = "Unknown"
-            Logger.Log(f"{name} subfeature config does not have an 'return_type' element; defaulting to return_type='{self._return_type}", logging.WARN)
-        if "description" in all_elements.keys():
-            self._description = SubfeatureSchema._parseDescription(all_elements['description'])
-        else:
-            self._description = "No description"
-            Logger.Log(f"{name} subfeature config does not have an 'description' element; defaulting to description='{self._description}'", logging.WARN)
-        
-        _leftovers = { key : val for key,val in all_elements.items() if key not in {"return_type", "description"} }
-        super().__init__(name=name, other_elements=_leftovers)
+        super().__init__(name=name, other_elements=other_elements)
 
     @property
     def ReturnType(self) -> str:
@@ -44,6 +28,30 @@ class SubfeatureSchema(Schema):
         if len(self.NonStandardElements) > 0:
             ret_val += f'   (other items: {self.NonStandardElements}'
         return ret_val
+
+    @staticmethod
+    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileIndexingSchema":
+        _return_type : str
+        _description : str    
+
+        if not isinstance(all_elements, dict):
+            _elements = {}
+            Logger.Log(f"For {name} subfeature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
+
+        _return_type = SubfeatureSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["return_type"],
+            parser_function=SubfeatureSchema._parseReturnType,
+            default_value="UNKNOWN"
+        )
+        _description = SubfeatureSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["description"],
+            parser_function=SubfeatureSchema._parseDescription,
+            default_value="No description"
+        )
+        
+        _used = {"return_type", "description"}
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        return SubfeatureSchema(name=name, return_type=_return_type, description=_description, other_elements=_leftovers)
 
     @staticmethod
     def _parseReturnType(return_type):
@@ -65,27 +73,35 @@ class SubfeatureSchema(Schema):
             Logger.Log(f"Extractor description was not a string, defaulting to str(description) == {ret_val}", logging.WARN)
         return ret_val
 
-class FeatureSchema(ExtractorSchema):
-    def __init__(self, name:str, all_elements:Dict[str, Any]):
+class FeatureSchema(GeneratorSchema):
+    """Base class for all schemas related to defining feature Extractor configurations.
+    """
+
+    # *** BUILT-INS & PROPERTIES ***
+
+    def __init__(self, name:str, other_elements:Dict[str, Any]):
         self._subfeatures : Dict[str, SubfeatureSchema]
         self._return_type : str
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
+        if not isinstance(other_elements, dict):
+            other_elements = {}
             Logger.Log(f"For {name} Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
 
-        if "return_type" in all_elements.keys():
-            self._return_type = FeatureSchema._parseReturnType(all_elements['return_type'], feature_name=name)
-        else:
-            self._return_type = ""
-            Logger.Log(f"{name} Feature config does not have an 'return_type' element; defaulting to return_type='{self._return_type}'", logging.WARN)
-        if "subfeatures" in all_elements.keys():
-            self._subfeatures = FeatureSchema._parseSubfeatures(all_elements['subfeatures'])
-        else:
-            self._subfeatures = {}
+        self._return_type = FeatureSchema.ElementFromDict(all_elements=other_elements,
+            element_names=["return_type"],
+            parser_function=FeatureSchema._parseReturnType,
+            default_value="UNKNOWN"
+        )
+        self._subfeatures = FeatureSchema.ElementFromDict(all_elements=other_elements,
+            element_names=["subfeatures"],
+            parser_function=FeatureSchema._parseSubfeatures,
+            default_value={}
+        )
 
-        _elements = { key : val for key,val in all_elements.items() if key not in {"return_type", "subfeatures"} }
-        super().__init__(name=name, all_elements=_elements)
+        _used = {"return_type", "subfeatures"}
+        _leftovers = { key : val for key,val in other_elements.items() if key not in _used }
+
+        super().__init__(name=name, all_elements=_leftovers)
 
     @property
     def ReturnType(self) -> str:
@@ -94,6 +110,14 @@ class FeatureSchema(ExtractorSchema):
     @property
     def Subfeatures(self) -> Dict[str, SubfeatureSchema]:
         return self._subfeatures
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
 
     @staticmethod
     def _parseReturnType(return_type, feature_name:str=""):
@@ -109,8 +133,10 @@ class FeatureSchema(ExtractorSchema):
     def _parseSubfeatures(subfeatures) -> Dict[str, SubfeatureSchema]:
         ret_val : Dict[str, SubfeatureSchema]
         if isinstance(subfeatures, dict):
-            ret_val = {name:SubfeatureSchema(name=name, all_elements=elems) for name,elems in subfeatures.items()}
+            ret_val = {name:SubfeatureSchema.FromDict(name=name, all_elements=elems) for name,elems in subfeatures.items()}
         else:
             ret_val = {}
             Logger.Log(f"Extractor subfeatures was unexpected type {type(subfeatures)}, defaulting to empty list.", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***
