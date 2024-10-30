@@ -7,14 +7,18 @@ from ogd.common.schemas.configs.data_sources.DataSourceSchema import DataSourceS
 from ogd.common.utils.Logger import Logger
 
 class SSHSchema(Schema):
+    _DEFAULT_HOST = "127.0.0.1"
+    _DEFAULT_USER = "DEFAULT USER"
+    _DEFAULT_PASS = None
+    _DEFAULT_PORT = 22
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, host:Optional[str], user:Optional[str], pword:Optional[str], port:int, other_elements:Dict[str, Any]):
-        self._host : Optional[str] = host
-        self._user : Optional[str] = user
-        self._pass : Optional[str] = pword
-        self._port : int           = port
+    def __init__(self, name:str, ssh_host:Optional[str], ssh_user:Optional[str], ssh_pass:Optional[str], ssh_port:int, other_elements:Dict[str, Any]):
+        self._host : Optional[str] = ssh_host
+        self._user : Optional[str] = ssh_user
+        self._pass : Optional[str] = ssh_pass
+        self._port : int           = ssh_port
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -86,7 +90,18 @@ class SSHSchema(Schema):
 
         _used = {"SSH_HOST", "SSH_USER", "SSH_PW", "SSH_PASS", "SSH_PORT"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return SSHSchema(name=name, host=_host, user=_user, pword=_pass, port=_port, other_elements=_leftovers)
+        return SSHSchema(name=name, ssh_host=_host, ssh_user=_user, ssh_pass=_pass, ssh_port=_port, other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "SSHSchema":
+        return SSHSchema(
+            name="DefaultMySQLSchema",
+            ssh_host=SSHSchema._DEFAULT_HOST,
+            ssh_user=SSHSchema._DEFAULT_USER,
+            ssh_pass=SSHSchema._DEFAULT_PASS,
+            ssh_port=SSHSchema._DEFAULT_PORT,
+            other_elements={}
+        )
 
     # *** PUBLIC STATICS ***
 
@@ -139,6 +154,10 @@ class SSHSchema(Schema):
     # *** PRIVATE METHODS ***
 
 class MySQLSchema(DataSourceSchema):
+    _DEFAULT_HOST = "127.0.0.1"
+    _DEFAULT_PORT = 22
+    _DEFAULT_USER = "DEFAULT USER"
+    _DEFAULT_PASS = None
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -248,6 +267,18 @@ class MySQLSchema(DataSourceSchema):
         _used = {"DB_HOST", "DB_PORT", "DB_USER", "DB_PW", "DB_PASS"}.union(_ssh_keys)
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         return MySQLSchema(name=name, db_host=_db_host, db_port=_db_port, db_user=_db_user, db_pass=_db_pass, ssh_cfg=_ssh_cfg, other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "MySQLSchema":
+        return MySQLSchema(
+            name="DefaultMySQLSchema",
+            db_host=MySQLSchema._DEFAULT_HOST,
+            db_port=MySQLSchema._DEFAULT_PORT,
+            db_user=MySQLSchema._DEFAULT_USER,
+            db_pass=MySQLSchema._DEFAULT_PASS,
+            ssh_cfg=SSHSchema.Default(),
+            other_elements={}
+        )
 
     # *** PUBLIC STATICS ***
 
