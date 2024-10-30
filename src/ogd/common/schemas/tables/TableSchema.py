@@ -25,10 +25,11 @@ from ogd.common.utils.typing import Map
 #  of the database columns, the max and min levels in the game, and a list of
 #  IDs for the game sessions in the given requested date range.
 class TableSchema(Schema):
+    _DEFAULT_COLUMNS = []
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name, column_map:ColumnMapSchema, columns:List[ColumnSchema]):
+    def __init__(self, name, column_map:ColumnMapSchema, columns:List[ColumnSchema], other_elements:Optional[Dict[str,Any]]=None):
         """Constructor for the TableSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
@@ -47,7 +48,7 @@ class TableSchema(Schema):
         self._columns           : List[ColumnSchema] = columns
 
         # after loading the file, take the stuff we need and store.
-        super().__init__(name=name, other_elements={})
+        super().__init__(name=name, other_elements=other_elements)
 
     @property
     def ColumnNames(self) -> List[str]:
@@ -218,6 +219,14 @@ class TableSchema(Schema):
         _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), all_elements=column) for column in _column_json_list]
         _column_map       = ColumnMapSchema.FromDict(name="Column Map", all_elements=all_elements.get('column_map', {}), column_names=[col.Name for col in _column_schemas])
         return TableSchema(name=name, column_map=_column_map, columns=_column_schemas)
+
+    @classmethod
+    def Default(cls) -> "TableSchema":
+        return TableSchema(
+            name="DefaultTableSchema",
+            column_map=ColumnMapSchema.Default(),
+            columns=cls._DEFAULT_COLUMNS
+        )
 
     # *** PUBLIC STATICS ***
 

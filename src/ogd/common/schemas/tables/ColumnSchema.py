@@ -2,18 +2,20 @@
 import logging
 from typing import Any, Dict, Optional
 # import local files
-from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class ColumnSchema(Schema):
+    _DEFAULT_READABLE = "Default Column Schema Name"
+    _DEFAULT_VALUE_TYPE = "TYPE NOT GIVEN"
+    _DEFAULT_DESCRIPTION = "NO DESCRIPTION GIVEN"
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, readable:str, value_type:str, description:str, other_elements:Dict[str, Any]):
-        self._readable    : str
-        self._value_type  : str
-        self._description : str
+        self._readable    : str = readable
+        self._value_type  : str = value_type
+        self._description : str = description
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -89,6 +91,16 @@ class ColumnSchema(Schema):
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
 
         return ColumnSchema(name=_name, readable=_readable, value_type=_value_type, description=_description, other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "ColumnSchema":
+        return ColumnSchema(
+            name="DefaultColumnSchema",
+            readable=cls._DEFAULT_READABLE,
+            value_type=cls._DEFAULT_VALUE_TYPE,
+            description=cls._DEFAULT_DESCRIPTION,
+            other_elements={}
+        )
 
     # *** PUBLIC STATICS ***
 
