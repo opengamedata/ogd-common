@@ -48,8 +48,8 @@ class FileSourceSchema(DataSourceSchema):
         ret_val : str = f"{self._name}"
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileSourceSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileSourceSchema":
         _folder_path : Path
         _file_name   : str
 
@@ -60,14 +60,14 @@ class FileSourceSchema(DataSourceSchema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _folder_path = FileSourceSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _folder_path = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["PATH"],
-            parser_function=FileSourceSchema._parseFolder,
+            parser_function=cls._parseFolder,
             default_value=FileSourceSchema._DEFAULT_FOLDER_PATH
         )
-        _file_name = FileSourceSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _file_name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["FILENAME"],
-            parser_function=FileSourceSchema._parseFilename,
+            parser_function=cls._parseFilename,
             default_value=FileSourceSchema._DEFAULT_FILE_NAME
         )
 

@@ -203,8 +203,8 @@ class TableSchema(Schema):
             ""])
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableSchema":
         _column_map     : ColumnMapSchema
         _column_schemas : List[ColumnSchema]
 

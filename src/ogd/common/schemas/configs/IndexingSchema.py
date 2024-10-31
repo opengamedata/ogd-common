@@ -43,8 +43,8 @@ class FileIndexingSchema(Schema):
             other_elements  = {}
         )
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileIndexingSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileIndexingSchema":
         _local_dir     : Path
         _remote_url    : Optional[str]
         _templates_url : str
@@ -56,19 +56,19 @@ class FileIndexingSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _local_dir = FileIndexingSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _local_dir = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["LOCAL_DIR"],
-            parser_function=FileIndexingSchema._parseLocalDir,
+            parser_function=cls._parseLocalDir,
             default_value=FileIndexingSchema._DEFAULT_LOCAL_DIR
         )
-        _remote_url = FileIndexingSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _remote_url = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["REMOTE_URL"],
-            parser_function=FileIndexingSchema._parseRemoteURL,
+            parser_function=cls._parseRemoteURL,
             default_value=FileIndexingSchema._DEFAULT_REMOTE_URL
         )
-        _templates_url = FileIndexingSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _templates_url = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["TEMPLATES_URL"],
-            parser_function=FileIndexingSchema._parseTemplatesURL,
+            parser_function=cls._parseTemplatesURL,
             default_value=FileIndexingSchema._DEFAULT_TEMPLATE_URL
         )
 

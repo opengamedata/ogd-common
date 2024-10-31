@@ -119,8 +119,8 @@ class ColumnMapSchema(Schema):
         ret_val = "\n".join(event_column_list)
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], column_names:List[str], logger:Optional[logging.Logger]=None)-> "ColumnMapSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], column_names:List[str], logger:Optional[logging.Logger]=None)-> "ColumnMapSchema":
         """Function to generate a ColumnMapSchema from a JSON object
 
         TODO : find a way around using column_names as a direct parameter.
@@ -165,7 +165,7 @@ class ColumnMapSchema(Schema):
             # if the item was found in the given "column_map" dictionary...
             if key in all_elements:
                 # parse what was mapped to the item. Could get back a string, or a list, or a dict...
-                element = ColumnMapSchema._parseElement(elem=map[key], name=key)
+                element = cls._parseElement(elem=map[key], name=key)
                 # then if we got a string, we just find it in list of column names
                 if isinstance(element, str):
                     _map[key] = column_names.index(element)
