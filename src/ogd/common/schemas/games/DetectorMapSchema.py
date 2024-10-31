@@ -54,8 +54,8 @@ class DetectorMapSchema(Schema):
         }
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DetectorMapSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DetectorMapSchema":
         _perlevel_detectors  : Dict[str, DetectorSchema]
         _percount_detectors  : Dict[str, DetectorSchema]
         _aggregate_detectors : Dict[str, DetectorSchema]
@@ -63,19 +63,19 @@ class DetectorMapSchema(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For DetectorMap config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _perlevel_detectors = DetectorMapSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _perlevel_detectors = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["perlevel", "per_level"],
-            parser_function=DetectorMapSchema._parsePerLevelDetectors,
+            parser_function=cls._parsePerLevelDetectors,
             default_value={}
         )
-        _percount_detectors = DetectorMapSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _percount_detectors = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["per_count", "percount"],
-            parser_function=DetectorMapSchema._parsePerCountDetectors,
+            parser_function=cls._parsePerCountDetectors,
             default_value={}
         )
-        _aggregate_detectors = DetectorMapSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _aggregate_detectors = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["aggregate"],
-            parser_function=DetectorMapSchema._parseAggregateDetectors,
+            parser_function=cls._parseAggregateDetectors,
             default_value={}
         )
 

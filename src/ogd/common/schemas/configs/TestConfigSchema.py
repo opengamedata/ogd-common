@@ -54,8 +54,8 @@ class TestConfigSchema(Schema):
 
     # *** PUBLIC STATICS ***
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TestConfigSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TestConfigSchema":
         _verbose         : bool
         _enabled_tests   : Dict[str, bool]
 
@@ -66,15 +66,15 @@ class TestConfigSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _verbose = TestConfigSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _verbose = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["VERBOSE"],
-            parser_function=TestConfigSchema._parseVerbose,
-            default_value=TestConfigSchema.DEFAULT().Verbose
+            parser_function=cls._parseVerbose,
+            default_value=cls.DEFAULT().Verbose
         )
-        _enabled_tests = TestConfigSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _enabled_tests = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["ENABLED"],
-            parser_function=TestConfigSchema._parseEnabledTests,
-            default_value=TestConfigSchema.DEFAULT().EnabledTests
+            parser_function=cls._parseEnabledTests,
+            default_value=cls.DEFAULT().EnabledTests
         )
 
         _used = {"VERBOSE", "ENABLED"}

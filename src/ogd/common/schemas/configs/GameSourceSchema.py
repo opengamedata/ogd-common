@@ -66,8 +66,8 @@ class GameSourceSchema(Schema):
         ret_val = f"{self.Name}: _{self.TableSchema}_ format, source {self.Source.Name if self.Source else 'None'} : {self.DatabaseName}.{self.TableName}"
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger], data_sources:Dict[str, DataSourceSchema]) -> "GameSourceSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger], data_sources:Dict[str, DataSourceSchema]) -> "GameSourceSchema":
         """Create a GameSourceSchema from a given dictionary
 
         :param name: _description_
@@ -94,9 +94,9 @@ class GameSourceSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _source_name = GameSourceSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _source_name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["source"],
-            parser_function=GameSourceSchema._parseSource,
+            parser_function=cls._parseSource,
             default_value="UNKNOWN"
         )
         if _source_name in data_sources.keys():
@@ -105,19 +105,19 @@ class GameSourceSchema(Schema):
             _source_schema = None
             _msg = f"{name} config's 'source' name ({_source_name}) was not found in available source schemas; defaulting to source_schema={_source_schema}"
             logger.warning(_msg) if logger else Logger.Log(_msg, logging.WARN)
-        _db_name = GameSourceSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _db_name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["database"],
-            parser_function=GameSourceSchema._parseDBName,
+            parser_function=cls._parseDBName,
             default_value=name
         )
-        _table_name = GameSourceSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _table_name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["table"],
-            parser_function=GameSourceSchema._parseTableName,
+            parser_function=cls._parseTableName,
             default_value="UNKNOWN"
         )
-        _table_schema = GameSourceSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _table_schema = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["schema"],
-            parser_function=GameSourceSchema._parseTableSchemaName,
+            parser_function=cls._parseTableSchemaName,
             default_value="UNKNOWN"
         )
 
