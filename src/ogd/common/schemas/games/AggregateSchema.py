@@ -22,3 +22,10 @@ class AggregateSchema(FeatureSchema):
     @staticmethod
     def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "AggregateSchema":
         return AggregateSchema(name=name, all_elements=all_elements)
+
+    @classmethod
+    def Default(cls) -> "AggregateSchema":
+        return AggregateSchema(
+            name="DefaultAggregateSchema",
+            all_elements={}
+        )
