@@ -67,24 +67,24 @@ class ColumnSchema(Schema):
             else:
                 Logger.Log(_msg, logging.WARN)
 
-        _readable = ColumnSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _readable = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["readable"],
-            parser_function=ColumnSchema._parseReadable,
+            parser_function=cls._parseReadable,
             default_value=name
         )
-        _description = ColumnSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _description = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["description"],
-            parser_function=ColumnSchema._parseDescription,
+            parser_function=cls._parseDescription,
             default_value="NO DESCRIPTION GIVEN"
         )
-        _value_type = ColumnSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _value_type = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["type"],
-            parser_function=ColumnSchema._parseValueType,
+            parser_function=cls._parseValueType,
             default_value="TYPE NOT GIVEN"
         )
-        _name = ColumnSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["name"],
-            parser_function=ColumnSchema._parseName,
+            parser_function=cls._parseName,
             default_value=name
         )
         _used = {"name", "readable", "description", "type"}
