@@ -29,8 +29,8 @@ class SubfeatureSchema(Schema):
             ret_val += f'   (other items: {self.NonStandardElements}'
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileIndexingSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileIndexingSchema":
         _return_type : str
         _description : str    
 

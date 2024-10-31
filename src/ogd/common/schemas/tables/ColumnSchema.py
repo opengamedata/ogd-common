@@ -47,8 +47,8 @@ class ColumnSchema(Schema):
 
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "ColumnSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "ColumnSchema":
         _readable    : str
         _value_type  : str
         _description : str

@@ -58,8 +58,8 @@ class GameStateSchema(Schema):
             )
         return "\n\n".join(ret_val)
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "GameStateSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "GameStateSchema":
         _game_state  : Dict[str, DataElementSchema]
 
         if not isinstance(all_elements, dict):

@@ -14,9 +14,9 @@ class Schema(abc.ABC):
     def AsMarkdown(self) -> str:
         pass
 
-    @staticmethod
+    @classmethod
     @abc.abstractmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "Schema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "Schema":
         pass
 
     # *** BUILT-INS & PROPERTIES ***

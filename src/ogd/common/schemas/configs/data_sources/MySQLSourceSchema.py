@@ -49,8 +49,8 @@ class SSHSchema(Schema):
         ret_val = f"{self.User}@{self.Host}:{self.Port}"
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "SSHSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "SSHSchema":
         _host : Optional[str]
         _user : Optional[str]
         _pass : Optional[str]
@@ -63,24 +63,24 @@ class SSHSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _host = SSHSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _host = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["SSH_HOST"],
-            parser_function=SSHSchema._parseHost,
+            parser_function=cls._parseHost,
             default_value=None # TODO : use class default
         )
-        _user = SSHSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _user = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["SSH_USER"],
-            parser_function=SSHSchema._parseUser,
+            parser_function=cls._parseUser,
             default_value=None
         )
-        _pass = SSHSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _pass = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["SSH_PW", "SSH_PASS"],
-            parser_function=SSHSchema._parsePass,
+            parser_function=cls._parsePass,
             default_value=None
         )
-        _port = SSHSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _port = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["SSH_PORT"],
-            parser_function=SSHSchema._parsePort,
+            parser_function=cls._parsePort,
             default_value=22
         )
 
@@ -203,8 +203,8 @@ class MySQLSchema(DataSourceSchema):
         ret_val : str = f"{self.DBUser}@{self.DBHost}:{self.DBPort}"
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "MySQLSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "MySQLSchema":
         _db_host  : str
         _db_port  : int
         _db_user  : str
@@ -219,24 +219,24 @@ class MySQLSchema(DataSourceSchema):
             else:
                 Logger.Log(_msg, logging.WARN)
         # Parse DB info
-        _db_host = MySQLSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _db_host = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["DB_HOST"],
-            parser_function=MySQLSchema._parseDBHost,
+            parser_function=cls._parseDBHost,
             default_value="UNKNOWN DB HOST"
         )
-        _db_port = MySQLSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _db_port = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["DB_PORT"],
-            parser_function=MySQLSchema._parseDBPort,
+            parser_function=cls._parseDBPort,
             default_value=3306
         )
-        _db_user = MySQLSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _db_user = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["DB_USER"],
-            parser_function=MySQLSchema._parseDBUser,
+            parser_function=cls._parseDBUser,
             default_value="UNKNOWN USER"
         )
-        _db_pass = MySQLSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _db_pass = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["DB_PW", "DB_PASS"],
-            parser_function=MySQLSchema._parseDBPass,
+            parser_function=cls._parseDBPass,
             default_value=None
         )
         # Parse SSH info, if it exists. Don't notify, if it doesn't exist.

@@ -51,8 +51,8 @@ class DataElementSchema(Schema):
         ret_val += " |"
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DataElementSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DataElementSchema":
         _type        : str
         _description : str
         _details     : Optional[Dict[str, str]]

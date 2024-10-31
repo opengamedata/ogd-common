@@ -116,8 +116,8 @@ class ColumnMapSchema(Schema):
         ret_val = "\n".join(event_column_list)
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], column_names:List[str], logger:Optional[logging.Logger]=None)-> "ColumnMapSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], column_names:List[str], logger:Optional[logging.Logger]=None)-> "ColumnMapSchema":
         """Function to generate a ColumnMapSchema from a JSON object
 
         TODO : find a way around using column_names as a direct parameter.

@@ -214,8 +214,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 - Templates: [{self.TemplateSet}]"""
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DatasetSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DatasetSchema":
         _key                 : DatasetKey
         _date_modified       : date | str
         _start_date          : date | str
@@ -240,84 +240,84 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _game_id = DatasetSchema._parseGameID(name)
+        _game_id = cls._parseGameID(name)
         _key = DatasetKey(key=name, game_id=_game_id)
     # 1. Parse dates
-        _date_modified = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _date_modified = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["date_modified"],
-            parser_function=DatasetSchema._parseDateModified,
+            parser_function=cls._parseDateModified,
             default_value="UNKNOWN_DATE"
         )
-        _start_date = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _start_date = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["start_date"],
-            parser_function=DatasetSchema._parseStartDate,
+            parser_function=cls._parseStartDate,
             default_value="UNKNOWN_DATE"
         )
-        _end_date = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _end_date = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["end_date"],
-            parser_function=DatasetSchema._parseEndDate,
+            parser_function=cls._parseEndDate,
             default_value="UNKNOWN_DATE"
         )
     # 2. Parse metadata
-        _ogd_revision = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _ogd_revision = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["ogd_revision"],
-            parser_function=DatasetSchema._parseOGDRevision,
+            parser_function=cls._parseOGDRevision,
             default_value="UNKNOWN_DATE"
         )
-        _session_ct = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _session_ct = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["sessions"],
-            parser_function=DatasetSchema._parseSessionCount,
+            parser_function=cls._parseSessionCount,
             default_value=None
         )
-        _player_ct = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _player_ct = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["players"],
-            parser_function=DatasetSchema._parsePlayerCount,
+            parser_function=cls._parsePlayerCount,
             default_value=None
         )
     # 3. Parse file/template paths
-        _raw_file = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _raw_file = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["raw_file"],
-            parser_function=DatasetSchema._parseRawFile,
+            parser_function=cls._parseRawFile,
             default_value=None
         )
-        _events_file = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _events_file = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["events_file"],
-            parser_function=DatasetSchema._parseEventsFile,
+            parser_function=cls._parseEventsFile,
             default_value=None
         )
-        _events_template = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _events_template = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["events_template"],
-            parser_function=DatasetSchema._parseEventsTemplate,
+            parser_function=cls._parseEventsTemplate,
             default_value=None
         )
-        _sessions_file = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _sessions_file = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["sessions_file"],
-            parser_function=DatasetSchema._parseSessionsFile,
+            parser_function=cls._parseSessionsFile,
             default_value=None
         )
-        _sessions_template = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _sessions_template = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["sessions_template"],
-            parser_function=DatasetSchema._parseSessionsTemplate,
+            parser_function=cls._parseSessionsTemplate,
             default_value=None
         )
-        _players_file = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _players_file = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["players_file"],
-            parser_function=DatasetSchema._parsePlayersFile,
+            parser_function=cls._parsePlayersFile,
             default_value=None
         )
-        _players_template = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _players_template = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["players_template"],
-            parser_function=DatasetSchema._parsePlayersTemplate,
+            parser_function=cls._parsePlayersTemplate,
             default_value=None
         )
-        _population_file = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _population_file = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["population_file"],
-            parser_function=DatasetSchema._parsePopulationFile,
+            parser_function=cls._parsePopulationFile,
             default_value=None
         )
-        _population_template = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _population_template = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["population_template"],
-            parser_function=DatasetSchema._parsePopulationTemplate,
+            parser_function=cls._parsePopulationTemplate,
             default_value=None
         )
 

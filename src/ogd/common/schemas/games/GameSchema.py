@@ -296,8 +296,8 @@ class GameSchema(Schema):
 
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "GameSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "GameSchema":
     # 1. define local vars
         _game_id                : str                                  = name
         _enum_defs              : Dict[str, List[str]]

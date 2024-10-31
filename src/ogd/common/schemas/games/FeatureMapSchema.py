@@ -51,8 +51,8 @@ class FeatureMapSchema(Schema):
         feature_list = feature_list if len(feature_list) > 0 else ["None"]
         return "  \n\n".join(feature_summary + feature_list)
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FeatureMapSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FeatureMapSchema":
         _legacy_mode           : bool
         _legacy_perlevel_feats : Dict[str, PerCountSchema]
         _percount_feats        : Dict[str, PerCountSchema]

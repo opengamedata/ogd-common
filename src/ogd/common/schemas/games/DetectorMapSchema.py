@@ -54,8 +54,8 @@ class DetectorMapSchema(Schema):
         }
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DetectorMapSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DetectorMapSchema":
         _perlevel_detectors  : Dict[str, DetectorSchema]
         _percount_detectors  : Dict[str, DetectorSchema]
         _aggregate_detectors : Dict[str, DetectorSchema]

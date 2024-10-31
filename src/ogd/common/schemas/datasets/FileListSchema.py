@@ -46,8 +46,8 @@ class FileListConfigSchema(Schema):
         ret_val : str = self.Name
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileListConfigSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileListConfigSchema":
         _files_base     : Optional[str]
         _templates_base : Optional[str]
 
@@ -58,14 +58,14 @@ class FileListConfigSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _files_base = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _files_base = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["files_base"],
-            parser_function=FileListConfigSchema._parseFilesBase,
+            parser_function=cls._parseFilesBase,
             default_value=None
         )
-        _templates_base = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _templates_base = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["templates_base"],
-            parser_function=FileListConfigSchema._parseTemplatesBase,
+            parser_function=cls._parseTemplatesBase,
             default_value=None
         )
         _used = {"files_base", "templates_base"}
@@ -130,8 +130,8 @@ class GameDatasetCollectionSchema(Schema):
         ret_val : str = self.Name
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "GameDatasetCollectionSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "GameDatasetCollectionSchema":
         _game_datasets : Dict[str, DatasetSchema]
 
         if not isinstance(all_elements, dict):
@@ -141,7 +141,7 @@ class GameDatasetCollectionSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _game_datasets = GameDatasetCollectionSchema._parseGameDatasets(datasets=all_elements)
+        _game_datasets = cls._parseGameDatasets(datasets=all_elements)
         return GameDatasetCollectionSchema(name=name, game_datasets=_game_datasets, other_elements={})
 
     # *** PUBLIC STATICS ***
@@ -196,8 +196,8 @@ class FileListSchema(Schema):
         ret_val : str = self.Name
         return ret_val
 
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileListSchema":
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileListSchema":
         _games_file_lists : Dict[str, GameDatasetCollectionSchema]
         _config           : FileListConfigSchema
 
@@ -206,13 +206,13 @@ class FileListSchema(Schema):
     # 1. Parse config
         _config = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["CONFIG"],
-            parser_function=FileListSchema._parseConfig,
+            parser_function=cls._parseConfig,
             default_value=FileListConfigSchema.EmptySchema()
         )
     # 2. Parse games
         _used = {"CONFIG"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        _games_file_lists = FileListSchema._parseGamesFileLists(games_dict=_leftovers)
+        _games_file_lists = cls._parseGamesFileLists(games_dict=_leftovers)
         return FileListSchema(name=name, game_file_lists=_games_file_lists, file_list_config=_config, other_elements={})
 
     # *** PUBLIC STATICS ***
