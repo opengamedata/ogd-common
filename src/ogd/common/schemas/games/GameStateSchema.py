@@ -65,7 +65,7 @@ class GameStateSchema(Schema):
         if not isinstance(all_elements, dict):
             all_elements   = {}
             Logger.Log(f"For {name} Event config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _game_state = GameStateSchema._parseGameStateElements(event_data=all_elements)
+        _game_state = cls._parseGameStateElements(event_data=all_elements)
 
         _leftovers = {}
         return GameStateSchema(name=name, game_state=_game_state, other_elements=_leftovers)

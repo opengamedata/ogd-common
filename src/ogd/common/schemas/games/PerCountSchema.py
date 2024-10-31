@@ -44,14 +44,14 @@ class PerCountSchema(FeatureSchema):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For {name} Per-count Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _count = PerCountSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _count = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["count"],
-            parser_function=PerCountSchema._parseCount,
+            parser_function=cls._parseCount,
             default_value=0
         )
-        _prefix = PerCountSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _prefix = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["prefix"],
-            parser_function=PerCountSchema._parsePrefix,
+            parser_function=cls._parsePrefix,
             default_value="pre"
         )
 

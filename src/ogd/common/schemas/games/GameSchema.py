@@ -321,40 +321,40 @@ class GameSchema(Schema):
 
     # 2. set instance vars, starting with event data
 
-        _enum_defs = GameSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _enum_defs = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["enums"],
-            parser_function=GameSchema._parseEnumDefs,
-            default_value=GameSchema._DEFAULT_ENUMS
+            parser_function=cls._parseEnumDefs,
+            default_value=cls._DEFAULT_ENUMS
         )
-        _game_state = GameSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _game_state = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["game_state"],
-            parser_function=GameSchema._parseGameState,
-            default_value=GameSchema._DEFAULT_GAME_STATE
+            parser_function=cls._parseGameState,
+            default_value=cls._DEFAULT_GAME_STATE
         )
-        _user_data = GameSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _user_data = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["user_data"],
-            parser_function=GameSchema._parseUserData,
-            default_value=GameSchema._DEFAULT_USER_DATA
+            parser_function=cls._parseUserData,
+            default_value=cls._DEFAULT_USER_DATA
         )
-        _event_list = GameSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _event_list = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["events"],
-            parser_function=GameSchema._parseEventList,
-            default_value=GameSchema._DEFAULT_EVENT_LIST
+            parser_function=cls._parseEventList,
+            default_value=cls._DEFAULT_EVENT_LIST
         )
 
     # 3. Get detector information
-        _detector_map = GameSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _detector_map = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["detectors"],
-            parser_function=GameSchema._parseDetectorMap,
-            default_value=GameSchema._DEFAULT_DETECTOR_MAP
+            parser_function=cls._parseDetectorMap,
+            default_value=cls._DEFAULT_DETECTOR_MAP
         )
         # TODO : Just have DetectorMapSchema directly
         _detector_map = _detector_map.AsDict
 
     # 4. Get feature information
-        _feat_map = GameSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _feat_map = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["features"],
-            parser_function=GameSchema._parseFeatureMap,
+            parser_function=cls._parseFeatureMap,
             default_value={}
         )
         # TODO : Just have the FeatureMapSchema directly, not 4 different things.
@@ -377,7 +377,7 @@ class GameSchema(Schema):
 
     # 6. Get level range and other ranges, if any
         if "level_range" in all_elements.keys():
-            _min_level, _max_level = GameSchema._parseLevelRange(all_elements['level_range'])
+            _min_level, _max_level = cls._parseLevelRange(all_elements['level_range'])
         else:
             Logger.Log(f"{_game_id} game schema does not define a level range.", logging.INFO)
 
