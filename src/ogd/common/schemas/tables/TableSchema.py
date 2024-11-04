@@ -419,12 +419,23 @@ class TableSchema(Schema):
 
     @staticmethod
     def _convertDateTime(time_str:str) -> datetime:
+        """_summary_
+
+        TODO : Make use of formats options
+
+        :param time_str: _description_
+        :type time_str: str
+        :raises ValueError: _description_
+        :raises err: _description_
+        :return: _description_
+        :rtype: datetime
+        """
         ret_val : datetime
 
         if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
             raise ValueError(f"Got a non-timestamp value of {time_str} when converting a datetime column of an Event!")
 
-        formats = ["%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S.%f"]
+        # formats = ["%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S.%f"]
 
         # for fmt in formats:
         try:
@@ -439,6 +450,16 @@ class TableSchema(Schema):
 
     @staticmethod
     def _convertTimedelta(time_str:str) -> Optional[timedelta]:
+        """_summary_
+
+        TODO : Sort out/document why we do nothing with ValueError and IndexError
+
+        :param time_str: _description_
+        :type time_str: str
+        :raises ValueError: _description_
+        :return: _description_
+        :rtype: Optional[timedelta]
+        """
         ret_val : Optional[timedelta]
 
         if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
@@ -468,6 +489,16 @@ class TableSchema(Schema):
 
     @staticmethod
     def _convertTimezone(time_str:str) -> Optional[timezone]:
+        """_summary_
+
+        TODO : Sort out/document why we do nothing with ValueError
+
+        :param time_str: _description_
+        :type time_str: str
+        :raises ValueError: _description_
+        :return: _description_
+        :rtype: Optional[timezone]
+        """
         ret_val : Optional[timezone]
 
         if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
