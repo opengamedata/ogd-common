@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
@@ -145,7 +145,7 @@ class DataElementSchema(Schema):
                         Logger.Log(f"EventDataElement detail value for key {_key} was unexpected type {type(val)}, defaulting to str(val) == {ret_val[_key]}", logging.WARN)
         else:
             ret_val = {}
-            Logger.Log(f"EventDataElement details was not a dict, defaulting to empty dict.", logging.WARN)
+            Logger.Log("EventDataElement details was not a dict, defaulting to empty dict.", logging.WARN)
         return ret_val
 
     # *** PRIVATE METHODS ***
