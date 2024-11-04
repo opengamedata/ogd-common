@@ -13,6 +13,8 @@ class GameStateSchema(Schema):
     These essentially are just a set of elements in the GameState attribute of the game's Events.
     """
 
+    _DEFAULT_GAME_STATE = {}
+
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, game_state:Dict[str, DataElementSchema], other_elements:Dict[str, Any]):
@@ -69,6 +71,14 @@ class GameStateSchema(Schema):
 
         _leftovers = {}
         return GameStateSchema(name=name, game_state=_game_state, other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "GameStateSchema":
+        return GameStateSchema(
+            name="DefaultGameStateSchema",
+            game_state=cls._DEFAULT_GAME_STATE,
+            other_elements={}
+        )
 
     # *** PUBLIC METHODS ***
 
