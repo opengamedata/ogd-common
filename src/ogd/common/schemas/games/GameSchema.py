@@ -60,6 +60,7 @@ class GameSchema(Schema):
 
         TODO: need to get game_state from schema file, and use a GameStateSchema instead of general Map.
         TODO: Use DetectorMapSchema and FeatureMapSchema instead of just dicts... I think. Depending how these all work together.
+        TODO : make parser functions for config and versions, so we can do ElementFromDict for them as well.
 
         :param name: _description_
         :type name: str
@@ -349,7 +350,6 @@ class GameSchema(Schema):
             parser_function=cls._parseDetectorMap,
             default_value=cls._DEFAULT_DETECTOR_MAP
         )
-        # TODO : Just have DetectorMapSchema directly
         _detector_map = _detector_map.AsDict
 
     # 4. Get feature information
@@ -358,14 +358,12 @@ class GameSchema(Schema):
             parser_function=cls._parseFeatureMap,
             default_value={}
         )
-        # TODO : Just have the FeatureMapSchema directly, not 4 different things.
         _aggregate_feats.update(_feat_map.AggregateFeatures)
         _percount_feats.update(_feat_map.PerCountFeatures)
         _legacy_perlevel_feats.update(_feat_map.LegacyPerLevelFeatures)
         _legacy_mode = _feat_map.LegacyMode
 
     # 5. Get config, if any
-    # TODO : make parser functions for config and versions, so we can do ElementFromDict for them as well.
         if "config" in all_elements.keys():
             _config = all_elements['config']
         else:
