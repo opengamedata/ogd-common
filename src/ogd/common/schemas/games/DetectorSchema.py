@@ -21,3 +21,7 @@ class DetectorSchema(GeneratorSchema):
     @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DetectorSchema":
         return DetectorSchema(name=name, all_elements=all_elements)
+
+    @classmethod
+    def Default(cls) -> "DetectorSchema":
+        return DetectorSchema(name="DefaultDetectorSchema", all_elements={})
