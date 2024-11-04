@@ -59,6 +59,7 @@ class GameSchema(Schema):
         all features to be extracted.
 
         TODO: need to get game_state from schema file, and use a GameStateSchema instead of general Map.
+        TODO: Use DetectorMapSchema and FeatureMapSchema instead of just dicts... I think. Depending how these all work together.
 
         :param name: _description_
         :type name: str
@@ -394,6 +395,28 @@ class GameSchema(Schema):
                           config=_config, min_level=_min_level, max_level=_max_level,
                           other_ranges=_other_ranges, supported_vers=_supported_vers,
                           other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "GameSchema":
+        return GameSchema(
+            name="DefaultGameSchema",
+            game_id="DEFAULT_GAME",
+            enum_defs=cls._DEFAULT_ENUMS,
+            game_state=cls._DEFAULT_GAME_STATE,
+            user_data=cls._DEFAULT_USER_DATA,
+            event_list=cls._DEFAULT_EVENT_LIST,
+            detector_map=cls._DEFAULT_DETECTOR_MAP,
+            aggregate_feats=cls._DEFAULT_AGGREGATES,
+            percount_feats=cls._DEFAULT_PERCOUNTS,
+            legacy_perlevel_feats=cls._DEFAULT_LEGACY_PERCOUNTS,
+            use_legacy_mode=cls._DEFAULT_LEGACY_MODE,
+            config=cls._DEFAULT_CONFIG,
+            min_level=cls._DEFAULT_MIN_LEVEL,
+            max_level=cls._DEFAULT_MAX_LEVEL,
+            other_ranges=cls._DEFAULT_OTHER_RANGES,
+            supported_vers=cls._DEFAULT_VERSIONS,
+            other_elements={}
+        )
 
     # *** PUBLIC STATICS ***
 
