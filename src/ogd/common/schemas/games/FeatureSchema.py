@@ -1,5 +1,4 @@
 # import standard libraries
-import abc
 import logging
 from typing import Any, Dict, Optional
 # import local files
@@ -8,6 +7,11 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class SubfeatureSchema(Schema):
+    _DEFAULT_RETURN_TYPE = "str",
+    _DEFAULT_DESCRIPTION = "Default Subfeature schema object. Does not correspond to any actual data."
+
+    # *** BUILT-INS & PROPERTIES ***
+
     def __init__(self, name:str, return_type:str, description:str, other_elements:Dict[str, str]):
         self._return_type : str = return_type
         self._description : str = description
@@ -21,6 +25,8 @@ class SubfeatureSchema(Schema):
     @property
     def Description(self) -> str:
         return self._description
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
     def AsMarkdown(self) -> str:
@@ -41,17 +47,32 @@ class SubfeatureSchema(Schema):
         _return_type = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["return_type"],
             parser_function=cls._parseReturnType,
-            default_value="UNKNOWN"
+            default_value=cls._DEFAULT_RETURN_TYPE
         )
         _description = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["description"],
             parser_function=cls._parseDescription,
-            default_value="No description"
+            default_value=cls._DEFAULT_DESCRIPTION
         )
-        
+
         _used = {"return_type", "description"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         return SubfeatureSchema(name=name, return_type=_return_type, description=_description, other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "SubfeatureSchema":
+        return SubfeatureSchema(
+            name="DefaultSubfeatureSchema",
+            return_type=cls._DEFAULT_RETURN_TYPE,
+            description=cls._DEFAULT_DESCRIPTION,
+            other_elements={}
+        )
+
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
 
     @staticmethod
     def _parseReturnType(return_type):
@@ -72,6 +93,8 @@ class SubfeatureSchema(Schema):
             ret_val = str(description)
             Logger.Log(f"Extractor description was not a string, defaulting to str(description) == {ret_val}", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***
 
 class FeatureSchema(GeneratorSchema):
     """Base class for all schemas related to defining feature Extractor configurations.
