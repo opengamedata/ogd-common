@@ -10,6 +10,10 @@ class DataElementSchema(Schema):
     Dumb struct to contain a specification of a data element from the EventData, GameState, or UserData attributes of an Event.
     """
 
+    _DEFAULT_TYPE = "str"
+    _DEFAULT_DESCRIPTION = "Default data element generated the DataElementSchema class. Does not represent actual data."
+    _DEFAULT_DETAILS = None
+
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, element_type:str, description:str, details:Optional[Dict[str, str]], other_elements:Dict[str, Any]):
@@ -84,6 +88,16 @@ class DataElementSchema(Schema):
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         return DataElementSchema(name=name, element_type=_type, description=_description, details=_details, other_elements=_leftovers)
 
+    @classmethod
+    def Default(cls) -> "DataElementSchema":
+        return DataElementSchema(
+            name="DefaultDataElementSchema",
+            element_type=cls._DEFAULT_TYPE,
+            description=cls._DEFAULT_DESCRIPTION,
+            details=cls._DEFAULT_DETAILS,
+            other_elements={}
+        )
+
     # *** PUBLIC STATICS ***
 
     # *** PUBLIC METHODS ***
@@ -109,7 +123,7 @@ class DataElementSchema(Schema):
             ret_val = str(description)
             Logger.Log(f"EventDataElement description was not a string, defaulting to str(description) == {ret_val}", logging.WARN)
         return ret_val
-    
+
     @staticmethod
     def _parseDetails(details):
         ret_val : Dict[str, str] = {}
