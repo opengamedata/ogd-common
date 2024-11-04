@@ -120,7 +120,7 @@ class DetectorMapSchema(Schema):
             ret_val = { key : DetectorSchema(name=key, all_elements=val) for key,val in perlevels.items() }
         else:
             ret_val = {}
-            Logger.Log(f"Per-level detectors map was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log("Per-level detectors map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
 
     @staticmethod
@@ -130,7 +130,7 @@ class DetectorMapSchema(Schema):
             ret_val = { key : DetectorSchema(name=key, all_elements=val) for key,val in percounts.items() }
         else:
             ret_val = {}
-            Logger.Log(f"Per-count detectors map was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log("Per-count detectors map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
 
     @staticmethod
@@ -140,7 +140,7 @@ class DetectorMapSchema(Schema):
             ret_val = {key : DetectorSchema(name=key, all_elements=val) for key,val in aggregates.items()}
         else:
             ret_val = {}
-            Logger.Log(f"Per-count detectors map was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log("Per-count detectors map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
 
     # *** PRIVATE METHODS ***
