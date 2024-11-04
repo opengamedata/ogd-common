@@ -38,14 +38,14 @@ class SubfeatureSchema(Schema):
             _elements = {}
             Logger.Log(f"For {name} subfeature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
 
-        _return_type = SubfeatureSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _return_type = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["return_type"],
-            parser_function=SubfeatureSchema._parseReturnType,
+            parser_function=cls._parseReturnType,
             default_value="UNKNOWN"
         )
-        _description = SubfeatureSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _description = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["description"],
-            parser_function=SubfeatureSchema._parseDescription,
+            parser_function=cls._parseDescription,
             default_value="No description"
         )
         

@@ -72,14 +72,14 @@ class EventSchema(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For {name} Event config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _description = EventSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _description = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["description"],
-            parser_function=EventSchema._parseDescription,
+            parser_function=cls._parseDescription,
             default_value="No description available"
         )
-        _event_data = EventSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _event_data = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["event_data"],
-            parser_function=EventSchema._parseEventDataElements,
+            parser_function=cls._parseEventDataElements,
             default_value={}
         )
 

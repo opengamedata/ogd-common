@@ -61,24 +61,24 @@ class FeatureMapSchema(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For FeatureMap config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _legacy_mode = FeatureMapSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _legacy_mode = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["legacy"],
-            parser_function=FeatureMapSchema._parseLegacyMode,
+            parser_function=cls._parseLegacyMode,
             default_value=False
         )
-        _legacy_perlevel_feats = FeatureMapSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _legacy_perlevel_feats = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["perlevel", "per_level"],
-            parser_function=FeatureMapSchema._parsePerLevelFeatures,
+            parser_function=cls._parsePerLevelFeatures,
             default_value={}
         )
-        _percount_feats = FeatureMapSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _percount_feats = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["per_count", "percount"],
-            parser_function=FeatureMapSchema._parsePerCountFeatures,
+            parser_function=cls._parsePerCountFeatures,
             default_value={}
         )
-        _aggregate_feats = FeatureMapSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _aggregate_feats = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["aggregate"],
-            parser_function=FeatureMapSchema._parseAggregateFeatures,
+            parser_function=cls._parseAggregateFeatures,
             default_value={}
         )
 
