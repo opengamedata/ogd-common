@@ -71,17 +71,17 @@ class DataElementSchema(Schema):
         _type = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["type"],
             parser_function=cls._parseElementType,
-            default_value="UNKNOWN"
+            default_value=cls._DEFAULT_TYPE
         )
         _description = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["description"],
             parser_function=cls._parseDescription,
-            default_value="UNKNOWN"
+            default_value=cls._DEFAULT_DESCRIPTION
         )
         _details = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["details"],
             parser_function=cls._parseDetails,
-            default_value=None
+            default_value=cls._DEFAULT_DETAILS
         )
 
         _used = {"type", "description", "details"}
