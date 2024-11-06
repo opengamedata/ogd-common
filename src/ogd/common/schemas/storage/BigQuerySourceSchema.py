@@ -3,36 +3,18 @@ import abc
 import logging
 from typing import Any, Dict, Optional, Type
 # import local files
-from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.configs.data_sources.DataSourceSchema import DataSourceSchema
 from ogd.common.utils.Logger import Logger
 
 class BigQuerySchema(DataSourceSchema):
-    def __init__(self, name:str, all_elements:Dict[str, Any], fallbacks:Dict[str, Any]={}):
-        self._project_id : str
-        self._credential : Optional[str]
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-            Logger.Log(f"For {name} Game Source config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        if "PROJECT_ID" in all_elements.keys():
-            self._project_id = BigQuerySchema._parseProjectID(all_elements["PROJECT_ID"])
-        elif "PROJECT_ID" in fallbacks.keys():
-            self._project_id = BigQuerySchema._parseProjectID(fallbacks["PROJECT_ID"])
-        else:
-            self._project_id = "UNKNOWN"
-            Logger.Log(f"{name} config does not have a 'DATASET_ID' element; defaulting to dataset_id={self._project_id}", logging.WARN)
-        if "PROJECT_KEY" in all_elements.keys():
-            self._credential = BigQuerySchema._parseCredential(all_elements["PROJECT_KEY"])
-        elif "PROJECT_KEY" in fallbacks.keys():
-            self._credential = BigQuerySchema._parseCredential(fallbacks["PROJECT_KEY"])
-        else:
-            self._credential = None
-            Logger.Log(f"{name} config does not have a 'PROJECT_KEY' element; defaulting to credential=None", logging.WARN)
+    # *** BUILT-INS & PROPERTIES ***
 
-        _used = {"PROJECT_ID", "DATASET_ID", "PROJECT_KEY"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        super().__init__(name=name, other_elements=_leftovers)
+    def __init__(self, name:str, project_id:str, credential:Optional[str], other_elements:Dict[str, Any]):
+        self._project_id : str           = project_id
+        self._credential : Optional[str] = credential
+
+        super().__init__(name=name, other_elements=other_elements)
 
     @property
     def ProjectID(self) -> str:
@@ -43,16 +25,47 @@ class BigQuerySchema(DataSourceSchema):
         return self._credential
 
     @property
+    def AsConnectionInfo(self) -> str:
+        ret_val : str = f"{self.ProjectID}"
+        return ret_val
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
+    @property
     def AsMarkdown(self) -> str:
         ret_val : str
 
         ret_val = f"{self.Name}: `{self.AsConnectionInfo}` ({self.Type})"
         return ret_val
 
-    @property
-    def AsConnectionInfo(self) -> str:
-        ret_val : str = f"{self.ProjectID}"
-        return ret_val
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "BigQuerySchema":
+        _project_id : str
+        _credential : Optional[str]
+
+        if not isinstance(all_elements, dict):
+            all_elements = {}
+            Logger.Log(f"For {name} BigQuery Source config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
+        _project_id = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["PROJECT_ID", "DATASET_ID"],
+            parser_function=cls._parseProjectID,
+            default_value="UNKNOWN"
+        )
+        _credential = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["PROJECT_KEY"],
+            parser_function=cls._parseCredential,
+            default_value=None
+        )
+
+        _used = {"PROJECT_ID", "DATASET_ID", "PROJECT_KEY"}
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        return BigQuerySchema(name=name, project_id=_project_id, credential=_credential, other_elements=_leftovers)
+
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
 
     @staticmethod
     def _parseProjectID(project_id) -> str:
@@ -73,3 +86,6 @@ class BigQuerySchema(DataSourceSchema):
             ret_val = str(credential)
             Logger.Log(f"Game Source credential type was unexpected type {type(credential)}, defaulting to str(credential)={ret_val}.", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***
+

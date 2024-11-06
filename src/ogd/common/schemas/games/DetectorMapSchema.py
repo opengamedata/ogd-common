@@ -7,34 +7,34 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class DetectorMapSchema(Schema):
+
+    # *** BUILT-INS & PROPERTIES ***
+
     """
     Dumb struct to contain the specification and config of a set of features for a game.
     """
-    def __init__(self, name:str, all_elements:Dict[str, Any]):
-        self._perlevel_detectors  : Dict[str, DetectorSchema]
-        self._percount_detectors  : Dict[str, DetectorSchema]
-        self._aggregate_detectors : Dict[str, DetectorSchema]
+    def __init__(self, name:str,
+                 perlevel_detectors:Dict[str, DetectorSchema], percount_detectors:Dict[str, DetectorSchema], aggregate_detectors:Dict[str, DetectorSchema],
+                 other_elements:Dict[str, Any]):
+        self._perlevel_detectors  : Dict[str, DetectorSchema] = perlevel_detectors
+        self._percount_detectors  : Dict[str, DetectorSchema] = percount_detectors
+        self._aggregate_detectors : Dict[str, DetectorSchema] = aggregate_detectors
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-            Logger.Log(f"For DetectorMap config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        if "perlevel" in all_elements.keys():
-            self._perlevel_detectors = DetectorMapSchema._parsePerLevelDetectors(perlevels=all_elements['perlevel'])
-        else:
-            Logger.Log(f"DetectorMap config does not have a 'perlevel' element; defaulting to empty dictionary", logging.WARN)
-            self._perlevel_detectors = {}
-        if "per_count" in all_elements.keys():
-            self._percount_detectors = DetectorMapSchema._parsePerCountDetectors(percounts=all_elements['per_count'])
-        else:
-            Logger.Log(f"DetectorMap config does not have a 'per_count' element; defaulting to empty dictionary", logging.WARN)
-            self._percount_detectors = {}
-        if "aggregate" in all_elements.keys():
-            self._aggregate_detectors = DetectorMapSchema._parseAggregateDetectors(aggregates=all_elements['aggregate'])
-        else:
-            Logger.Log(f"DetectorMap config does not have an 'aggregate' element; defaulting to empty dictionary", logging.WARN)
-            self._aggregate_detectors = {}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in {"legacy", "perlevel", "per_count", "aggregate"} }
-        super().__init__(name=name, other_elements=_leftovers)
+        super().__init__(name=name, other_elements=other_elements)
+
+    @property
+    def PerLevelDetectors(self) -> Dict[str, DetectorSchema]:
+        return self._perlevel_detectors
+
+    @property
+    def PerCountDetectors(self) -> Dict[str, DetectorSchema]:
+        return self._percount_detectors
+
+    @property
+    def AggregateDetectors(self) -> Dict[str, DetectorSchema]:
+        return self._aggregate_detectors
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
     def AsMarkdown(self) -> str:
@@ -54,6 +54,37 @@ class DetectorMapSchema(Schema):
         }
         return ret_val
 
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DetectorMapSchema":
+        _perlevel_detectors  : Dict[str, DetectorSchema]
+        _percount_detectors  : Dict[str, DetectorSchema]
+        _aggregate_detectors : Dict[str, DetectorSchema]
+
+        if not isinstance(all_elements, dict):
+            all_elements = {}
+            Logger.Log(f"For DetectorMap config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
+        _perlevel_detectors = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["perlevel", "per_level"],
+            parser_function=cls._parsePerLevelDetectors,
+            default_value={}
+        )
+        _percount_detectors = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["per_count", "percount"],
+            parser_function=cls._parsePerCountDetectors,
+            default_value={}
+        )
+        _aggregate_detectors = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["aggregate"],
+            parser_function=cls._parseAggregateDetectors,
+            default_value={}
+        )
+
+        _used = {"perlevel", "per_level", "per_count", "percount", "aggregate"}
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        return DetectorMapSchema(name=name, perlevel_detectors=_perlevel_detectors,
+                                 percount_detectors=_percount_detectors, aggregate_detectors=_aggregate_detectors,
+                                 other_elements=_leftovers)
+
     # @property
     # def AsMarkdownRow(self) -> str:
     #     ret_val : str = f"| {self.Name} | {self.ElementType} | {self.Description} |"
@@ -63,17 +94,11 @@ class DetectorMapSchema(Schema):
     #     ret_val += " |"
     #     return ret_val
 
-    @property
-    def PerLevelDetectors(self) -> Dict[str, DetectorSchema]:
-        return self._perlevel_detectors
+    # *** PUBLIC STATICS ***
 
-    @property
-    def PerCountDetectors(self) -> Dict[str, DetectorSchema]:
-        return self._percount_detectors
+    # *** PUBLIC METHODS ***
 
-    @property
-    def AggregateDetectors(self) -> Dict[str, DetectorSchema]:
-        return self._aggregate_detectors
+    # *** PRIVATE STATICS ***
     
     @staticmethod
     def _parsePerLevelDetectors(perlevels) -> Dict[str, DetectorSchema]:
@@ -104,3 +129,5 @@ class DetectorMapSchema(Schema):
             ret_val = {}
             Logger.Log(f"Per-count detectors map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***

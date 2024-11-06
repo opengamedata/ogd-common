@@ -1,11 +1,26 @@
 # import standard libraries
 import abc
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Self
 # import local files
 from ogd.common.utils.Logger import Logger
 
 class Schema(abc.ABC):
+
+    # *** ABSTRACTS ***
+
+    @property
+    @abc.abstractmethod
+    def AsMarkdown(self) -> str:
+        pass
+
+    @classmethod
+    @abc.abstractmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "Schema":
+        pass
+
+    # *** BUILT-INS & PROPERTIES ***
+
     def __init__(self, name:str, other_elements:Optional[Dict[str, Any]]):
         self._name : str
         self._other_elements : Dict[str, Any]
@@ -58,6 +73,21 @@ class Schema(abc.ABC):
         :rtype: List[str]
         """
         return list(self._other_elements.keys())
+
+    # *** PUBLIC STATICS ***
+
+    @classmethod
+    def ElementFromDict(cls, all_elements:Dict[str, Any], element_names:List[str], parser_function:Callable, default_value:Any, logger:Optional[logging.Logger]=None) -> Any:
+        for name in element_names:
+            if name in all_elements:
+                return parser_function(all_elements[name])
+        _msg = f"{cls.__name__} config does not have a '{element_names[0]}' element; defaulting to {element_names[0]}={default_value}"
+        logger.warning(_msg) if logger else Logger.Log(_msg, logging.WARN)
+        return default_value
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
     
     @staticmethod
     def _parseName(name):
@@ -68,3 +98,5 @@ class Schema(abc.ABC):
             ret_val = str(name)
             Logger.Log(f"Schema name was not a string, defaulting to str(name) == {ret_val}", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***

@@ -7,51 +7,15 @@ from ogd.common.schemas.configs.data_sources.DataSourceSchema import DataSourceS
 from ogd.common.utils.Logger import Logger
 
 class SSHSchema(Schema):
-    def __init__(self, name:str, all_elements:Dict[str, Any], fallbacks:Dict[str, Any]={}):
-        self._host : Optional[str]
-        self._user : Optional[str]
-        self._pass : Optional[str]
-        self._port : int
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-            Logger.Log(f"For {name} base config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        if "SSH_HOST" in all_elements.keys():
-            self._host = SSHSchema._parseHost(all_elements["SSH_HOST"])
-        elif "SSH_HOST" in fallbacks.keys():
-            self._host = SSHSchema._parseHost(fallbacks["SSH_HOST"])
-        else:
-            self._host = None
-            Logger.Log(f"{name} config does not have a 'SSH_HOST' element; defaulting to ssh_host={self._host}", logging.WARN)
-        if "SSH_USER" in all_elements.keys():
-            self._user = SSHSchema._parseUser(all_elements["SSH_USER"])
-        elif "SSH_USER" in fallbacks.keys():
-            self._user = SSHSchema._parseUser(fallbacks["SSH_USER"])
-        else:
-            self._user = None
-            Logger.Log(f"{name} config does not have a 'SSH_USER' element; defaulting to ssh_user={self._user}", logging.WARN)
-        if "SSH_PW" in all_elements.keys():
-            self._pass = SSHSchema._parsePass(all_elements["SSH_PW"])
-        elif "SSH_PASS" in all_elements.keys():
-            self._pass = SSHSchema._parsePass(all_elements["SSH_PASS"])
-        elif "SSH_PW" in fallbacks.keys():
-            self._pass = SSHSchema._parsePass(fallbacks["SSH_PW"])
-        elif "SSH_PASS" in fallbacks.keys():
-            self._pass = SSHSchema._parsePass(fallbacks["SSH_PASS"])
-        else:
-            self._pass = None
-            Logger.Log(f"{name} config does not have a 'SSH_PASS' or 'SSH_PW' element; defaulting to ssh_pass={self._pass}", logging.WARN)
-        if "SSH_PORT" in all_elements.keys():
-            self._port = SSHSchema._parsePort(all_elements["SSH_PORT"])
-        elif "SSH_PORT" in fallbacks.keys():
-            self._port = SSHSchema._parsePort(fallbacks["SSH_PORT"])
-        else:
-            self._port = 22
-            Logger.Log(f"{name} config does not have a 'SSH_PORT' element; defaulting to ssh_port={self._port}", logging.WARN)
+    # *** BUILT-INS & PROPERTIES ***
 
-        _used = {"SSH_HOST", "SSH_USER", "SSH_PW", "SSH_PASS", "SSH_PORT"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        super().__init__(name=name, other_elements=_leftovers)
+    def __init__(self, name:str, host:Optional[str], user:Optional[str], pword:Optional[str], port:int, other_elements:Dict[str, Any]):
+        self._host : Optional[str] = host
+        self._user : Optional[str] = user
+        self._pass : Optional[str] = pword
+        self._port : int           = port
+        super().__init__(name=name, other_elements=other_elements)
 
     @property
     def Host(self) -> Optional[str]:
@@ -69,6 +33,8 @@ class SSHSchema(Schema):
     def Port(self) -> int:
         return self._port
 
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
     @property
     def AsMarkdown(self) -> str:
         ret_val : str
@@ -82,6 +48,51 @@ class SSHSchema(Schema):
 
         ret_val = f"{self.User}@{self.Host}:{self.Port}"
         return ret_val
+
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "SSHSchema":
+        _host : Optional[str]
+        _user : Optional[str]
+        _pass : Optional[str]
+        _port : int
+
+        if not isinstance(all_elements, dict):
+            all_elements = {}
+            _msg = f"For {name} MySQL Source config, all_elements was not a dict, defaulting to empty dict"
+            if logger:
+                logger.warning(_msg)
+            else:
+                Logger.Log(_msg, logging.WARN)
+        _host = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["SSH_HOST"],
+            parser_function=cls._parseHost,
+            default_value=None # TODO : use class default
+        )
+        _user = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["SSH_USER"],
+            parser_function=cls._parseUser,
+            default_value=None
+        )
+        _pass = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["SSH_PW", "SSH_PASS"],
+            parser_function=cls._parsePass,
+            default_value=None
+        )
+        _port = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["SSH_PORT"],
+            parser_function=cls._parsePort,
+            default_value=22
+        )
+
+        _used = {"SSH_HOST", "SSH_USER", "SSH_PW", "SSH_PASS", "SSH_PORT"}
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        return SSHSchema(name=name, host=_host, user=_user, pword=_pass, port=_port, other_elements=_leftovers)
+
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
 
     @staticmethod
     def _parseHost(host) -> Optional[str]:
@@ -125,47 +136,19 @@ class SSHSchema(Schema):
             Logger.Log(f"SSH config for port was unexpected type {type(port)}, defaulting to int(port)={ret_val}.", logging.WARN)
         return ret_val
 
+    # *** PRIVATE METHODS ***
+
 class MySQLSchema(DataSourceSchema):
-    def __init__(self, name:str, all_elements:Dict[str, Any]):
-        self._db_host  : str
-        self._db_port  : int
-        self._db_user  : str
-        self._db_pass  : Optional[str]
-        self._ssh_cfg  : SSHSchema
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-            Logger.Log(f"For {name} MySQL Data Source config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        # Parse DB info
-        if "DB_HOST" in all_elements.keys():
-            self._db_host = MySQLSchema._parseDBHost(all_elements["DB_HOST"])
-        else:
-            self._db_host = "UNKNOWN"
-            Logger.Log(f"{name} config does not have a 'DB_HOST' element; defaulting to db_host={self._db_host}", logging.WARN)
-        if "DB_PORT" in all_elements.keys():
-            self._db_port = MySQLSchema._parseDBPort(all_elements["DB_PORT"])
-        else:
-            self._db_port = 3306
-            Logger.Log(f"{name} config does not have a 'DB_PORT' element; defaulting to db_port={self._db_port}", logging.WARN)
-        if "DB_USER" in all_elements.keys():
-            self._db_user = MySQLSchema._parseDBUser(all_elements["DB_USER"])
-        else:
-            self._db_user = "UNKOWN"
-            Logger.Log(f"{name} config does not have a 'DB_USER' element; defaulting to db_user={self._db_user}", logging.WARN)
-        if "DB_PW" in all_elements.keys():
-            self._db_pass = MySQLSchema._parseDBPass(all_elements["DB_PW"])
-        elif "DB_PASS" in all_elements.keys():
-            self._db_pass = MySQLSchema._parseDBPass(all_elements["DB_PASS"])
-        else:
-            self._db_pass = None
-            Logger.Log(f"{name} config does not have a 'DB_PW' element; defaulting to db_pass=None", logging.WARN)
-        # Parse SSH info, if it exists. Don't notify, if it doesn't exist.
-        _ssh_keys = {"SSH_HOST", "SSH_PORT", "SSH_USER", "SSH_PW", "SSH_PASS"}
-        self._ssh_cfg = SSHSchema(name=f"{name}-SSH", all_elements={ key : all_elements.get(key) for key in _ssh_keys.intersection(all_elements.keys()) })
+    # *** BUILT-INS & PROPERTIES ***
 
-        _used = {"DB_HOST", "DB_PORT", "DB_USER", "DB_PW", "DB_PASS", "SSH_HOST", "SSH_PORT", "SSH_USER", "SSH_PW", "SSH_PASS"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        super().__init__(name=name, other_elements=_leftovers)
+    def __init__(self, name:str, db_host:str, db_port:int, db_user:str, db_pass:Optional[str], ssh_cfg:SSHSchema, other_elements:Dict[str, Any]):
+        self._db_host  : str           = db_host
+        self._db_port  : int           = db_port
+        self._db_user  : str           = db_user
+        self._db_pass  : Optional[str] = db_pass
+        self._ssh_cfg  : SSHSchema     = ssh_cfg
+        super().__init__(name=name, other_elements=other_elements)
 
     @property
     def DBHost(self) -> str:
@@ -205,6 +188,8 @@ class MySQLSchema(DataSourceSchema):
         """
         return (self.SSH.Host is not None and self.SSH.User is not None and self.SSH.Pass is not None)
 
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
     @property
     def AsMarkdown(self) -> str:
         ret_val : str
@@ -217,6 +202,58 @@ class MySQLSchema(DataSourceSchema):
     def AsConnectionInfo(self) -> str:
         ret_val : str = f"{self.DBUser}@{self.DBHost}:{self.DBPort}"
         return ret_val
+
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "MySQLSchema":
+        _db_host  : str
+        _db_port  : int
+        _db_user  : str
+        _db_pass  : Optional[str]
+        _ssh_cfg  : SSHSchema
+
+        if not isinstance(all_elements, dict):
+            all_elements = {}
+            _msg = f"For {name} MySQL Data Source config, all_elements was not a dict, defaulting to empty dict"
+            if logger:
+                logger.warning(_msg)
+            else:
+                Logger.Log(_msg, logging.WARN)
+        # Parse DB info
+        _db_host = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["DB_HOST"],
+            parser_function=cls._parseDBHost,
+            default_value="UNKNOWN DB HOST"
+        )
+        _db_port = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["DB_PORT"],
+            parser_function=cls._parseDBPort,
+            default_value=3306
+        )
+        _db_user = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["DB_USER"],
+            parser_function=cls._parseDBUser,
+            default_value="UNKNOWN USER"
+        )
+        _db_pass = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["DB_PW", "DB_PASS"],
+            parser_function=cls._parseDBPass,
+            default_value=None
+        )
+        # Parse SSH info, if it exists. Don't notify, if it doesn't exist.
+        # TODO : probably shouldn't have keys expected for SSH be hardcoded here, maybe need a way to get back what stuff it didn't use?
+        _ssh_keys = {"SSH_HOST", "SSH_PORT", "SSH_USER", "SSH_PW", "SSH_PASS"}
+        _ssh_elems = { key : all_elements.get(key) for key in _ssh_keys.intersection(all_elements.keys()) }
+        _ssh_cfg = SSHSchema.FromDict(name=f"{name}-SSH", all_elements=_ssh_elems, logger=logger)
+
+        _used = {"DB_HOST", "DB_PORT", "DB_USER", "DB_PW", "DB_PASS"}.union(_ssh_keys)
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        return MySQLSchema(name=name, db_host=_db_host, db_port=_db_port, db_user=_db_user, db_pass=_db_pass, ssh_cfg=_ssh_cfg, other_elements=_leftovers)
+
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
 
     @staticmethod
     def _parseDBHost(db_host) -> str:
@@ -258,3 +295,4 @@ class MySQLSchema(DataSourceSchema):
             Logger.Log(f"MySQL Data Source DB password was unexpected type, defaulting to str(db_pass)=***.", logging.WARN)
         return ret_val
 
+    # *** PRIVATE METHODS ***

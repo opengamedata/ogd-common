@@ -14,10 +14,14 @@ from typing import Any, Dict, Optional
 
 # import OGD libraries
 from ogd.common.schemas.Schema import Schema
+from ogd.common.utils.Logger import Logger
 
 # import local files
 
 class TestConfigSchema(Schema):
+
+    # *** BUILT-INS & PROPERTIES ***
+
     @staticmethod
     def DEFAULT():
         return TestConfigSchema(
@@ -30,33 +34,6 @@ class TestConfigSchema(Schema):
         self._verbose       : bool            = verbose
         self._enabled_tests : Dict[str, bool] = enabled_tests
         super().__init__(name=name, other_elements=other_elements)
-
-    @staticmethod
-    def FromDict(name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]):
-        _verbose         : bool
-        _enabled_tests   : Dict[str, bool]
-        if "VERBOSE" in all_elements.keys():
-            _verbose = TestConfigSchema._parseVerbose(all_elements["VERBOSE"], logger=logger)
-        else:
-            _verbose = TestConfigSchema.DEFAULT().Verbose
-            _msg = f"{name} config does not have an 'VERBOSE' element; defaulting to verbose={_verbose}"
-            if logger:
-                logger.warn(_msg, logging.WARN)
-            else:
-                print(_msg)
-        if "ENABLED" in all_elements.keys():
-            _enabled_tests = TestConfigSchema._parseEnabledTests(all_elements["ENABLED"], logger=logger)
-        else:
-            _enabled_tests = TestConfigSchema.DEFAULT().EnabledTests
-            _msg = f"{name} config does not have an 'ENABLED' element; defaulting to enabled={_enabled_tests}"
-            if logger:
-                logger.warn(_msg, logging.WARN)
-            else:
-                print(_msg)
-
-        _used = {"VERBOSE", "ENABLED"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return TestConfigSchema(name=name, verbose=_verbose, enabled_tests=_enabled_tests, other_elements=_leftovers)
 
     @property
     def Verbose(self) -> bool:
@@ -73,8 +50,45 @@ class TestConfigSchema(Schema):
         ret_val = f"{self.Name}"
         return ret_val
 
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
+    # *** PUBLIC STATICS ***
+
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TestConfigSchema":
+        _verbose         : bool
+        _enabled_tests   : Dict[str, bool]
+
+        if not isinstance(all_elements, dict):
+            all_elements = {}
+            _msg = f"For {name} testing config, all_elements was not a dict, defaulting to empty dict"
+            if logger:
+                logger.warning(_msg)
+            else:
+                Logger.Log(_msg, logging.WARN)
+        _verbose = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["VERBOSE"],
+            parser_function=cls._parseVerbose,
+            default_value=cls.DEFAULT().Verbose
+        )
+        _enabled_tests = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["ENABLED"],
+            parser_function=cls._parseEnabledTests,
+            default_value=cls.DEFAULT().EnabledTests
+        )
+
+        _used = {"VERBOSE", "ENABLED"}
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        return TestConfigSchema(name=name, verbose=_verbose, enabled_tests=_enabled_tests, other_elements=_leftovers)
+
+    # *** PUBLIC METHODS ***
+
+    # *** PROPERTIES ***
+
+    # *** PRIVATE STATICS ***
+
     @staticmethod
-    def _parseVerbose(verbose, logger:Optional[logging.Logger]) -> bool:
+    def _parseVerbose(verbose, logger:Optional[logging.Logger]=None) -> bool:
         ret_val : bool
         if isinstance(verbose, bool):
             ret_val = verbose
@@ -86,13 +100,13 @@ class TestConfigSchema(Schema):
             ret_val = bool(verbose)
             _msg = f"Config 'verbose' setting was unexpected type {type(verbose)}, defaulting to bool(verbose)={ret_val}."
             if logger:
-                logger.warn(_msg, logging.WARN)
+                logger.warning(_msg, logging.WARN)
             else:
                 print(_msg)
         return ret_val
 
     @staticmethod
-    def _parseEnabledTests(enabled, logger:Optional[logging.Logger]) -> Dict[str, bool]:
+    def _parseEnabledTests(enabled, logger:Optional[logging.Logger]=None) -> Dict[str, bool]:
         ret_val : Dict[str, bool]
         if isinstance(enabled, dict):
             ret_val = { str(key) : bool(val) for key, val in enabled.items() }
@@ -104,3 +118,5 @@ class TestConfigSchema(Schema):
             else:
                 print(_msg)
         return ret_val
+
+    # *** PRIVATE METHODS ***

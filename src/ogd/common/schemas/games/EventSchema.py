@@ -7,30 +7,19 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class EventSchema(Schema):
+
+    # *** BUILT-INS & PROPERTIES ***
+
     """
     Dumb struct to contain a specification of an Event in a GameSchema file.
 
     These essentially are just a description of the event, and a set of elements in the EventData attribute of the Event.
     """
-    def __init__(self, name:str, all_elements:Dict[str, Dict]):
-        self._description : str                               = "No description available"
-        self._event_data  : Dict[str, DataElementSchema] = {}
+    def __init__(self, name:str, description:str, event_data:Dict[str, DataElementSchema], other_elements:Dict[str, Dict]):
+        self._description : str                          = description
+        self._event_data  : Dict[str, DataElementSchema] = event_data
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-            Logger.Log(f"For {name} Event config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        if "description" in all_elements.keys():
-            self._description = EventSchema._parseDescription(description=all_elements['description'])
-        else:
-            self._description = "Unknown"
-            Logger.Log(f"{name} EventSchema config does not have a 'description' element; defaulting to description='{self._description}", logging.WARN)
-        if "event_data" in all_elements.keys():
-            self._event_data = EventSchema._parseEventDataElements(event_data=all_elements['event_data'])
-        else:
-            self._event_data = {}
-            Logger.Log(f"{name} EventSchema config does not have an 'event_data' element; defaulting to empty dict", logging.WARN)
-        _leftovers = { key : val for key,val in all_elements.items() if key not in {"description", "event_data"} }
-        super().__init__(name=name, other_elements=_leftovers)
+        super().__init__(name=name, other_elements=other_elements)
 
     @property
     def Description(self) -> str:
@@ -39,6 +28,8 @@ class EventSchema(Schema):
     @property
     def EventData(self) -> Dict[str, DataElementSchema]:
         return self._event_data
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
     def AsMarkdown(self) -> str:
@@ -73,11 +64,40 @@ class EventSchema(Schema):
             )
         return "\n\n".join(ret_val)
 
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "EventSchema":
+        _description : str
+        _event_data  : Dict[str, DataElementSchema]
+
+        if not isinstance(all_elements, dict):
+            all_elements = {}
+            Logger.Log(f"For {name} Event config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
+        _description = EventSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["description"],
+            parser_function=EventSchema._parseDescription,
+            default_value="No description available"
+        )
+        _event_data = EventSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["event_data"],
+            parser_function=EventSchema._parseEventDataElements,
+            default_value={}
+        )
+
+        _used = {"description", "event_data"}
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        return EventSchema(name=name, description=_description, event_data=_event_data, other_elements=_leftovers)
+
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
+
     @staticmethod
     def _parseEventDataElements(event_data):
         ret_val : Dict[str, DataElementSchema]
         if isinstance(event_data, dict):
-            ret_val = {name:DataElementSchema(name=name, all_elements=elems) for name,elems in event_data.items()}
+            ret_val = {name:DataElementSchema.FromDict(name=name, all_elements=elems) for name,elems in event_data.items()}
         else:
             ret_val = {}
             Logger.Log(f"event_data was unexpected type {type(event_data)}, defaulting to empty dict.", logging.WARN)
@@ -92,3 +112,5 @@ class EventSchema(Schema):
             ret_val = str(description)
             Logger.Log(f"Event description was not a string, defaulting to str(description) == {ret_val}", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***

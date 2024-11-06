@@ -2,14 +2,16 @@
 import json
 import logging
 import re
-from dateutil import parser
-from datetime import datetime, time, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from json.decoder import JSONDecodeError
 from pathlib import Path
 from typing import Any, Dict, Final, List, Tuple, Optional, Union
+## import 3rd-party libraries
+from dateutil import parser
 ## import local files
 from ogd.common import schemas
 from ogd.common.models.Event import Event, EventSource
+from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.utils import utils
@@ -22,11 +24,11 @@ from ogd.common.utils.typing import Map
 #  This includes the indices of several important database columns, the names
 #  of the database columns, the max and min levels in the game, and a list of
 #  IDs for the game sessions in the given requested date range.
-class TableSchema:
+class TableSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, schema_name:str, schema_path:Path = Path(schemas.__file__).parent / "table_schemas/"):
+    def __init__(self, name, column_map:ColumnMapSchema, columns:List[ColumnSchema]):
         """Constructor for the TableSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
@@ -40,21 +42,12 @@ class TableSchema:
         :type is_legacy: bool, optional
         """
         # declare and initialize vars
-        self._schema            : Optional[Dict[str, Any]]
-        self._column_map        : ColumnMapSchema
-        self._columns           : List[ColumnSchema] = []
-        self._table_format_name : str                    = schema_name
-
-        if not self._table_format_name.lower().endswith(".json"):
-            self._table_format_name += ".json"
-        self._schema = utils.loadJSONFile(filename=self._table_format_name, path=schema_path)
+        # self._schema            : Optional[Dict[str, Any]] = all_elements
+        self._column_map        : ColumnMapSchema    = column_map
+        self._columns           : List[ColumnSchema] = columns
 
         # after loading the file, take the stuff we need and store.
-        if self._schema is not None:
-            self._columns    = [ColumnSchema(column_details) for column_details in self._schema.get('columns', [])]
-            self._column_map = ColumnMapSchema(map=self._schema.get('column_map', {}), column_names=self.ColumnNames)
-        else:
-            Logger.Log(f"Could not find event_data_complex schemas at {schema_path}{schema_name}", logging.ERROR)
+        super().__init__(name=name, other_elements={})
 
     @property
     def ColumnNames(self) -> List[str]:
@@ -71,7 +64,46 @@ class TableSchema:
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
+    @property
+    def AsMarkdown(self) -> str:
+        ret_val = "\n\n".join([
+            "## Database Columns",
+            "The individual columns recorded in the database for this game.",
+            "\n".join([item.AsMarkdown for item in self.Columns]),
+            "## Event Object Elements",
+            "The elements (member variables) of each Event object, available to programmers when writing feature extractors. The right-hand side shows which database column(s) are mapped to a given element.",
+            self._column_map.AsMarkdown,
+            ""])
+        return ret_val
+
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableSchema":
+        _column_map     : ColumnMapSchema
+        _column_schemas : List[ColumnSchema]
+
+        if not isinstance(all_elements, dict):
+            all_elements = {}
+            _msg = f"For {name} Table Schema, all_elements was not a dict, defaulting to empty dict"
+            if logger:
+                logger.warning(_msg)
+            else:
+                Logger.Log(_msg, logging.WARN)
+        _column_json_list = all_elements.get('columns', [])
+        _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), all_elements=column) for column in _column_json_list]
+        _column_map       = ColumnMapSchema.FromDict(name="Column Map", all_elements=all_elements.get('column_map', {}), column_names=[col.Name for col in _column_schemas])
+        return TableSchema(name=name, column_map=_column_map, columns=_column_schemas)
+
     # *** PUBLIC STATICS ***
+
+    @staticmethod
+    def FromFile(schema_name:str, schema_path:Path = Path(schemas.__file__).parent / "table_schemas/") -> "TableSchema":
+        _table_format_name : str = schema_name
+
+        if not _table_format_name.lower().endswith(".json"):
+            _table_format_name += ".json"
+        _schema = utils.loadJSONFile(filename=_table_format_name, path=schema_path)
+
+        return TableSchema.FromDict(name=schema_name, all_elements=_schema)
 
     # *** PUBLIC METHODS ***
 
