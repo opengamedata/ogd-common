@@ -6,8 +6,8 @@ import abc
 import logging
 
 # import local files
-from ogd.core.schemas.configs.GameSourceSchema import GameSourceSchema
-from ogd.core.utils.Logger import Logger
+from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.utils.Logger import Logger
 
 class StorageConnector(abc.ABC):
     """Base class for all interfaces and outerfaces.
