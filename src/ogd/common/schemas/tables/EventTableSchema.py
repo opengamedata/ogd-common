@@ -11,12 +11,12 @@ from typing import Any, Dict, Tuple, Optional
 from dateutil import parser
 
 # import local files
-from ogd.core import schemas
-from ogd.core.schemas.tables.TableSchema import TableSchema
-from ogd.core.models.Event import Event, EventSource
-from ogd.core.utils import utils
-from ogd.core.utils.Logger import Logger
-from ogd.core.utils.typing import Map
+from ogd.common import schemas
+from ogd.common.schemas.tables.TableSchema import TableSchema
+from ogd.common.models.Event import Event, EventSource
+from ogd.common.utils import utils
+from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 ## @class TableSchema
 #  Dumb struct to hold useful info about the structure of database data
