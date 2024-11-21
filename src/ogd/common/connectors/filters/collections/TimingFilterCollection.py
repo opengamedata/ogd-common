@@ -3,6 +3,7 @@ from datetime import date, datetime
 from typing import List, Optional, Set
 # import local files
 from ogd.common.connectors.filters import *
+from ogd.common.models.enums.FilterMode import FilterMode
 
 class TimingFilterCollection:
     """Dumb struct to hold filters for timing information
@@ -53,11 +54,11 @@ class TimingFilterCollection:
         :rtype: Filter
         """
         if minimum is not None and maximum is not None:
-            return MinMaxFilter(minimum=minimum, maximum=maximum)
+            return MinMaxFilter(mode=FilterMode.INCLUDE, set_elements=minimum=minimum, maximum=maximum)
         elif minimum is not None:
-            return MinFilter(minimum=minimum)
+            return MinFilter(mode=FilterMode.INCLUDE, set_elements=minimum=minimum)
         elif maximum is not None:
-            return MaxFilter(maximum=maximum)
+            return MaxFilter(mode=FilterMode.INCLUDE, set_elements=maximum=maximum)
         else:
             return NoFilter()
 
@@ -82,12 +83,12 @@ class TimingFilterCollection:
         :rtype: Filter
         """
         if exact_indices is not None and len(exact_indices) > 0:
-                return SetFilter(exact_indices)
+                return SetFilter(mode=FilterMode.INCLUDE, set_elements=exact_indices)
         elif minimum is not None and maximum is not None:
-            return MinMaxFilter(minimum=minimum, maximum=maximum)
+            return MinMaxFilter(mode=FilterMode.INCLUDE, minimum=minimum, maximum=maximum)
         elif minimum is not None:
-            return MinFilter(minimum=minimum)
+            return MinFilter(mode=FilterMode.INCLUDE, minimum=minimum)
         elif maximum is not None:
-            return MaxFilter(maximum=maximum)
+            return MaxFilter(mode=FilterMode.INCLUDE, maximum=maximum)
         else:
             return NoFilter()

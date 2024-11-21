@@ -3,6 +3,7 @@ from typing import List, Optional, Set
 # import local files
 from ogd.common.connectors.filters import *
 from ogd.common.utils.SemanticVersion import SemanticVersion
+from ogd.common.models.enums.FilterMode import FilterMode
 
 type Version = int | str | SemanticVersion
 
@@ -98,7 +99,7 @@ class VersioningFilterCollection:
         """
         if allowed_branches is not None:
             if len(allowed_branches) > 0:
-                return SetFilter(allowed_branches)
+                return SetFilter(mode=FilterMode.INCLUDE, set_elements=allowed_branches)
             else:
                 return NoFilter()
         else:
@@ -121,12 +122,12 @@ class VersioningFilterCollection:
         :rtype: Filter
         """
         if exact_versions is not None and len(exact_versions) > 0:
-                return SetFilter(exact_versions)
+                return SetFilter(mode=FilterMode.INCLUDE, set_elements=exact_versions)
         elif minimum is not None and maximum is not None:
-            return MinMaxFilter(minimum=minimum, maximum=maximum)
+            return MinMaxFilter(mode=FilterMode.INCLUDE, minimum=minimum, maximum=maximum)
         elif minimum is not None:
-            return MinFilter(minimum=minimum)
+            return MinFilter(mode=FilterMode.INCLUDE, minimum=minimum)
         elif maximum is not None:
-            return MaxFilter(maximum=maximum)
+            return MaxFilter(mode=FilterMode.INCLUDE, maximum=maximum)
         else:
             return NoFilter()

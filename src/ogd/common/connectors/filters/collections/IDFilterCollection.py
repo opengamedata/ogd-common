@@ -2,6 +2,7 @@
 from typing import List, Optional, Set
 # import local files
 from ogd.common.connectors.filters import *
+from ogd.common.models.enums.FilterMode import FilterMode
 
 type IDFilter = SetFilter | NoFilter
 
@@ -66,7 +67,7 @@ class IDFilterCollection:
         """
         if included_ids is not None:
             if len(included_ids) > 0:
-                return SetFilter(included_ids)
+                return SetFilter(mode=FilterMode.INCLUDE, set_elements=included_ids)
             else:
                 return NoFilter()
         else:

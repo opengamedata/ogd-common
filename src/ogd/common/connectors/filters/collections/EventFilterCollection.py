@@ -2,7 +2,7 @@
 from typing import List, Optional, Set
 # import local files
 from ogd.common.connectors.filters import *
-from ogd.common.utils.SemanticVersion import SemanticVersion
+from ogd.common.models.enums.FilterMode import FilterMode
 
 class EventFilterCollection:
     """Dumb struct to hold filters for versioning information
@@ -44,7 +44,7 @@ class EventFilterCollection:
         :rtype: Filter
         """
         if allowed_events is not None:
-            return SetFilter(allowed_events)
+            return SetFilter(mode=FilterMode.INCLUDE, set_elements=allowed_events)
         else:
             return NoFilter()
 
@@ -70,12 +70,12 @@ class EventFilterCollection:
         """
         # Only check if exact_codes is not None. If it's empty, we'll assume filter wants to remove all events.
         if exact_codes is not None:
-                return SetFilter(exact_codes)
+                return SetFilter(mode=FilterMode.INCLUDE, set_elements=exact_codes)
         elif minimum is not None and maximum is not None:
-            return MinMaxFilter(minimum=minimum, maximum=maximum)
+            return MinMaxFilter(mode=FilterMode.INCLUDE, minimum=minimum, maximum=maximum)
         elif minimum is not None:
-            return MinFilter(minimum=minimum)
+            return MinFilter(mode=FilterMode.INCLUDE, minimum=minimum)
         elif maximum is not None:
-            return MaxFilter(maximum=maximum)
+            return MaxFilter(mode=FilterMode.INCLUDE, maximum=maximum)
         else:
             return NoFilter()
