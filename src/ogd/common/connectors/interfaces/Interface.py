@@ -4,12 +4,13 @@
 import abc
 import logging
 from datetime import datetime
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 # import local files
 from ogd.common.connectors.StorageConnector import StorageConnector
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.utils.SemanticVersion import SemanticVersion
 from ogd.common.utils.Logger import Logger
 
 class Interface(StorageConnector):
@@ -21,7 +22,7 @@ class Interface(StorageConnector):
     # *** ABSTRACTS ***
 
     @abc.abstractmethod
-    def _availableIDs(self, mode:IDMode=IDMode.SESSION) -> List[str]:
+    def _availableIDs(self, mode:IDMode=IDMode.SESSION, date_range:Optional[Tuple[datetime, datetime]]=None, log_versions:Optional[List[int] | Tuple[int, int]]=None, app_versions:Optional[List[SemanticVersion] | Tuple[SemanticVersion, SemanticVersion]]=None) -> List[str]:
         """Private implementation of the logic to retrieve all IDs of given mode from the connected storage.
 
         :param mode: The type of ID to be listed.
