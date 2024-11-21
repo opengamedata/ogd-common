@@ -54,11 +54,11 @@ class TimingFilterCollection:
         :rtype: Filter
         """
         if minimum is not None and maximum is not None:
-            return MinMaxFilter(mode=FilterMode.INCLUDE, set_elements=minimum=minimum, maximum=maximum)
+            return MinMaxFilter(mode=FilterMode.INCLUDE, minimum=minimum, maximum=maximum)
         elif minimum is not None:
-            return MinFilter(mode=FilterMode.INCLUDE, set_elements=minimum=minimum)
+            return MinFilter(mode=FilterMode.INCLUDE, minimum=minimum)
         elif maximum is not None:
-            return MaxFilter(mode=FilterMode.INCLUDE, set_elements=maximum=maximum)
+            return MaxFilter(mode=FilterMode.INCLUDE, maximum=maximum)
         else:
             return NoFilter()
 
