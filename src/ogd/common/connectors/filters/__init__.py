@@ -7,9 +7,9 @@ __all__ = [
     "SetFilter"
 ]
 
-from . import Filter
-from . import MaxFilter
-from . import MinFilter
-from . import MinMaxFilter
-from . import NoFilter
-from . import SetFilter
+from .Filter import Filter
+from .MaxFilter import MaxFilter
+from .MinFilter import MinFilter
+from .MinMaxFilter import MinMaxFilter
+from .NoFilter import NoFilter
+from .SetFilter import SetFilter
