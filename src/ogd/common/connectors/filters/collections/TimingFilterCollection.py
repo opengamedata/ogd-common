@@ -26,6 +26,28 @@ class TimingFilterCollection:
         self._timestamp_filter = timestamp_filter
         self._session_index_filter = session_index_filter
 
+    def __str__(self) -> str:
+        ret_val = "no timestamp filters"
+        _have_times = isinstance(self.TimestampFilter, NoFilter)
+        _have_idxes = isinstance(self.SessionIndexFilter, NoFilter)
+        if _have_times or _have_idxes:
+            _times_str = f"time(s) {self.TimestampFilter}" if _have_times else None
+            _idxes_str = f"event index(s) {self.SessionIndexFilter}" if _have_idxes else None
+            _ver_strs = ", ".join([elem for elem in [_times_str, _idxes_str] if elem is not None])
+            ret_val = f"timestamp filters: {_ver_strs}"
+        return ret_val
+
+    def __repr__(self) -> str:
+        ret_val = f"<class {type(self).__name__} no filters>"
+        _have_times = isinstance(self.TimestampFilter, NoFilter)
+        _have_idxes = isinstance(self.SessionIndexFilter, NoFilter)
+        if _have_times or _have_idxes:
+            _times_str = f"time(s) {self.TimestampFilter}" if _have_times else None
+            _idxes_str = f"event index(s) {self.SessionIndexFilter}" if _have_idxes else None
+            _ver_strs = ", ".join([elem for elem in [_times_str, _idxes_str] if elem is not None])
+            ret_val = f"<class {type(self).__name__} {_ver_strs}>"
+        return ret_val
+
     @property
     def TimestampFilter(self) -> Filter:
         return self._timestamp_filter
