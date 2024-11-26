@@ -38,12 +38,12 @@ class GameSourceSchema(Schema):
         self._table_name    : str                        = table_name
         self._table_schema  : str                        = table_schema
 
-        super().__init__(name=name, other_elements=other_elements)
         if game_id is not None:
             self._game_id = game_id
         else:
             Logger.Log(f"GameSourceSchema did not receive a game_id, defaulting to {name}")
             self._game_id = name
+        super().__init__(name=name, other_elements=other_elements)
 
     @property
     def GameID(self) -> str:
