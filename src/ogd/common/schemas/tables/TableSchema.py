@@ -63,22 +63,22 @@ class TableSchema(Schema):
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
-    @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableSchema":
-        _column_map     : ColumnMapSchema
-        _column_schemas : List[ColumnSchema]
+    # @classmethod
+    # def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableSchema":
+    #     _column_map     : ColumnMapSchema
+    #     _column_schemas : List[ColumnSchema]
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-            _msg = f"For {name} Table Schema, all_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
-        _column_json_list = all_elements.get('columns', [])
-        _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), all_elements=column) for column in _column_json_list]
-        _column_map       = ColumnMapSchema.FromDict(name="Column Map", all_elements=all_elements.get('column_map', {}), column_names=[col.Name for col in _column_schemas])
-        return TableSchema(name=name, column_map=_column_map, columns=_column_schemas)
+    #     if not isinstance(all_elements, dict):
+    #         all_elements = {}
+    #         _msg = f"For {name} Table Schema, all_elements was not a dict, defaulting to empty dict"
+    #         if logger:
+    #             logger.warning(_msg)
+    #         else:
+    #             Logger.Log(_msg, logging.WARN)
+    #     _column_json_list = all_elements.get('columns', [])
+    #     _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), all_elements=column) for column in _column_json_list]
+    #     _column_map       = ColumnMapSchema.FromDict(name="Column Map", all_elements=all_elements.get('column_map', {}), column_names=[col.Name for col in _column_schemas])
+    #     return TableSchema(name=name, column_map=_column_map, columns=_column_schemas)
 
     # *** PUBLIC STATICS ***
 
@@ -111,36 +111,39 @@ class TableSchema(Schema):
             return None
         if input == "None" or input == "null" or input == "nan":
             return None
-        elif col_schema.ValueType == 'str':
-            return str(input)
-        elif col_schema.ValueType == 'int':
-            return int(input)
-        elif col_schema.ValueType == 'float':
-            return float(input)
-        elif col_schema.ValueType == 'datetime':
-            return input if isinstance(input, datetime) else TableSchema._convertDateTime(str(input))
-        elif col_schema.ValueType == 'timedelta':
-            return input if isinstance(input, timedelta) else TableSchema._convertTimedelta(str(input))
-        elif col_schema.ValueType == 'timezone':
-            return input if isinstance(input, timezone) else TableSchema._convertTimezone(str(input))
-        elif col_schema.ValueType == 'json':
-            try:
-                if isinstance(input, dict):
-                    # if input was a dict already, then just give it back. Else, try to load it from string.
-                    return input
-                elif isinstance(input, str):
-                    if input != 'None' and input != '': # watch out for nasty corner cases.
-                        return json.loads(input)
+        match col_schema.ValueType.upper():
+            case 'STR':
+                return str(input)
+            case 'INT':
+                return int(input)
+            case 'FLOAT':
+                return float(input)
+            case 'DATETIME':
+                return input if isinstance(input, datetime) else TableSchema._convertDateTime(str(input))
+            case 'TIMEDELTA':
+                return input if isinstance(input, timedelta) else TableSchema._convertTimedelta(str(input))
+            case 'TIMEZONE':
+                return input if isinstance(input, timezone) else TableSchema._convertTimezone(str(input))
+            case 'JSON':
+                try:
+                    if isinstance(input, dict):
+                        # if input was a dict already, then just give it back. Else, try to load it from string.
+                        return input
+                    elif isinstance(input, str):
+                        if input != 'None' and input != '': # watch out for nasty corner cases.
+                            return json.loads(input)
+                        else:
+                            return None
                     else:
-                        return None
-                else:
-                    return json.loads(str(input))
-            except JSONDecodeError as err:
-                Logger.Log(f"Could not parse input '{input}' of type {type(input)} from column {col_schema.Name}, got the following error:\n{str(err)}", logging.WARN)
-                return {}
-        elif col_schema.ValueType.startswith('enum'):
-            # if the column is supposed to be an enum, for now we just stick with the string.
-            return str(input)
+                        return json.loads(str(input))
+                except JSONDecodeError as err:
+                    Logger.Log(f"Could not parse input '{input}' of type {type(input)} from column {col_schema.Name}, got the following error:\n{str(err)}", logging.WARN)
+                    return {}
+            case _dummy if _dummy.startswith('ENUM'):
+                # if the column is supposed to be an enum, for now we just stick with the string.
+                return str(input)
+            case _:
+                Logger.Log(f"_parse function got an unrecognized column type {col_schema.ValueType}, could not parse!", logging.WARNING)
 
     @staticmethod
     def _convertDateTime(time_str:str) -> datetime:
