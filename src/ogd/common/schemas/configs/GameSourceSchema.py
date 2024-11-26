@@ -27,15 +27,27 @@ class GameSourceSchema(Schema):
     :param Schema: _description_
     :type Schema: _type_
     """
-    def __init__(self, name:str,  source_name:str, source_schema:Optional[DataSourceSchema],
+    def __init__(self, name:str,  game_id:Optional[str],
+                 source_name:str, source_schema:Optional[DataSourceSchema],
                  db_name:str,     table_name:str,  table_schema:str,
                  other_elements:Dict[str, Any]):
+        self._game_id       : str
         self._source_name   : str                        = source_name
         self._source_schema : Optional[DataSourceSchema] = source_schema
         self._db_name       : str                        = db_name
         self._table_name    : str                        = table_name
         self._table_schema  : str                        = table_schema
+
         super().__init__(name=name, other_elements=other_elements)
+        if game_id is not None:
+            self._game_id = game_id
+        else:
+            Logger.Log(f"GameSourceSchema did not receive a game_id, defaulting to {name}")
+            self._game_id = name
+
+    @property
+    def GameID(self) -> str:
+        return self._game_id
 
     @property
     def SourceName(self) -> str:
