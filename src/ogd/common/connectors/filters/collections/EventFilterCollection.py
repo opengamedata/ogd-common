@@ -21,6 +21,28 @@ class EventFilterCollection:
         self._event_names = event_name_filter
         self._event_codes = event_code_filter
 
+    def __str__(self) -> str:
+        ret_val = "no versioning filters"
+        _have_names = isinstance(self.EventNameFilter, NoFilter)
+        _have_codes = isinstance(self.EventCodeFilter, NoFilter)
+        if _have_names or _have_codes:
+            _name_str = f"event name(s) {self.EventCodeFilter}" if _have_names else None
+            _code_str = f"event code(s) {self.EventCodeFilter}" if _have_codes else None
+            _ver_strs = ", ".join([elem for elem in [_name_str, _code_str] if elem is not None])
+            ret_val = f"versioning filters: {_ver_strs}"
+        return ret_val
+
+    def __repr__(self) -> str:
+        ret_val = f"<class {type(self).__name__} no filters>"
+        _have_names = isinstance(self.EventNameFilter, NoFilter)
+        _have_codes = isinstance(self.EventCodeFilter, NoFilter)
+        if _have_names or _have_codes:
+            _name_str = f"event name(s) {self.EventCodeFilter}" if _have_names else None
+            _code_str = f"event code(s) {self.EventCodeFilter}" if _have_codes else None
+            _ver_strs = " ^ ".join([elem for elem in [_name_str, _code_str] if elem is not None])
+            ret_val = f"<class {type(self).__name__} {_ver_strs}>"
+        return ret_val
+
     @property
     def EventNameFilter(self) -> Filter:
         return self._event_names

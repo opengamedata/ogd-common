@@ -13,6 +13,28 @@ class IDFilterCollection:
         self._session_filter = session_filter
         self._player_filter = player_filter
 
+    def __str__(self) -> str:
+        ret_val = "no versioning filters"
+        _have_sess = isinstance(self.SessionFilter, NoFilter)
+        _have_ply = isinstance(self.PlayerFilter, NoFilter)
+        if _have_sess or _have_ply:
+            _sess_str = f"session(s) {self.SessionFilter}" if _have_sess else None
+            _ply_str = f"player(s) {self.PlayerFilter}" if _have_ply else None
+            _ver_strs = ", ".join([elem for elem in [_sess_str, _ply_str] if elem is not None])
+            ret_val = f"event filters: {_ver_strs}"
+        return ret_val
+
+    def __repr__(self) -> str:
+        ret_val = f"<class {type(self).__name__} no filters>"
+        _have_sess = isinstance(self.SessionFilter, NoFilter)
+        _have_ply = isinstance(self.PlayerFilter, NoFilter)
+        if _have_sess or _have_ply:
+            _sess_str = f"session(s) {self.SessionFilter}" if _have_sess else None
+            _ply_str = f"player(s) {self.PlayerFilter}" if _have_ply else None
+            _ver_strs = " ^ ".join([elem for elem in [_sess_str, _ply_str] if elem is not None])
+            ret_val = f"<class {type(self).__name__} {_ver_strs}>"
+        return ret_val
+
     @property
     def SessionFilter(self) -> IDFilter:
         return self._session_filter
