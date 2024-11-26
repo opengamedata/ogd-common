@@ -65,8 +65,8 @@ class Interface(StorageConnector):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, schema:GameSourceSchema, fail_fast:bool):
-        super().__init__(schema=schema)
         self._fail_fast = fail_fast
+        super().__init__(schema=schema)
 
     def __del__(self):
         self.Close()
