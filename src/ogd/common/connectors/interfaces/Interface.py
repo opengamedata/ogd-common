@@ -54,11 +54,11 @@ class Interface(StorageConnector):
         pass
 
     @abc.abstractmethod
-    def _getEventCollection(self, schema:EventTableSchema, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> EventDataset:
+    def _getEventCollection(self, schema:EventTableSchema, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Event]:
         pass
 
     @abc.abstractmethod
-    def _getFeatureCollection(self, schema:FeatureTableSchema, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> FeatureDataset:
+    def _getFeatureCollection(self, schema:FeatureTableSchema, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[FeatureData]:
         pass
 
     # *** BUILT-INS & PROPERTIES ***
@@ -137,10 +137,14 @@ class Interface(StorageConnector):
         return ret_val
 
     def GetEventCollection(self, schema:EventTableSchema, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection(), event_filter:EventFilterCollection=EventFilterCollection()) -> EventDataset:
-        return self._getEventCollection(schema=schema, id_filter=id_filter, date_filter=date_filter, version_filter=version_filter, event_filter=event_filter)
+        _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict | event_filter.AsDict
+        _events = self._getEventCollection(schema=schema, id_filter=id_filter, date_filter=date_filter, version_filter=version_filter, event_filter=event_filter)
+        return EventDataset(events=_events, filters=_filters)
 
     def GetFeatureCollection(self, schema:FeatureTableSchema, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection()) -> FeatureDataset:
-        return self._getFeatureCollection(schema=schema, id_filter=id_filter, date_filter=date_filter, version_filter=version_filter)
+        _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict
+        _features = self._getFeatureCollection(schema=schema, id_filter=id_filter, date_filter=date_filter, version_filter=version_filter)
+        return FeatureDataset(features=_features, filters=_filters)
 
     # *** PRIVATE STATICS ***
 

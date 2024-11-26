@@ -10,9 +10,9 @@ class EventDataset:
        It also contains information on any filters used to define the dataset, such as a date range or set of versions.
     """
 
-    def __init__(self, events:List[Event], id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> None:
+    def __init__(self, events:List[Event], filters:Dict[str, Filter]) -> None:
         self._events = events
-        self._filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict | event_filter.AsDict
+        self._filters = filters
 
     @property
     def Events(self) -> List[Event]:
