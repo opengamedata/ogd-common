@@ -10,7 +10,9 @@ from typing import Dict, List, Optional, Union
 from ogd.common.connectors.filters.collections import *
 from ogd.common.connectors.StorageConnector import StorageConnector
 from ogd.common.models.Event import Event
+from ogd.common.models.EventDataset import EventDataset
 from ogd.common.models.FeatureData import FeatureData
+from ogd.common.models.FeatureDataset import FeatureDataset
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
@@ -52,11 +54,11 @@ class Interface(StorageConnector):
         pass
 
     @abc.abstractmethod
-    def _getEventCollection(self, schema:EventTableSchema, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Event]:
+    def _getEventCollection(self, schema:EventTableSchema, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> EventDataset:
         pass
 
     @abc.abstractmethod
-    def _getFeatureCollection(self, schema:FeatureTableSchema, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[FeatureData]:
+    def _getFeatureCollection(self, schema:FeatureTableSchema, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> FeatureDataset:
         pass
 
     # *** BUILT-INS & PROPERTIES ***
@@ -134,10 +136,10 @@ class Interface(StorageConnector):
             Logger.Log(f"Could not retrieve data versions from {self.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val
 
-    def GetEventCollection(self, schema:EventTableSchema, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection(), event_filter:EventFilterCollection=EventFilterCollection()) -> List[Event]:
+    def GetEventCollection(self, schema:EventTableSchema, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection(), event_filter:EventFilterCollection=EventFilterCollection()) -> EventDataset:
         return self._getEventCollection(schema=schema, id_filter=id_filter, date_filter=date_filter, version_filter=version_filter, event_filter=event_filter)
 
-    def GetFeatureCollection(self, schema:FeatureTableSchema, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection()) -> List[FeatureData]:
+    def GetFeatureCollection(self, schema:FeatureTableSchema, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection()) -> FeatureDataset:
         return self._getFeatureCollection(schema=schema, id_filter=id_filter, date_filter=date_filter, version_filter=version_filter)
 
     # *** PRIVATE STATICS ***
