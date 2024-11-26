@@ -72,7 +72,7 @@ class Interface(StorageConnector):
             _date_clause = f" on date(s) {date_filter}"
             _version_clause = f" with version(s) {version_filter}"
             _msg = f"Retrieving IDs with {mode} ID mode{_date_clause}{_version_clause} from {self.ResourceName}."
-            Logger.Log(_msg, logging.DEBUG, depth=3)
+            Logger.Log(_msg, logging.INFO, depth=3)
             ret_val = self._availableIDs(mode=mode, date_filter=date_filter, version_filter=version_filter)
         else:
             Logger.Log(f"Can't retrieve list of {mode} IDs from {self.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
@@ -93,7 +93,7 @@ class Interface(StorageConnector):
         if self.IsOpen:
             _version_clause = f" with version(s) {version_filter}"
             _msg = f"Retrieving range of event/feature dates{_version_clause} from {self.ResourceName}."
-            Logger.Log(_msg, logging.DEBUG, depth=3)
+            Logger.Log(_msg, logging.INFO, depth=3)
             ret_val = self._availableDates(id_filter=id_filter, version_filter=version_filter)
         else:
             Logger.Log(f"Could not get full date range from {self.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
@@ -116,7 +116,7 @@ class Interface(StorageConnector):
         if self.IsOpen:
             _date_clause = f" on date(s) {date_filter}"
             _msg = f"Retrieving data versions{_date_clause} from {self.ResourceName}."
-            Logger.Log(_msg, logging.DEBUG, depth=3)
+            Logger.Log(_msg, logging.INFO, depth=3)
             ret_val = self._availableVersions(mode=mode, id_filter=id_filter, date_filter=date_filter)
         else:
             Logger.Log(f"Could not retrieve data versions from {self.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
