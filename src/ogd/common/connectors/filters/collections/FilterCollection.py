@@ -12,5 +12,6 @@ class FilterCollection:
     def __init__(self):
         pass
 
+    @property
     def AsDict(self) -> Dict[str, Filter]:
         return self._asDict()
