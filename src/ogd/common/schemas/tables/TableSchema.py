@@ -150,20 +150,26 @@ class TableSchema(Schema):
         ret_val : datetime
 
         if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
-            raise ValueError(f"Got a non-timestamp value of {time_str} when converting a datetime column of an Event!")
+            raise ValueError(f"Got a non-timestamp value of {time_str} when converting a datetime column from data source!")
 
         formats = ["%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S.%f"]
 
-        # for fmt in formats:
         try:
             ret_val = parser.isoparse(time_str)
-            # ret_val = datetime.strptime(time_str, fmt)
-        except ValueError as err:
-            Logger.Log(f"Could not parse time string '{time_str}', got error {err}")
-            raise err
+        except ValueError:
+            # Logger.Log(f"Could not parse time string '{time_str}', got error {err}")
+            # raise err
+            pass
         else:
             return ret_val
-        # raise ValueError(f"Could not parse timestamp {time_str}, it did not match any expected formats.")
+        for fmt in formats:
+            try:
+                ret_val = datetime.strptime(time_str, fmt)
+            except ValueError:
+                pass
+            else:
+                return ret_val
+        raise ValueError(f"Could not parse timestamp {time_str}, it did not match any expected formats!")
 
     @staticmethod
     def _convertTimedelta(time_str:str) -> Optional[timedelta]:
