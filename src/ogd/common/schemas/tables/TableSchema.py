@@ -19,12 +19,11 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 ## @class TableSchema
-#  Dumb struct to hold useful info about the structure of database data
-#  for a particular game.
-#  This includes the indices of several important database columns, the names
-#  of the database columns, the max and min levels in the game, and a list of
-#  IDs for the game sessions in the given requested date range.
 class TableSchema(Schema):
+    """Dumb struct to hold info about the structure of data for a particular game, from a particular source.
+        In particular, it contains an ordered list of columns in the data source table,
+        and a mapping of those columns to the corresponding elements of a formal OGD structure.
+    """
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -44,7 +43,7 @@ class TableSchema(Schema):
         # declare and initialize vars
         # self._schema            : Optional[Dict[str, Any]] = all_elements
         self._column_map        : ColumnMapSchema    = column_map
-        self._columns           : List[ColumnSchema] = columns
+        self._table_columns     : List[ColumnSchema] = columns
 
         # after loading the file, take the stuff we need and store.
         super().__init__(name=name, other_elements={})
@@ -56,25 +55,13 @@ class TableSchema(Schema):
         :return: Names of each column in the schema.
         :rtype: List[str]
         """
-        return [col.Name for col in self._columns]
+        return [col.Name for col in self._table_columns]
 
     @property
     def Columns(self) -> List[ColumnSchema]:
-        return self._columns
+        return self._table_columns
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
-
-    @property
-    def AsMarkdown(self) -> str:
-        ret_val = "\n\n".join([
-            "## Database Columns",
-            "The individual columns recorded in the database for this game.",
-            "\n".join([item.AsMarkdown for item in self.Columns]),
-            "## Event Object Elements",
-            "The elements (member variables) of each Event object, available to programmers when writing feature extractors. The right-hand side shows which database column(s) are mapped to a given element.",
-            self._column_map.AsMarkdown,
-            ""])
-        return ret_val
 
     @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableSchema":
@@ -95,7 +82,7 @@ class TableSchema(Schema):
 
     # *** PUBLIC STATICS ***
 
-    @staticmethod
+    @classmethod
     def FromFile(schema_name:str, schema_path:Path = Path(schemas.__file__).parent / "table_schemas/") -> "TableSchema":
         _table_format_name : str = schema_name
 
@@ -236,7 +223,7 @@ class TableSchema(Schema):
                 for key,column_index in indices.items():
                     if column_index > len(row):
                         Logger.Log(f"Got column index of {column_index} for column {key}, but row only has {len(row)} columns!", logging.ERROR)
-                    _val = TableSchema._parse(input=row[column_index], col_schema=self._columns[column_index])
+                    _val = TableSchema._parse(input=row[column_index], col_schema=self._table_columns[column_index])
                     ret_val.update(_val if isinstance(_val, dict) else {key:_val})
         else:
             ret_val = fallback
