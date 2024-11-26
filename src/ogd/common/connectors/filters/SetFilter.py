@@ -13,6 +13,14 @@ class SetFilter(Filter):
             Logger.Log("Creating a SetFilter from an empty set! This will be intepreted as filtering out all values, not as an empty filter that allows all values to pass! For the latter case, use the NoFilter class.", logging.WARNING)
         self._set = set(set_elements)
 
+    def __str__(self) -> str:
+        return f"set of {len(self._set)} elements"
+    
+    def __repr__(self) -> str:
+        _types = set(type(elem).__name__ for elem in self.Set)
+        _type_str = " | ".join(_types)
+        return f"<class {type(self).__name__} {self.FilterMode}:Set[{_type_str}] with {len(self.Set)} elements>"
+
     @property
     def Set(self):
         return self._set

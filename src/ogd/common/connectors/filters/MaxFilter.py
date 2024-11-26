@@ -7,6 +7,12 @@ class MaxFilter(Filter):
         super().__init__(mode=mode)
         self._max = maximum
 
+    def __str__(self) -> str:
+        return f"under {self.Max}"
+    
+    def __repr__(self) -> str:
+        return f"<class {type(self).__name__} {self.FilterMode}:{self.Max}>"
+
     @property
     def Max(self):
         return self._max

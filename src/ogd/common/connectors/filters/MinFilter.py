@@ -7,6 +7,12 @@ class MinFilter(Filter):
         self._min = minimum
         super().__init__(mode=mode)
 
+    def __str__(self) -> str:
+        return f"above {self.Min}"
+    
+    def __repr__(self) -> str:
+        return f"<class {type(self).__name__} {self.FilterMode}:{self.Min}>"
+
     @property
     def Min(self):
         return self._min

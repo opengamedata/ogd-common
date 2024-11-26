@@ -14,6 +14,12 @@ class MinMaxFilter(Filter):
         self._min = minimum
         self._max = maximum
 
+    def __str__(self) -> str:
+        return f"{self.Min} to {self.Max}"
+    
+    def __repr__(self) -> str:
+        return f"<class {type(self).__name__} {self.FilterMode}:{self.Min}-{self.Max}>"
+
     @property
     def Min(self):
         return self._min
