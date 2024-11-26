@@ -58,6 +58,10 @@ class StorageConnector(abc.ABC):
     def ResourceName(self) -> str:
         return self._source_schema.Name
 
+    @property
+    def GameSourceSchema(self) -> GameSourceSchema:
+        return self._source_schema
+
     # *** PUBLIC STATICS ***
 
     # *** PUBLIC METHODS ***
