@@ -4,7 +4,7 @@
 import abc
 import logging
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Union
 
 # import local files
 from ogd.common.connectors.filters.collections import *
