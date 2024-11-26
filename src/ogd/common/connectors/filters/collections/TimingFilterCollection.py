@@ -1,11 +1,12 @@
 ## import standard libraries
 from datetime import date, datetime
-from typing import List, Optional, Set
+from typing import Dict, List, Optional, Set
 # import local files
 from ogd.common.connectors.filters import *
+from ogd.common.connectors.filters.collections.FilterCollection import FilterCollection
 from ogd.common.models.enums.FilterMode import FilterMode
 
-class TimingFilterCollection:
+class TimingFilterCollection(FilterCollection):
     """Dumb struct to hold filters for timing information
 
     For now, it just does timestamps and session index, if need be we may come back and allow filtering by timezone offset
@@ -114,3 +115,13 @@ class TimingFilterCollection:
             return MaxFilter(mode=FilterMode.INCLUDE, maximum=maximum)
         else:
             return NoFilter()
+
+    # *** PRIVATE STATICS ***
+
+    # *** PRIVATE METHODS ***
+
+    def _asDict(self) -> Dict[str, Filter]:
+        return {
+            "timestamp": self.TimestampFilter,
+            "event_session_index": self.SessionIndexFilter,
+        }

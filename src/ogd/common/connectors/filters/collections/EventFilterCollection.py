@@ -1,10 +1,11 @@
 ## import standard libraries
-from typing import List, Optional, Set
+from typing import Dict, List, Optional, Set
 # import local files
 from ogd.common.connectors.filters import *
+from ogd.common.connectors.filters.collections.FilterCollection import FilterCollection
 from ogd.common.models.enums.FilterMode import FilterMode
 
-class EventFilterCollection:
+class EventFilterCollection(FilterCollection):
     """Dumb struct to hold filters for versioning information
     """
     def __init__(self, event_name_filter:Filter=NoFilter(), event_code_filter:Filter=NoFilter()):
@@ -101,3 +102,13 @@ class EventFilterCollection:
             return MaxFilter(mode=FilterMode.INCLUDE, maximum=maximum)
         else:
             return NoFilter()
+
+    # *** PRIVATE STATICS ***
+
+    # *** PRIVATE METHODS ***
+
+    def _asDict(self) -> Dict[str, Filter]:
+        return {
+            "event_name": self.EventNameFilter,
+            "event_code": self.EventCodeFilter
+        }

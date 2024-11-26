@@ -1,12 +1,13 @@
 ## import standard libraries
-from typing import List, Optional, Set
+from typing import Dict, List, Optional, Set
 # import local files
 from ogd.common.connectors.filters import *
+from ogd.common.connectors.filters.collections.FilterCollection import FilterCollection
 from ogd.common.models.enums.FilterMode import FilterMode
 
 type IDFilter = SetFilter | NoFilter
 
-class IDFilterCollection:
+class IDFilterCollection(FilterCollection):
     """Dumb struct to hold filters for versioning information
     """
     def __init__(self, session_filter:IDFilter=NoFilter(), player_filter:IDFilter=NoFilter()):
@@ -94,3 +95,13 @@ class IDFilterCollection:
                 return NoFilter()
         else:
             return NoFilter()
+
+    # *** PRIVATE STATICS ***
+
+    # *** PRIVATE METHODS ***
+
+    def _asDict(self) -> Dict[str, Filter]:
+        return {
+            "session_id": self.SessionFilter,
+            "player_id": self.PlayerFilter
+        }
