@@ -54,6 +54,10 @@ class StorageConnector(abc.ABC):
         """
         return True if self._is_open else False
 
+    @property
+    def ResourceName(self) -> str:
+        return self._source_schema.Name
+
     # *** PUBLIC STATICS ***
 
     # *** PUBLIC METHODS ***
