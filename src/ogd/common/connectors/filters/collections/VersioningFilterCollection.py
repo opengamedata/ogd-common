@@ -1,13 +1,14 @@
 ## import standard libraries
-from typing import List, Optional, Set
+from typing import Dict, List, Optional, Set
 # import local files
 from ogd.common.connectors.filters import *
+from ogd.common.connectors.filters.collections.FilterCollection import FilterCollection
 from ogd.common.utils.SemanticVersion import SemanticVersion
 from ogd.common.models.enums.FilterMode import FilterMode
 
 type Version = int | str | SemanticVersion
 
-class VersioningFilterCollection:
+class VersioningFilterCollection(FilterCollection):
     """Dumb struct to hold filters for versioning information
     """
     def __init__(self, log_ver_filter:Filter=NoFilter(), app_ver_filter:Filter=NoFilter(), branch_filter:Filter=NoFilter()):
@@ -26,6 +27,32 @@ class VersioningFilterCollection:
         self._log_filter = log_ver_filter
         self._app_filter = app_ver_filter
         self._branch_filter = branch_filter
+
+    def __str__(self) -> str:
+        ret_val = "no versioning filters"
+        _have_log = isinstance(self.LogVersionFilter, NoFilter)
+        _have_app = isinstance(self.AppVersionFilter, NoFilter)
+        _have_bnc = isinstance(self.AppBranchFilter, NoFilter)
+        if _have_log or _have_app or _have_bnc:
+            _log_str = f"log version(s) {self.LogVersionFilter}" if _have_log else None
+            _app_str = f"app version(s) {self.AppVersionFilter}" if _have_app else None
+            _bnc_str = f"app branch(es) {self.AppBranchFilter}"   if _have_bnc else None
+            _ver_strs = ", ".join([elem for elem in [_log_str, _app_str, _bnc_str] if elem is not None])
+            ret_val = f"versioning filters: {_ver_strs}"
+        return ret_val
+
+    def __repr__(self) -> str:
+        ret_val = f"<class {type(self).__name__} no filters>"
+        _have_log = isinstance(self.LogVersionFilter, NoFilter)
+        _have_app = isinstance(self.AppVersionFilter, NoFilter)
+        _have_bnc = isinstance(self.AppBranchFilter, NoFilter)
+        if _have_log or _have_app or _have_bnc:
+            _log_str = f"log version(s) {self.LogVersionFilter}" if _have_log else None
+            _app_str = f"app version(s) {self.AppVersionFilter}" if _have_app else None
+            _bnc_str = f"app branch(es) {self.AppBranchFilter}"   if _have_bnc else None
+            _ver_strs = " ^ ".join([elem for elem in [_log_str, _app_str, _bnc_str] if elem is not None])
+            ret_val = f"<class {type(self).__name__} {_ver_strs}>"
+        return ret_val
 
     @property
     def LogVersionFilter(self) -> Filter:
@@ -131,3 +158,14 @@ class VersioningFilterCollection:
             return MaxFilter(mode=FilterMode.INCLUDE, maximum=maximum)
         else:
             return NoFilter()
+
+    # *** PRIVATE STATICS ***
+
+    # *** PRIVATE METHODS ***
+
+    def _asDict(self) -> Dict[str, Filter]:
+        return {
+            "log_version": self.LogVersionFilter,
+            "app_version": self.AppVersionFilter,
+            "app_branch": self.AppBranchFilter
+        }

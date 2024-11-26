@@ -1,17 +1,40 @@
 ## import standard libraries
-from typing import List, Optional, Set
+from typing import Dict, List, Optional, Set
 # import local files
 from ogd.common.connectors.filters import *
+from ogd.common.connectors.filters.collections.FilterCollection import FilterCollection
 from ogd.common.models.enums.FilterMode import FilterMode
 
 type IDFilter = SetFilter | NoFilter
 
-class IDFilterCollection:
+class IDFilterCollection(FilterCollection):
     """Dumb struct to hold filters for versioning information
     """
     def __init__(self, session_filter:IDFilter=NoFilter(), player_filter:IDFilter=NoFilter()):
         self._session_filter = session_filter
         self._player_filter = player_filter
+
+    def __str__(self) -> str:
+        ret_val = "no versioning filters"
+        _have_sess = isinstance(self.SessionFilter, NoFilter)
+        _have_ply = isinstance(self.PlayerFilter, NoFilter)
+        if _have_sess or _have_ply:
+            _sess_str = f"session(s) {self.SessionFilter}" if _have_sess else None
+            _ply_str = f"player(s) {self.PlayerFilter}" if _have_ply else None
+            _ver_strs = ", ".join([elem for elem in [_sess_str, _ply_str] if elem is not None])
+            ret_val = f"event filters: {_ver_strs}"
+        return ret_val
+
+    def __repr__(self) -> str:
+        ret_val = f"<class {type(self).__name__} no filters>"
+        _have_sess = isinstance(self.SessionFilter, NoFilter)
+        _have_ply = isinstance(self.PlayerFilter, NoFilter)
+        if _have_sess or _have_ply:
+            _sess_str = f"session(s) {self.SessionFilter}" if _have_sess else None
+            _ply_str = f"player(s) {self.PlayerFilter}" if _have_ply else None
+            _ver_strs = " ^ ".join([elem for elem in [_sess_str, _ply_str] if elem is not None])
+            ret_val = f"<class {type(self).__name__} {_ver_strs}>"
+        return ret_val
 
     @property
     def SessionFilter(self) -> IDFilter:
@@ -72,3 +95,13 @@ class IDFilterCollection:
                 return NoFilter()
         else:
             return NoFilter()
+
+    # *** PRIVATE STATICS ***
+
+    # *** PRIVATE METHODS ***
+
+    def _asDict(self) -> Dict[str, Filter]:
+        return {
+            "session_id": self.SessionFilter,
+            "player_id": self.PlayerFilter
+        }

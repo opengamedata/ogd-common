@@ -1,11 +1,12 @@
 ## import standard libraries
 from datetime import date, datetime
-from typing import List, Optional, Set
+from typing import Dict, List, Optional, Set
 # import local files
 from ogd.common.connectors.filters import *
+from ogd.common.connectors.filters.collections.FilterCollection import FilterCollection
 from ogd.common.models.enums.FilterMode import FilterMode
 
-class TimingFilterCollection:
+class TimingFilterCollection(FilterCollection):
     """Dumb struct to hold filters for timing information
 
     For now, it just does timestamps and session index, if need be we may come back and allow filtering by timezone offset
@@ -25,6 +26,28 @@ class TimingFilterCollection:
         """
         self._timestamp_filter = timestamp_filter
         self._session_index_filter = session_index_filter
+
+    def __str__(self) -> str:
+        ret_val = "no timestamp filters"
+        _have_times = isinstance(self.TimestampFilter, NoFilter)
+        _have_idxes = isinstance(self.SessionIndexFilter, NoFilter)
+        if _have_times or _have_idxes:
+            _times_str = f"time(s) {self.TimestampFilter}" if _have_times else None
+            _idxes_str = f"event index(s) {self.SessionIndexFilter}" if _have_idxes else None
+            _ver_strs = ", ".join([elem for elem in [_times_str, _idxes_str] if elem is not None])
+            ret_val = f"timestamp filters: {_ver_strs}"
+        return ret_val
+
+    def __repr__(self) -> str:
+        ret_val = f"<class {type(self).__name__} no filters>"
+        _have_times = isinstance(self.TimestampFilter, NoFilter)
+        _have_idxes = isinstance(self.SessionIndexFilter, NoFilter)
+        if _have_times or _have_idxes:
+            _times_str = f"time(s) {self.TimestampFilter}" if _have_times else None
+            _idxes_str = f"event index(s) {self.SessionIndexFilter}" if _have_idxes else None
+            _ver_strs = ", ".join([elem for elem in [_times_str, _idxes_str] if elem is not None])
+            ret_val = f"<class {type(self).__name__} {_ver_strs}>"
+        return ret_val
 
     @property
     def TimestampFilter(self) -> Filter:
@@ -92,3 +115,13 @@ class TimingFilterCollection:
             return MaxFilter(mode=FilterMode.INCLUDE, maximum=maximum)
         else:
             return NoFilter()
+
+    # *** PRIVATE STATICS ***
+
+    # *** PRIVATE METHODS ***
+
+    def _asDict(self) -> Dict[str, Filter]:
+        return {
+            "timestamp": self.TimestampFilter,
+            "event_session_index": self.SessionIndexFilter,
+        }
