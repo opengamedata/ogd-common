@@ -8,7 +8,8 @@ class MinFilter(Filter):
         super().__init__(mode=mode)
 
     def __str__(self) -> str:
-        return f"above {self.Min}"
+        _exclude_clause = "not " if self.FilterMode == FilterMode.EXCLUDE else ""
+        return f"{_exclude_clause}.above {self.Min}"
     
     def __repr__(self) -> str:
         return f"<class {type(self).__name__} {self.FilterMode}:{self.Min}>"

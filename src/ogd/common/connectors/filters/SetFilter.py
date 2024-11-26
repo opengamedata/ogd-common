@@ -14,7 +14,8 @@ class SetFilter(Filter):
         self._set = set(set_elements)
 
     def __str__(self) -> str:
-        return f"set of {len(self._set)} elements"
+        _exclude_clause = "not in " if self.FilterMode == FilterMode.EXCLUDE else ""
+        return f"{_exclude_clause}set of {len(self._set)} elements"
     
     def __repr__(self) -> str:
         _types = set(type(elem).__name__ for elem in self.Set)

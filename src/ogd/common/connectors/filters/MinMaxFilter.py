@@ -15,7 +15,8 @@ class MinMaxFilter(Filter):
         self._max = maximum
 
     def __str__(self) -> str:
-        return f"{self.Min} to {self.Max}"
+        _exclude_clause = "not from " if self.FilterMode == FilterMode.EXCLUDE else ""
+        return f"{_exclude_clause}{self.Min} to {self.Max}"
     
     def __repr__(self) -> str:
         return f"<class {type(self).__name__} {self.FilterMode}:{self.Min}-{self.Max}>"
