@@ -6,7 +6,7 @@ from ogd.common.connectors.filters.Filter import Filter
 
 class FilterCollection:
     @abc.abstractmethod
-    def _asDict(self):
+    def _asDict(self) -> Dict[str, Filter]:
         pass
 
     def __init__(self):
