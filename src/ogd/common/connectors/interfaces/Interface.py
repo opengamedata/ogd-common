@@ -140,6 +140,7 @@ class Interface(StorageConnector):
 
     def GetEventCollection(self, schema:EventTableSchema, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection(), event_filter:EventFilterCollection=EventFilterCollection()) -> EventDataset:
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict | event_filter.AsDict
+        _events = []
         if self.IsOpen:
             # _date_clause = f" on date(s) {date_filter}"
             _msg = f"Retrieving event data from {self.ResourceName}."
@@ -147,18 +148,26 @@ class Interface(StorageConnector):
             _rows = self._getEventRows(schema=schema, id_filter=id_filter, date_filter=date_filter, version_filter=version_filter, event_filter=event_filter)
             _events = self._eventsFromRows(rows=_rows, schema=schema)
         else:
-            Logger.Log(f"Could not retrieve data versions from {self.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
-        _events = [schema.RowToEvent(row) for row in _rows]
+            Logger.Log(f"Could not retrieve event data from {self.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return EventDataset(events=_events, filters=_filters)
 
     def GetFeatureCollection(self, schema:FeatureTableSchema, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection()) -> FeatureDataset:
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict
-        _features = self._getFeatureRows(schema=schema, id_filter=id_filter, date_filter=date_filter, version_filter=version_filter)
+        _features = []
+        if self.IsOpen:
+            # _date_clause = f" on date(s) {date_filter}"
+            _msg = f"Retrieving event data from {self.ResourceName}."
+            Logger.Log(_msg, logging.INFO, depth=3)
+            _rows = self._getFeatureRows(schema=schema, id_filter=id_filter, date_filter=date_filter, version_filter=version_filter)
+            _features = self._featuresFromRows(rows=_rows, schema=schema)
+        else:
+            Logger.Log(f"Could not retrieve feature data from {self.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return FeatureDataset(features=_features, filters=_filters)
 
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***
+
     def _eventsFromRows(self, rows:List[Tuple], schema:EventTableSchema) -> List[Event]:
         ret_val = []
 
@@ -183,3 +192,17 @@ class Interface(StorageConnector):
             else:
                 ret_val.append(event)
         return ret_val
+
+    def _featuresFromRows(self, rows:List[Tuple], schema:FeatureTableSchema) -> List[FeatureData]:
+        """_summary_
+
+        TODO :implement
+
+        :param rows: _description_
+        :type rows: List[Tuple]
+        :param schema: _description_
+        :type schema: FeatureTableSchema
+        :return: _description_
+        :rtype: List[FeatureData]
+        """
+        return []
