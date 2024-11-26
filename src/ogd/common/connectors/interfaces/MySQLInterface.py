@@ -6,10 +6,10 @@ import traceback
 from datetime import datetime
 from typing import Dict, Final, List, Tuple, Optional
 # import locals
-from ogd.common.interfaces.EventInterface import EventInterface
+from ogd.common.connectors.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
-from ogd.common.schemas.configs.data_sources.MySQLSourceSchema import MySQLSchema
+from ogd.common.schemas.storage.MySQLSourceSchema import MySQLSchema
 from ogd.common.utils.Logger import Logger
 
 
@@ -218,7 +218,7 @@ class SQL:
             Logger.Log(f"Query fetch completed, total query time:    {time_delta} to get {len(result) if result is not None else 0:d} rows", logging.DEBUG)
         return result
 
-class MySQLInterface(EventInterface):
+class MySQLInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
