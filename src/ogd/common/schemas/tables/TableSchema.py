@@ -218,7 +218,7 @@ class TableSchema(Schema):
 
     # *** PRIVATE METHODS ***
 
-    def _getValueFromRow(self, row:Tuple, indices:Union[int, List[int], Dict[str, int], None], concatenator:str, fallback:Any) -> Any:
+    def _getValueFromRow(self, row:Tuple, indices:Optional[int | List[int] | Dict[str, int]], concatenator:str, fallback:Any) -> Any:
         ret_val : Any
         if indices is not None:
             if isinstance(indices, int):
