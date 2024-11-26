@@ -55,11 +55,11 @@ class Interface(StorageConnector):
         pass
 
     @abc.abstractmethod
-    def _getEventRows(self, schema:EventTableSchema, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
+    def _getEventRows(self, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
         pass
 
     @abc.abstractmethod
-    def _getFeatureRows(self, schema:FeatureTableSchema, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[Tuple]:
+    def _getFeatureRows(self, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[Tuple]:
         pass
 
     # *** BUILT-INS & PROPERTIES ***
@@ -138,28 +138,34 @@ class Interface(StorageConnector):
             Logger.Log(f"Could not retrieve data versions from {self.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val
 
-    def GetEventCollection(self, schema:EventTableSchema, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection(), event_filter:EventFilterCollection=EventFilterCollection()) -> EventDataset:
+    def GetEventCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection(), event_filter:EventFilterCollection=EventFilterCollection()) -> EventDataset:
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict | event_filter.AsDict
         _events = []
         if self.IsOpen:
-            # _date_clause = f" on date(s) {date_filter}"
-            _msg = f"Retrieving event data from {self.ResourceName}."
-            Logger.Log(_msg, logging.INFO, depth=3)
-            _rows = self._getEventRows(schema=schema, id_filter=id_filter, date_filter=date_filter, version_filter=version_filter, event_filter=event_filter)
-            _events = self._eventsFromRows(rows=_rows, schema=schema)
+            if isinstance(self.GameSourceSchema.TableSchema, EventTableSchema):
+                # _date_clause = f" on date(s) {date_filter}"
+                _msg = f"Retrieving event data from {self.ResourceName}."
+                Logger.Log(_msg, logging.INFO, depth=3)
+                _rows = self._getEventRows(id_filter=id_filter, date_filter=date_filter, version_filter=version_filter, event_filter=event_filter)
+                _events = self._eventsFromRows(rows=_rows)
+            else:
+                Logger.Log(f"Could not retrieve event data from {self.ResourceName}, the given table schema was not for event data!", logging.WARNING, depth=3)
         else:
             Logger.Log(f"Could not retrieve event data from {self.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return EventDataset(events=_events, filters=_filters)
 
-    def GetFeatureCollection(self, schema:FeatureTableSchema, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection()) -> FeatureDataset:
+    def GetFeatureCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection()) -> FeatureDataset:
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict
         _features = []
         if self.IsOpen:
-            # _date_clause = f" on date(s) {date_filter}"
-            _msg = f"Retrieving event data from {self.ResourceName}."
-            Logger.Log(_msg, logging.INFO, depth=3)
-            _rows = self._getFeatureRows(schema=schema, id_filter=id_filter, date_filter=date_filter, version_filter=version_filter)
-            _features = self._featuresFromRows(rows=_rows, schema=schema)
+            if isinstance(self.GameSourceSchema.TableSchema, EventTableSchema):
+                # _date_clause = f" on date(s) {date_filter}"
+                _msg = f"Retrieving event data from {self.ResourceName}."
+                Logger.Log(_msg, logging.INFO, depth=3)
+                _rows = self._getFeatureRows(id_filter=id_filter, date_filter=date_filter, version_filter=version_filter)
+                _features = self._featuresFromRows(rows=_rows)
+            else:
+                Logger.Log(f"Could not retrieve event data from {self.ResourceName}, the given table schema was not for event data!", logging.WARNING, depth=3)
         else:
             Logger.Log(f"Could not retrieve feature data from {self.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return FeatureDataset(features=_features, filters=_filters)
@@ -168,32 +174,36 @@ class Interface(StorageConnector):
 
     # *** PRIVATE METHODS ***
 
-    def _eventsFromRows(self, rows:List[Tuple], schema:EventTableSchema) -> List[Event]:
+    def _eventsFromRows(self, rows:List[Tuple]) -> List[Event]:
         ret_val = []
 
         _curr_sess : str      = ""
         _evt_sess_index : int = 1
         _fallbacks = {"app_id":self._source_schema.GameID}
-        for row in rows:
-            try:
-                event = schema.RowToEvent(row)
-                # in case event index was not given, we should fall back on using the order it came to us.
-                if event.SessionID != _curr_sess:
-                    _curr_sess = event.SessionID
-                    _evt_sess_index = 1
-                event.FallbackDefaults(index=_evt_sess_index)
-                _evt_sess_index += 1
-            except Exception as err:
-                if self._fail_fast:
-                        Logger.Log(f"Error while converting row to Event\nFull error: {err}\nRow data: {pformat(row)}", logging.ERROR, depth=2)
-                        raise err
+        _table_schema = self.GameSourceSchema.TableSchema
+        if isinstance(_table_schema, EventTableSchema):
+            for row in rows:
+                try:
+                    event = _table_schema.RowToEvent(row)
+                    # in case event index was not given, we should fall back on using the order it came to us.
+                    if event.SessionID != _curr_sess:
+                        _curr_sess = event.SessionID
+                        _evt_sess_index = 1
+                    event.FallbackDefaults(index=_evt_sess_index)
+                    _evt_sess_index += 1
+                except Exception as err:
+                    if self._fail_fast:
+                            Logger.Log(f"Error while converting row to Event\nFull error: {err}\nRow data: {pformat(row)}", logging.ERROR, depth=2)
+                            raise err
+                    else:
+                        Logger.Log(f"Error while converting row ({row}) to Event. This row will be skipped.\nFull error: {err}", logging.WARNING, depth=2)
                 else:
-                    Logger.Log(f"Error while converting row ({row}) to Event. This row will be skipped.\nFull error: {err}", logging.WARNING, depth=2)
-            else:
-                ret_val.append(event)
+                    ret_val.append(event)
+        else:
+            Logger.Log(f"Could not convert row data to Events, the given table schema was not for event data!", logging.WARNING, depth=3)
         return ret_val
 
-    def _featuresFromRows(self, rows:List[Tuple], schema:FeatureTableSchema) -> List[FeatureData]:
+    def _featuresFromRows(self, rows:List[Tuple]) -> List[FeatureData]:
         """_summary_
 
         TODO :implement
