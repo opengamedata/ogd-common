@@ -24,7 +24,7 @@ class TableSchema(Schema):
 
     @abc.abstractmethod
     @classmethod
-    def _fromDict(cls, name:str, table_type:TableType, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema]) -> "TableSchema":
+    def _fromDict(cls, name:str, table_type:TableType, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableSchema":
         pass
 
     # *** BUILT-INS & PROPERTIES ***
