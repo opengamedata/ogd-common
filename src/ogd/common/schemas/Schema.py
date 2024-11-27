@@ -12,6 +12,11 @@ class Schema(abc.ABC):
     @property
     @abc.abstractmethod
     def AsMarkdown(self) -> str:
+        """Gets a markdown-formatted representation of the schema.
+
+        :return: A markdown-formatted representation of the schema.
+        :rtype: str
+        """
         pass
 
     @classmethod
@@ -36,16 +41,6 @@ class Schema(abc.ABC):
 
     def __repr__(self):
         return f"{type(self).__name__}[{self.Name}]"
-
-    @property
-    @abc.abstractmethod
-    def AsMarkdown(self) -> str:
-        """Gets a markdown-formatted representation of the schema.
-
-        :return: A markdown-formatted representation of the schema.
-        :rtype: str
-        """
-        pass
 
     @property
     def Name(self) -> str:
