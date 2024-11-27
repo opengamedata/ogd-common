@@ -3,11 +3,8 @@ import abc
 import logging
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional, TypeAlias
-## import 3rd-party libraries
-from dateutil import parser
 ## import local files
 from ogd.common import schemas
-from ogd.common.models.Event import Event, EventSource
 from ogd.common.models.enums.TableType import TableType
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema
@@ -70,6 +67,19 @@ class TableSchema(Schema):
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
+    @property
+    def AsMarkdown(self) -> str:
+        _column_map_markdown : str
+        ret_val = "\n\n".join([
+            "## Database Columns",
+            "The individual columns recorded in the database for this game.",
+            "\n".join([item.AsMarkdown for item in self.Columns]),
+            f"## {self._table_type} Object Elements",
+            "The elements (member variables) of each Event object, available to programmers when writing feature extractors. The right-hand side shows which database column(s) are mapped to a given element.",
+            self._columnMapMarkdown,
+            ""])
+        return ret_val
+
     @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableSchema":
         _column_schemas : List[ColumnSchema]
@@ -105,6 +115,27 @@ class TableSchema(Schema):
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***
+
+    @property
+    def _columnMapMarkdown(self) -> str:
+        ret_val : str
+
+        event_column_list = []
+        for event_element,columns_mapped in self._column_map.items():
+            if columns_mapped is not None:
+                if isinstance(columns_mapped, str):
+                    event_column_list.append(f"**{event_element}** = Column '*{columns_mapped}*'  ")
+                elif isinstance(columns_mapped, list):
+                    mapped_list = ", ".join([f"'*{item}*'" for item in columns_mapped])
+                    event_column_list.append(f"**{event_element}** = Columns {mapped_list}  ") # figure out how to do one string foreach item in list.
+                elif isinstance(columns_mapped, int):
+                    event_column_list.append(f"**{event_element}** = Column '*{self.ColumnNames[columns_mapped]}*' (index {columns_mapped})  ")
+                else:
+                    event_column_list.append(f"**{event_element}** = Column '*{columns_mapped}*' (DEBUG: Type {type(columns_mapped)})  ")
+            else:
+                event_column_list.append(f"**{event_element}** = null  ")
+        ret_val = "\n".join(event_column_list)
+        return ret_val
 
     def _getValueFromRow(self, row:Tuple, indices:Optional[int | List[int] | Dict[str, int]], concatenator:str, fallback:Any) -> Any:
         ret_val : Any
