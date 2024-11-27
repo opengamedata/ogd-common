@@ -5,8 +5,8 @@ import unittest
 from typing import Any, Dict, Optional
 from unittest import TestCase
 # import ogd libraries.
-from ogd.common.schemas.configs.data_sources.DataSourceSchema import DataSourceSchema
-from ogd.common.schemas.configs.data_sources.BigQuerySourceSchema import BigQuerySchema
+from ogd.common.schemas.storage.DataSourceSchema import DataSourceSchema
+from ogd.common.schemas.storage.BigQuerySourceSchema import BigQuerySchema
 from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
 from ogd.common.utils.Logger import Logger
 # import locals
@@ -32,6 +32,7 @@ class t_GameSourceSchema(TestCase):
         }
         cls.test_schema = GameSourceSchema(
             name="Game Source Schema",
+            game_id="AQUALAB",
             source_name="AQUALAB_BQ",
             source_schema=BigQuerySchema.FromDict(name="AQUALAB_BQ", all_elements=source_elems, logger=None),
             db_name="aqualab",
