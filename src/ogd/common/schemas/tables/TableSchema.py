@@ -10,7 +10,7 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.utils import utils
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import conversions
+from ogd.common.utils.typing import Map, conversions
 
 ColumnMapIndex   : TypeAlias = Optional[int | List[int] | Dict[str,int]]
 ColumnMapElement : TypeAlias = Optional[str | List[str] | Dict[str,str]]
@@ -29,7 +29,7 @@ class TableSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name, table_type:TableType, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema]):
+    def __init__(self, name, table_type:TableType, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema], other_elements:Optional[Map]):
         """Constructor for the TableSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
@@ -49,7 +49,7 @@ class TableSchema(Schema):
         self._table_columns : List[ColumnSchema]        = columns
 
         # after loading the file, take the stuff we need and store.
-        super().__init__(name=name, other_elements={})
+        super().__init__(name=name, other_elements=other_elements)
 
     @property
     def TableKind(self) -> TableType:

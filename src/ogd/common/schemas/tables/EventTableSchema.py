@@ -23,7 +23,7 @@ class EventTableSchema(TableSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name, table_type:TableType, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema]):
+    def __init__(self, name, table_type:TableType, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema], other_elements:Optional[Map]):
         """Constructor for the TableSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
@@ -36,7 +36,7 @@ class EventTableSchema(TableSchema):
         :param is_legacy: [description], defaults to False
         :type is_legacy: bool, optional
         """
-        super().__init__(name=name, table_type=table_type, column_map=column_map, columns=columns)
+        super().__init__(name=name, table_type=table_type, column_map=column_map, columns=columns, other_elements=other_elements)
 
     @property
     def SessionIDIndex(self) -> ColumnMapIndex:
@@ -268,7 +268,7 @@ class EventTableSchema(TableSchema):
                 Logger.Log(f"Column config does not have a '{key}' element, defaulting to {key} : None", logging.WARN)
         _leftovers = { key : val for key,val in raw_map.items() if key not in _column_map.keys() }
 
-        return EventTableSchema(name=name, table_type=table_type, column_map=_column_map, columns=column_schemas)
+        return EventTableSchema(name=name, table_type=table_type, column_map=_column_map, columns=column_schemas, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
 
