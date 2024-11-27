@@ -25,7 +25,7 @@ class TableSchema(Schema):
 
     @abc.abstractmethod
     @classmethod
-    def _fromDict(cls, table_type:TableType, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema]) -> "TableSchema":
+    def _fromDict(cls, name:str, table_type:TableType, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema]) -> "TableSchema":
         pass
 
     # *** BUILT-INS & PROPERTIES ***
@@ -121,7 +121,7 @@ class TableSchema(Schema):
         _table_type       = TableType.FromString(_table_type_str) if _table_type_str is not None else TableType.EVENT
         _column_json_list = all_elements.get('columns', [])
         _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), all_elements=column) for column in _column_json_list]
-        return cls._fromDict(table_type=_table_type, raw_map=all_elements.get('column_map', {}), column_schemas=_column_schemas)
+        return cls._fromDict(name=name, table_type=_table_type, raw_map=all_elements.get('column_map', {}), column_schemas=_column_schemas)
 
     # *** PUBLIC STATICS ***
 
