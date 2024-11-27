@@ -1,22 +1,27 @@
 ## import standard libraries
+import abc
 import json
 import logging
 import re
 from datetime import datetime, timedelta, timezone
 from json.decoder import JSONDecodeError
 from pathlib import Path
-from typing import Any, Dict, Final, List, Tuple, Optional, Union
+from typing import Any, Dict, List, Tuple, Optional, TypeAlias
 ## import 3rd-party libraries
 from dateutil import parser
 ## import local files
 from ogd.common import schemas
 from ogd.common.models.Event import Event, EventSource
+from ogd.common.models.enums.TableType import TableType
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.utils import utils
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
+
+ColumnMapIndex   : TypeAlias = Optional[int | List[int] | Dict[str,int]]
+ColumnMapElement : TypeAlias = Optional[str | List[str] | Dict[str,str]]
 
 ## @class TableSchema
 class TableSchema(Schema):
@@ -25,9 +30,14 @@ class TableSchema(Schema):
         and a mapping of those columns to the corresponding elements of a formal OGD structure.
     """
 
+    @abc.abstractmethod
+    @classmethod
+    def _fromDict(cls, table_type:TableType, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema]) -> "TableSchema":
+        pass
+
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name, column_map:ColumnMapSchema, columns:List[ColumnSchema]):
+    def __init__(self, name, table_type:TableType, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema]):
         """Constructor for the TableSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
@@ -42,11 +52,16 @@ class TableSchema(Schema):
         """
         # declare and initialize vars
         # self._schema            : Optional[Dict[str, Any]] = all_elements
-        self._column_map        : ColumnMapSchema    = column_map
-        self._table_columns     : List[ColumnSchema] = columns
+        self._table_type    : TableType                 = table_type
+        self._column_map    : Dict[str, ColumnMapIndex] = column_map
+        self._table_columns : List[ColumnSchema]        = columns
 
         # after loading the file, take the stuff we need and store.
         super().__init__(name=name, other_elements={})
+
+    @property
+    def Columns(self) -> List[ColumnSchema]:
+        return self._table_columns
 
     @property
     def ColumnNames(self) -> List[str]:
@@ -57,40 +72,37 @@ class TableSchema(Schema):
         """
         return [col.Name for col in self._table_columns]
 
-    @property
-    def Columns(self) -> List[ColumnSchema]:
-        return self._table_columns
-
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
-    # @classmethod
-    # def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableSchema":
-    #     _column_map     : ColumnMapSchema
-    #     _column_schemas : List[ColumnSchema]
+    @classmethod
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableSchema":
+        _column_schemas : List[ColumnSchema]
+        _table_type     : TableType
 
-    #     if not isinstance(all_elements, dict):
-    #         all_elements = {}
-    #         _msg = f"For {name} Table Schema, all_elements was not a dict, defaulting to empty dict"
-    #         if logger:
-    #             logger.warning(_msg)
-    #         else:
-    #             Logger.Log(_msg, logging.WARN)
-    #     _column_json_list = all_elements.get('columns', [])
-    #     _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), all_elements=column) for column in _column_json_list]
-    #     _column_map       = ColumnMapSchema.FromDict(name="Column Map", all_elements=all_elements.get('column_map', {}), column_names=[col.Name for col in _column_schemas])
-    #     return TableSchema(name=name, column_map=_column_map, columns=_column_schemas)
+        if not isinstance(all_elements, dict):
+            all_elements = {}
+            _msg = f"For {name} Table Schema, all_elements was not a dict, defaulting to empty dict"
+            if logger:
+                logger.warning(_msg)
+            else:
+                Logger.Log(_msg, logging.WARN)
+        _table_type_str   = all_elements.get('table_type')
+        _table_type       = TableType.FromString(_table_type_str) if _table_type_str is not None else TableType.EVENT
+        _column_json_list = all_elements.get('columns', [])
+        _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), all_elements=column) for column in _column_json_list]
+        return cls._fromDict(table_type=_table_type, raw_map=all_elements.get('column_map', {}), column_schemas=_column_schemas)
 
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(schema_name:str, schema_path:Path = Path(schemas.__file__).parent / "table_schemas/") -> "TableSchema":
+    def FromFile(cls, schema_name:str, schema_path:Path = Path(schemas.__file__).parent / "table_schemas/") -> "TableSchema":
         _table_format_name : str = schema_name
 
         if not _table_format_name.lower().endswith(".json"):
             _table_format_name += ".json"
         _schema = utils.loadJSONFile(filename=_table_format_name, path=schema_path)
 
-        return TableSchema.FromDict(name=schema_name, all_elements=_schema)
+        return cls.FromDict(name=schema_name, all_elements=_schema)
 
     # *** PUBLIC METHODS ***
 
