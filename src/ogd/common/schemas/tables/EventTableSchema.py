@@ -1,22 +1,16 @@
 """EventTableSchema Module"""
 # import standard libraries
 import logging
-import re
 from datetime import datetime, timedelta, timezone
-from json.decoder import JSONDecodeError
-from pathlib import Path
-from typing import Any, Dict, Tuple, Optional
-
-# import 3rd-party libraries
-from dateutil import parser
+from typing import Any, Dict, List, Tuple, Optional
 
 # import local files
-from ogd.common import schemas
-from ogd.common.schemas.tables.TableSchema import TableSchema
+from ogd.common.models.enums.TableType import TableType
 from ogd.common.models.Event import Event, EventSource
+from ogd.common.schemas.tables.TableSchema import TableSchema, ColumnMapIndex
 from ogd.common.utils import utils
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import Map, conversions
 
 ## @class TableSchema
 #  Dumb struct to hold useful info about the structure of database data
@@ -28,7 +22,7 @@ class EventTableSchema(TableSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, schema_name:str, schema_path:Path = Path(schemas.__file__).parent / "table_schemas/"):
+    def __init__(self, name, table_type:TableType, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema]):
         """Constructor for the TableSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
@@ -41,144 +35,188 @@ class EventTableSchema(TableSchema):
         :param is_legacy: [description], defaults to False
         :type is_legacy: bool, optional
         """
-        super().__init__(schema_name=schema_name, schema_path=schema_path)
+        super().__init__(name=name, table_type=table_type, column_map=column_map, columns=columns)
 
     @property
-    def AsMarkdown(self) -> str:
-        ret_val = "\n\n".join([
-            "## Database Columns",
-            "The individual columns recorded in the database for this game.",
-            "\n".join([item.AsMarkdown for item in self.Columns]),
-            "## Event Object Elements",
-            "The elements (member variables) of each Event object, available to programmers when writing feature extractors. The right-hand side shows which database column(s) are mapped to a given element.",
-            self._column_map.AsMarkdown,
-            ""])
-        return ret_val
+    def SessionIDIndex(self) -> ColumnMapIndex:
+        return self._column_map['session_id']
+
+    @property
+    def AppIDIndex(self) -> ColumnMapIndex:
+        return self._column_map['app_id']
+
+    @property
+    def TimestampIndex(self) -> ColumnMapIndex:
+        return self._column_map['timestamp']
+
+    @property
+    def EventNameIndex(self) -> ColumnMapIndex:
+        return self._column_map['event_name']
+
+    @property
+    def EventDataIndex(self) -> ColumnMapIndex:
+        return self._column_map['event_data']
+
+    @property
+    def EventSourceIndex(self) -> ColumnMapIndex:
+        return self._column_map['event_source']
+
+    @property
+    def AppVersionIndex(self) -> ColumnMapIndex:
+        return self._column_map['app_version']
+
+    @property
+    def AppBranchIndex(self) -> ColumnMapIndex:
+        return self._column_map['app_branch']
+
+    @property
+    def LogVersionIndex(self) -> ColumnMapIndex:
+        return self._column_map['log_version']
+
+    @property
+    def TimeOffsetIndex(self) -> ColumnMapIndex:
+        return self._column_map['time_offset']
+
+    @property
+    def UserIDIndex(self) -> ColumnMapIndex:
+        return self._column_map['user_id']
+
+    @property
+    def UserDataIndex(self) -> ColumnMapIndex:
+        return self._column_map['user_data']
+
+    @property
+    def GameStateIndex(self) -> ColumnMapIndex:
+        return self._column_map['game_state']
+
+    @property
+    def EventSequenceIndexIndex(self) -> ColumnMapIndex:
+        return self._column_map['event_sequence_index']
 
     @property
     def SessionIDColumn(self) -> Optional[str]:
         ret_val = None
-        if isinstance(self._column_map.SessionID, int):
-            ret_val = self.ColumnNames[self._column_map.SessionID]
-        elif isinstance(self._column_map.SessionID, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self._column_map.SessionID])
+        if isinstance(self.SessionIDIndex, int):
+            ret_val = self.ColumnNames[self.SessionIDIndex]
+        elif isinstance(self.SessionIDIndex, list):
+            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.SessionIDIndex])
         return ret_val
 
     @property
     def AppIDColumn(self) -> Optional[str]:
         ret_val = None
-        if isinstance(self._column_map.AppID, int):
-            ret_val = self.ColumnNames[self._column_map.AppID]
-        elif isinstance(self._column_map.AppID, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self._column_map.AppID])
+        if isinstance(self.AppIDIndex, int):
+            ret_val = self.ColumnNames[self.AppIDIndex]
+        elif isinstance(self.AppIDIndex, list):
+            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.AppIDIndex])
         return ret_val
 
     @property
     def TimestampColumn(self) -> Optional[str]:
         ret_val = None
-        if isinstance(self._column_map.Timestamp, int):
-            ret_val = self.ColumnNames[self._column_map.Timestamp]
-        elif isinstance(self._column_map.Timestamp, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self._column_map.Timestamp])
+        if isinstance(self.TimestampIndex, int):
+            ret_val = self.ColumnNames[self.TimestampIndex]
+        elif isinstance(self.TimestampIndex, list):
+            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.TimestampIndex])
         return ret_val
 
     @property
     def EventNameColumn(self) -> Optional[str]:
         ret_val = None
-        if isinstance(self._column_map.EventName, int):
-            ret_val = self.ColumnNames[self._column_map.EventName]
-        elif isinstance(self._column_map.EventName, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self._column_map.EventName])
+        if isinstance(self.EventNameIndex, int):
+            ret_val = self.ColumnNames[self.EventNameIndex]
+        elif isinstance(self.EventNameIndex, list):
+            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.EventNameIndex])
         return ret_val
 
     @property
     def EventDataColumn(self) -> Optional[str]:
         ret_val = None
-        if isinstance(self._column_map.EventData, int):
-            ret_val = self.ColumnNames[self._column_map.EventData]
-        elif isinstance(self._column_map.EventData, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self._column_map.EventData])
+        if isinstance(self.EventDataIndex, int):
+            ret_val = self.ColumnNames[self.EventDataIndex]
+        elif isinstance(self.EventDataIndex, list):
+            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.EventDataIndex])
         return ret_val
 
     @property
     def EventSourceColumn(self) -> Optional[str]:
         ret_val = None
-        if isinstance(self._column_map.EventSource, int):
-            ret_val = self.ColumnNames[self._column_map.EventSource]
-        elif isinstance(self._column_map.EventSource, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self._column_map.EventSource])
+        if isinstance(self.EventSourceIndex, int):
+            ret_val = self.ColumnNames[self.EventSourceIndex]
+        elif isinstance(self.EventSourceIndex, list):
+            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.EventSourceIndex])
         return ret_val
 
     @property
     def AppVersionColumn(self) -> Optional[str]:
         ret_val = None
-        if isinstance(self._column_map.AppVersion, int):
-            ret_val = self.ColumnNames[self._column_map.AppVersion]
-        elif isinstance(self._column_map.AppVersion, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self._column_map.AppVersion])
+        if isinstance(self.AppVersionIndex, int):
+            ret_val = self.ColumnNames[self.AppVersionIndex]
+        elif isinstance(self.AppVersionIndex, list):
+            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.AppVersionIndex])
         return ret_val
 
     @property
     def AppBranchColumn(self) -> Optional[str]:
         ret_val = None
-        if isinstance(self._column_map.AppBranch, int):
-            ret_val = self.ColumnNames[self._column_map.AppBranch]
-        elif isinstance(self._column_map.AppBranch, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self._column_map.AppBranch])
+        if isinstance(self.AppBranchIndex, int):
+            ret_val = self.ColumnNames[self.AppBranchIndex]
+        elif isinstance(self.AppBranchIndex, list):
+            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.AppBranchIndex])
         return ret_val
 
     @property
     def LogVersionColumn(self) -> Optional[str]:
         ret_val = None
-        if isinstance(self._column_map.LogVersion, int):
-            ret_val = self.ColumnNames[self._column_map.LogVersion]
-        elif isinstance(self._column_map.LogVersion, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self._column_map.LogVersion])
+        if isinstance(self.LogVersionIndex, int):
+            ret_val = self.ColumnNames[self.LogVersionIndex]
+        elif isinstance(self.LogVersionIndex, list):
+            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.LogVersionIndex])
         return ret_val
 
     @property
     def TimeOffsetColumn(self) -> Optional[str]:
         ret_val = None
-        if isinstance(self._column_map.TimeOffset, int):
-            ret_val = self.ColumnNames[self._column_map.TimeOffset]
-        elif isinstance(self._column_map.TimeOffset, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self._column_map.TimeOffset])
+        if isinstance(self.TimeOffsetIndex, int):
+            ret_val = self.ColumnNames[self.TimeOffsetIndex]
+        elif isinstance(self.TimeOffsetIndex, list):
+            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.TimeOffsetIndex])
         return ret_val
 
     @property
     def UserIDColumn(self) -> Optional[str]:
         ret_val = None
-        if isinstance(self._column_map.UserID, int):
-            ret_val = self.ColumnNames[self._column_map.UserID]
-        elif isinstance(self._column_map.UserID, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self._column_map.UserID])
+        if isinstance(self.UserIDIndex, int):
+            ret_val = self.ColumnNames[self.UserIDIndex]
+        elif isinstance(self.UserIDIndex, list):
+            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.UserIDIndex])
         return ret_val
 
     @property
     def UserDataColumn(self) -> Optional[str]:
         ret_val = None
-        if isinstance(self._column_map.UserData, int):
-            ret_val = self.ColumnNames[self._column_map.UserData]
-        elif isinstance(self._column_map.UserData, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self._column_map.UserData])
+        if isinstance(self.UserDataIndex, int):
+            ret_val = self.ColumnNames[self.UserDataIndex]
+        elif isinstance(self.UserDataIndex, list):
+            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.UserDataIndex])
         return ret_val
 
     @property
     def GameStateColumn(self) -> Optional[str]:
         ret_val = None
-        if isinstance(self._column_map.GameState, int):
-            ret_val = self.ColumnNames[self._column_map.GameState]
-        elif isinstance(self._column_map.GameState, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self._column_map.GameState])
+        if isinstance(self.GameStateIndex, int):
+            ret_val = self.ColumnNames[self.GameStateIndex]
+        elif isinstance(self.GameStateIndex, list):
+            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.GameStateIndex])
         return ret_val
 
     @property
     def EventSequenceIndexColumn(self) -> Optional[str]:
         ret_val = None
-        if isinstance(self._column_map.EventSequenceIndex, int):
-            ret_val = self.ColumnNames[self._column_map.EventSequenceIndex]
-        elif isinstance(self._column_map.EventSequenceIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self._column_map.EventSequenceIndex])
+        if isinstance(self.EventSequenceIndexIndex, int):
+            ret_val = self.ColumnNames[self.EventSequenceIndexIndex]
+        elif isinstance(self.EventSequenceIndexIndex, list):
+            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.EventSequenceIndexIndex])
         return ret_val
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -188,7 +226,7 @@ class EventTableSchema(TableSchema):
     # *** PUBLIC METHODS ***
 
     _conversion_warnings = []
-    def RowToEvent(self, row:Tuple, concatenator:str = '.', fallbacks:utils.map={}):
+    def RowToEvent(self, row:Tuple, concatenator:str = '.', fallbacks:Map={}):
         """Function to convert a row to an Event, based on the loaded schema.
         In general, columns specified in the schema's column_map are mapped to corresponding elements of the Event.
         If the column_map gave a list, rather than a single column name, the values from each column are concatenated in order with '.' character separators.
@@ -221,86 +259,86 @@ class EventTableSchema(TableSchema):
         # 2) Handle event_data parameter, a special case.
         #    For this case we've got to parse the json, and then fold in whatever other columns were desired.
         # 3) Assign vals to our arg vars and pass to Event ctor.
-        sess_id = self._getValueFromRow(row=row, indices=self._column_map.SessionID,   concatenator=concatenator, fallback=fallbacks.get('session_id'))
+        sess_id = self._getValueFromRow(row=row, indices=self.SessionIDIndex,   concatenator=concatenator, fallback=fallbacks.get('session_id'))
         if not isinstance(sess_id, str):
             if "sess_id" not in EventTableSchema._conversion_warnings:
                 Logger.Log(f"{self._table_format_name} table schema set session_id as {type(sess_id)}, but session_id should be a string", logging.WARN)
                 EventTableSchema._conversion_warnings.append("sess_id")
             sess_id = str(sess_id)
 
-        app_id  = self._getValueFromRow(row=row, indices=self._column_map.AppID,       concatenator=concatenator, fallback=fallbacks.get('app_id'))
+        app_id  = self._getValueFromRow(row=row, indices=self.AppIDIndex,       concatenator=concatenator, fallback=fallbacks.get('app_id'))
         if not isinstance(app_id, str):
             if "app_id" not in EventTableSchema._conversion_warnings:
                 Logger.Log(f"{self._table_format_name} table schema set app_id as {type(app_id)}, but app_id should be a string", logging.WARN)
                 EventTableSchema._conversion_warnings.append("app_id")
             app_id = str(app_id)
 
-        tstamp  = self._getValueFromRow(row=row, indices=self._column_map.Timestamp,   concatenator=concatenator, fallback=fallbacks.get('timestamp'))
+        tstamp  = self._getValueFromRow(row=row, indices=self.TimestampIndex,   concatenator=concatenator, fallback=fallbacks.get('timestamp'))
         if not isinstance(tstamp, datetime):
             if "timestamp" not in EventTableSchema._conversion_warnings:
                 Logger.Log(f"{self._table_format_name} table schema parsed timestamp as {type(tstamp)}, but timestamp should be a datetime", logging.WARN)
                 EventTableSchema._conversion_warnings.append("timestamp")
-            tstamp = TableSchema._convertDateTime(tstamp)
+            tstamp = conversions.DatetimeFromString(tstamp)
 
-        ename   = self._getValueFromRow(row=row, indices=self._column_map.EventName,   concatenator=concatenator, fallback=fallbacks.get('event_name'))
+        ename   = self._getValueFromRow(row=row, indices=self.EventNameIndex,   concatenator=concatenator, fallback=fallbacks.get('event_name'))
         if not isinstance(ename, str):
             if "ename" not in EventTableSchema._conversion_warnings:
                 Logger.Log(f"{self._table_format_name} table schema set event_name as {type(ename)}, but event_name should be a string", logging.WARN)
                 EventTableSchema._conversion_warnings.append("ename")
             ename = str(ename)
 
-        datas : Dict[str, Any] = self._getValueFromRow(row=row, indices=self._column_map.EventData,   concatenator=concatenator, fallback=fallbacks.get('event_data'))
+        datas : Dict[str, Any] = self._getValueFromRow(row=row, indices=self.EventDataIndex,   concatenator=concatenator, fallback=fallbacks.get('event_data'))
 
         # TODO: go bac to isostring function; need 0-padding on ms first, though
         edata   = dict(sorted(datas.items())) # Sort keys alphabetically
 
-        esrc    = self._getValueFromRow(row=row, indices=self._column_map.EventSource, concatenator=concatenator, fallback=fallbacks.get('event_source', EventSource.GAME))
+        esrc    = self._getValueFromRow(row=row, indices=self.EventSourceIndex, concatenator=concatenator, fallback=fallbacks.get('event_source', EventSource.GAME))
         if not isinstance(esrc, EventSource):
             if "esrc" not in EventTableSchema._conversion_warnings:
                 Logger.Log(f"{self._table_format_name} table schema set event_source as {type(esrc)}, but event_source should be an EventSource", logging.WARN)
                 EventTableSchema._conversion_warnings.append("esrc")
             esrc = EventSource.GENERATED if esrc == "GENERATED" else EventSource.GAME
 
-        app_ver = self._getValueFromRow(row=row, indices=self._column_map.AppVersion,  concatenator=concatenator, fallback=fallbacks.get('app_version', "0"))
+        app_ver = self._getValueFromRow(row=row, indices=self.AppVersionIndex,  concatenator=concatenator, fallback=fallbacks.get('app_version', "0"))
         if not isinstance(app_ver, str):
             if "app_ver" not in EventTableSchema._conversion_warnings:
                 Logger.Log(f"{self._table_format_name} table schema set app_version as {type(app_ver)}, but app_version should be a string", logging.WARN)
                 EventTableSchema._conversion_warnings.append("app_ver")
             app_ver = str(app_ver)
 
-        app_br = self._getValueFromRow(row=row, indices=self._column_map.AppBranch,  concatenator=concatenator, fallback=fallbacks.get('app_branch'))
+        app_br = self._getValueFromRow(row=row, indices=self.AppBranchIndex,  concatenator=concatenator, fallback=fallbacks.get('app_branch'))
         if not isinstance(app_br, str):
             if "app_br" not in EventTableSchema._conversion_warnings:
                 Logger.Log(f"{self._table_format_name} table schema set app_branch as {type(app_br)}, but app_branch should be a string", logging.WARN)
                 EventTableSchema._conversion_warnings.append("app_br")
             app_br = str(app_br)
 
-        log_ver = self._getValueFromRow(row=row, indices=self._column_map.LogVersion,  concatenator=concatenator, fallback=fallbacks.get('log_version', "0"))
+        log_ver = self._getValueFromRow(row=row, indices=self.LogVersionIndex,  concatenator=concatenator, fallback=fallbacks.get('log_version', "0"))
         if not isinstance(log_ver, str):
             if "log_ver" not in EventTableSchema._conversion_warnings:
                 Logger.Log(f"{self._table_format_name} table schema set log_version as {type(log_ver)}, but log_version should be a string", logging.WARN)
                 EventTableSchema._conversion_warnings.append("log_ver")
             log_ver = str(log_ver)
 
-        offset = self._getValueFromRow(row=row, indices=self._column_map.TimeOffset,  concatenator=concatenator, fallback=fallbacks.get('time_offset'))
+        offset = self._getValueFromRow(row=row, indices=self.TimeOffsetIndex,  concatenator=concatenator, fallback=fallbacks.get('time_offset'))
         if isinstance(offset, timedelta):
             if "offset" not in EventTableSchema._conversion_warnings:
                 Logger.Log(f"{self._table_format_name} table schema set offset as {type(offset)}, but offset should be a timezone", logging.WARN)
                 EventTableSchema._conversion_warnings.append("offset")
             offset = timezone(offset)
 
-        uid     = self._getValueFromRow(row=row, indices=self._column_map.UserID,      concatenator=concatenator, fallback=fallbacks.get('user_id'))
+        uid     = self._getValueFromRow(row=row, indices=self.UserIDIndex,      concatenator=concatenator, fallback=fallbacks.get('user_id'))
         if uid is not None and not isinstance(uid, str):
             if "uid" not in EventTableSchema._conversion_warnings:
                 Logger.Log(f"{self._table_format_name} table schema set user_id as {type(uid)}, but user_id should be a string", logging.WARN)
                 EventTableSchema._conversion_warnings.append("uid")
             uid = str(uid)
 
-        udata   = self._getValueFromRow(row=row, indices=self._column_map.UserData,    concatenator=concatenator, fallback=fallbacks.get('user_data'))
+        udata   = self._getValueFromRow(row=row, indices=self.UserDataIndex,    concatenator=concatenator, fallback=fallbacks.get('user_data'))
 
-        state   = self._getValueFromRow(row=row, indices=self._column_map.GameState,   concatenator=concatenator, fallback=fallbacks.get('game_state'))
+        state   = self._getValueFromRow(row=row, indices=self.GameStateIndex,   concatenator=concatenator, fallback=fallbacks.get('game_state'))
 
-        index   = self._getValueFromRow(row=row, indices=self._column_map.EventSequenceIndex, concatenator=concatenator, fallback=fallbacks.get('event_sequence_index'))
+        index   = self._getValueFromRow(row=row, indices=self.EventSequenceIndexIndex, concatenator=concatenator, fallback=fallbacks.get('event_sequence_index'))
         if index is not None and not isinstance(index, int):
             if "index" not in EventTableSchema._conversion_warnings:
                 Logger.Log(f"{self._table_format_name} table schema set event_sequence_index as {type(index)}, but event_sequence_index should be an int", logging.WARN)
