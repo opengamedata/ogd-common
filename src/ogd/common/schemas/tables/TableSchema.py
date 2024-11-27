@@ -53,6 +53,20 @@ class TableSchema(Schema):
         super().__init__(name=name, other_elements={})
 
     @property
+    def TableKind(self) -> TableType:
+        """Property to show whether the given table schema is for events or features.
+
+        If this TableSchema was read from a file, this will reflect the type indicated in the file,
+        *even if the specific TableSchema subclass does not match*.
+        If this TableSchema was generated through some other means, or no type was indicated in the source file,
+        this will reflect the type of the instance.
+
+        :return: Either TableType.EVENT or TableType.FEATURE
+        :rtype: TableType
+        """
+        return self._table_type
+
+    @property
     def Columns(self) -> List[ColumnSchema]:
         return self._table_columns
 
@@ -65,16 +79,27 @@ class TableSchema(Schema):
         """
         return [col.Name for col in self._table_columns]
 
+    @property
+    def ColumnMap(self) -> Dict[str, ColumnMapIndex]:
+        """Mapping from Event element names to the indices of the database columns mapped to them.
+        There may be a single index, indicating a 1-to-1 mapping of a database column to the element;
+        There may be a list of indices, indicating multiple columns will be concatenated to form the element value;
+        There may be a further mapping of keys to indicies, indicating multiple columns will be joined into a JSON object, with keys mapped to values found at the columns with given indices.
+
+        :return: The dictionary mapping of element names to indices.
+        :rtype: Dict[str, Union[int, List[int], Dict[str, int], None]]
+        """
+        return self._column_map
+
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
     def AsMarkdown(self) -> str:
-        _column_map_markdown : str
         ret_val = "\n\n".join([
             "## Database Columns",
             "The individual columns recorded in the database for this game.",
-            "\n".join([item.AsMarkdown for item in self.Columns]),
-            f"## {self._table_type} Object Elements",
+            self._columnSetMarkdown,
+            f"## {self.TableKind} Object Elements",
             "The elements (member variables) of each Event object, available to programmers when writing feature extractors. The right-hand side shows which database column(s) are mapped to a given element.",
             self._columnMapMarkdown,
             ""])
@@ -115,6 +140,10 @@ class TableSchema(Schema):
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***
+
+    @property
+    def _columnSetMarkdown(self) -> str:
+        return "\n".join([item.AsMarkdown for item in self.Columns])
 
     @property
     def _columnMapMarkdown(self) -> str:
