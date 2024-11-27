@@ -3,7 +3,7 @@ import abc
 import logging
 from typing import Any, Dict, Optional, Type
 # import local files
-from ogd.common.schemas.configs.data_sources.DataSourceSchema import DataSourceSchema
+from ogd.common.schemas.storage.DataSourceSchema import DataSourceSchema
 from ogd.common.utils.Logger import Logger
 
 class BigQuerySchema(DataSourceSchema):
