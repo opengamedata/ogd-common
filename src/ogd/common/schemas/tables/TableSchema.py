@@ -167,6 +167,17 @@ class TableSchema(Schema):
     
     @staticmethod
     def _parseElement(elem:Any, name:str) -> Optional[ColumnMapElement]:
+        """_summary_
+
+        TODO : Pick a better name
+
+        :param elem: _description_
+        :type elem: Any
+        :param name: _description_
+        :type name: str
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         ret_val : Optional[str | List[str] | Dict[str, str]]
         if elem is not None:
             if isinstance(elem, str):
