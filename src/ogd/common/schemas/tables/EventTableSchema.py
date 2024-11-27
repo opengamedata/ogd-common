@@ -223,6 +223,8 @@ class EventTableSchema(TableSchema):
 
     @classmethod
     def _fromDict(cls, name:str, table_type:TableType, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema]) -> "TableSchema":
+        _column_map : Dict[str, ColumnMapIndex] = {}
+        return EventTableSchema(name=name, table_type=table_type, column_map=_column_map, columns=column_schemas)
 
     # *** PUBLIC STATICS ***
 
