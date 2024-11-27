@@ -401,21 +401,3 @@ class EventTableSchema(TableSchema):
                      game_state=state, event_sequence_index=index)
 
     # *** PRIVATE STATICS ***
-    
-    @staticmethod
-    def _parseElement(elem:Any, name:str) -> Optional[str | List[str] | Dict[str, str]]:
-        ret_val : Optional[str | List[str] | Dict[str, str]]
-        if elem is not None:
-            if isinstance(elem, str):
-                ret_val = elem
-            elif isinstance(elem, list):
-                ret_val = elem
-            elif isinstance(elem, dict):
-                ret_val = elem
-            else:
-                ret_val = str(elem)
-                Logger.Log(f"Column name(s) mapped to {name} was not a string or list, defaulting to str(name) == {ret_val} being mapped to {name}", logging.WARN)
-        else:
-            ret_val = None
-            Logger.Log(f"Column name mapped to {name} was left null, nothing will be mapped to {name}", logging.WARN)
-        return ret_val
