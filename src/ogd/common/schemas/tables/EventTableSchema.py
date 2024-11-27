@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Tuple, Optional
 # import local files
 from ogd.common.models.enums.TableType import TableType
 from ogd.common.models.Event import Event, EventSource
-from ogd.common.schemas.tables.TableSchema import TableSchema, ColumnMapIndex
+from ogd.common.schemas.tables.TableSchema import TableSchema, ColumnMapIndex, ColumnMapElement
 from ogd.common.utils import utils
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
@@ -220,6 +220,9 @@ class EventTableSchema(TableSchema):
         return ret_val
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
+    @classmethod
+    def _fromDict(cls, name:str, table_type:TableType, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema]) -> "TableSchema":
 
     # *** PUBLIC STATICS ***
 
