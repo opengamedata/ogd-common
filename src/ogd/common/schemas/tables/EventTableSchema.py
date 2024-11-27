@@ -223,8 +223,51 @@ class EventTableSchema(TableSchema):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @classmethod
-    def _fromDict(cls, name:str, table_type:TableType, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema]) -> "TableSchema":
-        _column_map : Dict[str, ColumnMapIndex] = {}
+    def _fromDict(cls, name:str, table_type:TableType, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableSchema":
+        _column_map : Dict[str, ColumnMapIndex] = {
+            "session_id"           : None,
+            "app_id"               : None,
+            "timestamp"            : None,
+            "event_name"           : None,
+            "event_data"           : None,
+            "event_source"         : None,
+            "app_version"          : None,
+            "app_branch"           : None,
+            "log_version"          : None,
+            "time_offset"          : None,
+            "user_id"              : None,
+            "user_data"            : None,
+            "game_state"           : None,
+            "event_sequence_index" : None
+        }
+
+        column_names = [elem.Name for elem in column_schemas]
+        if not isinstance(raw_map, dict):
+            raw_map = {}
+            _msg = f"For {name} column map schema, raw_map was not a dict, defaulting to empty dict"
+            if logger:
+                logger.warning(_msg)
+            else:
+                Logger.Log(_msg, logging.WARN)
+        # for each item in the map above that we expect...
+        for key in _column_map.keys():
+            # if the item was found in the given "column_map" dictionary...
+            if key in raw_map:
+                # parse what was mapped to the item. Could get back a string, or a list, or a dict...
+                element = cls._parseElement(elem=map[key], name=key)
+                # then if we got a string, we just find it in list of column names
+                if isinstance(element, str):
+                    _column_map[key] = column_names.index(element)
+                # but if it's a list, we need to get index of each item in list of column names
+                elif isinstance(element, list):
+                    _column_map[key] = [column_names.index(listelem) for listelem in element]
+                # but if it's a dict, we need to make equivalent dict mapping the key (new name) to the index (in list of column names)
+                elif isinstance(element, dict):
+                    _column_map[key] = {key : column_names.index(listelem) for key,listelem in element.items()}
+            else:
+                Logger.Log(f"Column config does not have a '{key}' element, defaulting to {key} : None", logging.WARN)
+        _leftovers = { key : val for key,val in raw_map.items() if key not in _column_map.keys() }
+
         return EventTableSchema(name=name, table_type=table_type, column_map=_column_map, columns=column_schemas)
 
     # *** PUBLIC STATICS ***
@@ -358,3 +401,21 @@ class EventTableSchema(TableSchema):
                      game_state=state, event_sequence_index=index)
 
     # *** PRIVATE STATICS ***
+    
+    @staticmethod
+    def _parseElement(elem:Any, name:str) -> Optional[str | List[str] | Dict[str, str]]:
+        ret_val : Optional[str | List[str] | Dict[str, str]]
+        if elem is not None:
+            if isinstance(elem, str):
+                ret_val = elem
+            elif isinstance(elem, list):
+                ret_val = elem
+            elif isinstance(elem, dict):
+                ret_val = elem
+            else:
+                ret_val = str(elem)
+                Logger.Log(f"Column name(s) mapped to {name} was not a string or list, defaulting to str(name) == {ret_val} being mapped to {name}", logging.WARN)
+        else:
+            ret_val = None
+            Logger.Log(f"Column name mapped to {name} was left null, nothing will be mapped to {name}", logging.WARN)
+        return ret_val
