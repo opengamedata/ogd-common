@@ -1,10 +1,6 @@
 ## import standard libraries
 import abc
-import json
 import logging
-import re
-from datetime import datetime, timedelta, timezone
-from json.decoder import JSONDecodeError
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional, TypeAlias
 ## import 3rd-party libraries
@@ -18,7 +14,7 @@ from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.utils import utils
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import conversions
 
 ColumnMapIndex   : TypeAlias = Optional[int | List[int] | Dict[str,int]]
 ColumnMapElement : TypeAlias = Optional[str | List[str] | Dict[str,str]]
@@ -108,126 +104,6 @@ class TableSchema(Schema):
 
     # *** PRIVATE STATICS ***
 
-    @staticmethod
-    def _parse(input:Any, col_schema:ColumnSchema) -> Any:
-        """Applies whatever parsing is appropriate based on what type the schema said a column contained.
-
-        :param input: _description_
-        :type input: str
-        :param col_schema: _description_
-        :type col_schema: ColumnSchema
-        :return: _description_
-        :rtype: Any
-        """
-        if input is None:
-            return None
-        if input == "None" or input == "null" or input == "nan":
-            return None
-        match col_schema.ValueType.upper():
-            case 'STR':
-                return str(input)
-            case 'INT':
-                return int(input)
-            case 'FLOAT':
-                return float(input)
-            case 'DATETIME':
-                return input if isinstance(input, datetime) else TableSchema._convertDateTime(str(input))
-            case 'TIMEDELTA':
-                return input if isinstance(input, timedelta) else TableSchema._convertTimedelta(str(input))
-            case 'TIMEZONE':
-                return input if isinstance(input, timezone) else TableSchema._convertTimezone(str(input))
-            case 'JSON':
-                try:
-                    if isinstance(input, dict):
-                        # if input was a dict already, then just give it back. Else, try to load it from string.
-                        return input
-                    elif isinstance(input, str):
-                        if input != 'None' and input != '': # watch out for nasty corner cases.
-                            return json.loads(input)
-                        else:
-                            return None
-                    else:
-                        return json.loads(str(input))
-                except JSONDecodeError as err:
-                    Logger.Log(f"Could not parse input '{input}' of type {type(input)} from column {col_schema.Name}, got the following error:\n{str(err)}", logging.WARN)
-                    return {}
-            case _dummy if _dummy.startswith('ENUM'):
-                # if the column is supposed to be an enum, for now we just stick with the string.
-                return str(input)
-            case _:
-                Logger.Log(f"_parse function got an unrecognized column type {col_schema.ValueType}, could not parse!", logging.WARNING)
-
-    @staticmethod
-    def _convertDateTime(time_str:str) -> datetime:
-        ret_val : datetime
-
-        if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
-            raise ValueError(f"Got a non-timestamp value of {time_str} when converting a datetime column from data source!")
-
-        formats = ["%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S.%f"]
-
-        try:
-            ret_val = parser.isoparse(time_str)
-        except ValueError:
-            # Logger.Log(f"Could not parse time string '{time_str}', got error {err}")
-            # raise err
-            pass
-        else:
-            return ret_val
-        for fmt in formats:
-            try:
-                ret_val = datetime.strptime(time_str, fmt)
-            except ValueError:
-                pass
-            else:
-                return ret_val
-        raise ValueError(f"Could not parse timestamp {time_str}, it did not match any expected formats!")
-
-    @staticmethod
-    def _convertTimedelta(time_str:str) -> Optional[timedelta]:
-        ret_val : Optional[timedelta]
-
-        if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
-            return None
-        elif re.fullmatch(pattern=r"\d+:\d+:\d+(\.\d+)?", string=time_str):
-            try:
-                pieces = time_str.split(':')
-                seconds_pieces = pieces[2].split('.')
-                ret_val = timedelta(hours=int(pieces[0]),
-                                    minutes=int(pieces[1]),
-                                    seconds=int(seconds_pieces[0]),
-                                    milliseconds=int(seconds_pieces[1]) if len(seconds_pieces) > 1 else 0)
-            except ValueError as err:
-                pass
-            except IndexError as err:
-                pass
-            else:
-                return ret_val
-        elif re.fullmatch(pattern=r"-?\d+", string=time_str):
-            try:
-                ret_val = timedelta(seconds=int(time_str))
-            except ValueError as err:
-                pass
-            else:
-                return ret_val
-        raise ValueError(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats.")
-
-    @staticmethod
-    def _convertTimezone(time_str:str) -> Optional[timezone]:
-        ret_val : Optional[timezone]
-
-        if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
-            return None
-        elif re.fullmatch(pattern=r"UTC[+-]\d+:\d+", string=time_str):
-            try:
-                pieces = time_str.removeprefix("UTC").split(":")
-                ret_val = timezone(timedelta(hours=int(pieces[0]), minutes=int(pieces[1])))
-            except ValueError as err:
-                pass
-            else:
-                return ret_val
-        raise ValueError(f"Could not parse timezone {time_str} of type {type(time_str)}, it did not match any expected formats.")
-
     # *** PRIVATE METHODS ***
 
     def _getValueFromRow(self, row:Tuple, indices:Optional[int | List[int] | Dict[str, int]], concatenator:str, fallback:Any) -> Any:
@@ -236,7 +112,7 @@ class TableSchema(Schema):
             if isinstance(indices, int):
                 # if there's a single index, use parse to get the value it is stated to be
                 # print(f"About to parse value {row[indices]} as type {self.Columns[indices]},\nFull list from row is {row},\nFull list of columns is {self.Columns},\nwith names {self.ColumnNames}")
-                ret_val = TableSchema._parse(input=row[indices], col_schema=self.Columns[indices])
+                ret_val = conversions.ConvertToType(variable=row[indices], to_type=self.Columns[indices].ValueType)
             elif isinstance(indices, list):
                 ret_val = concatenator.join([str(row[index]) for index in indices])
             elif isinstance(indices, dict):
@@ -244,7 +120,7 @@ class TableSchema(Schema):
                 for key,column_index in indices.items():
                     if column_index > len(row):
                         Logger.Log(f"Got column index of {column_index} for column {key}, but row only has {len(row)} columns!", logging.ERROR)
-                    _val = TableSchema._parse(input=row[column_index], col_schema=self._table_columns[column_index])
+                    _val = conversions.ConvertToType(variable=row[column_index], to_type=self._table_columns[column_index].ValueType)
                     ret_val.update(_val if isinstance(_val, dict) else {key:_val})
         else:
             ret_val = fallback
