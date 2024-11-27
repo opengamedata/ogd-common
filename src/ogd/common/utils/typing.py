@@ -1,5 +1,6 @@
 ## import standard libraries
 import json
+import logging
 import re
 from datetime import datetime, timedelta, timezone
 from json.decoder import JSONDecodeError
@@ -55,13 +56,13 @@ class conversions:
                     else:
                         return json.loads(str(variable))
                 except JSONDecodeError as err:
-                    Logger.Log(f"Could not parse input '{variable}' of type {type(variable)} from column {col_schema.Name}, got the following error:\n{str(err)}", logging.WARN)
+                    Logger.Log(f"Could not parse input '{variable}' of type {type(variable)} to type {to_type}, got the following error:\n{str(err)}", logging.WARN)
                     return {}
             case _dummy if _dummy.startswith('ENUM'):
                 # if the column is supposed to be an enum, for now we just stick with the string.
                 return str(variable)
             case _:
-                Logger.Log(f"_parse function got an unrecognized column type {col_schema.ValueType}, could not parse!", logging.WARNING)
+                Logger.Log(f"ConvertToType function got an unrecognized type {to_type}, could not complete conversion!", logging.WARNING)
 
     @staticmethod
     def DatetimeFromString(time_str:str) -> datetime:
