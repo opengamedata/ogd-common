@@ -20,24 +20,24 @@ class DataSourceSchema(Schema):
     # @overload
     # def __init__(self, name:str, other_elements:Dict[str, Any]): ...
 
-    def __init__(self, name:str, unparsed_elements:Dict[str, Any] | Any):
+    def __init__(self, name:str, other_elements:Dict[str, Any] | Any):
         self._source_type : str
         # 1. Ensure we've actually got a dict to parse from
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
+        if not isinstance(other_elements, dict):
+            other_elements = {}
             Logger.Log(f"For {name} Data Source config, other_elements was not a dict, defaulting to empty dict", logging.WARN)
         # 2. Parse standard elements, with legacy elements nested under "else" case.
-        if "SOURCE_TYPE" in unparsed_elements.keys():
-            self._source_type = DataSourceSchema._parseSourceType(unparsed_elements["SOURCE_TYPE"])
+        if "SOURCE_TYPE" in other_elements.keys():
+            self._source_type = DataSourceSchema._parseSourceType(other_elements["SOURCE_TYPE"])
         else:
-            if "DB_TYPE" in unparsed_elements.keys():
-                self._source_type = DataSourceSchema._parseSourceType(unparsed_elements["DB_TYPE"])
+            if "DB_TYPE" in other_elements.keys():
+                self._source_type = DataSourceSchema._parseSourceType(other_elements["DB_TYPE"])
             else:
                 self._source_type = "UNKNOWN"
                 Logger.Log(f"{name} config does not have a 'SOURCE_TYPE' element; defaulting to db_name={self._source_type}", logging.WARN)
 
         _used = {"SOURCE_TYPE", "DB_TYPE"}
-        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
+        _leftovers = { key : val for key,val in other_elements.items() if key not in _used }
         super().__init__(name=name, other_elements=_leftovers)
 
     @property
