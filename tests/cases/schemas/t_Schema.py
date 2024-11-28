@@ -24,6 +24,10 @@ class t_Schema(TestCase):
         @property
         def AsMarkdown(self) -> str:
             return self.Name
+    
+        @classmethod
+        def Default(cls) -> "t_Schema.TestSchema":
+            return t_Schema.TestSchema(name="DefaultTestSchema", other_elements={})
 
         @classmethod
         def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "t_Schema.TestSchema":

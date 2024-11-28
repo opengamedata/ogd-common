@@ -1,7 +1,6 @@
 # import standard libraries
-import abc
 import logging
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, Set
 # import local files
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.schemas.Schema import Schema

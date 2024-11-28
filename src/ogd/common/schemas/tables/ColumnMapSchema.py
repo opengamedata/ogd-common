@@ -3,11 +3,13 @@ import logging
 from typing import Any, Dict, List, Optional, TypeAlias
 # import local files
 from ogd.common.schemas.Schema import Schema
-from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.utils.Logger import Logger
 
 class ColumnMapSchema(Schema):
     ColumnMapIndex : TypeAlias = Optional[int | List[int] | Dict[str,int]]
+
+    _DEFAULT_MAP = {}
+    _DEFAULT_COLUMN_NAMES = []
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -177,6 +179,15 @@ class ColumnMapSchema(Schema):
         _leftovers = { key : val for key,val in all_elements.items() if key not in _map.keys() }
 
         return ColumnMapSchema(name=name, map=_map, column_names=column_names, other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "ColumnMapSchema":
+        return ColumnMapSchema(
+            name="DefaultColumnMapSchema",
+            map=cls._DEFAULT_MAP,
+            column_names=cls._DEFAULT_COLUMN_NAMES,
+            other_elements={}
+        )
 
     # *** PUBLIC STATICS ***
 

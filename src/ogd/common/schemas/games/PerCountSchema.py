@@ -7,6 +7,9 @@ from ogd.common.utils.Logger import Logger
 
 class PerCountSchema(FeatureSchema):
 
+    _DEFAULT_COUNT = 1
+    _DEFAULT_PREFIX = "pre"
+
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, count:int|str, prefix:str, other_elements:Dict[str, Any]):
@@ -47,17 +50,26 @@ class PerCountSchema(FeatureSchema):
         _count = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["count"],
             parser_function=cls._parseCount,
-            default_value=0
+            default_value=cls._DEFAULT_COUNT
         )
         _prefix = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["prefix"],
             parser_function=cls._parsePrefix,
-            default_value="pre"
+            default_value=cls._DEFAULT_PREFIX
         )
 
         _used = {"count", "prefix"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         return PerCountSchema(name=name, count=_count, prefix=_prefix, other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "PerCountSchema":
+        return PerCountSchema(
+            name="DefaultPerCountSchema",
+            count=cls._DEFAULT_COUNT,
+            prefix=cls._DEFAULT_PREFIX,
+            other_elements={}
+        )
 
     # *** PUBLIC STATICS ***
 

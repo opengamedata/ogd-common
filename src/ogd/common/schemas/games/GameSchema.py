@@ -59,6 +59,8 @@ class GameSchema(Schema):
         all features to be extracted.
 
         TODO: need to get game_state from schema file, and use a GameStateSchema instead of general Map.
+        TODO: Use DetectorMapSchema and FeatureMapSchema instead of just dicts... I think. Depending how these all work together.
+        TODO : make parser functions for config and versions, so we can do ElementFromDict for them as well.
 
         :param name: _description_
         :type name: str
@@ -348,7 +350,6 @@ class GameSchema(Schema):
             parser_function=cls._parseDetectorMap,
             default_value=cls._DEFAULT_DETECTOR_MAP
         )
-        # TODO : Just have DetectorMapSchema directly
         _detector_map = _detector_map.AsDict
 
     # 4. Get feature information
@@ -357,14 +358,12 @@ class GameSchema(Schema):
             parser_function=cls._parseFeatureMap,
             default_value={}
         )
-        # TODO : Just have the FeatureMapSchema directly, not 4 different things.
         _aggregate_feats.update(_feat_map.AggregateFeatures)
         _percount_feats.update(_feat_map.PerCountFeatures)
         _legacy_perlevel_feats.update(_feat_map.LegacyPerLevelFeatures)
         _legacy_mode = _feat_map.LegacyMode
 
     # 5. Get config, if any
-    # TODO : make parser functions for config and versions, so we can do ElementFromDict for them as well.
         if "config" in all_elements.keys():
             _config = all_elements['config']
         else:
@@ -394,6 +393,28 @@ class GameSchema(Schema):
                           config=_config, min_level=_min_level, max_level=_max_level,
                           other_ranges=_other_ranges, supported_vers=_supported_vers,
                           other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "GameSchema":
+        return GameSchema(
+            name="DefaultGameSchema",
+            game_id="DEFAULT_GAME",
+            enum_defs=cls._DEFAULT_ENUMS,
+            game_state=cls._DEFAULT_GAME_STATE,
+            user_data=cls._DEFAULT_USER_DATA,
+            event_list=cls._DEFAULT_EVENT_LIST,
+            detector_map=cls._DEFAULT_DETECTOR_MAP,
+            aggregate_feats=cls._DEFAULT_AGGREGATES,
+            percount_feats=cls._DEFAULT_PERCOUNTS,
+            legacy_perlevel_feats=cls._DEFAULT_LEGACY_PERCOUNTS,
+            use_legacy_mode=cls._DEFAULT_LEGACY_MODE,
+            config=cls._DEFAULT_CONFIG,
+            min_level=cls._DEFAULT_MIN_LEVEL,
+            max_level=cls._DEFAULT_MAX_LEVEL,
+            other_ranges=cls._DEFAULT_OTHER_RANGES,
+            supported_vers=cls._DEFAULT_VERSIONS,
+            other_elements={}
+        )
 
     # *** PUBLIC STATICS ***
 

@@ -7,6 +7,9 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class FileIndexingSchema(Schema):
+    _DEFAULT_LOCAL_DIR  = Path("./data/")
+    _DEFAULT_REMOTE_URL = "https://fieldday-web.ad.education.wisc.edu/opengamedata/"
+    _DEFAULT_TEMPLATE_URL  = "https://github.com/opengamedata/opengamedata-samples"
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -31,6 +34,16 @@ class FileIndexingSchema(Schema):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @classmethod
+    def Default(cls) -> "FileIndexingSchema":
+        return FileIndexingSchema(
+            name            = "DefaultFileIndexingSchema",
+            local_dir       = cls._DEFAULT_LOCAL_DIR,
+            remote_url      = cls._DEFAULT_REMOTE_URL,
+            templates_url   = cls._DEFAULT_TEMPLATE_URL,
+            other_elements  = {}
+        )
+
+    @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileIndexingSchema":
         _local_dir     : Path
         _remote_url    : Optional[str]
@@ -46,17 +59,17 @@ class FileIndexingSchema(Schema):
         _local_dir = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["LOCAL_DIR"],
             parser_function=cls._parseLocalDir,
-            default_value=Path("./data/")
+            default_value=FileIndexingSchema._DEFAULT_LOCAL_DIR
         )
         _remote_url = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["REMOTE_URL"],
             parser_function=cls._parseRemoteURL,
-            default_value=None
+            default_value=FileIndexingSchema._DEFAULT_REMOTE_URL
         )
         _templates_url = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["TEMPLATES_URL"],
             parser_function=cls._parseTemplatesURL,
-            default_value="https://github.com/opengamedata/opengamedata-samples"
+            default_value=FileIndexingSchema._DEFAULT_TEMPLATE_URL
         )
 
         _used = {"LOCAL_DIR", "REMOTE_URL", "TEMPLATES_URL"}

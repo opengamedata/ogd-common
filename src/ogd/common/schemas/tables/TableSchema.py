@@ -25,10 +25,11 @@ from ogd.common.utils.typing import Map
 #  of the database columns, the max and min levels in the game, and a list of
 #  IDs for the game sessions in the given requested date range.
 class TableSchema(Schema):
+    _DEFAULT_COLUMNS = []
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name, column_map:ColumnMapSchema, columns:List[ColumnSchema]):
+    def __init__(self, name, column_map:ColumnMapSchema, columns:List[ColumnSchema], other_elements:Optional[Dict[str,Any]]=None):
         """Constructor for the TableSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
@@ -47,7 +48,7 @@ class TableSchema(Schema):
         self._columns           : List[ColumnSchema] = columns
 
         # after loading the file, take the stuff we need and store.
-        super().__init__(name=name, other_elements={})
+        super().__init__(name=name, other_elements=other_elements)
 
     @property
     def ColumnNames(self) -> List[str]:
@@ -218,6 +219,14 @@ class TableSchema(Schema):
         _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), all_elements=column) for column in _column_json_list]
         _column_map       = ColumnMapSchema.FromDict(name="Column Map", all_elements=all_elements.get('column_map', {}), column_names=[col.Name for col in _column_schemas])
         return TableSchema(name=name, column_map=_column_map, columns=_column_schemas)
+
+    @classmethod
+    def Default(cls) -> "TableSchema":
+        return TableSchema(
+            name="DefaultTableSchema",
+            column_map=ColumnMapSchema.Default(),
+            columns=cls._DEFAULT_COLUMNS
+        )
 
     # *** PUBLIC STATICS ***
 
@@ -410,12 +419,23 @@ class TableSchema(Schema):
 
     @staticmethod
     def _convertDateTime(time_str:str) -> datetime:
+        """_summary_
+
+        TODO : Make use of formats options
+
+        :param time_str: _description_
+        :type time_str: str
+        :raises ValueError: _description_
+        :raises err: _description_
+        :return: _description_
+        :rtype: datetime
+        """
         ret_val : datetime
 
         if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
             raise ValueError(f"Got a non-timestamp value of {time_str} when converting a datetime column of an Event!")
 
-        formats = ["%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S.%f"]
+        # formats = ["%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S.%f"]
 
         # for fmt in formats:
         try:
@@ -430,6 +450,16 @@ class TableSchema(Schema):
 
     @staticmethod
     def _convertTimedelta(time_str:str) -> Optional[timedelta]:
+        """_summary_
+
+        TODO : Sort out/document why we do nothing with ValueError and IndexError
+
+        :param time_str: _description_
+        :type time_str: str
+        :raises ValueError: _description_
+        :return: _description_
+        :rtype: Optional[timedelta]
+        """
         ret_val : Optional[timedelta]
 
         if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
@@ -459,6 +489,16 @@ class TableSchema(Schema):
 
     @staticmethod
     def _convertTimezone(time_str:str) -> Optional[timezone]:
+        """_summary_
+
+        TODO : Sort out/document why we do nothing with ValueError
+
+        :param time_str: _description_
+        :type time_str: str
+        :raises ValueError: _description_
+        :return: _description_
+        :rtype: Optional[timezone]
+        """
         ret_val : Optional[timezone]
 
         if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":

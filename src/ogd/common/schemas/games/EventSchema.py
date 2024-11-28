@@ -7,6 +7,8 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class EventSchema(Schema):
+    _DEFAULT_DESCRIPTION = "Default event schema object. Does not relate to any actual data."
+    _DEFAULT_EVENT_DATA = {}
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -72,20 +74,29 @@ class EventSchema(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For {name} Event config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _description = EventSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _description = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["description"],
-            parser_function=EventSchema._parseDescription,
-            default_value="No description available"
+            parser_function=cls._parseDescription,
+            default_value=cls._DEFAULT_DESCRIPTION
         )
-        _event_data = EventSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _event_data = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["event_data"],
-            parser_function=EventSchema._parseEventDataElements,
-            default_value={}
+            parser_function=cls._parseEventDataElements,
+            default_value=cls._DEFAULT_EVENT_DATA
         )
 
         _used = {"description", "event_data"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         return EventSchema(name=name, description=_description, event_data=_event_data, other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "EventSchema":
+        return EventSchema(
+            name="DefaultEventSchema",
+            description=cls._DEFAULT_DESCRIPTION,
+            event_data=cls._DEFAULT_EVENT_DATA,
+            other_elements={}
+        )
 
     # *** PUBLIC STATICS ***
 
