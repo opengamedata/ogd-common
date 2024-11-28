@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 # import local files
 from ogd.common.schemas.storage.DataSourceSchema import DataSourceSchema
 from ogd.common.schemas.Schema import Schema
+from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils.Logger import Logger
 
 class GameSourceSchema(Schema):
@@ -31,12 +32,13 @@ class GameSourceSchema(Schema):
                  source_name:str, source_schema:Optional[DataSourceSchema],
                  db_name:str,     table_name:str,  table_schema:str,
                  other_elements:Dict[str, Any]):
-        self._game_id       : str
-        self._source_name   : str                        = source_name
-        self._source_schema : Optional[DataSourceSchema] = source_schema
-        self._db_name       : str                        = db_name
-        self._table_name    : str                        = table_name
-        self._table_schema  : str                        = table_schema
+        self._game_id           : str
+        self._source_name       : str                        = source_name
+        self._source_schema     : Optional[DataSourceSchema] = source_schema
+        self._db_name           : str                        = db_name
+        self._table_name        : str                        = table_name
+        self._table_schema_name : str                        = table_schema
+        self._table_schema      : TableSchema = TableSchema.FromFile(schema_name=self._table_schema_name)
 
         if game_id is not None:
             self._game_id = game_id
@@ -66,8 +68,8 @@ class GameSourceSchema(Schema):
         return self._table_name
 
     @property
-    def TableSchema(self) -> str:
-        return self._table_schema
+    def TableSchemaName(self) -> str:
+        return self._table_schema_name
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -75,7 +77,7 @@ class GameSourceSchema(Schema):
     def AsMarkdown(self) -> str:
         ret_val : str
 
-        ret_val = f"{self.Name}: _{self.TableSchema}_ format, source {self.Source.Name if self.Source else 'None'} : {self.DatabaseName}.{self.TableName}"
+        ret_val = f"{self.Name}: _{self.TableSchemaName}_ format, source {self.Source.Name if self.Source else 'None'} : {self.DatabaseName}.{self.TableName}"
         return ret_val
 
     @classmethod

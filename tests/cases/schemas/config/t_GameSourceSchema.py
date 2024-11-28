@@ -73,7 +73,7 @@ class t_GameSourceSchema(TestCase):
         self.assertEqual(_str, "aqualab_daily")
 
     def test_TableSchema(self):
-        _str = self.test_schema.TableSchema
+        _str = self.test_schema.TableSchemaName
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "OPENGAMEDATA_BIGQUERY")
 
@@ -118,8 +118,8 @@ class t_GameSourceSchema(TestCase):
         self.assertEqual(_schema.DatabaseName, "aqualab")
         self.assertIsInstance(_schema.TableName, str)
         self.assertEqual(_schema.TableName, "aqualab_daily")
-        self.assertIsInstance(_schema.TableSchema, str)
-        self.assertEqual(_schema.TableSchema, "OPENGAMEDATA_BIGQUERY")
+        self.assertIsInstance(_schema.TableSchemaName, str)
+        self.assertEqual(_schema.TableSchemaName, "OPENGAMEDATA_BIGQUERY")
 
     @unittest.skip("Not yet implemented")
     def test_parseSource(self):
