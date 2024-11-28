@@ -12,6 +12,9 @@ class DatasetKey:
 
     # *** BUILT-INS & PROPERTIES ***
 
+    _DEFAULT_KEY = "UNKNOWN"
+    _DEFAULT_GAME_ID = "UNKOWN_GAME"
+
     """Simple little class to make logic with dataset keys easier
     """
     def __init__(self, key:str, game_id:str):
@@ -63,6 +66,14 @@ class DatasetKey:
 
     # *** PUBLIC STATICS ***
 
+    @classmethod
+    def Default(cls) -> "DatasetKey":
+        return DatasetKey(
+            key=cls._DEFAULT_KEY,
+            game_id=cls._DEFAULT_GAME_ID
+        )
+
+
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
@@ -70,6 +81,22 @@ class DatasetKey:
     # *** PRIVATE METHODS ***
 
 class DatasetSchema(Schema):
+    _DEFAULT_DATE_MODIFIED = "UNKNOWN DATE"
+    _DEFAULT_START_DATE = "UNKNOWN DATE"
+    _DEFAULT_END_DATE = "UNKNOWN DATE"
+    _DEFAULT_OGD_REVISION = "UNKNOWN REVISION"
+    _DEFAULT_SESSION_COUNT = None
+    _DEFAULT_PLAYER_COUNT = None
+    _DEFAULT_RAW_FILE = None
+    _DEFAULT_EVENTS_FILE = None
+    _DEFAULT_EVENTS_TEMPLATE = None
+    _DEFAULT_SESSIONS_FILE = None
+    _DEFAULT_SESSIONS_TEMPLATE = None
+    _DEFAULT_PLAYERS_FILE = None
+    _DEFAULT_PLAYERS_TEMPLATE = None
+    _DEFAULT_POPULATION_FILE = None
+    _DEFAULT_POPULATION_TEMPLATE = None
+
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,           key:DatasetKey,
@@ -246,79 +273,79 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         _date_modified = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["date_modified"],
             parser_function=cls._parseDateModified,
-            default_value="UNKNOWN_DATE"
+            default_value=DatasetSchema._DEFAULT_DATE_MODIFIED
         )
         _start_date = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["start_date"],
             parser_function=cls._parseStartDate,
-            default_value="UNKNOWN_DATE"
+            default_value=DatasetSchema._DEFAULT_START_DATE
         )
         _end_date = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["end_date"],
             parser_function=cls._parseEndDate,
-            default_value="UNKNOWN_DATE"
+            default_value=DatasetSchema._DEFAULT_END_DATE
         )
     # 2. Parse metadata
         _ogd_revision = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["ogd_revision"],
             parser_function=cls._parseOGDRevision,
-            default_value="UNKNOWN_DATE"
+            default_value=DatasetSchema._DEFAULT_OGD_REVISION
         )
         _session_ct = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["sessions"],
             parser_function=cls._parseSessionCount,
-            default_value=None
+            default_value=DatasetSchema._DEFAULT_SESSION_COUNT
         )
         _player_ct = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["players"],
             parser_function=cls._parsePlayerCount,
-            default_value=None
+            default_value=DatasetSchema._DEFAULT_PLAYER_COUNT
         )
     # 3. Parse file/template paths
         _raw_file = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["raw_file"],
             parser_function=cls._parseRawFile,
-            default_value=None
+            default_value=DatasetSchema._DEFAULT_RAW_FILE
         )
         _events_file = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["events_file"],
             parser_function=cls._parseEventsFile,
-            default_value=None
+            default_value=DatasetSchema._DEFAULT_EVENTS_FILE
         )
         _events_template = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["events_template"],
             parser_function=cls._parseEventsTemplate,
-            default_value=None
+            default_value=DatasetSchema._DEFAULT_EVENTS_TEMPLATE
         )
         _sessions_file = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["sessions_file"],
             parser_function=cls._parseSessionsFile,
-            default_value=None
+            default_value=DatasetSchema._DEFAULT_SESSIONS_FILE
         )
         _sessions_template = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["sessions_template"],
             parser_function=cls._parseSessionsTemplate,
-            default_value=None
+            default_value=DatasetSchema._DEFAULT_SESSIONS_TEMPLATE
         )
         _players_file = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["players_file"],
             parser_function=cls._parsePlayersFile,
-            default_value=None
+            default_value=DatasetSchema._DEFAULT_PLAYERS_FILE
         )
         _players_template = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["players_template"],
             parser_function=cls._parsePlayersTemplate,
-            default_value=None
+            default_value=DatasetSchema._DEFAULT_PLAYERS_TEMPLATE
         )
         _population_file = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["population_file"],
             parser_function=cls._parsePopulationFile,
-            default_value=None
+            default_value=DatasetSchema._DEFAULT_POPULATION_FILE
         )
         _population_template = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["population_template"],
             parser_function=cls._parsePopulationTemplate,
-            default_value=None
+            default_value=DatasetSchema._DEFAULT_POPULATION_FILE
         )
 
         _used = {"date_modified", "start_date", "end_date", "ogd_revision", "sessions", "players",
@@ -335,6 +362,29 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
                              players_file=_players_file,       players_template=_players_template,
                              population_file=_population_file, population_template=_population_template,
                              other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "DatasetSchema":
+        return DatasetSchema(
+            name="DefaultDatasetSchema",
+            key=DatasetKey.Default(),
+            date_modified=cls._DEFAULT_DATE_MODIFIED,
+            start_date=cls._DEFAULT_START_DATE,
+            end_date=cls._DEFAULT_END_DATE,
+            ogd_revision=cls._DEFAULT_OGD_REVISION,
+            session_ct=cls._DEFAULT_SESSION_COUNT,
+            player_ct=cls._DEFAULT_PLAYER_COUNT,
+            raw_file=cls._DEFAULT_RAW_FILE,
+            events_file=cls._DEFAULT_EVENTS_FILE,
+            events_template=cls._DEFAULT_EVENTS_TEMPLATE,
+            sessions_file=cls._DEFAULT_SESSIONS_FILE,
+            sessions_template=cls._DEFAULT_SESSIONS_TEMPLATE,
+            players_file=cls._DEFAULT_PLAYERS_FILE,
+            players_template=cls._DEFAULT_PLAYERS_TEMPLATE,
+            population_file=cls._DEFAULT_POPULATION_FILE,
+            population_template=cls._DEFAULT_POPULATION_TEMPLATE,
+            other_elements={}
+        )
 
     # *** PUBLIC STATICS ***
 

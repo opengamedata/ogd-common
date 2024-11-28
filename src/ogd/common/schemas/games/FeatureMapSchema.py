@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 # import local files
 from ogd.common.schemas.games.AggregateSchema import AggregateSchema
 from ogd.common.schemas.games.PerCountSchema import PerCountSchema
@@ -11,6 +11,11 @@ class FeatureMapSchema(Schema):
     """
     Dumb struct to contain the specification and config of a set of features for a game.
     """
+
+    _DEFAULT_LEGACY_MODE = False
+    _DEFAULT_LEGACY_FEATS = {}
+    _DEFAULT_PERCOUNT_FEATS = {}
+    _DEFAULT_AGGREGATE_FEATS = {}
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -61,25 +66,25 @@ class FeatureMapSchema(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For FeatureMap config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _legacy_mode = FeatureMapSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _legacy_mode = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["legacy"],
-            parser_function=FeatureMapSchema._parseLegacyMode,
-            default_value=False
+            parser_function=cls._parseLegacyMode,
+            default_value=cls._DEFAULT_LEGACY_MODE
         )
-        _legacy_perlevel_feats = FeatureMapSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _legacy_perlevel_feats = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["perlevel", "per_level"],
-            parser_function=FeatureMapSchema._parsePerLevelFeatures,
-            default_value={}
+            parser_function=cls._parsePerLevelFeatures,
+            default_value=cls._DEFAULT_LEGACY_FEATS
         )
-        _percount_feats = FeatureMapSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _percount_feats = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["per_count", "percount"],
-            parser_function=FeatureMapSchema._parsePerCountFeatures,
-            default_value={}
+            parser_function=cls._parsePerCountFeatures,
+            default_value=cls._DEFAULT_PERCOUNT_FEATS
         )
-        _aggregate_feats = FeatureMapSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _aggregate_feats = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["aggregate"],
-            parser_function=FeatureMapSchema._parseAggregateFeatures,
-            default_value={}
+            parser_function=cls._parseAggregateFeatures,
+            default_value=cls._DEFAULT_AGGREGATE_FEATS
         )
 
         _used = {"legacy", "perlevel", "per_count", "aggregate"}
@@ -87,6 +92,17 @@ class FeatureMapSchema(Schema):
         return FeatureMapSchema(name=name, legacy_mode=_legacy_mode, legacy_perlevel_feats=_legacy_perlevel_feats,
                                 percount_feats=_percount_feats, aggregate_feats=_aggregate_feats,
                                 other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "FeatureMapSchema":
+        return FeatureMapSchema(
+            name="DefaultFeatureMapSchema",
+            legacy_mode=cls._DEFAULT_LEGACY_MODE,
+            legacy_perlevel_feats=cls._DEFAULT_LEGACY_FEATS,
+            percount_feats=cls._DEFAULT_PERCOUNT_FEATS,
+            aggregate_feats=cls._DEFAULT_AGGREGATE_FEATS,
+            other_elements={}
+        )
 
     # @property
     # def AsMarkdownRow(self) -> str:
@@ -102,7 +118,7 @@ class FeatureMapSchema(Schema):
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
-    
+
     @staticmethod
     def _parseLegacyMode(legacy_element) -> bool:
         ret_val : bool
@@ -112,7 +128,7 @@ class FeatureMapSchema(Schema):
             ret_val = bool(legacy_element)
             Logger.Log(f"LegacyMode element was not a dict, defaulting to bool(legacy_element) == {ret_val}", logging.WARN)
         return ret_val
-    
+
     @staticmethod
     def _parsePerLevelFeatures(perlevels) -> Dict[str, PerCountSchema]:
         ret_val : Dict[str, PerCountSchema]
@@ -120,9 +136,9 @@ class FeatureMapSchema(Schema):
             ret_val = { key : PerCountSchema.FromDict(name=key, all_elements=val) for key,val in perlevels.items() }
         else:
             ret_val = {}
-            Logger.Log(f"Per-level features map was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log("Per-level features map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
-    
+
     @staticmethod
     def _parsePerCountFeatures(percounts) -> Dict[str, PerCountSchema]:
         ret_val : Dict[str, PerCountSchema]
@@ -130,9 +146,9 @@ class FeatureMapSchema(Schema):
             ret_val = { key : PerCountSchema.FromDict(name=key, all_elements=val) for key,val in percounts.items() }
         else:
             ret_val = {}
-            Logger.Log(f"Per-count features map was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log("Per-count features map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
-    
+
     @staticmethod
     def _parseAggregateFeatures(aggregates) -> Dict[str, AggregateSchema]:
         ret_val : Dict[str, AggregateSchema]
@@ -140,7 +156,7 @@ class FeatureMapSchema(Schema):
             ret_val = {key : AggregateSchema(name=key, all_elements=val) for key,val in aggregates.items()}
         else:
             ret_val = {}
-            Logger.Log(f"Per-count features map was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log("Per-count features map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
 
     # *** PRIVATE METHODS ***

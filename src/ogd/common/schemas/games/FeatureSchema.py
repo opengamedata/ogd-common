@@ -1,5 +1,4 @@
 # import standard libraries
-import abc
 import logging
 from typing import Any, Dict, Optional
 # import local files
@@ -8,6 +7,11 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class SubfeatureSchema(Schema):
+    _DEFAULT_RETURN_TYPE = "str"
+    _DEFAULT_DESCRIPTION = "Default Subfeature schema object. Does not correspond to any actual data."
+
+    # *** BUILT-INS & PROPERTIES ***
+
     def __init__(self, name:str, return_type:str, description:str, other_elements:Dict[str, str]):
         self._return_type : str = return_type
         self._description : str = description
@@ -22,6 +26,8 @@ class SubfeatureSchema(Schema):
     def Description(self) -> str:
         return self._description
 
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
     @property
     def AsMarkdown(self) -> str:
         ret_val : str = f"- **{self.Name}** : *{self.ReturnType}*, {self.Description}  \n"
@@ -30,7 +36,7 @@ class SubfeatureSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileIndexingSchema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "SubfeatureSchema":
         _return_type : str
         _description : str    
 
@@ -38,20 +44,35 @@ class SubfeatureSchema(Schema):
             _elements = {}
             Logger.Log(f"For {name} subfeature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
 
-        _return_type = SubfeatureSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _return_type = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["return_type"],
-            parser_function=SubfeatureSchema._parseReturnType,
-            default_value="UNKNOWN"
+            parser_function=cls._parseReturnType,
+            default_value=cls._DEFAULT_RETURN_TYPE
         )
-        _description = SubfeatureSchema.ElementFromDict(all_elements=all_elements, logger=logger,
+        _description = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["description"],
-            parser_function=SubfeatureSchema._parseDescription,
-            default_value="No description"
+            parser_function=cls._parseDescription,
+            default_value=cls._DEFAULT_DESCRIPTION
         )
-        
+
         _used = {"return_type", "description"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         return SubfeatureSchema(name=name, return_type=_return_type, description=_description, other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "SubfeatureSchema":
+        return SubfeatureSchema(
+            name="DefaultSubfeatureSchema",
+            return_type=cls._DEFAULT_RETURN_TYPE,
+            description=cls._DEFAULT_DESCRIPTION,
+            other_elements={}
+        )
+
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
 
     @staticmethod
     def _parseReturnType(return_type):
@@ -72,6 +93,8 @@ class SubfeatureSchema(Schema):
             ret_val = str(description)
             Logger.Log(f"Extractor description was not a string, defaulting to str(description) == {ret_val}", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***
 
 class FeatureSchema(GeneratorSchema):
     """Base class for all schemas related to defining feature Extractor configurations.

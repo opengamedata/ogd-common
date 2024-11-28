@@ -227,6 +227,16 @@ class FeatureTableSchema(TableSchema):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @classmethod
+    def Default(cls) -> "FeatureTableSchema":
+        return FeatureTableSchema(
+            name="DefaultFeatureTableSchema",
+            table_type=TableType.EVENT,
+            column_map={},
+            columns=cls._DEFAULT_COLUMNS,
+            other_elements={}
+        )
+
+    @classmethod
     def _fromDict(cls, name:str, table_type:TableType, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableSchema":
         _column_map : Dict[str, ColumnMapIndex] = {
             "session_id"           : None,

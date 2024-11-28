@@ -29,6 +29,8 @@ class TableSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    _DEFAULT_COLUMNS = []
+
     def __init__(self, name, table_type:TableType, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema], other_elements:Optional[Map]):
         """Constructor for the TableSchema class.
         Given a database connection and a game data request,

@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
@@ -9,6 +9,10 @@ class DataElementSchema(Schema):
     """
     Dumb struct to contain a specification of a data element from the EventData, GameState, or UserData attributes of an Event.
     """
+
+    _DEFAULT_TYPE = "str"
+    _DEFAULT_DESCRIPTION = "Default data element generated the DataElementSchema class. Does not represent actual data."
+    _DEFAULT_DETAILS = None
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -67,22 +71,32 @@ class DataElementSchema(Schema):
         _type = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["type"],
             parser_function=cls._parseElementType,
-            default_value="UNKNOWN"
+            default_value=cls._DEFAULT_TYPE
         )
         _description = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["description"],
             parser_function=cls._parseDescription,
-            default_value="UNKNOWN"
+            default_value=cls._DEFAULT_DESCRIPTION
         )
         _details = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["details"],
             parser_function=cls._parseDetails,
-            default_value=None
+            default_value=cls._DEFAULT_DETAILS
         )
 
         _used = {"type", "description", "details"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         return DataElementSchema(name=name, element_type=_type, description=_description, details=_details, other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "DataElementSchema":
+        return DataElementSchema(
+            name="DefaultDataElementSchema",
+            element_type=cls._DEFAULT_TYPE,
+            description=cls._DEFAULT_DESCRIPTION,
+            details=cls._DEFAULT_DETAILS,
+            other_elements={}
+        )
 
     # *** PUBLIC STATICS ***
 
@@ -109,7 +123,7 @@ class DataElementSchema(Schema):
             ret_val = str(description)
             Logger.Log(f"EventDataElement description was not a string, defaulting to str(description) == {ret_val}", logging.WARN)
         return ret_val
-    
+
     @staticmethod
     def _parseDetails(details):
         ret_val : Dict[str, str] = {}
@@ -131,7 +145,7 @@ class DataElementSchema(Schema):
                         Logger.Log(f"EventDataElement detail value for key {_key} was unexpected type {type(val)}, defaulting to str(val) == {ret_val[_key]}", logging.WARN)
         else:
             ret_val = {}
-            Logger.Log(f"EventDataElement details was not a dict, defaulting to empty dict.", logging.WARN)
+            Logger.Log("EventDataElement details was not a dict, defaulting to empty dict.", logging.WARN)
         return ret_val
 
     # *** PRIVATE METHODS ***

@@ -7,6 +7,8 @@ from ogd.common.schemas.storage.DataSourceSchema import DataSourceSchema
 from ogd.common.utils.Logger import Logger
 
 class FileSourceSchema(DataSourceSchema):
+    _DEFAULT_FOLDER_PATH = Path('./data')
+    _DEFAULT_FILE_NAME = "UNKNOWN.tsv"
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -49,7 +51,7 @@ class FileSourceSchema(DataSourceSchema):
     @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileSourceSchema":
         _folder_path : Path
-        _file_name   : Optional[str]
+        _file_name   : str
 
         if not isinstance(all_elements, dict):
             all_elements = {}
@@ -61,17 +63,26 @@ class FileSourceSchema(DataSourceSchema):
         _folder_path = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["PATH"],
             parser_function=cls._parseFolder,
-            default_value=Path("./data/")
+            default_value=FileSourceSchema._DEFAULT_FOLDER_PATH
         )
         _file_name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["FILENAME"],
             parser_function=cls._parseFilename,
-            default_value="UNKNOWN.tsv"
+            default_value=FileSourceSchema._DEFAULT_FILE_NAME
         )
 
         _used = {"PATH", "FILENAME"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         return FileSourceSchema(name=name, folder_path=_folder_path, file_name=_file_name, other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "FileSourceSchema":
+        return FileSourceSchema(
+            name="DefaultFileSourceSchema",
+            folder_path=cls._DEFAULT_FOLDER_PATH,
+            file_name=cls._DEFAULT_FILE_NAME,
+            other_elements={}
+        )
 
     # *** PUBLIC STATICS ***
 

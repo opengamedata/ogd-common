@@ -1,12 +1,15 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 # import local files
 from ogd.common.schemas.games.DetectorSchema import DetectorSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class DetectorMapSchema(Schema):
+    _DEFAULT_PERLEVEL_DETECTORS  = {}
+    _DEFAULT_PERCOUNT_DETECTORS  = {}
+    _DEFAULT_AGGREGATE_DETECTORS = {}
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -66,17 +69,17 @@ class DetectorMapSchema(Schema):
         _perlevel_detectors = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["perlevel", "per_level"],
             parser_function=cls._parsePerLevelDetectors,
-            default_value={}
+            default_value=cls._DEFAULT_PERLEVEL_DETECTORS
         )
         _percount_detectors = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["per_count", "percount"],
             parser_function=cls._parsePerCountDetectors,
-            default_value={}
+            default_value=cls._DEFAULT_PERCOUNT_DETECTORS
         )
         _aggregate_detectors = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["aggregate"],
             parser_function=cls._parseAggregateDetectors,
-            default_value={}
+            default_value=cls._DEFAULT_AGGREGATE_DETECTORS
         )
 
         _used = {"perlevel", "per_level", "per_count", "percount", "aggregate"}
@@ -84,6 +87,16 @@ class DetectorMapSchema(Schema):
         return DetectorMapSchema(name=name, perlevel_detectors=_perlevel_detectors,
                                  percount_detectors=_percount_detectors, aggregate_detectors=_aggregate_detectors,
                                  other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "DetectorMapSchema":
+        return DetectorMapSchema(
+            name="DefaultDetectorMapSchema",
+            perlevel_detectors=cls._DEFAULT_PERLEVEL_DETECTORS,
+            percount_detectors=cls._DEFAULT_PERCOUNT_DETECTORS,
+            aggregate_detectors=cls._DEFAULT_AGGREGATE_DETECTORS,
+            other_elements={}
+        )
 
     # @property
     # def AsMarkdownRow(self) -> str:
@@ -99,7 +112,7 @@ class DetectorMapSchema(Schema):
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
-    
+
     @staticmethod
     def _parsePerLevelDetectors(perlevels) -> Dict[str, DetectorSchema]:
         ret_val : Dict[str, DetectorSchema]
@@ -107,9 +120,9 @@ class DetectorMapSchema(Schema):
             ret_val = { key : DetectorSchema(name=key, all_elements=val) for key,val in perlevels.items() }
         else:
             ret_val = {}
-            Logger.Log(f"Per-level detectors map was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log("Per-level detectors map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
-    
+
     @staticmethod
     def _parsePerCountDetectors(percounts) -> Dict[str, DetectorSchema]:
         ret_val : Dict[str, DetectorSchema]
@@ -117,9 +130,9 @@ class DetectorMapSchema(Schema):
             ret_val = { key : DetectorSchema(name=key, all_elements=val) for key,val in percounts.items() }
         else:
             ret_val = {}
-            Logger.Log(f"Per-count detectors map was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log("Per-count detectors map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
-    
+
     @staticmethod
     def _parseAggregateDetectors(aggregates) -> Dict[str, DetectorSchema]:
         ret_val : Dict[str, DetectorSchema]
@@ -127,7 +140,7 @@ class DetectorMapSchema(Schema):
             ret_val = {key : DetectorSchema(name=key, all_elements=val) for key,val in aggregates.items()}
         else:
             ret_val = {}
-            Logger.Log(f"Per-count detectors map was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log("Per-count detectors map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
 
     # *** PRIVATE METHODS ***

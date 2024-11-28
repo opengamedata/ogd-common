@@ -2,12 +2,18 @@
 import logging
 from typing import Any, Dict, Optional
 # import local files
-from ogd.common.schemas.storage.DataSourceSchema import DataSourceSchema
+from ogd.common.schemas.configs.data_sources.DataSourceSchema import DataSourceSchema
+from ogd.common.schemas.configs.data_sources.BigQuerySourceSchema import BigQuerySchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils.Logger import Logger
 
 class GameSourceSchema(Schema):
+
+    _DEFAULT_SOURCE_NAME   = "OPENGAMEDATA_BQ"
+    _DEFAULT_DB_NAME       = "UNKNOWN GAME"
+    _DEFAULT_TABLE_NAME    = "_daily"
+    _DEFAULT_TABLE_SCHEMA  = "OPENGAMEDATA_BIGQUERY"
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -81,6 +87,18 @@ class GameSourceSchema(Schema):
         return ret_val
 
     @classmethod
+    def Default(cls) -> "GameSourceSchema":
+        return GameSourceSchema(
+            name="DefaultGameSourceSchema",
+            source_name=cls._DEFAULT_SOURCE_NAME,
+            source_schema=BigQuerySchema.Default(),
+            db_name=cls._DEFAULT_DB_NAME,
+            table_name=cls._DEFAULT_TABLE_NAME,
+            table_schema=cls._DEFAULT_TABLE_SCHEMA,
+            other_elements={}
+        )
+
+    @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger], data_sources:Dict[str, DataSourceSchema]) -> "GameSourceSchema":
         """Create a GameSourceSchema from a given dictionary
 
@@ -111,7 +129,7 @@ class GameSourceSchema(Schema):
         _source_name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["source"],
             parser_function=cls._parseSource,
-            default_value="UNKNOWN"
+            default_value=GameSourceSchema._DEFAULT_SOURCE_NAME
         )
         if _source_name in data_sources.keys():
             _source_schema = data_sources[_source_name]
@@ -127,12 +145,12 @@ class GameSourceSchema(Schema):
         _table_name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["table"],
             parser_function=cls._parseTableName,
-            default_value="UNKNOWN"
+            default_value=GameSourceSchema._DEFAULT_TABLE_NAME
         )
         _table_schema = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["schema"],
             parser_function=cls._parseTableSchemaName,
-            default_value="UNKNOWN"
+            default_value=GameSourceSchema._DEFAULT_TABLE_SCHEMA
         )
 
         _used = {"source", "database", "table", "schema"}

@@ -7,6 +7,8 @@ from ogd.common.schemas.storage.DataSourceSchema import DataSourceSchema
 from ogd.common.utils.Logger import Logger
 
 class BigQuerySchema(DataSourceSchema):
+    _DEFAULT_PROJECT_ID = "wcer-field-day-ogd-1798"
+    _DEFAULT_CREDENTIAL = "./config/ogd.json"
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -39,6 +41,15 @@ class BigQuerySchema(DataSourceSchema):
         return ret_val
 
     @classmethod
+    def Default(cls) -> "BigQuerySchema":
+        return BigQuerySchema(
+            name="DefaultBigQuerySchema",
+            project_id=cls._DEFAULT_PROJECT_ID,
+            credential=cls._DEFAULT_CREDENTIAL,
+            other_elements={}
+        )
+
+    @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "BigQuerySchema":
         _project_id : str
         _credential : Optional[str]
@@ -49,12 +60,12 @@ class BigQuerySchema(DataSourceSchema):
         _project_id = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["PROJECT_ID", "DATASET_ID"],
             parser_function=cls._parseProjectID,
-            default_value="UNKNOWN"
+            default_value=BigQuerySchema._DEFAULT_PROJECT_ID
         )
         _credential = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["PROJECT_KEY"],
             parser_function=cls._parseCredential,
-            default_value=None
+            default_value=BigQuerySchema._DEFAULT_CREDENTIAL
         )
 
         _used = {"PROJECT_ID", "DATASET_ID", "PROJECT_KEY"}

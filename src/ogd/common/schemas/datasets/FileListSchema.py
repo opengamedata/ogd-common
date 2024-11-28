@@ -61,12 +61,12 @@ class FileListConfigSchema(Schema):
         _files_base = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["files_base"],
             parser_function=cls._parseFilesBase,
-            default_value=None
+            default_value=FileListConfigSchema.DEFAULT_FILE_BASE
         )
         _templates_base = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["templates_base"],
             parser_function=cls._parseTemplatesBase,
-            default_value=None
+            default_value=FileListConfigSchema.DEFAULT_TEMPLATE_BASE
         )
         _used = {"files_base", "templates_base"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
@@ -74,12 +74,14 @@ class FileListConfigSchema(Schema):
 
     # *** PUBLIC STATICS ***
 
-    @staticmethod
-    def EmptySchema() -> "FileListConfigSchema":
-        return FileListConfigSchema(name="CONFIG NOT FOUND",
-            file_base_path=FileListConfigSchema.DEFAULT_FILE_BASE,
-            template_base_path=FileListConfigSchema.DEFAULT_TEMPLATE_BASE,
-            other_elements={})
+    @classmethod
+    def Default(cls) -> "FileListConfigSchema":
+        return FileListConfigSchema(
+            name="CONFIG NOT FOUND",
+            file_base_path=cls.DEFAULT_FILE_BASE,
+            template_base_path=cls.DEFAULT_TEMPLATE_BASE,
+            other_elements={}
+        )
 
     # *** PUBLIC METHODS ***
 
@@ -108,6 +110,7 @@ class FileListConfigSchema(Schema):
     # *** PRIVATE METHODS ***
 
 class GameDatasetCollectionSchema(Schema):
+    _DEFAULT_DATASETS = {}
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -146,9 +149,13 @@ class GameDatasetCollectionSchema(Schema):
 
     # *** PUBLIC STATICS ***
 
-    @staticmethod
-    def EmptySchema() -> "GameDatasetCollectionSchema":
-        return GameDatasetCollectionSchema(name="DATASET COLLECTION NOT FOUND", game_datasets={}, other_elements={})
+    @classmethod
+    def Default(cls) -> "GameDatasetCollectionSchema":
+        return GameDatasetCollectionSchema(
+            name="DefaultGameDatasetCollectionSchema",
+            game_datasets=cls._DEFAULT_DATASETS,
+            other_elements={}
+        )
 
     # *** PUBLIC METHODS ***
 
@@ -170,6 +177,16 @@ class GameDatasetCollectionSchema(Schema):
     # *** PRIVATE METHODS ***
 
 class FileListSchema(Schema):
+    """_summary_
+
+    TODO : The way this is structured and parsed from a dict is weird, need to see if there's a better way.
+
+    :param Schema: _description_
+    :type Schema: _type_
+    :return: _description_
+    :rtype: _type_
+    """
+    _DEFAULT_GAME_FILE_LISTS = {}
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -207,13 +224,22 @@ class FileListSchema(Schema):
         _config = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["CONFIG"],
             parser_function=cls._parseConfig,
-            default_value=FileListConfigSchema.EmptySchema()
+            default_value=FileListConfigSchema.Default()
         )
     # 2. Parse games
         _used = {"CONFIG"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         _games_file_lists = cls._parseGamesFileLists(games_dict=_leftovers)
         return FileListSchema(name=name, game_file_lists=_games_file_lists, file_list_config=_config, other_elements={})
+
+    @classmethod
+    def Default(cls) -> "FileListSchema":
+        return FileListSchema(
+            name="DefaultFileListSchema",
+            game_file_lists=cls._DEFAULT_GAME_FILE_LISTS,
+            file_list_config=FileListConfigSchema.Default(),
+            other_elements={}
+        )
 
     # *** PUBLIC STATICS ***
 
@@ -227,7 +253,7 @@ class FileListSchema(Schema):
         if isinstance(config, dict):
             ret_val = FileListConfigSchema.FromDict(name="ConfigSchema", all_elements=config)
         else:
-            ret_val = FileListConfigSchema.EmptySchema()
+            ret_val = FileListConfigSchema.Default()
             Logger.Log(f"Config was unexpected type {type(config)}, defaulting to empty ConfigSchema.", logging.WARN)
         return ret_val
 

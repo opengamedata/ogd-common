@@ -1,7 +1,7 @@
 # import standard libraries
 import abc
 import logging
-from typing import Any, Callable, Dict, List, Optional, Self
+from typing import Any, Callable, Dict, List, Optional
 # import local files
 from ogd.common.utils.Logger import Logger
 
@@ -22,6 +22,30 @@ class Schema(abc.ABC):
     @classmethod
     @abc.abstractmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "Schema":
+        """_summary_
+
+        TODO : Make classmethod, slightly simplifies how we access default values
+
+        :param name: _description_
+        :type name: str
+        :param all_elements: _description_
+        :type all_elements: Dict[str, Any]
+        :param logger: _description_, defaults to None
+        :type logger: Optional[logging.Logger], optional
+        :return: _description_
+        :rtype: Schema
+        """
+        pass
+
+    @classmethod
+    @abc.abstractmethod
+    def Default(cls) -> "Schema":
+        """Property to get an instance of the Schema with default member values.
+
+        Note that these defaults may or may not be a usable configuration.
+        :return: A schema with default member values.
+        :rtype: Self
+        """
         pass
 
     # *** BUILT-INS & PROPERTIES ***
@@ -73,6 +97,23 @@ class Schema(abc.ABC):
 
     @classmethod
     def ElementFromDict(cls, all_elements:Dict[str, Any], element_names:List[str], parser_function:Callable, default_value:Any, logger:Optional[logging.Logger]=None) -> Any:
+        """_summary_
+
+        TODO : Redo this concept in a way that we can still get type safety by directly calling parse functions in individual schema classes.
+
+        :param all_elements: _description_
+        :type all_elements: Dict[str, Any]
+        :param element_names: _description_
+        :type element_names: List[str]
+        :param parser_function: _description_
+        :type parser_function: Callable
+        :param default_value: _description_
+        :type default_value: Any
+        :param logger: _description_, defaults to None
+        :type logger: Optional[logging.Logger], optional
+        :return: _description_
+        :rtype: Any
+        """
         for name in element_names:
             if name in all_elements:
                 return parser_function(all_elements[name])
