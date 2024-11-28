@@ -50,8 +50,8 @@ class TestConfigSchema(Schema):
     def Default(cls) -> "TestConfigSchema":
         return TestConfigSchema(
             name            = "DefaultTestConfig",
-            verbose         = TestConfigSchema._DEFAULT_VERBOSE,
-            enabled_tests   = TestConfigSchema._DEFAULT_ENABLED_TESTS
+            verbose         = cls._DEFAULT_VERBOSE,
+            enabled_tests   = cls._DEFAULT_ENABLED_TESTS
         )
 
     # *** PUBLIC STATICS ***

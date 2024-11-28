@@ -76,11 +76,11 @@ class GameSourceSchema(Schema):
     def Default(cls) -> "GameSourceSchema":
         return GameSourceSchema(
             name="DefaultGameSourceSchema",
-            source_name=GameSourceSchema._DEFAULT_SOURCE_NAME,
+            source_name=cls._DEFAULT_SOURCE_NAME,
             source_schema=BigQuerySchema.Default(),
-            db_name=GameSourceSchema._DEFAULT_DB_NAME,
-            table_name=GameSourceSchema._DEFAULT_TABLE_NAME,
-            table_schema=GameSourceSchema._DEFAULT_TABLE_SCHEMA,
+            db_name=cls._DEFAULT_DB_NAME,
+            table_name=cls._DEFAULT_TABLE_NAME,
+            table_schema=cls._DEFAULT_TABLE_SCHEMA,
             other_elements={}
         )
 

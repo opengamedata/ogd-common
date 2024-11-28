@@ -37,9 +37,9 @@ class FileIndexingSchema(Schema):
     def Default(cls) -> "FileIndexingSchema":
         return FileIndexingSchema(
             name            = "DefaultFileIndexingSchema",
-            local_dir       = FileIndexingSchema._DEFAULT_LOCAL_DIR,
-            remote_url      = FileIndexingSchema._DEFAULT_REMOTE_URL,
-            templates_url   = FileIndexingSchema._DEFAULT_TEMPLATE_URL,
+            local_dir       = cls._DEFAULT_LOCAL_DIR,
+            remote_url      = cls._DEFAULT_REMOTE_URL,
+            templates_url   = cls._DEFAULT_TEMPLATE_URL,
             other_elements  = {}
         )
 

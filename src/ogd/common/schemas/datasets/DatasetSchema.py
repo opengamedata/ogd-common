@@ -69,8 +69,8 @@ class DatasetKey:
     @classmethod
     def Default(cls) -> "DatasetKey":
         return DatasetKey(
-            key=DatasetKey._DEFAULT_KEY,
-            game_id=DatasetKey._DEFAULT_GAME_ID
+            key=cls._DEFAULT_KEY,
+            game_id=cls._DEFAULT_GAME_ID
         )
 
 
@@ -368,21 +368,21 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return DatasetSchema(
             name="DefaultDatasetSchema",
             key=DatasetKey.Default(),
-            date_modified=DatasetSchema._DEFAULT_DATE_MODIFIED,
-            start_date=DatasetSchema._DEFAULT_START_DATE,
-            end_date=DatasetSchema._DEFAULT_END_DATE,
-            ogd_revision=DatasetSchema._DEFAULT_OGD_REVISION,
-            session_ct=DatasetSchema._DEFAULT_SESSION_COUNT,
-            player_ct=DatasetSchema._DEFAULT_PLAYER_COUNT,
-            raw_file=DatasetSchema._DEFAULT_RAW_FILE,
-            events_file=DatasetSchema._DEFAULT_EVENTS_FILE,
-            events_template=DatasetSchema._DEFAULT_EVENTS_TEMPLATE,
-            sessions_file=DatasetSchema._DEFAULT_SESSIONS_FILE,
-            sessions_template=DatasetSchema._DEFAULT_SESSIONS_TEMPLATE,
-            players_file=DatasetSchema._DEFAULT_PLAYERS_FILE,
-            players_template=DatasetSchema._DEFAULT_PLAYERS_TEMPLATE,
-            population_file=DatasetSchema._DEFAULT_POPULATION_FILE,
-            population_template=DatasetSchema._DEFAULT_POPULATION_TEMPLATE,
+            date_modified=cls._DEFAULT_DATE_MODIFIED,
+            start_date=cls._DEFAULT_START_DATE,
+            end_date=cls._DEFAULT_END_DATE,
+            ogd_revision=cls._DEFAULT_OGD_REVISION,
+            session_ct=cls._DEFAULT_SESSION_COUNT,
+            player_ct=cls._DEFAULT_PLAYER_COUNT,
+            raw_file=cls._DEFAULT_RAW_FILE,
+            events_file=cls._DEFAULT_EVENTS_FILE,
+            events_template=cls._DEFAULT_EVENTS_TEMPLATE,
+            sessions_file=cls._DEFAULT_SESSIONS_FILE,
+            sessions_template=cls._DEFAULT_SESSIONS_TEMPLATE,
+            players_file=cls._DEFAULT_PLAYERS_FILE,
+            players_template=cls._DEFAULT_PLAYERS_TEMPLATE,
+            population_file=cls._DEFAULT_POPULATION_FILE,
+            population_template=cls._DEFAULT_POPULATION_TEMPLATE,
             other_elements={}
         )
 

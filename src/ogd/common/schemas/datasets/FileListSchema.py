@@ -78,8 +78,8 @@ class FileListConfigSchema(Schema):
     def Default(cls) -> "FileListConfigSchema":
         return FileListConfigSchema(
             name="CONFIG NOT FOUND",
-            file_base_path=FileListConfigSchema.DEFAULT_FILE_BASE,
-            template_base_path=FileListConfigSchema.DEFAULT_TEMPLATE_BASE,
+            file_base_path=cls.DEFAULT_FILE_BASE,
+            template_base_path=cls.DEFAULT_TEMPLATE_BASE,
             other_elements={}
         )
 
