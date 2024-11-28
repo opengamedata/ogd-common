@@ -6,6 +6,7 @@ import traceback
 from datetime import datetime
 from typing import Dict, Final, List, Tuple, Optional
 # import locals
+from ogd.common.connectors.filters.collections import *
 from ogd.common.connectors.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
@@ -222,11 +223,11 @@ class MySQLInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, game_id:str, config:GameSourceSchema, fail_fast:bool):
+    def __init__(self, schema:GameSourceSchema, fail_fast:bool):
         self._tunnel    : Optional[sshtunnel.SSHTunnelForwarder] = None
         self._db        : Optional[connection.MySQLConnection] = None
         self._db_cursor : Optional[cursor.MySQLCursor] = None
-        super().__init__(game_id=game_id, config=config, fail_fast=fail_fast)
+        super().__init__(schema=schema, fail_fast=fail_fast)
         self.Open()
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -237,8 +238,8 @@ class MySQLInterface(Interface):
             self.Open(force_reopen=False)
         if not self._is_open:
             start = datetime.now()
-            if isinstance(self._config.Source, MySQLSchema):
-                self._tunnel, self._db = SQL.ConnectDB(schema=self._config)
+            if isinstance(self.GameSourceSchema.Source, MySQLSchema):
+                self._tunnel, self._db = SQL.ConnectDB(schema=self.GameSourceSchema)
                 if self._db is not None:
                     self._db_cursor = self._getCursor()
                     self._is_open = True
@@ -250,7 +251,7 @@ class MySQLInterface(Interface):
                     SQL.disconnectMySQL(tunnel=self._tunnel, db=self._db)
                     return False
             else:
-                Logger.Log(f"Unable to open MySQL interface, the schema has invalid type {type(self._config)}", logging.ERROR)
+                Logger.Log(f"Unable to open MySQL interface, the game source schema has invalid type {type(self.GameSourceSchema)}", logging.ERROR)
                 SQL.disconnectMySQL(tunnel=self._tunnel, db=self._db)
                 return False
         else:
@@ -262,12 +263,12 @@ class MySQLInterface(Interface):
         self._is_open = False
         return True
 
-    def _allIDs(self) -> List[str]:
-        if self._db_cursor is not None and isinstance(self._config.Source, MySQLSchema):
-            _db_name     : str = self._config.DatabaseName
-            _table_name  : str = self._config.TableName
+    def _availableIDs(self, mode:IDMode, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
+        if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLSchema):
+            _db_name     : str = self.GameSourceSchema.DatabaseName
+            _table_name  : str = self.GameSourceSchema.TableName
 
-            sess_id_col  : str = self._TableSchema.SessionIDColumn or "session_id"
+            sess_id_col  : str = self.GameSourceSchema.TableSchemaName.SessionIDColumn or "session_id"
 
             filters : List[str] = []
             params  : List[str] = []
@@ -286,9 +287,9 @@ class MySQLInterface(Interface):
 
     def _fullDateRange(self) -> Dict[str,datetime]:
         ret_val = {'min':datetime.now(), 'max':datetime.now()}
-        if self._db_cursor is not None and isinstance(self._config.Source, MySQLSchema):
-            _db_name     : str = self._config.DatabaseName
-            _table_name  : str = self._config.TableName
+        if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLSchema):
+            _db_name     : str = self.GameSourceSchema.DatabaseName
+            _table_name  : str = self.GameSourceSchema.TableName
 
             # prep filter strings
             filters = []
@@ -311,10 +312,10 @@ class MySQLInterface(Interface):
     def _rowsFromIDs(self, id_list:List[str], id_mode:IDMode=IDMode.SESSION, versions:Optional[List[int]]=None, exclude_rows:Optional[List[str]]=None) -> List[Tuple]:
         ret_val = []
         # grab data for the given session range. Sort by event time, so
-        if self._db_cursor is not None and isinstance(self._config.Source, MySQLSchema):
+        if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLSchema):
             # filt = f"app_id='{self._game_id}' AND (session_id  BETWEEN '{next_slice[0]}' AND '{next_slice[-1]}'){ver_filter}"
-            _db_name     : str = self._config.DatabaseName
-            _table_name  : str = self._config.TableName
+            _db_name     : str = self.GameSourceSchema.DatabaseName
+            _table_name  : str = self.GameSourceSchema.TableName
 
             sess_id_col = self._TableSchema.SessionIDColumn or 'session_id'
             play_id_col = self._TableSchema.UserIDColumn or 'player_id'
@@ -355,10 +356,10 @@ class MySQLInterface(Interface):
 
     def _IDsFromDates(self, min:datetime, max:datetime, versions:Optional[List[int]]=None) -> List[str]:
         ret_val = []
-        if self._db_cursor is not None and isinstance(self._config.Source, MySQLSchema):
+        if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLSchema):
             # alias long setting names.
-            _db_name     : str = self._config.DatabaseName
-            _table_name  : str = self._config.TableName
+            _db_name     : str = self.GameSourceSchema.DatabaseName
+            _table_name  : str = self.GameSourceSchema.TableName
 
             # prep filter strings
             filters = []
@@ -387,10 +388,10 @@ class MySQLInterface(Interface):
 
     def _datesFromIDs(self, id_list:List[str], id_mode:IDMode=IDMode.SESSION, versions:Optional[List[int]]=None) -> Dict[str, datetime]:
         ret_val = {'min':datetime.now(), 'max':datetime.now()}
-        if self._db_cursor is not None and isinstance(self._config.Source, MySQLSchema):
+        if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLSchema):
             # alias long setting names.
-            _db_name     : str = self._config.DatabaseName
-            _table_name  : str = self._config.TableName
+            _db_name     : str = self.GameSourceSchema.DatabaseName
+            _table_name  : str = self.GameSourceSchema.TableName
             
             # prep filter strings
             filters = []
