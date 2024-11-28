@@ -79,8 +79,8 @@ class FileSourceSchema(DataSourceSchema):
     def Default(cls) -> "FileSourceSchema":
         return FileSourceSchema(
             name="DefaultFileSourceSchema",
-            folder_path=FileSourceSchema._DEFAULT_FOLDER_PATH,
-            file_name=FileSourceSchema._DEFAULT_FILE_NAME,
+            folder_path=cls._DEFAULT_FOLDER_PATH,
+            file_name=cls._DEFAULT_FILE_NAME,
             other_elements={}
         )
 

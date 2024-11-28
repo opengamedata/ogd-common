@@ -96,10 +96,10 @@ class SSHSchema(Schema):
     def Default(cls) -> "SSHSchema":
         return SSHSchema(
             name="DefaultMySQLSchema",
-            ssh_host=SSHSchema._DEFAULT_HOST,
-            ssh_user=SSHSchema._DEFAULT_USER,
-            ssh_pass=SSHSchema._DEFAULT_PASS,
-            ssh_port=SSHSchema._DEFAULT_PORT,
+            ssh_host=cls._DEFAULT_HOST,
+            ssh_user=cls._DEFAULT_USER,
+            ssh_pass=cls._DEFAULT_PASS,
+            ssh_port=cls._DEFAULT_PORT,
             other_elements={}
         )
 
@@ -272,10 +272,10 @@ class MySQLSchema(DataSourceSchema):
     def Default(cls) -> "MySQLSchema":
         return MySQLSchema(
             name="DefaultMySQLSchema",
-            db_host=MySQLSchema._DEFAULT_HOST,
-            db_port=MySQLSchema._DEFAULT_PORT,
-            db_user=MySQLSchema._DEFAULT_USER,
-            db_pass=MySQLSchema._DEFAULT_PASS,
+            db_host=cls._DEFAULT_HOST,
+            db_port=cls._DEFAULT_PORT,
+            db_user=cls._DEFAULT_USER,
+            db_pass=cls._DEFAULT_PASS,
             ssh_cfg=SSHSchema.Default(),
             other_elements={}
         )

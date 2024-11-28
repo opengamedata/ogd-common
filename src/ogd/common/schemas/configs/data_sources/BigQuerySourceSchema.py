@@ -44,8 +44,8 @@ class BigQuerySchema(DataSourceSchema):
     def Default(cls) -> "BigQuerySchema":
         return BigQuerySchema(
             name="DefaultBigQuerySchema",
-            project_id=BigQuerySchema._DEFAULT_PROJECT_ID,
-            credential=BigQuerySchema._DEFAULT_CREDENTIAL,
+            project_id=cls._DEFAULT_PROJECT_ID,
+            credential=cls._DEFAULT_CREDENTIAL,
             other_elements={}
         )
 
