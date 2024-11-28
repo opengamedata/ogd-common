@@ -7,7 +7,7 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 
 class SubfeatureSchema(Schema):
-    _DEFAULT_RETURN_TYPE = "str",
+    _DEFAULT_RETURN_TYPE = "str"
     _DEFAULT_DESCRIPTION = "Default Subfeature schema object. Does not correspond to any actual data."
 
     # *** BUILT-INS & PROPERTIES ***
