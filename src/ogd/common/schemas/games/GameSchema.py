@@ -533,7 +533,7 @@ class GameSchema(Schema):
         # 2. try to actually load the contents of the file.
         try:
             ret_val = fileio.loadJSONFile(filename=schema_name, path=schema_path)
-        except (ModuleNotFoundError, FileNotFoundError) as err:
+        except (ModuleNotFoundError, FileNotFoundError):
             Logger.Log(f"Unable to load GameSchema for {game_name}, {schema_name} does not exist! Trying to load from json template instead...", logging.WARN, depth=1)
             ret_val = GameSchema._schemaFromTemplate(schema_path=schema_path, schema_name=schema_name)
             if ret_val is not None:
@@ -552,7 +552,7 @@ class GameSchema(Schema):
         template_name = schema_name + ".template"
         try:
             ret_val = fileio.loadJSONFile(filename=template_name, path=schema_path, autocorrect_extension=False)
-        except FileNotFoundError as no_file:
+        except FileNotFoundError:
             Logger.Log(       f"Could not load {schema_name} from template, the template does not exist at {schema_path}.", logging.WARN, depth=2)
             print(f"(via print) Could not create {schema_name} from template, the template does not exist at {schema_path}.")
         else:
