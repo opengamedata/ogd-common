@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class ColumnSchema(Schema):
     _DEFAULT_READABLE = "Default Column Schema Name"
@@ -12,7 +13,7 @@ class ColumnSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, readable:str, value_type:str, description:str, other_elements:Dict[str, Any]):
+    def __init__(self, name:str, readable:str, value_type:str, description:str, other_elements:Optional[Map]=None):
         self._readable    : str = readable
         self._value_type  : str = value_type
         self._description : str = description

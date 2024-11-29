@@ -29,7 +29,7 @@ class TableSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name, column_map:ColumnMapSchema, columns:List[ColumnSchema], other_elements:Optional[Dict[str,Any]]=None):
+    def __init__(self, name, column_map:ColumnMapSchema, columns:List[ColumnSchema], other_elements:Optional[Map]=None):
         """Constructor for the TableSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
