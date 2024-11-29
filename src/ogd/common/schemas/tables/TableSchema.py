@@ -14,7 +14,7 @@ from ogd.common.models.Event import Event, EventSource
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
-from ogd.common.utils import utils
+from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
@@ -236,7 +236,7 @@ class TableSchema(Schema):
 
         if not _table_format_name.lower().endswith(".json"):
             _table_format_name += ".json"
-        _schema = utils.loadJSONFile(filename=_table_format_name, path=schema_path)
+        _schema = fileio.loadJSONFile(filename=_table_format_name, path=schema_path)
 
         return TableSchema.FromDict(name=schema_name, all_elements=_schema)
 
