@@ -39,7 +39,7 @@ class t_AggregateSchema(TestCase):
         }
         cls.test_schema = AggregateSchema(
             name="ActiveTime Schema",
-            all_elements=_elems
+            other_elements=_elems
         )
 
     @staticmethod
