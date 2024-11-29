@@ -10,6 +10,7 @@ from ogd.common.utils.Logger import Logger
 
 # local imports
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
+from ogd.common.utils.typing import Map
 
 class FileListConfigSchema(Schema):
 
@@ -18,7 +19,7 @@ class FileListConfigSchema(Schema):
     DEFAULT_FILE_BASE = "https://fieldday-web.ad.education.wisc.edu/opengamedata/"
     DEFAULT_TEMPLATE_BASE = "https://github.com/opengamedata/opengamedata-samples"
 
-    def __init__(self, name:str, file_base_path:Optional[str | Path], template_base_path:Optional[str | Path], other_elements:Dict[str, Any]):
+    def __init__(self, name:str, file_base_path:Optional[str | Path], template_base_path:Optional[str | Path], other_elements:Optional[Map]=None):
         self._files_base     : Optional[str | Path] = file_base_path
         self._templates_base : Optional[str | Path] = template_base_path
         super().__init__(name=name, other_elements=other_elements)

@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional
 from ogd.common.schemas.games.GeneratorSchema import GeneratorSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class SubfeatureSchema(Schema):
     _DEFAULT_RETURN_TYPE = "str"
@@ -12,7 +13,7 @@ class SubfeatureSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, return_type:str, description:str, other_elements:Dict[str, str]):
+    def __init__(self, name:str, return_type:str, description:str, other_elements:Optional[Map]=None):
         self._return_type : str = return_type
         self._description : str = description
 
@@ -124,7 +125,7 @@ class FeatureSchema(GeneratorSchema):
         _used = {"return_type", "subfeatures"}
         _leftovers = { key : val for key,val in other_elements.items() if key not in _used }
 
-        super().__init__(name=name, all_elements=_leftovers)
+        super().__init__(name=name, other_elements=_leftovers)
 
     @property
     def ReturnType(self) -> str:

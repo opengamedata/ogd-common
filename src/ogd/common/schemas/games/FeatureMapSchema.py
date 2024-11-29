@@ -6,6 +6,7 @@ from ogd.common.schemas.games.AggregateSchema import AggregateSchema
 from ogd.common.schemas.games.PerCountSchema import PerCountSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class FeatureMapSchema(Schema):
     """
@@ -21,7 +22,7 @@ class FeatureMapSchema(Schema):
 
     def __init__(self, name:str, legacy_mode: bool,        legacy_perlevel_feats:Dict[str, PerCountSchema],
                  percount_feats:Dict[str, PerCountSchema], aggregate_feats:Dict[str, AggregateSchema],
-                 other_elements:Dict[str, Any]):
+                 other_elements:Optional[Map]=None):
         self._legacy_mode           : bool                       = legacy_mode
         self._legacy_perlevel_feats : Dict[str, PerCountSchema]  = legacy_perlevel_feats
         self._percount_feats        : Dict[str, PerCountSchema]  = percount_feats
@@ -153,7 +154,7 @@ class FeatureMapSchema(Schema):
     def _parseAggregateFeatures(aggregates) -> Dict[str, AggregateSchema]:
         ret_val : Dict[str, AggregateSchema]
         if isinstance(aggregates, dict):
-            ret_val = {key : AggregateSchema(name=key, all_elements=val) for key,val in aggregates.items()}
+            ret_val = {key : AggregateSchema(name=key, other_elements=val) for key,val in aggregates.items()}
         else:
             ret_val = {}
             Logger.Log("Per-count features map was not a dict, defaulting to empty dict", logging.WARN)

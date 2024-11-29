@@ -51,7 +51,7 @@ class GameSchema(Schema):
                  aggregate_feats: Dict[str, AggregateSchema], percount_feats:Dict[str, PerCountSchema],
                  legacy_perlevel_feats: Dict[str, PerCountSchema], use_legacy_mode:bool,
                  config:Map, min_level:Optional[int], max_level:Optional[int], other_ranges:Dict[str, range],
-                 supported_vers:Optional[List[int]], other_elements:Dict[str, Any]):
+                 supported_vers:Optional[List[int]], other_elements:Optional[Map]=None):
         """Constructor for the GameSchema class.
         Given a path and filename, it loads the data from a JSON schema,
         storing the full schema into a private variable, and compiling a list of
@@ -349,7 +349,7 @@ class GameSchema(Schema):
             parser_function=cls._parseDetectorMap,
             default_value=cls._DEFAULT_DETECTOR_MAP
         )
-        _detector_map = _detector_map.AsDict
+        _detector_map = _detector_map.AsDict # TODO : investigate weird Dict[str, Dict[str, DetectorSchema]] type inference
 
     # 4. Get feature information
         _feat_map = cls.ElementFromDict(all_elements=all_elements, logger=logger,
