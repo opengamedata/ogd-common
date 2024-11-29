@@ -103,7 +103,7 @@ class FeatureSchema(GeneratorSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, other_elements:Dict[str, Any]):
+    def __init__(self, name:str, other_elements:Optional[Map]=None):
         self._subfeatures : Dict[str, SubfeatureSchema]
         self._return_type : str
 
