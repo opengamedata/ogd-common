@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest import TestCase
 # local import(s)
-from ogd.common.utils import utils
+from ogd.common.utils import fileio
 
 class t_utils(TestCase):
     def RunAll(self):
@@ -13,7 +13,7 @@ class t_utils(TestCase):
         print("Ran all t_utils tests.")
 
     def test_loadJSONFile(self):
-        json_content = utils.loadJSONFile(filename="t_utils.json", path=Path("./tests"))
+        json_content = fileio.loadJSONFile(filename="t_utils.json", path=Path("./tests"))
         self.assertEqual(json_content['first'], "the worst")
         self.assertEqual(json_content['second'], ["the best", "born, second place"])
         self.assertTrue("fourth" in json_content.keys())
