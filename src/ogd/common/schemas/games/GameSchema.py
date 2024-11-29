@@ -16,10 +16,9 @@ from ogd.common.schemas.games.FeatureSchema import FeatureSchema
 from ogd.common.schemas.games.FeatureMapSchema import FeatureMapSchema
 from ogd.common.models.enums.IterationMode import IterationMode
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
-from ogd.common.utils.typing import Map
-from ogd.common.utils import utils
-from ogd.common.utils.utils import loadJSONFile
+from ogd.common.utils.fileio import loadJSONFile
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 ## @class GameSchema
 class GameSchema(Schema):
