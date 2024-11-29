@@ -4,8 +4,8 @@ from datetime import date, datetime, timedelta, timezone
 from enum import IntEnum
 from typing import Dict, List, Optional, Union
 # import local files
+from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
-from ogd.common.utils import utils
 
 class EventSource(IntEnum):
     """Enum for the possible sources of an event - a game, or a generator.
@@ -136,13 +136,13 @@ class Event:
         else:
             # try to do some sort of sane handling in case we got null values for a version
             if a_parts is None and b_parts is None:
-                utils.Logger.Log(f"Got invalid values of {a} & {b} for versions a & b!", logging.ERROR)
+                Logger.Log(f"Got invalid values of {a} & {b} for versions a & b!", logging.ERROR)
                 return 0
             elif a_parts is None:
-                utils.Logger.Log(f"Got invalid value of {a} for version a!", logging.ERROR)
+                Logger.Log(f"Got invalid value of {a} for version a!", logging.ERROR)
                 return 1
             elif b_parts is None:
-                utils.Logger.Log(f"Got invalid value of {b} for version b!", logging.ERROR)
+                Logger.Log(f"Got invalid value of {b} for version b!", logging.ERROR)
                 return -1
         return 0 # should never reach here; just putting this here to satisfy linter
 

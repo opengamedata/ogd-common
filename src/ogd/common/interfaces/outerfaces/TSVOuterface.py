@@ -22,7 +22,7 @@ from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.schemas.games.GameSchema import GameSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.configs.IndexingSchema import FileIndexingSchema
-from ogd.common.utils import utils
+from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
 from ogd.common.utils.Readme import Readme
@@ -305,7 +305,7 @@ class TSVOuterface(DataOuterface):
     def _zipFiles(self) -> None:
         existing_datasets = {}
         try:
-            file_directory = utils.loadJSONFile(filename="file_list.json", path=self._data_dir)
+            file_directory = fileio.loadJSONFile(filename="file_list.json", path=self._data_dir)
             existing_datasets = file_directory.get(self._game_id, {})
         except FileNotFoundError as err:
             Logger.Log("file_list.json does not exist.", logging.WARNING)
@@ -473,7 +473,7 @@ class TSVOuterface(DataOuterface):
         file_index = {}
         existing_datasets = {}
         try:
-            file_index = utils.loadJSONFile(filename="file_list.json", path=self._data_dir)
+            file_index = fileio.loadJSONFile(filename="file_list.json", path=self._data_dir)
         except FileNotFoundError as err:
             Logger.Log("file_list.json does not exist.", logging.WARNING)
         except json.decoder.JSONDecodeError as err:
