@@ -15,6 +15,7 @@ from typing import Any, Dict, Optional
 # import OGD libraries
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 # import local files
 
@@ -24,7 +25,7 @@ class TestConfigSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, verbose:bool, enabled_tests:Dict[str, bool], other_elements:Dict[str, Any]={}):
+    def __init__(self, name:str, verbose:bool, enabled_tests:Dict[str, bool], other_elements:Optional[Map]=None):
         self._verbose       : bool            = verbose
         self._enabled_tests : Dict[str, bool] = enabled_tests
         super().__init__(name=name, other_elements=other_elements)

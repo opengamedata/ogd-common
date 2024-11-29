@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class DataElementSchema(Schema):
     """
@@ -16,7 +17,7 @@ class DataElementSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, element_type:str, description:str, details:Optional[Dict[str, str]], other_elements:Dict[str, Any]):
+    def __init__(self, name:str, element_type:str, description:str, details:Optional[Dict[str, str]], other_elements:Optional[Map]=None):
         self._type        : str                      = element_type
         self._description : str                      = description
         self._details     : Optional[Dict[str, str]] = details

@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 # import local files
 from ogd.common.schemas.games.FeatureSchema import FeatureSchema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class PerCountSchema(FeatureSchema):
 
@@ -12,7 +13,7 @@ class PerCountSchema(FeatureSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, count:int|str, prefix:str, other_elements:Dict[str, Any]):
+    def __init__(self, name:str, count:int|str, prefix:str, other_elements:Optional[Map]=None):
         self._count  : int | str = count
         self._prefix : str       = prefix
 

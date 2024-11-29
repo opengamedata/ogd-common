@@ -7,6 +7,7 @@ from typing import Any, Dict, Optional, Self
 # ogd imports
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class DatasetKey:
 
@@ -107,7 +108,7 @@ class DatasetSchema(Schema):
                  sessions_file:Optional[Path],   sessions_template:Optional[Path],
                  players_file:Optional[Path],    players_template:Optional[Path],
                  population_file:Optional[Path], population_template:Optional[Path],
-                 other_elements:Dict[str, Any]):
+                 other_elements:Optional[Map]=None):
         self._key                 : DatasetKey     = key
         self._date_modified       : date | str     = date_modified
         self._start_date          : date | str     = start_date

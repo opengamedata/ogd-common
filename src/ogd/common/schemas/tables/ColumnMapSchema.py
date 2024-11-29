@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional, TypeAlias
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class ColumnMapSchema(Schema):
     ColumnMapIndex : TypeAlias = Optional[int | List[int] | Dict[str,int]]
@@ -13,7 +14,7 @@ class ColumnMapSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, map:Dict[str, ColumnMapIndex], column_names:List[str], other_elements:Dict[str, Any]={}):
+    def __init__(self, name:str, map:Dict[str, ColumnMapIndex], column_names:List[str], other_elements:Optional[Map]=None):
         self._map            : Dict[str, ColumnMapSchema.ColumnMapIndex] = map
         self._column_names   : List[str]                                   = column_names
 

@@ -39,7 +39,7 @@ class t_DetectorSchema(TestCase):
         }
         cls.test_schema = DetectorSchema(
             name="ActiveTime Schema",
-            all_elements=_elems
+            other_elements=_elems
         )
 
     @staticmethod

@@ -6,6 +6,7 @@ from ogd.common.schemas.configs.data_sources.DataSourceSchema import DataSourceS
 from ogd.common.schemas.configs.data_sources.BigQuerySourceSchema import BigQuerySchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class GameSourceSchema(Schema):
 
@@ -35,7 +36,7 @@ class GameSourceSchema(Schema):
     """
     def __init__(self, name:str,  source_name:str, source_schema:Optional[DataSourceSchema],
                  db_name:str,     table_name:str,  table_schema:str,
-                 other_elements:Dict[str, Any]):
+                 other_elements:Optional[Map]=None):
         self._source_name   : str                        = source_name
         self._source_schema : Optional[DataSourceSchema] = source_schema
         self._db_name       : str                        = db_name

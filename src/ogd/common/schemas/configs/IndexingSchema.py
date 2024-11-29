@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class FileIndexingSchema(Schema):
     _DEFAULT_LOCAL_DIR  = Path("./data/")
@@ -13,7 +14,7 @@ class FileIndexingSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, local_dir:Path, remote_url:Optional[str], templates_url:str, other_elements:Dict[str, Any]={}):
+    def __init__(self, name:str, local_dir:Path, remote_url:Optional[str], templates_url:str, other_elements:Optional[Map]=None):
         self._local_dir     : Path          = local_dir
         self._remote_url    : Optional[str] = remote_url
         self._templates_url : str           = templates_url
