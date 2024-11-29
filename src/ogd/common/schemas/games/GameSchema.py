@@ -16,7 +16,7 @@ from ogd.common.schemas.games.FeatureSchema import FeatureSchema
 from ogd.common.schemas.games.FeatureMapSchema import FeatureMapSchema
 from ogd.common.models.enums.IterationMode import IterationMode
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
-from ogd.common.utils.fileio import loadJSONFile
+from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
@@ -532,7 +532,7 @@ class GameSchema(Schema):
         schema_name = f"{game_name.upper()}.json"
         # 2. try to actually load the contents of the file.
         try:
-            ret_val = utils.loadJSONFile(filename=schema_name, path=schema_path)
+            ret_val = fileio.loadJSONFile(filename=schema_name, path=schema_path)
         except (ModuleNotFoundError, FileNotFoundError) as err:
             Logger.Log(f"Unable to load GameSchema for {game_name}, {schema_name} does not exist! Trying to load from json template instead...", logging.WARN, depth=1)
             ret_val = GameSchema._schemaFromTemplate(schema_path=schema_path, schema_name=schema_name)
@@ -551,7 +551,7 @@ class GameSchema(Schema):
 
         template_name = schema_name + ".template"
         try:
-            ret_val = loadJSONFile(filename=template_name, path=schema_path, autocorrect_extension=False)
+            ret_val = fileio.loadJSONFile(filename=template_name, path=schema_path, autocorrect_extension=False)
         except FileNotFoundError as no_file:
             Logger.Log(       f"Could not load {schema_name} from template, the template does not exist at {schema_path}.", logging.WARN, depth=2)
             print(f"(via print) Could not create {schema_name} from template, the template does not exist at {schema_path}.")
