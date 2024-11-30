@@ -6,6 +6,7 @@ import traceback
 from datetime import datetime
 from typing import Dict, Final, List, Tuple, Optional
 # import locals
+from ogd.common.connectors.filters import *
 from ogd.common.connectors.filters.collections import *
 from ogd.common.connectors.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
@@ -219,6 +220,13 @@ class SQL:
             time_delta = datetime.now()-start
             Logger.Log(f"Query fetch completed, total query time:    {time_delta} to get {len(result) if result is not None else 0:d} rows", logging.DEBUG)
         return result
+
+class MySQLFilters:
+    @staticmethod
+    def FilterToMySQL(filter:Filter):
+        if isinstance(filter, NoFilter):
+            return
+        elif isinstance(filter, MinFilter)
 
 class MySQLInterface(Interface):
 
