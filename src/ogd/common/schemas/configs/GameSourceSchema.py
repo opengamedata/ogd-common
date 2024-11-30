@@ -11,6 +11,7 @@ from ogd.common.utils.typing import Map
 
 class GameSourceSchema(Schema):
 
+    _DEFAULT_GAME_ID       = "UNKNOWN GAME"
     _DEFAULT_SOURCE_NAME   = "OPENGAMEDATA_BQ"
     _DEFAULT_DB_NAME       = "UNKNOWN GAME"
     _DEFAULT_TABLE_NAME    = "_daily"
@@ -91,6 +92,7 @@ class GameSourceSchema(Schema):
     def Default(cls) -> "GameSourceSchema":
         return GameSourceSchema(
             name="DefaultGameSourceSchema",
+            game_id=cls._DEFAULT_GAME_ID,
             source_name=cls._DEFAULT_SOURCE_NAME,
             source_schema=BigQuerySchema.Default(),
             db_name=cls._DEFAULT_DB_NAME,
@@ -127,6 +129,11 @@ class GameSourceSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
+        _game_id = cls.ElementFromDict(all_elements=all_elements, logger=logger,
+            element_names=["game", "game_id"],
+            parser_function=cls._parseGameID,
+            default_value=name
+        )
         _source_name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["source"],
             parser_function=cls._parseSource,
@@ -156,7 +163,7 @@ class GameSourceSchema(Schema):
 
         _used = {"source", "database", "table", "schema"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return GameSourceSchema(name=name, source_name=_source_name, source_schema=_source_schema,
+        return GameSourceSchema(name=name, game_id=_game_id, source_name=_source_name, source_schema=_source_schema,
                                 db_name=_db_name, table_name=_table_name, table_schema=_table_schema,
                                 other_elements=_leftovers)
 
@@ -164,7 +171,7 @@ class GameSourceSchema(Schema):
 
     @staticmethod
     def EmptySchema() -> "GameSourceSchema":
-        return GameSourceSchema(name="NOT FOUND", source_name="NOT FOUND", source_schema=None, db_name="NOT FOUND",
+        return GameSourceSchema(name="NOT FOUND", game_id="NOT FOUND", source_name="NOT FOUND", source_schema=None, db_name="NOT FOUND",
                                 table_name="NOT FOUND", table_schema="NOT FOUND", other_elements={})
 
     # *** PUBLIC METHODS ***
@@ -179,6 +186,16 @@ class GameSourceSchema(Schema):
         else:
             ret_val = str(source)
             Logger.Log(f"Game Source source name was unexpected type {type(source)}, defaulting to str(source)={ret_val}.", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def _parseGameID(game_id) -> str:
+        ret_val : str
+        if isinstance(game_id, str):
+            ret_val = game_id
+        else:
+            ret_val = str(game_id)
+            Logger.Log(f"Game Source app ID was unexpected type {type(game_id)}, defaulting to str(game_id)={ret_val}.", logging.WARN)
         return ret_val
 
     @staticmethod
