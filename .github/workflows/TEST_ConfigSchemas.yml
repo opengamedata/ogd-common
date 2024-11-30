@@ -51,6 +51,10 @@ jobs:
 
   # 3. Perform work
     - name: Execute ${{ matrix.testbed }} testbed
-      run: python -m unittest discover -s tests/cases/schemas/config -p "${{ matrix.testbed }}.py" -t ./
+      uses: opengamedata/actions-execute-testbed@v1.0
+      with:
+        directory: "tests/cases/schemas/config"
+        test_file: "${{ matrix.testbed }}.py"
+        python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete
