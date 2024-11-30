@@ -20,6 +20,3 @@ class t_fileio(TestCase):
         self.assertEqual(json_content['fourth']['a'], "why's it out of order?")
         self.assertEqual(json_content['fourth']['b'], 4)
         self.assertEqual(json_content['fourth']['c'], False)
-
-if __name__ == '__main__':
-    unittest.main()
