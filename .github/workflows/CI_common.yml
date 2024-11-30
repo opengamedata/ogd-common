@@ -39,6 +39,11 @@ jobs:
 
   # Run testbeds in schema module
 
+  testbed_fileio:
+    name: FileIO Testbed
+    needs: build
+    uses: ./.github/workflows/TEST_FileIO.yml
+
   testbed_semver:
     name: SemanticVersion Testbed
     needs: build
