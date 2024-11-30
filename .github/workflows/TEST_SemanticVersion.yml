@@ -42,7 +42,7 @@ jobs:
 
   # 3. Perform work
     - name: Execute SemanticVersion Testbed
-      uses: opengamedata/actions-execute-testbed@v1.0
+      uses: opengamedata/actions-execute-testbed@v1.0-alpha
       with:
         directory: "tests/cases/utils"
         test_file: "t_SemanticVersion.py"
