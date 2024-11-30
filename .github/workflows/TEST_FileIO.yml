@@ -1,5 +1,5 @@
 # Workflow to test the SemanticVersion class from the `utils` module
-name: Testbed - SemanticVersion Class
+name: Testbed - FileIO Module
 run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
 on:
   workflow_dispatch:
