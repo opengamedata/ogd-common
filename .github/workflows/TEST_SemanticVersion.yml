@@ -41,7 +41,7 @@ jobs:
   # 2. Build & configure remote environments
 
   # 3. Perform work
-    - name: Execute SemanticVersion testbed
+    - name: Execute SemanticVersion Testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
         directory: "tests/cases/utils"
