@@ -78,6 +78,10 @@ class GameSourceSchema(Schema):
         return self._table_name
 
     @property
+    def TableSchema(self) -> TableSchema:
+        return self._table_schema
+
+    @property
     def TableSchemaName(self) -> str:
         return self._table_schema_name
 
