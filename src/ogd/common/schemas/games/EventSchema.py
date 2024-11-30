@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional
 from ogd.common.schemas.games.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class EventSchema(Schema):
     _DEFAULT_DESCRIPTION = "Default event schema object. Does not relate to any actual data."
@@ -17,7 +18,7 @@ class EventSchema(Schema):
 
     These essentially are just a description of the event, and a set of elements in the EventData attribute of the Event.
     """
-    def __init__(self, name:str, description:str, event_data:Dict[str, DataElementSchema], other_elements:Dict[str, Dict]):
+    def __init__(self, name:str, description:str, event_data:Dict[str, DataElementSchema], other_elements:Optional[Map]=None):
         self._description : str                          = description
         self._event_data  : Dict[str, DataElementSchema] = event_data
 

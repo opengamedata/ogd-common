@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional
 from ogd.common.schemas.games.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class GameStateSchema(Schema):
     """
@@ -17,7 +18,7 @@ class GameStateSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, game_state:Dict[str, DataElementSchema], other_elements:Dict[str, Any]):
+    def __init__(self, name:str, game_state:Dict[str, DataElementSchema], other_elements:Optional[Map]=None):
         self._game_state  : Dict[str, DataElementSchema] = game_state
 
         super().__init__(name=name, other_elements=other_elements)

@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional
 from ogd.common.schemas.games.DetectorSchema import DetectorSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class DetectorMapSchema(Schema):
     _DEFAULT_PERLEVEL_DETECTORS  = {}
@@ -18,7 +19,7 @@ class DetectorMapSchema(Schema):
     """
     def __init__(self, name:str,
                  perlevel_detectors:Dict[str, DetectorSchema], percount_detectors:Dict[str, DetectorSchema], aggregate_detectors:Dict[str, DetectorSchema],
-                 other_elements:Dict[str, Any]):
+                 other_elements:Optional[Map]=None):
         self._perlevel_detectors  : Dict[str, DetectorSchema] = perlevel_detectors
         self._percount_detectors  : Dict[str, DetectorSchema] = percount_detectors
         self._aggregate_detectors : Dict[str, DetectorSchema] = aggregate_detectors

@@ -7,6 +7,7 @@ from ogd.common.schemas.configs.data_sources.BigQuerySourceSchema import BigQuer
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class GameSourceSchema(Schema):
 

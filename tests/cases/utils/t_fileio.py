@@ -7,19 +7,16 @@ from unittest import TestCase
 # local import(s)
 from ogd.common.utils import fileio
 
-class t_utils(TestCase):
+class t_fileio(TestCase):
     def RunAll(self):
         self.test_loadJSONFile()
-        print("Ran all t_utils tests.")
+        print("Ran all t_fileio tests.")
 
     def test_loadJSONFile(self):
-        json_content = fileio.loadJSONFile(filename="t_utils.json", path=Path("./tests"))
+        json_content = fileio.loadJSONFile(filename="t_fileio.json", path=Path("./tests/cases/utils/"))
         self.assertEqual(json_content['first'], "the worst")
         self.assertEqual(json_content['second'], ["the best", "born, second place"])
         self.assertTrue("fourth" in json_content.keys())
         self.assertEqual(json_content['fourth']['a'], "why's it out of order?")
         self.assertEqual(json_content['fourth']['b'], 4)
         self.assertEqual(json_content['fourth']['c'], False)
-
-if __name__ == '__main__':
-    unittest.main()

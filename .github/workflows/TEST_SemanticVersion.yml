@@ -1,25 +1,25 @@
-# Workflow to test the `Schema` base class
-name: Testbed - Schema base class
+# Workflow to test the SemanticVersion class from the `utils` module
+name: Testbed - SemanticVersion Class
 run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
 on:
   workflow_dispatch:
   workflow_call:
   push:
     paths:
-    - '.github/workflows/TEST_Schema.yml'
+    - '.github/workflows/TEST_SemanticVersion.yml'
     - '.github/actions/test_config/**'
-    - 'tests/cases/schemas/t_Schema.py'
+    - 'tests/cases/schemas/config/*.py'
     - 'tests/config/**'
     - 'requirements.txt'
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-Schema
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-SemanticVersion
   cancel-in-progress: true
 
 jobs:
 
-  run_testbed_schema:
-    name: Run Schema base class Testbed
+  run_testbeds:
+    name: Run SemanticVersion Testbed
     runs-on: ubuntu-22.04
 
     steps:
@@ -36,16 +36,16 @@ jobs:
       uses: ./.github/actions/test_config
       with:
           verbose_output: "True"
-          with_schemas:   "True"
+          with_schemas: "True"
 
   # 2. Build & configure remote environments
 
-  # 3. Perform export
-    - name: Execute testbed
+  # 3. Perform work
+    - name: Execute SemanticVersion Testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/schemas"
-        test_file: "t_Schema.py"
+        directory: "tests/cases/utils"
+        test_file: "t_SemanticVersion.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete

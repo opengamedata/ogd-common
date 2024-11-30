@@ -3,6 +3,7 @@ import abc
 import logging
 from typing import Any, Callable, Dict, List, Optional
 # import local files
+from ogd.common.utils.typing import Map
 from ogd.common.utils.Logger import Logger
 
 class Schema(abc.ABC):
@@ -50,9 +51,9 @@ class Schema(abc.ABC):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, other_elements:Optional[Dict[str, Any]]):
+    def __init__(self, name:str, other_elements:Optional[Map]=None):
         self._name : str
-        self._other_elements : Dict[str, Any]
+        self._other_elements : Map
 
         self._name = Schema._parseName(name)
 

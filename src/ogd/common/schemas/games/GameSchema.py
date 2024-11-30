@@ -16,7 +16,7 @@ from ogd.common.schemas.games.FeatureSchema import FeatureSchema
 from ogd.common.schemas.games.FeatureMapSchema import FeatureMapSchema
 from ogd.common.models.enums.IterationMode import IterationMode
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
-from ogd.common.utils.fileio import loadJSONFile
+from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
@@ -51,7 +51,7 @@ class GameSchema(Schema):
                  aggregate_feats: Dict[str, AggregateSchema], percount_feats:Dict[str, PerCountSchema],
                  legacy_perlevel_feats: Dict[str, PerCountSchema], use_legacy_mode:bool,
                  config:Map, min_level:Optional[int], max_level:Optional[int], other_ranges:Dict[str, range],
-                 supported_vers:Optional[List[int]], other_elements:Dict[str, Any]):
+                 supported_vers:Optional[List[int]], other_elements:Optional[Map]=None):
         """Constructor for the GameSchema class.
         Given a path and filename, it loads the data from a JSON schema,
         storing the full schema into a private variable, and compiling a list of
@@ -349,7 +349,7 @@ class GameSchema(Schema):
             parser_function=cls._parseDetectorMap,
             default_value=cls._DEFAULT_DETECTOR_MAP
         )
-        _detector_map = _detector_map.AsDict
+        _detector_map = _detector_map.AsDict # TODO : investigate weird Dict[str, Dict[str, DetectorSchema]] type inference
 
     # 4. Get feature information
         _feat_map = cls.ElementFromDict(all_elements=all_elements, logger=logger,
@@ -532,8 +532,8 @@ class GameSchema(Schema):
         schema_name = f"{game_name.upper()}.json"
         # 2. try to actually load the contents of the file.
         try:
-            ret_val = utils.loadJSONFile(filename=schema_name, path=schema_path)
-        except (ModuleNotFoundError, FileNotFoundError) as err:
+            ret_val = fileio.loadJSONFile(filename=schema_name, path=schema_path)
+        except (ModuleNotFoundError, FileNotFoundError):
             Logger.Log(f"Unable to load GameSchema for {game_name}, {schema_name} does not exist! Trying to load from json template instead...", logging.WARN, depth=1)
             ret_val = GameSchema._schemaFromTemplate(schema_path=schema_path, schema_name=schema_name)
             if ret_val is not None:
@@ -551,8 +551,8 @@ class GameSchema(Schema):
 
         template_name = schema_name + ".template"
         try:
-            ret_val = loadJSONFile(filename=template_name, path=schema_path, autocorrect_extension=False)
-        except FileNotFoundError as no_file:
+            ret_val = fileio.loadJSONFile(filename=template_name, path=schema_path, autocorrect_extension=False)
+        except FileNotFoundError:
             Logger.Log(       f"Could not load {schema_name} from template, the template does not exist at {schema_path}.", logging.WARN, depth=2)
             print(f"(via print) Could not create {schema_name} from template, the template does not exist at {schema_path}.")
         else:
