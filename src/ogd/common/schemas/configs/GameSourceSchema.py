@@ -2,8 +2,8 @@
 import logging
 from typing import Any, Dict, Optional
 # import local files
-from ogd.common.schemas.configs.data_sources.DataSourceSchema import DataSourceSchema
-from ogd.common.schemas.configs.data_sources.BigQuerySourceSchema import BigQuerySchema
+from ogd.common.schemas.storage.DataSourceSchema import DataSourceSchema
+from ogd.common.schemas.storage.BigQuerySourceSchema import BigQuerySchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils.Logger import Logger
@@ -32,6 +32,8 @@ class GameSourceSchema(Schema):
     - `DatabaseName` : The name of the specific database within the source that contains this game's data
     - `TableName` : The neame of the specific table within the database holding the given game's data
     - `TableSchema` : A schema indicating the structure of the table containing the given game's data.
+
+    TODO : Implement and use a smart Load(...) function of TableSchema to load schema from given name, rather than FromFile.
 
     :param Schema: _description_
     :type Schema: _type_
