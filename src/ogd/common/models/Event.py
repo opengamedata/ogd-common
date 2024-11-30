@@ -14,16 +14,17 @@ class EventSource(IntEnum):
     GENERATED = 2
 
 ## @class Event
-#  Completely dumb struct that enforces a particular structure for the data we get from a source.
-#  Basically, whenever we fetch data, the TableSchema will be used to map columns to the required elements of an Event.
-#  Then the extractors etc. can just access columns in a direct manner.
 class Event:
-    def __init__(self, session_id:str, app_id:str,     timestamp:datetime,
-                 event_name:str,    event_data:Map,    event_source:EventSource,
-                 app_version:Optional[str] = None,     app_branch:Optional[str] = None,
-                 log_version:Optional[str] = None,     time_offset:Optional[timezone] = None,
-                 user_id:Optional[str] = "",           user_data:Optional[Map] = {},
-                 game_state:Optional[Map] = {},  event_sequence_index:Optional[int] = None):
+    """
+    Completely dumb struct that enforces a particular structure for the data we get from a source.
+    Basically, whenever we fetch data, the TableSchema will be used to map columns to the required elements of an Event.
+    Then the extractors etc. can just access columns in a direct manner.
+    """
+    def __init__(self, app_id:str,          user_id:Optional[str],          session_id:str,
+                 timestamp:datetime,        time_offset:Optional[timezone], event_sequence_index:Optional[int],
+                 app_version:Optional[str], app_branch:Optional[str],       log_version:Optional[str],     
+                 event_name:str,            event_source:EventSource,       event_data:Map,
+                 game_state:Optional[Map],  user_data:Optional[Map]):
         """Constructor for an Event object.
 
         :param session_id: An identifier for the session during which the event occurred.
