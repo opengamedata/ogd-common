@@ -26,6 +26,7 @@ class GameData(abc.ABC):
         """A list of all values for the row, in order they appear in the `ColumnNames` function.
 
         .. todo:: Technically, this should be string representations of each, but we're technically not enforcing that yet.
+        .. todo:: Currently assuming a single app/log version, but theoretically we could, for example, have multiple app versions show up in a single population. Need to handle this, e.g. allow a list.
 
         :return: The list of values.
         :rtype: List[Union[str, datetime, timezone, Map, int, None]]
