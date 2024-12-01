@@ -1,10 +1,9 @@
 ## import standard libraries
-import logging
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timezone
 from enum import IntEnum
 from typing import Dict, List, Optional, Union
 # import local files
-from ogd.common.utils.Logger import Logger
+from ogd.common.models.GameData import GameData
 from ogd.common.utils.typing import Map
 
 class EventSource(IntEnum):
@@ -14,58 +13,59 @@ class EventSource(IntEnum):
     GENERATED = 2
 
 ## @class Event
-#  Completely dumb struct that enforces a particular structure for the data we get from a source.
-#  Basically, whenever we fetch data, the TableSchema will be used to map columns to the required elements of an Event.
-#  Then the extractors etc. can just access columns in a direct manner.
-class Event:
-    def __init__(self, session_id:str, app_id:str,     timestamp:datetime,
-                 event_name:str,    event_data:Map,    event_source:EventSource,
-                 app_version:Optional[str] = None,     app_branch:Optional[str] = None,
-                 log_version:Optional[str] = None,     time_offset:Optional[timezone] = None,
-                 user_id:Optional[str] = "",           user_data:Optional[Map] = {},
-                 game_state:Optional[Map] = {},  event_sequence_index:Optional[int] = None):
-        """Constructor for an Event object.
+class Event(GameData):
+    """
+    Completely dumb struct that enforces a particular structure for the data we get from a source.
+    Basically, whenever we fetch data, the TableSchema will be used to map columns to the required elements of an Event.
+    Then the extractors etc. can just access columns in a direct manner.
+    """
+    def __init__(self, app_id:str,          user_id:Optional[str],          session_id:str,
+                 timestamp:datetime,        time_offset:Optional[timezone], event_sequence_index:Optional[int],
+                 app_version:Optional[str], app_branch:Optional[str],       log_version:Optional[str],     
+                 event_name:str,            event_source:EventSource,       event_data:Map,
+                 game_state:Optional[Map],  user_data:Optional[Map]):
+        """Constructor for an Event struct
 
-        :param session_id: An identifier for the session during which the event occurred.
-        :type  session_id: int
-        :param app_id: An identifier for the app that generated the event, typically the name of a game
-        :type  app_id: str
-        :param timestamp: The (local) time at which the event occurred.
-        :type  timestamp: datetime
-        :param event_name: The "type" of the event. e.g. begin game, end game, buy item, etc.
-        :type  event_name: str
-        :param event_data: A "blob" of all data specific to the event type, contents vary by game and event type.
-        :type  event_data: Dict[str,Any]
-        :param app_version: The version of the given game that created the event.
-        :type  app_version: Optional[int], optional
-        :param log_version: The version of the given game's logging code (may or may not correspond to game's versioning)
-        :type  log_version: Optional[int], optional
-        :param time_offset: [description], defaults to None
-        :type  time_offset: Optional[int], optional
-        :param user_id: Optional identifier for the specific user during whose session the event occurred. Defaults to None.
-        :type  user_id: Optional[int], optional
-        :param user_data: [description], defaults to None
-        :type  user_data: Optional[Dict[str,Any]], optional
-        :param game_state: [description], defaults to None
-        :type  game_state: Optional[Dict[str,Any]], optional
-        :param event_sequence_index: [description], defaults to None
-        :type  event_sequence_index: Optional[int], optional
+        :param app_id: _description_
+        :type app_id: str
+        :param user_id: _description_
+        :type user_id: Optional[str]
+        :param session_id: _description_
+        :type session_id: str
+        :param timestamp: _description_
+        :type timestamp: datetime
+        :param time_offset: _description_
+        :type time_offset: Optional[timezone]
+        :param event_sequence_index: _description_
+        :type event_sequence_index: Optional[int]
+        :param app_version: _description_
+        :type app_version: Optional[str]
+        :param app_branch: _description_
+        :type app_branch: Optional[str]
+        :param log_version: _description_
+        :type log_version: Optional[str]
+        :param event_name: _description_
+        :type event_name: str
+        :param event_source: _description_
+        :type event_source: EventSource
+        :param event_data: _description_
+        :type event_data: Map
+        :param game_state: _description_
+        :type game_state: Optional[Map]
+        :param user_data: _description_
+        :type user_data: Optional[Map]
         """
         # TODO: event source, e.g. from game or from detector
-        self.session_id           : str           = session_id
-        self.app_id               : str           = app_id
+        super().__init__(app_id=app_id,           user_id=user_id,       session_id=session_id,
+                         app_version=app_version, app_branch=app_branch, log_version=log_version)
         self.timestamp            : datetime      = timestamp
-        self.event_name           : str           = event_name
-        self.event_data           : Map     = event_data
-        self.event_source         : EventSource   = event_source
-        self.app_version          : str           = app_version if app_version is not None else "0"
-        self.app_branch           : str           = app_branch  if app_branch  is not None else "main"
-        self.log_version          : str           = log_version if log_version is not None else "0"
         self.time_offset          : Optional[timezone] = time_offset
-        self.user_id              : Optional[str] = user_id
-        self.user_data            : Map     = user_data if user_data is not None else {}
-        self.game_state           : Map     = game_state if game_state is not None else {}
         self.event_sequence_index : Optional[int] = event_sequence_index
+        self.event_name           : str           = event_name
+        self.event_source         : EventSource   = event_source
+        self.event_data           : Map     = event_data
+        self.game_state           : Map     = game_state if game_state is not None else {}
+        self.user_data            : Map     = user_data if user_data is not None else {}
 
     def __str__(self):
         return f"session_id   : {self.session_id}\n"\
@@ -90,7 +90,16 @@ class Event:
             self.event_sequence_index = index
 
     @staticmethod
-    def FromJSON(json_data:Dict):
+    def FromJSON(json_data:Dict) -> "Event":
+        """_summary_
+
+        TODO : rename to FromDict, and make classmethod, to match conventions of schemas.
+
+        :param json_data: _description_
+        :type json_data: Dict
+        :return: _description_
+        :rtype: Event
+        """
         return Event(
             session_id  =json_data.get("session_id", "SESSION ID NOT FOUND"),
             app_id      =json_data.get("app_id", "APP ID NOT FOUND"),
@@ -109,45 +118,14 @@ class Event:
         )
 
     @staticmethod
-    def CompareVersions(a:str, b:str, version_separator='.') -> int:
-        a_parts : Optional[List[int]]
-        b_parts : Optional[List[int]]
-        try:
-            a_parts = [int(i) for i in a.split(version_separator)]
-        except ValueError:
-            a_parts = None
-        try:
-            b_parts = [int(i) for i in b.split(version_separator)]
-        except ValueError:
-            b_parts = None
-
-        if a_parts is not None and b_parts is not None:
-            for i in range(0, min(len(a_parts), len(b_parts))):
-                if a_parts[i] < b_parts[i]:
-                    return -1
-                elif a_parts[i] > b_parts[i]:
-                    return 1
-            if len(a_parts) < len(b_parts):
-                return -1
-            elif len(a_parts) > len(b_parts):
-                return 1
-            else:
-                return 0
-        else:
-            # try to do some sort of sane handling in case we got null values for a version
-            if a_parts is None and b_parts is None:
-                Logger.Log(f"Got invalid values of {a} & {b} for versions a & b!", logging.ERROR)
-                return 0
-            elif a_parts is None:
-                Logger.Log(f"Got invalid value of {a} for version a!", logging.ERROR)
-                return 1
-            elif b_parts is None:
-                Logger.Log(f"Got invalid value of {b} for version b!", logging.ERROR)
-                return -1
-        return 0 # should never reach here; just putting this here to satisfy linter
-
-    @staticmethod
     def ColumnNames() -> List[str]:
+        """_summary_
+
+        TODO: In Event schema 1.0, set order to match ordering of `__init__` function, which is meant to be better-organized.
+
+        :return: _description_
+        :rtype: List[str]
+        """
         return ["session_id",  "app_id",       "timestamp",   "event_name",
                 "event_data",  "event_source", "app_version", "app_branch",
                 "log_version", "offset",        "user_id",    "user_data",
@@ -165,29 +143,6 @@ class Event:
                 self.event_data,  self.event_source.name,  self.app_version, self.app_branch,
                 self.log_version, self.TimeOffsetString,   self.user_id,     self.user_data,
                 self.game_state,  self.event_sequence_index]
-
-    @property
-    def SessionID(self) -> str:
-        """The Session ID of the session that generated the Event
-
-        Generally, this will be a numeric string.
-        Every session ID is unique (with high probability) from all other sessions.
-
-        :return: The Session ID of the session that generated the Event
-        :rtype: str
-        """
-        return self.session_id
-
-    @property
-    def AppID(self) -> str:
-        """The Application ID of the game that generated the Event
-
-        Generally, this will be the game's name, or some abbreviation of the name.
-
-        :return: The Application ID of the game that generated the Event
-        :rtype: str
-        """
-        return self.app_id
 
     @property
     def Timestamp(self) -> datetime:
@@ -224,6 +179,17 @@ class Event:
         return self.time_offset.tzname(None) if self.time_offset is not None else None
 
     @property
+    def EventSequenceIndex(self) -> Optional[int]:
+        """A strictly-increasing counter indicating the order of events in a session.
+
+        The first event in a session has EventSequenceIndex == 0, the next has index == 1, etc.
+
+        :return: A strictly-increasing counter indicating the order of events in a session
+        :rtype: int
+        """
+        return self.event_sequence_index
+
+    @property
     def EventName(self) -> str:
         """The name of the specific type of event that occurred
 
@@ -258,51 +224,6 @@ class Event:
         return self.event_source
 
     @property
-    def AppVersion(self) -> str:
-        """The semantic versioning string for the game that generated this Event.
-
-        Some legacy games may use a single integer or a string similar to AppID in this column.
-
-        :return: The semantic versioning string for the game that generated this Event
-        :rtype: str
-        """
-        return self.app_version
-
-    @property
-    def AppBranch(self) -> str:
-        """The name of the branch of a game version that generated this Event.
-
-        The branch name is typically used for cases where multiple experimental versions of a game are deployed in parallel;
-        most events will simply have a branch of "main" or "master."
-
-        :return: The name of the branch of a game version that generated this Event
-        :rtype: str
-        """
-        return self.app_branch
-
-    @property
-    def LogVersion(self) -> str:
-        """The version of the logging schema implemented in the game that generated the Event
-
-        For most games, this is a single integer; however, semantic versioning is valid for this column as well.
-
-        :return: The version of the logging schema implemented in the game that generated the Event
-        :rtype: str
-        """
-        return self.log_version
-
-    @property
-    def UserID(self) -> Optional[str]:
-        """A persistent ID for a given user, identifying the individual across multiple gameplay sessions
-
-        This identifier is only included by games with a mechanism for individuals to resume play in a new session.
-
-        :return: A persistent ID for a given user, identifying the individual across multiple gameplay sessions
-        :rtype: Optional[str]
-        """
-        return self.user_id
-
-    @property
     def UserData(self) -> Map:
         """A dictionary containing any user-specific data tracked across gameplay sessions or individual games.
 
@@ -322,14 +243,3 @@ class Event:
         :rtype: Dict[str, Any]
         """
         return self.game_state
-
-    @property
-    def EventSequenceIndex(self) -> Optional[int]:
-        """A strictly-increasing counter indicating the order of events in a session.
-
-        The first event in a session has EventSequenceIndex == 0, the next has index == 1, etc.
-
-        :return: A strictly-increasing counter indicating the order of events in a session
-        :rtype: int
-        """
-        return self.event_sequence_index
