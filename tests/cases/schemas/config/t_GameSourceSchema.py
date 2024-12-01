@@ -5,8 +5,8 @@ import unittest
 from typing import Any, Dict, Optional
 from unittest import TestCase
 # import ogd libraries.
-from ogd.common.schemas.configs.data_sources.DataSourceSchema import DataSourceSchema
-from ogd.common.schemas.configs.data_sources.BigQuerySourceSchema import BigQuerySchema
+from ogd.common.schemas.storage.DataSourceSchema import DataSourceSchema
+from ogd.common.schemas.storage.BigQuerySourceSchema import BigQuerySchema
 from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
 from ogd.common.utils.Logger import Logger
 # import locals
@@ -32,6 +32,7 @@ class t_GameSourceSchema(TestCase):
         }
         cls.test_schema = GameSourceSchema(
             name="Game Source Schema",
+            game_id="AQUALAB",
             source_name="AQUALAB_BQ",
             source_schema=BigQuerySchema.FromDict(name="AQUALAB_BQ", all_elements=source_elems, logger=None),
             db_name="aqualab",
@@ -72,7 +73,7 @@ class t_GameSourceSchema(TestCase):
         self.assertEqual(_str, "aqualab_daily")
 
     def test_TableSchema(self):
-        _str = self.test_schema.TableSchema
+        _str = self.test_schema.TableSchemaName
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "OPENGAMEDATA_BIGQUERY")
 
@@ -105,7 +106,7 @@ class t_GameSourceSchema(TestCase):
             "PROJECT_ID" : "aqualab-project",
             "PROJECT_KEY": "./key.txt"
         }
-        _sources = { "AQUALAB_BQ" : BigQuerySchema.FromDict(name="AQUALAB_BQ", all_elements=source_elems, logger=None) }
+        _sources : Dict[str, DataSourceSchema] = { "AQUALAB_BQ" : BigQuerySchema.FromDict(name="AQUALAB_BQ", all_elements=source_elems, logger=None) }
         _schema = GameSourceSchema.FromDict(name="AQUALAB", all_elements=_dict, logger=None, data_sources=_sources)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "AQUALAB")
@@ -117,8 +118,8 @@ class t_GameSourceSchema(TestCase):
         self.assertEqual(_schema.DatabaseName, "aqualab")
         self.assertIsInstance(_schema.TableName, str)
         self.assertEqual(_schema.TableName, "aqualab_daily")
-        self.assertIsInstance(_schema.TableSchema, str)
-        self.assertEqual(_schema.TableSchema, "OPENGAMEDATA_BIGQUERY")
+        self.assertIsInstance(_schema.TableSchemaName, str)
+        self.assertEqual(_schema.TableSchemaName, "OPENGAMEDATA_BIGQUERY")
 
     @unittest.skip("Not yet implemented")
     def test_parseSource(self):

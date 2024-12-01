@@ -1,13 +1,11 @@
-import json
 import logging
 import os
-from datetime import datetime
 from google.cloud import bigquery
 from typing import Dict, List, Tuple, Optional
 # import locals
-from coding.Code import Code
-from coding.Coder import Coder
-from ogd.common.interfaces.CodingInterface import CodingInterface
+from ogd.common.models.coding.Code import Code
+from ogd.common.models.coding.Coder import Coder
+from ogd.common.connectors.interfaces.CodingInterface import CodingInterface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.utils.Logger import Logger

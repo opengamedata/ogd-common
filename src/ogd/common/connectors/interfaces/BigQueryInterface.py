@@ -6,10 +6,10 @@ from google.cloud import bigquery
 from google.api_core.exceptions import BadRequest
 from typing import Dict, Final, List, Tuple, Optional
 # import locals
-from ogd.common.interfaces.EventInterface import EventInterface
+from ogd.common.connectors.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
-from ogd.common.schemas.configs.data_sources.BigQuerySourceSchema import BigQuerySchema
+from ogd.common.schemas.storage.BigQuerySourceSchema import BigQuerySchema
 from ogd.common.utils.Logger import Logger
 
 AQUALAB_MIN_VERSION : Final[float] = 6.2
