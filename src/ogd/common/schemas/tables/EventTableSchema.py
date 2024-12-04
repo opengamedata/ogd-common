@@ -39,14 +39,6 @@ class EventTableSchema(TableSchema):
         super().__init__(name=name, table_type=table_type, column_map=column_map, columns=columns, other_elements=other_elements)
 
     @property
-    def SessionIDIndex(self) -> ColumnMapIndex:
-        return self._column_map['session_id']
-
-    @property
-    def AppIDIndex(self) -> ColumnMapIndex:
-        return self._column_map['app_id']
-
-    @property
     def TimestampIndex(self) -> ColumnMapIndex:
         return self._column_map['timestamp']
 
@@ -63,24 +55,8 @@ class EventTableSchema(TableSchema):
         return self._column_map['event_source']
 
     @property
-    def AppVersionIndex(self) -> ColumnMapIndex:
-        return self._column_map['app_version']
-
-    @property
-    def AppBranchIndex(self) -> ColumnMapIndex:
-        return self._column_map['app_branch']
-
-    @property
-    def LogVersionIndex(self) -> ColumnMapIndex:
-        return self._column_map['log_version']
-
-    @property
     def TimeOffsetIndex(self) -> ColumnMapIndex:
         return self._column_map['time_offset']
-
-    @property
-    def UserIDIndex(self) -> ColumnMapIndex:
-        return self._column_map['user_id']
 
     @property
     def UserDataIndex(self) -> ColumnMapIndex:
@@ -93,24 +69,6 @@ class EventTableSchema(TableSchema):
     @property
     def EventSequenceIndexIndex(self) -> ColumnMapIndex:
         return self._column_map['event_sequence_index']
-
-    @property
-    def SessionIDColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.SessionIDIndex, int):
-            ret_val = self.ColumnNames[self.SessionIDIndex]
-        elif isinstance(self.SessionIDIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.SessionIDIndex])
-        return ret_val
-
-    @property
-    def AppIDColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.AppIDIndex, int):
-            ret_val = self.ColumnNames[self.AppIDIndex]
-        elif isinstance(self.AppIDIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.AppIDIndex])
-        return ret_val
 
     @property
     def TimestampColumn(self) -> Optional[str]:
@@ -149,48 +107,12 @@ class EventTableSchema(TableSchema):
         return ret_val
 
     @property
-    def AppVersionColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.AppVersionIndex, int):
-            ret_val = self.ColumnNames[self.AppVersionIndex]
-        elif isinstance(self.AppVersionIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.AppVersionIndex])
-        return ret_val
-
-    @property
-    def AppBranchColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.AppBranchIndex, int):
-            ret_val = self.ColumnNames[self.AppBranchIndex]
-        elif isinstance(self.AppBranchIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.AppBranchIndex])
-        return ret_val
-
-    @property
-    def LogVersionColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.LogVersionIndex, int):
-            ret_val = self.ColumnNames[self.LogVersionIndex]
-        elif isinstance(self.LogVersionIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.LogVersionIndex])
-        return ret_val
-
-    @property
     def TimeOffsetColumn(self) -> Optional[str]:
         ret_val = None
         if isinstance(self.TimeOffsetIndex, int):
             ret_val = self.ColumnNames[self.TimeOffsetIndex]
         elif isinstance(self.TimeOffsetIndex, list):
             ret_val = ", ".join([self.ColumnNames[idx] for idx in self.TimeOffsetIndex])
-        return ret_val
-
-    @property
-    def UserIDColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.UserIDIndex, int):
-            ret_val = self.ColumnNames[self.UserIDIndex]
-        elif isinstance(self.UserIDIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.UserIDIndex])
         return ret_val
 
     @property
