@@ -164,7 +164,7 @@ class SQL:
                columns       :List[str]           = [],    filter         : Optional[str] = None,
                sort_columns  :Optional[List[str]] = None,  sort_direction : str           = "ASC", grouping : Optional[str] = None,
                distinct      :bool                = False, offset         : int           = 0,     limit    : int           = -1,
-               fetch_results :bool                = True,  params         : Tuple[str]    = tuple()) -> Optional[List[Tuple]]:
+               fetch_results :bool                = True,  params         : Tuple         = tuple()) -> Optional[List[Tuple]]:
         """Function to build and execute SELECT statements on a database connection.
 
         :param cursor: A database cursor, retrieved from the active connection.
