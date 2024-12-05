@@ -9,6 +9,7 @@ from typing import Dict, Final, List, Tuple, Optional
 from ogd.common.connectors.filters import *
 from ogd.common.connectors.filters.collections import *
 from ogd.common.connectors.interfaces.Interface import Interface
+from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
@@ -223,10 +224,18 @@ class SQL:
 
 class MySQLFilters:
     @staticmethod
-    def FilterToMySQL(filter:Filter):
+    def FilterToMySQL(filter:Filter, column_name:str):
         if isinstance(filter, NoFilter):
-            return
-        elif isinstance(filter, MinFilter)
+            return ""
+        elif isinstance(filter, MinFilter):
+            return f"{column_name} > {filter.Min}" if filter.FilterMode == FilterMode.INCLUDE else f"{column_name} < {filter.Min}"
+        elif isinstance(filter, MaxFilter):
+            return f"{column_name} < {filter.Max}" if filter.FilterMode == FilterMode.INCLUDE else f"{column_name} > {filter.Max}"
+        elif isinstance(filter, MinMaxFilter):
+            return f"{filter.Min} < {column_name} AND {column_name} < {filter.Max}" if filter.FilterMode == FilterMode.INCLUDE else f"{filter.Min} > {column_name} AND {column_name} > {filter.Max}"
+        elif isinstance(filter, SetFilter):
+            set_str = ','.join(filter.Set)
+            return f"{column_name} IN ({set_str})" if filter.FilterMode == FilterMode.INCLUDE else f"{column_name} NOT IN ({set_str})"
 
 class MySQLInterface(Interface):
 
