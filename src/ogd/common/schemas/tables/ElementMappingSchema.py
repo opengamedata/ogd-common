@@ -6,7 +6,26 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
-class ColumnMapSchema(Schema):
+class ElementMappingSchema(Schema):
+    """Simple struct-like class to define a mapping of one or more data table columns to a single GameData element.
+
+    For example, the following JSON-style mapping definition for the EventData element of an Event:
+    ```json
+    "event_data" : { "item1":"someColumn", "item2":"someOtherColumn" }
+    ```
+    would result in an ElementMappingSchema with name "EventData", mapping type "DICT" and mapping definition like:
+    ```python
+    {
+        "item1" : <ColumnSchema for "someColumn">,
+        "item2" : <ColumnSchema for "someOtherColumn">
+    }
+    ```
+
+    :param Schema: _description_
+    :type Schema: _type_
+    :return: _description_
+    :rtype: _type_
+    """
     ColumnMapIndex : TypeAlias = Optional[int | List[int] | Dict[str,int]]
 
     _DEFAULT_MAP = {}
@@ -15,7 +34,7 @@ class ColumnMapSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, map:Dict[str, ColumnMapIndex], column_names:List[str], other_elements:Optional[Map]=None):
-        self._map            : Dict[str, ColumnMapSchema.ColumnMapIndex] = map
+        self._map            : Dict[str, ElementMappingSchema.ColumnMapIndex] = map
         self._column_names   : List[str]                                   = column_names
 
         super().__init__(name=name, other_elements=other_elements)
@@ -120,7 +139,7 @@ class ColumnMapSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], column_names:List[str], logger:Optional[logging.Logger]=None)-> "ColumnMapSchema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], column_names:List[str], logger:Optional[logging.Logger]=None)-> "ElementMappingSchema":
         """Function to generate a ColumnMapSchema from a JSON object
 
         TODO : find a way around using column_names as a direct parameter.
@@ -136,7 +155,7 @@ class ColumnMapSchema(Schema):
         :return: _description_
         :rtype: ColumnMapSchema
         """
-        _map : Dict[str, ColumnMapSchema.ColumnMapIndex] = {
+        _map : Dict[str, ElementMappingSchema.ColumnMapIndex] = {
             "session_id"           : None,
             "app_id"               : None,
             "timestamp"            : None,
@@ -179,11 +198,11 @@ class ColumnMapSchema(Schema):
                 Logger.Log(f"Column config does not have a '{key}' element, defaulting to {key} : None", logging.WARN)
         _leftovers = { key : val for key,val in all_elements.items() if key not in _map.keys() }
 
-        return ColumnMapSchema(name=name, map=_map, column_names=column_names, other_elements=_leftovers)
+        return ElementMappingSchema(name=name, map=_map, column_names=column_names, other_elements=_leftovers)
 
     @classmethod
-    def Default(cls) -> "ColumnMapSchema":
-        return ColumnMapSchema(
+    def Default(cls) -> "ElementMappingSchema":
+        return ElementMappingSchema(
             name="DefaultColumnMapSchema",
             map=cls._DEFAULT_MAP,
             column_names=cls._DEFAULT_COLUMN_NAMES,
