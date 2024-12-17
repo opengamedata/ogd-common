@@ -1,7 +1,7 @@
 # import standard libraries
 from typing import Any, Dict # , overload
 # import local files
-from ogd.common.schemas.Schema import Schema
+from ogd.common.configs.Config import Config
 
 
 class CredentialSchema(Schema):
