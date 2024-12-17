@@ -6,7 +6,7 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.utils.Logger import Logger
 
-class SSHSchema(Schema):
+class SSHConfig(Schema):
     _DEFAULT_HOST = "127.0.0.1"
     _DEFAULT_PORT = 22
 
@@ -52,7 +52,7 @@ class SSHSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "SSHSchema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "SSHConfig":
         _host : Optional[str]
         _user : Optional[str]
         _pass : Optional[str]
@@ -88,11 +88,11 @@ class SSHSchema(Schema):
 
         _used = {"SSH_HOST", "SSH_USER", "SSH_PW", "SSH_PASS", "SSH_PORT"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return SSHSchema(name=name, ssh_host=_host, ssh_user=_user, ssh_pass=_pass, ssh_port=_port, other_elements=_leftovers)
+        return SSHConfig(name=name, ssh_host=_host, ssh_user=_user, ssh_pass=_pass, ssh_port=_port, other_elements=_leftovers)
 
     @classmethod
-    def Default(cls) -> "SSHSchema":
-        return SSHSchema(
+    def Default(cls) -> "SSHConfig":
+        return SSHConfig(
             name="DefaultMySQLSchema",
             ssh_host=cls._DEFAULT_HOST,
             ssh_user=cls._DEFAULT_USER,
@@ -131,7 +131,7 @@ class SSHSchema(Schema):
 
     # *** PRIVATE METHODS ***
 
-class MySQLSchema(DataStoreConfig):
+class MySQLConfig(DataStoreConfig):
     _DEFAULT_HOST = "127.0.0.1"
     _DEFAULT_PORT = 22
     _DEFAULT_USER = "DEFAULT USER"
@@ -139,12 +139,12 @@ class MySQLSchema(DataStoreConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, db_host:str, db_port:int, db_user:str, db_pass:Optional[str], ssh_cfg:SSHSchema, other_elements:Dict[str, Any]):
+    def __init__(self, name:str, db_host:str, db_port:int, db_user:str, db_pass:Optional[str], ssh_cfg:SSHConfig, other_elements:Dict[str, Any]):
         self._db_host  : str           = db_host
         self._db_port  : int           = db_port
         self._db_user  : str           = db_user
         self._db_pass  : Optional[str] = db_pass
-        self._ssh_cfg  : SSHSchema     = ssh_cfg
+        self._ssh_cfg  : SSHConfig     = ssh_cfg
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -164,11 +164,11 @@ class MySQLSchema(DataStoreConfig):
         return self._db_pass
 
     @property
-    def SSHConfig(self) -> SSHSchema:
+    def SSHConfig(self) -> SSHConfig:
         return self._ssh_cfg
 
     @property
-    def SSH(self) -> SSHSchema:
+    def SSH(self) -> SSHConfig:
         """Shortened alias for SSHConfig, convenient when using sub-elements of the SSHConfig.
 
         :return: The schema describing the configuration for an SSH connection to a data source.
@@ -201,12 +201,12 @@ class MySQLSchema(DataStoreConfig):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "MySQLSchema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "MySQLConfig":
         _db_host  : str
         _db_port  : int
         _db_user  : str
         _db_pass  : Optional[str]
-        _ssh_cfg  : SSHSchema
+        _ssh_cfg  : SSHConfig
 
         if not isinstance(all_elements, dict):
             all_elements = {}
@@ -240,21 +240,21 @@ class MySQLSchema(DataStoreConfig):
         # TODO : probably shouldn't have keys expected for SSH be hardcoded here, maybe need a way to get back what stuff it didn't use?
         _ssh_keys = {"SSH_HOST", "SSH_PORT", "SSH_USER", "SSH_PW", "SSH_PASS"}
         _ssh_elems = { key : all_elements.get(key) for key in _ssh_keys.intersection(all_elements.keys()) }
-        _ssh_cfg = SSHSchema.FromDict(name=f"{name}-SSH", all_elements=_ssh_elems, logger=logger)
+        _ssh_cfg = SSHConfig.FromDict(name=f"{name}-SSH", all_elements=_ssh_elems, logger=logger)
 
         _used = {"DB_HOST", "DB_PORT", "DB_USER", "DB_PW", "DB_PASS"}.union(_ssh_keys)
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return MySQLSchema(name=name, db_host=_db_host, db_port=_db_port, db_user=_db_user, db_pass=_db_pass, ssh_cfg=_ssh_cfg, other_elements=_leftovers)
+        return MySQLConfig(name=name, db_host=_db_host, db_port=_db_port, db_user=_db_user, db_pass=_db_pass, ssh_cfg=_ssh_cfg, other_elements=_leftovers)
 
     @classmethod
-    def Default(cls) -> "MySQLSchema":
-        return MySQLSchema(
+    def Default(cls) -> "MySQLConfig":
+        return MySQLConfig(
             name="DefaultMySQLSchema",
             db_host=cls._DEFAULT_HOST,
             db_port=cls._DEFAULT_PORT,
             db_user=cls._DEFAULT_USER,
             db_pass=cls._DEFAULT_PASS,
-            ssh_cfg=SSHSchema.Default(),
+            ssh_cfg=SSHConfig.Default(),
             other_elements={}
         )
 
