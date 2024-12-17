@@ -78,7 +78,7 @@ class FileStoreConfig(DataStoreConfig):
     @classmethod
     def Default(cls) -> "FileStoreConfig":
         return FileStoreConfig(
-            name="DefaultFileSourceSchema",
+            name="DefaultFileStoreConfig",
             folder_path=cls._DEFAULT_FOLDER_PATH,
             file_name=cls._DEFAULT_FILE_NAME,
             other_elements={}

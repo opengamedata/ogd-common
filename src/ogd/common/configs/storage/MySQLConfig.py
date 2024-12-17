@@ -93,7 +93,7 @@ class SSHConfig(Schema):
     @classmethod
     def Default(cls) -> "SSHConfig":
         return SSHConfig(
-            name="DefaultMySQLSchema",
+            name="DefaultSSHConfig",
             ssh_host=cls._DEFAULT_HOST,
             ssh_user=cls._DEFAULT_USER,
             ssh_pass=cls._DEFAULT_PASS,
@@ -249,7 +249,7 @@ class MySQLConfig(DataStoreConfig):
     @classmethod
     def Default(cls) -> "MySQLConfig":
         return MySQLConfig(
-            name="DefaultMySQLSchema",
+            name="DefaultMySQLConfig",
             db_host=cls._DEFAULT_HOST,
             db_port=cls._DEFAULT_PORT,
             db_user=cls._DEFAULT_USER,
