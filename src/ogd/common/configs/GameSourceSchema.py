@@ -39,12 +39,12 @@ class GameSourceSchema(Schema):
     :type Schema: _type_
     """
     def __init__(self, name:str,  game_id:Optional[str],
-                 source_name:str, source_schema:Optional[DataSourceSchema],
+                 source_name:str, source_schema:Optional[DataStoreConfig],
                  db_name:str,     table_name:str,  table_schema:str,
                  other_elements:Dict[str, Any]):
         self._game_id           : str
         self._source_name       : str                        = source_name
-        self._source_schema     : Optional[DataSourceSchema] = source_schema
+        self._source_schema     : Optional[DataStoreConfig] = source_schema
         self._db_name           : str                        = db_name
         self._table_name        : str                        = table_name
         self._table_schema_name : str                        = table_schema
@@ -66,7 +66,7 @@ class GameSourceSchema(Schema):
         return self._source_name
 
     @property
-    def Source(self) -> Optional[DataSourceSchema]:
+    def Source(self) -> Optional[DataStoreConfig]:
         return self._source_schema
 
     @property
@@ -108,7 +108,7 @@ class GameSourceSchema(Schema):
         )
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger], data_sources:Dict[str, DataSourceSchema]) -> "GameSourceSchema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger], data_sources:Dict[str, DataStoreConfig]) -> "GameSourceSchema":
         """Create a GameSourceSchema from a given dictionary
 
         :param name: _description_
@@ -118,12 +118,12 @@ class GameSourceSchema(Schema):
         :param logger: _description_
         :type logger: Optional[logging.Logger]
         :param data_sources: _description_
-        :type data_sources: Dict[str, DataSourceSchema]
+        :type data_sources: Dict[str, DataStoreConfig]
         :return: _description_
         :rtype: GameSourceSchema
         """
         _source_name   : str
-        _source_schema : Optional[DataSourceSchema]
+        _source_schema : Optional[DataStoreConfig]
         _db_name       : str
         _table_schema  : str
         _table_name    : str

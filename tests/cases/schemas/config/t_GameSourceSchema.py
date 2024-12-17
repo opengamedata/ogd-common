@@ -92,7 +92,7 @@ class t_GameSourceSchema(TestCase):
     def test_FromDict(self):
         """Test case for whether the FromDict function is working properly.
 
-            TODO : Include assertion(s) for DataSourceSchema, as in implementation of test_Source (whenever that gets implemented)
+            TODO : Include assertion(s) for DataStoreConfig, as in implementation of test_Source (whenever that gets implemented)
             TODO : Possibly do additional cases where we check that default replacements for missing elements are correct.
         """
         _dict = {
@@ -106,13 +106,13 @@ class t_GameSourceSchema(TestCase):
             "PROJECT_ID" : "aqualab-project",
             "PROJECT_KEY": "./key.txt"
         }
-        _sources : Dict[str, DataSourceSchema] = { "AQUALAB_BQ" : BigQuerySchema.FromDict(name="AQUALAB_BQ", all_elements=source_elems, logger=None) }
+        _sources : Dict[str, DataStoreConfig] = { "AQUALAB_BQ" : BigQuerySchema.FromDict(name="AQUALAB_BQ", all_elements=source_elems, logger=None) }
         _schema = GameSourceSchema.FromDict(name="AQUALAB", all_elements=_dict, logger=None, data_sources=_sources)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "AQUALAB")
         self.assertIsInstance(_schema.SourceName, str)
         self.assertEqual(_schema.SourceName, "AQUALAB_BQ")
-        # self.assertIsInstance(_schema.Source, DataSourceSchema)
+        # self.assertIsInstance(_schema.Source, DataStoreConfig)
         # self.assertEqual(_schema.Source, "AQUALAB")
         self.assertIsInstance(_schema.DatabaseName, str)
         self.assertEqual(_schema.DatabaseName, "aqualab")
