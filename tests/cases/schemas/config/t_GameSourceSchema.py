@@ -5,7 +5,7 @@ import unittest
 from typing import Any, Dict, Optional
 from unittest import TestCase
 # import ogd libraries.
-from ogd.common.schemas.storage.DataSourceSchema import DataSourceSchema
+from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.schemas.storage.BigQuerySourceSchema import BigQuerySchema
 from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
 from ogd.common.utils.Logger import Logger

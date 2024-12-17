@@ -3,7 +3,7 @@ import logging
 from typing import Any, Dict, Optional
 from pathlib import Path
 # import local files
-from ogd.common.schemas.storage.DataSourceSchema import DataSourceSchema
+from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.utils.Logger import Logger
 
 class FileSourceSchema(DataSourceSchema):

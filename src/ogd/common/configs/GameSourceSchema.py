@@ -2,7 +2,7 @@
 import logging
 from typing import Any, Dict, Optional
 # import local files
-from ogd.common.schemas.storage.DataSourceSchema import DataSourceSchema
+from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.schemas.storage.BigQuerySourceSchema import BigQuerySchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.TableSchema import TableSchema

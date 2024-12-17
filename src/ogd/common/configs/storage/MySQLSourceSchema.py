@@ -3,13 +3,11 @@ import logging
 from typing import Any, Dict, Optional, Type
 # import local files
 from ogd.common.schemas.Schema import Schema
-from ogd.common.schemas.storage.DataSourceSchema import DataSourceSchema
+from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.utils.Logger import Logger
 
 class SSHSchema(Schema):
     _DEFAULT_HOST = "127.0.0.1"
-    _DEFAULT_USER = "DEFAULT USER"
-    _DEFAULT_PASS = None
     _DEFAULT_PORT = 22
 
     # *** BUILT-INS & PROPERTIES ***
@@ -117,26 +115,6 @@ class SSHSchema(Schema):
         else:
             ret_val = str(host)
             Logger.Log(f"SSH config for host was unexpected type {type(host)}, defaulting to str(host)={ret_val}.", logging.WARN)
-        return ret_val
-
-    @staticmethod
-    def _parseUser(user) -> Optional[str]:
-        ret_val : Optional[str]
-        if isinstance(user, str):
-            ret_val = user
-        else:
-            ret_val = str(user)
-            Logger.Log(f"SSH config for user was unexpected type {type(user)}, defaulting to str(user)={ret_val}.", logging.WARN)
-        return ret_val
-
-    @staticmethod
-    def _parsePass(pw) -> Optional[str]:
-        ret_val : Optional[str]
-        if isinstance(pw, str):
-            ret_val = pw
-        else:
-            ret_val = str(pw)
-            Logger.Log(f"SSH config for password was unexpected type {type(pw)}, defaulting to str(pw)=***.", logging.WARN)
         return ret_val
 
     @staticmethod

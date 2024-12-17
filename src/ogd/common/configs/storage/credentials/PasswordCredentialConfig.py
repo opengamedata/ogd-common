@@ -85,7 +85,7 @@ class PasswordCredential(CredentialConfig):
             ret_val = user
         else:
             ret_val = str(user)
-            Logger.Log(f"SSH config for user was unexpected type {type(user)}, defaulting to str(user)={ret_val}.", logging.WARN)
+            Logger.Log(f"User for password credential was unexpected type {type(user)}, defaulting to str(user)={ret_val}.", logging.WARN)
         return ret_val
 
     @staticmethod
@@ -95,7 +95,7 @@ class PasswordCredential(CredentialConfig):
             ret_val = pw
         else:
             ret_val = str(pw)
-            Logger.Log(f"SSH config for password was unexpected type {type(pw)}, defaulting to str(pw)=***.", logging.WARN)
+            Logger.Log(f"Password for password credential was unexpected type {type(pw)}, defaulting to str(pw)=***.", logging.WARN)
         return ret_val
 
     # *** PRIVATE METHODS ***

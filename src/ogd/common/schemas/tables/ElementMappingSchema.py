@@ -2,9 +2,13 @@
 import logging
 from typing import Any, Dict, List, Optional, TypeAlias
 # import local files
+from ogd.common.models.enums.ElementMappingType import ElementMappingType
+from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
+
+ElementMap: TypeAlias = ColumnSchema | List[ColumnSchema] | Dict[str,ColumnSchema]
 
 class ElementMappingSchema(Schema):
     """Simple struct-like class to define a mapping of one or more data table columns to a single GameData element.
@@ -20,100 +24,35 @@ class ElementMappingSchema(Schema):
         "item2" : <ColumnSchema for "someOtherColumn">
     }
     ```
-
-    :param Schema: _description_
-    :type Schema: _type_
-    :return: _description_
-    :rtype: _type_
     """
-    ColumnMapIndex : TypeAlias = Optional[int | List[int] | Dict[str,int]]
 
     _DEFAULT_MAP = {}
     _DEFAULT_COLUMN_NAMES = []
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, map:Dict[str, ColumnMapIndex], column_names:List[str], other_elements:Optional[Map]=None):
-        self._map            : Dict[str, ElementMappingSchema.ColumnMapIndex] = map
-        self._column_names   : List[str]                                   = column_names
-
+    def __init__(self, name:str, map:ElementMap, other_elements:Optional[Map]=None):
+        self._map      : ElementMap = map
+        self._map_type : ElementMappingType
+        if isinstance(map, ColumnSchema):
+            self._map_type = ElementMappingType.SINGLE
+        elif isinstance(map, list):
+            self._map_type = ElementMappingType.LIST
+        elif isinstance(map, dict):
+            self._map_type = ElementMappingType.DICT
+        else:
+            raise TypeError(f"The map passed to ElementMappingSchema had invalide type {type(map)}")
         super().__init__(name=name, other_elements=other_elements)
 
     @property
-    def Map(self) -> Dict[str, ColumnMapIndex]:
-        """Mapping from Event element names to the indices of the database columns mapped to them.
-        There may be a single index, indicating a 1-to-1 mapping of a database column to the element;
-        There may be a list of indices, indicating multiple columns will be concatenated to form the element value;
-        There may be a further mapping of keys to indicies, indicating multiple columns will be joined into a JSON object, with keys mapped to values found at the columns with given indices.
-
-        :return: The dictionary mapping of element names to indices.
-        :rtype: Dict[str, Union[int, List[int], Dict[str, int], None]]
-        """
+    def Map(self) -> ElementMap:
         return self._map
 
     @property
-    def SessionID(self) -> ColumnMapIndex:
-        return self._map['session_id']
-
-    @property
-    def AppID(self) -> ColumnMapIndex:
-        return self._map['app_id']
-
-    @property
-    def Timestamp(self) -> ColumnMapIndex:
-        return self._map['timestamp']
-
-    @property
-    def EventName(self) -> ColumnMapIndex:
-        return self._map['event_name']
-
-    @property
-    def EventData(self) -> ColumnMapIndex:
-        return self._map['event_data']
-
-    @property
-    def EventSource(self) -> ColumnMapIndex:
-        return self._map['event_source']
-
-    @property
-    def AppVersion(self) -> ColumnMapIndex:
-        return self._map['app_version']
-
-    @property
-    def AppBranch(self) -> ColumnMapIndex:
-        return self._map['app_branch']
-
-    @property
-    def LogVersion(self) -> ColumnMapIndex:
-        return self._map['log_version']
-
-    @property
-    def TimeOffset(self) -> ColumnMapIndex:
-        return self._map['time_offset']
-
-    @property
-    def UserID(self) -> ColumnMapIndex:
-        return self._map['user_id']
-
-    @property
-    def UserData(self) -> ColumnMapIndex:
-        return self._map['user_data']
-
-    @property
-    def GameState(self) -> ColumnMapIndex:
-        return self._map['game_state']
-
-    @property
-    def EventSequenceIndex(self) -> ColumnMapIndex:
-        return self._map['event_sequence_index']
-
-    @property
-    def Elements(self) -> Dict[str, str]:
-        return self._other_elements
-
-    @property
-    def ElementNames(self) -> List[str]:
-        return list(self._other_elements.keys())
+    def ColumnNames(self) -> List[str]:
+        match self._map_type:
+            case ElementMappingType.SINGLE:
+                
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -155,7 +94,7 @@ class ElementMappingSchema(Schema):
         :return: _description_
         :rtype: ColumnMapSchema
         """
-        _map : Dict[str, ElementMappingSchema.ColumnMapIndex] = {
+        _map : Dict[str, ElementMappingSchema.ElementMapIndex] = {
             "session_id"           : None,
             "app_id"               : None,
             "timestamp"            : None,
