@@ -13,13 +13,13 @@ from typing import Any, Dict, Optional
 # import 3rd-party libraries
 
 # import OGD libraries
-from ogd.common.schemas.Schema import Schema
+from ogd.common.configs.Config import Config
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 # import local files
 
-class TestConfigSchema(Schema):
+class TestConfig(Config):
     _DEFAULT_VERBOSE       = False
     _DEFAULT_ENABLED_TESTS = {}
 
@@ -48,8 +48,8 @@ class TestConfigSchema(Schema):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
     
     @classmethod
-    def Default(cls) -> "TestConfigSchema":
-        return TestConfigSchema(
+    def Default(cls) -> "TestConfig":
+        return TestConfig(
             name            = "DefaultTestConfig",
             verbose         = cls._DEFAULT_VERBOSE,
             enabled_tests   = cls._DEFAULT_ENABLED_TESTS
@@ -58,7 +58,7 @@ class TestConfigSchema(Schema):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TestConfigSchema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TestConfig":
         _verbose         : bool
         _enabled_tests   : Dict[str, bool]
 
@@ -82,7 +82,7 @@ class TestConfigSchema(Schema):
 
         _used = {"VERBOSE", "ENABLED"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return TestConfigSchema(name=name, verbose=_verbose, enabled_tests=_enabled_tests, other_elements=_leftovers)
+        return TestConfig(name=name, verbose=_verbose, enabled_tests=_enabled_tests, other_elements=_leftovers)
 
     # *** PUBLIC METHODS ***
 
@@ -114,7 +114,7 @@ class TestConfigSchema(Schema):
         if isinstance(enabled, dict):
             ret_val = { str(key) : bool(val) for key, val in enabled.items() }
         else:
-            ret_val = TestConfigSchema.Default().EnabledTests
+            ret_val = TestConfig.Default().EnabledTests
             _msg = f"Config 'enabled tests' setting was unexpected type {type(enabled)}, defaulting to class default = {ret_val}."
             if logger:
                 logger.warn(_msg, logging.WARN)
