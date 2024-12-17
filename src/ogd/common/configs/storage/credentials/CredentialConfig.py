@@ -12,5 +12,5 @@ class CredentialConfig(Config):
     # @overload
     # def __init__(self, name:str, other_elements:Dict[str, Any]): ...
 
-    def __init__(self, name:str, unparsed_elements:Dict[str, Any] | Any):
-        super().__init__(name=name, other_elements=unparsed_elements)
+    def __init__(self, name:str, other_elements:Dict[str, Any] | Any):
+        super().__init__(name=name, other_elements=other_elements)
