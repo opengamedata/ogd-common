@@ -4,10 +4,10 @@ from typing import Any, Dict # , overload
 from ogd.common.configs.Config import Config
 
 
-class CredentialSchema(Schema):
+class CredentialConfig(Config):
     """Dumb struct to contain data pertaining to credentials for accessing a data source.
 
-    In general, a credential can have a key, or a user-password combination
+    In general, a credential can have a key, or a user-password combination.
     """
     # @overload
     # def __init__(self, name:str, other_elements:Dict[str, Any]): ...
