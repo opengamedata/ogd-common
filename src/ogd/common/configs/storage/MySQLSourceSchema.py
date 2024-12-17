@@ -131,7 +131,7 @@ class SSHSchema(Schema):
 
     # *** PRIVATE METHODS ***
 
-class MySQLSchema(DataSourceSchema):
+class MySQLSchema(DataStoreConfig):
     _DEFAULT_HOST = "127.0.0.1"
     _DEFAULT_PORT = 22
     _DEFAULT_USER = "DEFAULT USER"

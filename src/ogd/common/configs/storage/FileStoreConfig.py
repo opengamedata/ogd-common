@@ -6,7 +6,7 @@ from pathlib import Path
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.utils.Logger import Logger
 
-class FileStoreConfig(DataSourceSchema):
+class FileStoreConfig(DataStoreConfig):
     _DEFAULT_FOLDER_PATH = Path('./data')
     _DEFAULT_FILE_NAME = "UNKNOWN.tsv"
 

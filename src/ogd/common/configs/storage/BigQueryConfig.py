@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, Type
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.utils.Logger import Logger
 
-class BigQuerySchema(DataSourceSchema):
+class BigQuerySchema(DataStoreConfig):
     _DEFAULT_PROJECT_ID = "wcer-field-day-ogd-1798"
     _DEFAULT_CREDENTIAL = "./config/ogd.json"
 
