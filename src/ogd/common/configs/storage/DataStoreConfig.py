@@ -4,12 +4,12 @@ import logging
 from pathlib import Path
 from typing import Any, Dict # , overload
 # import local files
-from ogd.common.schemas.Schema import Schema
-from ogd.common.schemas.storage.CredentialSchema import CredentialSchema
+from ogd.common.configs.Config import Config
+from ogd.common.configs.storage.CredentialSchema import CredentialSchema
 from ogd.common.utils.Logger import Logger
 
 
-class DataSourceSchema(Schema):
+class DataStoreConfig(Config):
     """Dumb struct to contain data pertaining to a data source, which a StorageConnector can connect to.
 
     Every source has:
@@ -28,10 +28,10 @@ class DataSourceSchema(Schema):
             Logger.Log(f"For {name} Data Source config, other_elements was not a dict, defaulting to empty dict", logging.WARN)
         # 2. Parse standard elements, with legacy elements nested under "else" case.
         if "SOURCE_TYPE" in other_elements.keys():
-            self._source_type = DataSourceSchema._parseSourceType(other_elements["SOURCE_TYPE"])
+            self._source_type = DataStoreConfig._parseSourceType(other_elements["SOURCE_TYPE"])
         else:
             if "DB_TYPE" in other_elements.keys():
-                self._source_type = DataSourceSchema._parseSourceType(other_elements["DB_TYPE"])
+                self._source_type = DataStoreConfig._parseSourceType(other_elements["DB_TYPE"])
             else:
                 self._source_type = "UNKNOWN"
                 Logger.Log(f"{name} config does not have a 'SOURCE_TYPE' element; defaulting to db_name={self._source_type}", logging.WARN)
