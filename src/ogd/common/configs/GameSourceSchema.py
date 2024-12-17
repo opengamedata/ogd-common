@@ -3,7 +3,7 @@ import logging
 from typing import Any, Dict, Optional
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
-from ogd.common.schemas.storage.BigQuerySourceSchema import BigQuerySchema
+from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils.Logger import Logger
@@ -100,7 +100,7 @@ class GameSourceSchema(Schema):
             name="DefaultGameSourceSchema",
             game_id=cls._DEFAULT_GAME_ID,
             source_name=cls._DEFAULT_SOURCE_NAME,
-            source_schema=BigQuerySchema.Default(),
+            source_schema=BigQueryConfig.Default(),
             db_name=cls._DEFAULT_DB_NAME,
             table_name=cls._DEFAULT_TABLE_NAME,
             table_schema=cls._DEFAULT_TABLE_SCHEMA,

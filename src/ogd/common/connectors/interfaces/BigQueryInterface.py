@@ -9,7 +9,7 @@ from typing import Dict, Final, List, Tuple, Optional
 from ogd.common.connectors.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
-from ogd.common.schemas.storage.BigQuerySourceSchema import BigQuerySchema
+from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.utils.Logger import Logger
 
 AQUALAB_MIN_VERSION : Final[float] = 6.2
@@ -31,7 +31,7 @@ class BigQueryInterface(EventInterface):
         if not self._is_open:
             if "GITHUB_ACTIONS" in os.environ:
                 self._client = bigquery.Client()
-            elif isinstance(self._config.Source, BigQuerySchema):
+            elif isinstance(self._config.Source, BigQueryConfig):
                 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = self._config.Source.Credential or "NO CREDENTIAL CONFIGURED!" or f"./{self._game_id}.json"
                 self._client = bigquery.Client()
             else:
@@ -190,7 +190,7 @@ class BigQueryInterface(EventInterface):
         :return: The full path from project ID to table name, if properly set in configuration, else the literal string "INVALID SOURCE SCHEMA".
         :rtype: str
         """
-        if isinstance(self._config.Source, BigQuerySchema):
+        if isinstance(self._config.Source, BigQueryConfig):
             # _current_date = datetime.now().date()
             date_wildcard = "*"
             # if min_date is not None and max_date is not None:

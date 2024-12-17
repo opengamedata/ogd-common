@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, Type
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.utils.Logger import Logger
 
-class BigQuerySchema(DataStoreConfig):
+class BigQueryConfig(DataStoreConfig):
     _DEFAULT_PROJECT_ID = "wcer-field-day-ogd-1798"
     _DEFAULT_CREDENTIAL = "./config/ogd.json"
 
@@ -41,16 +41,16 @@ class BigQuerySchema(DataStoreConfig):
         return ret_val
 
     @classmethod
-    def Default(cls) -> "BigQuerySchema":
-        return BigQuerySchema(
-            name="DefaultBigQuerySchema",
+    def Default(cls) -> "BigQueryConfig":
+        return BigQueryConfig(
+            name="DefaultBigQueryConfig",
             project_id=cls._DEFAULT_PROJECT_ID,
             credential=cls._DEFAULT_CREDENTIAL,
             other_elements={}
         )
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "BigQuerySchema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "BigQueryConfig":
         _project_id : str
         _credential : Optional[str]
 
@@ -60,17 +60,17 @@ class BigQuerySchema(DataStoreConfig):
         _project_id = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["PROJECT_ID", "DATASET_ID"],
             parser_function=cls._parseProjectID,
-            default_value=BigQuerySchema._DEFAULT_PROJECT_ID
+            default_value=BigQueryConfig._DEFAULT_PROJECT_ID
         )
         _credential = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["PROJECT_KEY"],
             parser_function=cls._parseCredential,
-            default_value=BigQuerySchema._DEFAULT_CREDENTIAL
+            default_value=BigQueryConfig._DEFAULT_CREDENTIAL
         )
 
         _used = {"PROJECT_ID", "DATASET_ID", "PROJECT_KEY"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return BigQuerySchema(name=name, project_id=_project_id, credential=_credential, other_elements=_leftovers)
+        return BigQueryConfig(name=name, project_id=_project_id, credential=_credential, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
 
