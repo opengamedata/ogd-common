@@ -3,11 +3,11 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Optional
 # import local files
-from ogd.common.schemas.Schema import Schema
+from ogd.common.configs.Config import Config
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
-class FileIndexingSchema(Schema):
+class FileIndexingConfig(Config):
     _DEFAULT_LOCAL_DIR  = Path("./data/")
     _DEFAULT_REMOTE_URL = "https://fieldday-web.ad.education.wisc.edu/opengamedata/"
     _DEFAULT_TEMPLATE_URL  = "https://github.com/opengamedata/opengamedata-samples"
@@ -35,8 +35,8 @@ class FileIndexingSchema(Schema):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @classmethod
-    def Default(cls) -> "FileIndexingSchema":
-        return FileIndexingSchema(
+    def Default(cls) -> "FileIndexingConfig":
+        return FileIndexingConfig(
             name            = "DefaultFileIndexingSchema",
             local_dir       = cls._DEFAULT_LOCAL_DIR,
             remote_url      = cls._DEFAULT_REMOTE_URL,
@@ -45,7 +45,7 @@ class FileIndexingSchema(Schema):
         )
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileIndexingSchema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileIndexingConfig":
         _local_dir     : Path
         _remote_url    : Optional[str]
         _templates_url : str
@@ -60,22 +60,22 @@ class FileIndexingSchema(Schema):
         _local_dir = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["LOCAL_DIR"],
             parser_function=cls._parseLocalDir,
-            default_value=FileIndexingSchema._DEFAULT_LOCAL_DIR
+            default_value=FileIndexingConfig._DEFAULT_LOCAL_DIR
         )
         _remote_url = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["REMOTE_URL"],
             parser_function=cls._parseRemoteURL,
-            default_value=FileIndexingSchema._DEFAULT_REMOTE_URL
+            default_value=FileIndexingConfig._DEFAULT_REMOTE_URL
         )
         _templates_url = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["TEMPLATES_URL"],
             parser_function=cls._parseTemplatesURL,
-            default_value=FileIndexingSchema._DEFAULT_TEMPLATE_URL
+            default_value=FileIndexingConfig._DEFAULT_TEMPLATE_URL
         )
 
         _used = {"LOCAL_DIR", "REMOTE_URL", "TEMPLATES_URL"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return FileIndexingSchema(name=name, local_dir=_local_dir, remote_url=_remote_url, templates_url=_templates_url, other_elements=_leftovers)
+        return FileIndexingConfig(name=name, local_dir=_local_dir, remote_url=_remote_url, templates_url=_templates_url, other_elements=_leftovers)
 
 
     @property
