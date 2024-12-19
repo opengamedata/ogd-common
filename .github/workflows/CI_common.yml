@@ -20,24 +20,31 @@ jobs:
     with:
       with_caching: false
 
-  # Run testbeds in schema module
+  # Run testbeds in configs module
+
+  testbed_configs:
+    name: Config Testbeds
+    needs: build
+    uses: ./.github/workflows/TEST_Configs.yml
+
+  testbed_game_configs:
+    name: Game Config Testbeds
+    needs: build
+    uses: ./.github/workflows/TEST_GameConfigs.yml
+
+  # Run testbeds in schemas module
 
   testbed_schema:
     name: Schema base class Testbed
     needs: build
     uses: ./.github/workflows/TEST_Schema.yml
 
-  testbed_config_schemas:
-    name: Config Schema Testbeds
-    needs: build
-    uses: ./.github/workflows/TEST_ConfigSchemas.yml
-
   testbed_game_schemas:
     name: Game Schema Testbeds
     needs: build
     uses: ./.github/workflows/TEST_GameSchemas.yml
 
-  # Run testbeds in schema module
+  # Run testbeds in utils module
 
   testbed_fileio:
     name: FileIO Testbed
