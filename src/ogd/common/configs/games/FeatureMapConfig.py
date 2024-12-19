@@ -97,7 +97,7 @@ class FeatureMapConfig(Schema):
     @classmethod
     def Default(cls) -> "FeatureMapConfig":
         return FeatureMapConfig(
-            name="DefaultFeatureMapSchema",
+            name="DefaultFeatureMapConfig",
             legacy_mode=cls._DEFAULT_LEGACY_MODE,
             legacy_perlevel_feats=cls._DEFAULT_LEGACY_FEATS,
             percount_feats=cls._DEFAULT_PERCOUNT_FEATS,

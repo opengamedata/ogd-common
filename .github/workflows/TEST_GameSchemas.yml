@@ -26,10 +26,10 @@ jobs:
         testbed: [
           t_AggregateConfig,
           t_DataElementSchema,
-          t_DetectorMapSchema,
+          t_DetectorMapConfig,
           t_DetectorConfig,
           t_EventSchema,
-          t_FeatureMapSchema,
+          t_FeatureMapConfig,
           t_FeatureConfig,
           t_GameSchema,
           t_GameStateSchema,

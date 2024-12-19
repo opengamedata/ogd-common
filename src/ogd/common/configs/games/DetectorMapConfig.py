@@ -92,7 +92,7 @@ class DetectorMapConfig(Schema):
     @classmethod
     def Default(cls) -> "DetectorMapConfig":
         return DetectorMapConfig(
-            name="DefaultDetectorMapSchema",
+            name="DefaultDetectorMapConfig",
             perlevel_detectors=cls._DEFAULT_PERLEVEL_DETECTORS,
             percount_detectors=cls._DEFAULT_PERCOUNT_DETECTORS,
             aggregate_detectors=cls._DEFAULT_AGGREGATE_DETECTORS,

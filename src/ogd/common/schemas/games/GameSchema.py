@@ -58,7 +58,7 @@ class GameSchema(Schema):
         all features to be extracted.
 
         TODO: need to get game_state from schema file, and use a GameStateSchema instead of general Map.
-        TODO: Use DetectorMapSchema and FeatureMapSchema instead of just dicts... I think. Depending how these all work together.
+        TODO: Use DetectorMapConfig and FeatureMapConfig instead of just dicts... I think. Depending how these all work together.
         TODO : make parser functions for config and versions, so we can do ElementFromDict for them as well.
 
         :param name: _description_
@@ -609,22 +609,22 @@ class GameSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseDetectorMap(detector_map:Dict[str, Any]) -> DetectorMapSchema:
-        ret_val : DetectorMapSchema
+    def _parseDetectorMap(detector_map:Dict[str, Any]) -> DetectorMapConfig:
+        ret_val : DetectorMapConfig
         if isinstance(detector_map, dict):
-            ret_val = DetectorMapSchema.FromDict(name=f"Detectors", all_elements=detector_map)
+            ret_val = DetectorMapConfig.FromDict(name=f"Detectors", all_elements=detector_map)
         else:
-            ret_val = DetectorMapSchema.FromDict(name="Empty Features", all_elements={})
+            ret_val = DetectorMapConfig.FromDict(name="Empty Features", all_elements={})
             Logger.Log(f"detector_map was unexpected type {type(detector_map)}, defaulting to empty map.", logging.WARN)
         return ret_val
 
     @staticmethod
-    def _parseFeatureMap(feature_map:Dict[str, Any]) -> FeatureMapSchema:
-        ret_val : FeatureMapSchema
+    def _parseFeatureMap(feature_map:Dict[str, Any]) -> FeatureMapConfig:
+        ret_val : FeatureMapConfig
         if isinstance(feature_map, dict):
-            ret_val = FeatureMapSchema.FromDict(name=f"Features", all_elements=feature_map)
+            ret_val = FeatureMapConfig.FromDict(name=f"Features", all_elements=feature_map)
         else:
-            ret_val = FeatureMapSchema.FromDict(name="Empty Features", all_elements={})
+            ret_val = FeatureMapConfig.FromDict(name="Empty Features", all_elements={})
             Logger.Log(f"feature_map was unexpected type {type(feature_map)}, defaulting to empty map.", logging.WARN)
         return ret_val
 

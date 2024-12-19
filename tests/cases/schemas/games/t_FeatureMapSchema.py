@@ -6,11 +6,11 @@ from unittest import TestCase
 from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.schemas.games.FeatureMapSchema import FeatureMapSchema
+from src.ogd.common.schemas.games.FeatureMapConfig import FeatureMapConfig
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
-class t_FeatureMapSchema(TestCase):
+class t_FeatureMapConfig(TestCase):
     """Testbed for the GameSourceSchema class.
 
         TODO : Implement and enable tests.
@@ -24,7 +24,7 @@ class t_FeatureMapSchema(TestCase):
         Logger.std_logger.setLevel(_level)
 
         # 2. Set up local instance of testing class
-        cls.test_schema = FeatureMapSchema(
+        cls.test_schema = FeatureMapConfig(
             name="available_building Schema",
             legacy_mode=True,
             legacy_perlevel_feats={},
@@ -101,7 +101,7 @@ class t_FeatureMapSchema(TestCase):
                },
                "description" : "The buildings available for the player to construct"
         }
-        _schema = FeatureMapSchema.FromDict(name="available_buildings Schema", all_elements=_dict, logger=None)
+        _schema = FeatureMapConfig.FromDict(name="available_buildings Schema", all_elements=_dict, logger=None)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "available_buildings Schema")
 

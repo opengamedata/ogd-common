@@ -6,11 +6,11 @@ from unittest import TestCase
 from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.schemas.games.DetectorMapSchema import DetectorMapSchema
+from src.ogd.common.schemas.games.DetectorMapConfig import DetectorMapConfig
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
-class t_DetectorMapSchema(TestCase):
+class t_DetectorMapConfig(TestCase):
     """Testbed for the GameSourceSchema class.
 
         TODO : Implement and enable tests.
@@ -24,7 +24,7 @@ class t_DetectorMapSchema(TestCase):
         Logger.std_logger.setLevel(_level)
 
         # 2. Set up local instance of testing class
-        cls.test_schema = DetectorMapSchema(
+        cls.test_schema = DetectorMapConfig(
             name="available_building Schema",
             perlevel_detectors={},
             percount_detectors={},
@@ -93,7 +93,7 @@ class t_DetectorMapSchema(TestCase):
                },
                "description" : "The buildings available for the player to construct"
         }
-        _schema = DetectorMapSchema.FromDict(name="available_buildings Schema", all_elements=_dict, logger=None)
+        _schema = DetectorMapConfig.FromDict(name="available_buildings Schema", all_elements=_dict, logger=None)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "available_buildings Schema")
 
