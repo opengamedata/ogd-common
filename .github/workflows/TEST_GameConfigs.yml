@@ -15,13 +15,13 @@ on:
     - 'tests/cases/configs/games/**'
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-GameSchemas
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-GameConfigs
   cancel-in-progress: true
 
 jobs:
 
   run_testbed_schema:
-    name: Run Game Schema Testbeds
+    name: Run Game Config Testbeds
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -51,7 +51,7 @@ jobs:
       uses: ./.github/actions/test_config
       with:
           verbose_output: "True"
-          with_schemas: "True"
+          with_configs: "True"
 
   # 2. Build & configure remote environments
 
@@ -59,7 +59,7 @@ jobs:
     - name: Execute ${{ matrix.testbed }} testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/schemas/games"
+        directory: "tests/cases/configs/games"
         test_file: "${{ matrix.testbed }}.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
