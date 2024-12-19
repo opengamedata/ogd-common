@@ -5,7 +5,7 @@ import unittest
 from typing import Any, Dict, Optional
 from unittest import TestCase
 # import ogd libraries.
-from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
+from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.schemas.Schema import Schema
@@ -36,7 +36,7 @@ class t_Schema(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         # 1. Get testing config
-        _testing_cfg = TestConfigSchema.FromDict(name="SchemaTestConfig", all_elements=settings, logger=None)
+        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", all_elements=settings, logger=None)
         _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
         _str_level =       "DEBUG" if _testing_cfg.Verbose else "INFO"
         Logger.std_logger.setLevel(_level)

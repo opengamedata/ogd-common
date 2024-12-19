@@ -5,8 +5,8 @@ from typing import Final, List
 from unittest import TestCase
 from zipfile import ZipFile
 # import locals
-from ogd.common.interfaces.CSVInterface import CSVInterface
-from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.connectors.interfaces.CSVInterface import CSVInterface
+from ogd.common.configs.GameSourceSchema import GameSourceSchema
 
 class t_CSVInterface(TestCase):
     TEST_MIN_DATE     : Final[datetime]  = datetime(year=2021, month=2, day=1, hour= 0, minute=0, second=0)
@@ -64,7 +64,7 @@ class t_CSVInterface(TestCase):
 
     def test_DatesFromIDs(self):
         with self.zipped_file.open(self.zipped_file.namelist()[0]) as f:
-            _cfg = GameSourceSchema(name="FILE SOURCE", all_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
+            _cfg = GameSourceSchema(name="FILE SOURCE", other_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
             CSVI = CSVInterface(game_id='BACTERIA', config=_cfg, filepath=f, delim='\t', fail_fast=False)
             if CSVI.Open():
                 dates = CSVI.DatesFromIDs(self.TEST_SESSION_LIST)
