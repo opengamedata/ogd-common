@@ -6,7 +6,7 @@ import abc
 import logging
 
 # import local files
-from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.utils.Logger import Logger
 
 class StorageConnector(abc.ABC):

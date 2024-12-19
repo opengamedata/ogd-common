@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(os.getcwd()) / "src"))
 import logging
 from ogd.common.utils.Logger import Logger
 Logger.InitializeLogger(level=logging.INFO, use_logfile=False)
-from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
+from ogd.common.configs.TestConfigSchema import TestConfigSchema
 
 from config.t_config import settings
 

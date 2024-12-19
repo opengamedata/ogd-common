@@ -8,7 +8,7 @@ from typing import Dict, Final, List, Tuple, Optional
 # import locals
 from ogd.common.connectors.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
-from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.utils.Logger import Logger
 

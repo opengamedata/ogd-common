@@ -3,7 +3,7 @@ import logging
 import unittest
 from unittest import TestCase
 # import ogd libraries.
-from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
+from ogd.common.configs.TestConfigSchema import TestConfigSchema
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.schemas.games.DetectorMapConfig import DetectorMapConfig

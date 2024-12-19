@@ -7,7 +7,7 @@ from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
-from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
+from ogd.common.configs.TestConfigSchema import TestConfigSchema
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema

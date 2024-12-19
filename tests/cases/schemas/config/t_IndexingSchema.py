@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest import TestCase
 # import ogd libraries.
-from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
+from ogd.common.configs.TestConfigSchema import TestConfigSchema
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.schemas.configs.IndexingSchema import FileIndexingSchema
