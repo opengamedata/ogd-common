@@ -3,7 +3,7 @@ import logging
 import unittest
 from unittest import TestCase
 # import ogd libraries.
-from ogd.common.configs.TestConfigSchema import TestConfigSchema
+from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.schemas.games.GameStateSchema import GameStateSchema
@@ -19,7 +19,7 @@ class t_GameStateSchema(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         # 1. Get testing config
-        _testing_cfg = TestConfigSchema.FromDict(name="SchemaTestConfig", all_elements=settings, logger=None)
+        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", all_elements=settings, logger=None)
         _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
         Logger.std_logger.setLevel(_level)
 

@@ -11,11 +11,11 @@ sys.path.insert(0, str(Path(os.getcwd()) / "src"))
 import logging
 from ogd.common.utils.Logger import Logger
 Logger.InitializeLogger(level=logging.INFO, use_logfile=False)
-from ogd.common.configs.TestConfigSchema import TestConfigSchema
+from ogd.common.configs.TestConfig import TestConfig
 
 from config.t_config import settings
 
-_config = TestConfigSchema.FromDict(name="APIUtilsTestConfig", all_elements=settings, logger=None)
+_config = TestConfig.FromDict(name="APIUtilsTestConfig", all_elements=settings, logger=None)
 
 # loader = TestLoader()
 # TODO : At the moment, this is just module-level, should eventually go to class-level selection.

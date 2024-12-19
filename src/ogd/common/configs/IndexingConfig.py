@@ -37,7 +37,7 @@ class FileIndexingConfig(Config):
     @classmethod
     def Default(cls) -> "FileIndexingConfig":
         return FileIndexingConfig(
-            name            = "DefaultFileIndexingSchema",
+            name            = "DefaultFileIndexingConfig",
             local_dir       = cls._DEFAULT_LOCAL_DIR,
             remote_url      = cls._DEFAULT_REMOTE_URL,
             templates_url   = cls._DEFAULT_TEMPLATE_URL,

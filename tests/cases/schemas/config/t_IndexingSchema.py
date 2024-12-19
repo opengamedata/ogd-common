@@ -4,25 +4,25 @@ import unittest
 from pathlib import Path
 from unittest import TestCase
 # import ogd libraries.
-from ogd.common.configs.TestConfigSchema import TestConfigSchema
+from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.schemas.configs.IndexingSchema import FileIndexingSchema
+from src.ogd.common.schemas.configs.IndexingConfig import FileIndexingConfig
 from tests.config.t_config import settings
 
-class t_IndexingSchema(TestCase):
+class t_IndexingConfig(TestCase):
     """Testbed for the GameSourceSchema class.
     """
 
     @classmethod
     def setUpClass(cls) -> None:
         # 1. Get testing config
-        _testing_cfg = TestConfigSchema.FromDict(name="SchemaTestConfig", all_elements=settings, logger=None)
+        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", all_elements=settings, logger=None)
         _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
         Logger.std_logger.setLevel(_level)
 
         # 2. Set up local instance of testing class
-        cls.test_schema = FileIndexingSchema(
+        cls.test_schema = FileIndexingConfig(
             name="Indexing Schema",
             local_dir=Path("./data/"),
             remote_url="https://fieldday-web.ad.education.wisc.edu/opengamedata/",
@@ -74,7 +74,7 @@ class t_IndexingSchema(TestCase):
             "REMOTE_URL"    : "https://fieldday-web.ad.education.wisc.edu/opengamedata/",
             "TEMPLATES_URL" : "https://github.com/opengamedata/opengamedata-samples"
         }
-        _schema = FileIndexingSchema.FromDict(name="FILE_INDEXING", all_elements=_dict, logger=None)
+        _schema = FileIndexingConfig.FromDict(name="FILE_INDEXING", all_elements=_dict, logger=None)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "FILE_INDEXING")
         self.assertIsInstance(_schema.LocalDirectory, Path)

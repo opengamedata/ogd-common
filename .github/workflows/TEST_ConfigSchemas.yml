@@ -25,8 +25,8 @@ jobs:
       matrix:
         testbed: [
           t_GameSourceSchema,
-          t_IndexingSchema,
-          t_TestConfigSchema,
+          t_IndexingConfig,
+          t_TestConfig,
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20

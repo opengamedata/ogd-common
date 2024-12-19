@@ -7,7 +7,7 @@ from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
-from ogd.common.configs.TestConfigSchema import TestConfigSchema
+from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
@@ -20,7 +20,7 @@ class t_GameSourceSchema(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         # 1. Get testing config
-        _testing_cfg = TestConfigSchema.FromDict(name="SchemaTestConfig", all_elements=settings, logger=None)
+        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", all_elements=settings, logger=None)
         _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
         Logger.std_logger.setLevel(_level)
 

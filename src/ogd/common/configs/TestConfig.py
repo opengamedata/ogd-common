@@ -1,5 +1,5 @@
 """
-TestConfigSchema
+TestConfig
 
 Contains a Schema class for managing config data for testing configurations.
 In particular, base testing config files always have a `"VERBOSE"` setting,

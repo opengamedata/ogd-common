@@ -21,7 +21,7 @@ from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.schemas.games.GameSchema import GameSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
-from ogd.common.configs.IndexingSchema import FileIndexingSchema
+from ogd.common.configs.IndexingConfig import FileIndexingConfig
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
@@ -31,12 +31,12 @@ class TSVOuterface(DataOuterface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, game_id:str, config:GameSourceSchema, export_modes:Set[ExportMode], date_range:Dict[str,Optional[datetime]], file_indexing:FileIndexingSchema, extension:str="tsv", dataset_id:Optional[str]=None):
+    def __init__(self, game_id:str, config:GameSourceSchema, export_modes:Set[ExportMode], date_range:Dict[str,Optional[datetime]], file_indexing:FileIndexingConfig, extension:str="tsv", dataset_id:Optional[str]=None):
         super().__init__(game_id=game_id, config=config, export_modes=export_modes)
         self._file_paths    : Dict[str,Optional[Path]] = {"population":None, "players":None, "sessions":None, "processed_events":None, "raw_events":None}
         self._zip_paths     : Dict[str,Optional[Path]] = {"population":None, "players":None, "sessions":None, "processed_events":None, "raw_events":None}
         self._files         : Dict[str,Optional[IO]]   = {"population":None, "players":None, "sessions":None, "processed_events":None, "raw_events":None}
-        self._file_indexing : FileIndexingSchema       = file_indexing
+        self._file_indexing : FileIndexingConfig       = file_indexing
         self._data_dir      : Path = Path(f"./{self._file_indexing.LocalDirectory}")
         self._game_data_dir : Path = self._data_dir / self._game_id
         self._readme_path   : Path = self._game_data_dir / "README.md"
