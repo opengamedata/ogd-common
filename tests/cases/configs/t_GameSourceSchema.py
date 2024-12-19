@@ -10,7 +10,7 @@ from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
+from src.ogd.common.configs.GameSourceSchema import GameSourceSchema
 from tests.config.t_config import settings
 
 class t_GameSourceSchema(TestCase):
