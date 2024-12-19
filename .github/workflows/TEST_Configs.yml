@@ -6,11 +6,13 @@ on:
   workflow_call:
   push:
     paths:
-    - '.github/workflows/TEST_ConfigSchemas.yml'
+    # repo-wide dependencies
     - '.github/actions/test_config/**'
-    - 'tests/cases/schemas/config/*.py'
     - 'tests/config/**'
     - 'requirements.txt'
+    # specific dependencies
+    - '.github/workflows/TEST_Configs.yml'
+    - 'tests/cases/configs/*.py'
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-ConfigSchemas

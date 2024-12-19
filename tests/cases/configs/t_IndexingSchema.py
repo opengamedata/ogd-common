@@ -7,7 +7,7 @@ from unittest import TestCase
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.schemas.configs.IndexingConfig import FileIndexingConfig
+from src.ogd.common.configs.IndexingConfig import FileIndexingConfig
 from tests.config.t_config import settings
 
 class t_IndexingConfig(TestCase):
