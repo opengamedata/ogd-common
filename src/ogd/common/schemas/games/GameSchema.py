@@ -6,14 +6,14 @@ from shutil import copyfile
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 # import local files
 from ogd.common.schemas.Schema import Schema
-from ogd.common.schemas.games.AggregateSchema import AggregateSchema
-from ogd.common.schemas.games.DetectorSchema import DetectorSchema
-from ogd.common.schemas.games.DetectorMapSchema import DetectorMapSchema
+from ogd.common.configs.games.AggregateConfig import AggregateConfig
+from ogd.common.configs.games.DetectorConfig import DetectorConfig
+from ogd.common.configs.games.DetectorMapConfig import DetectorMapConfig
 from ogd.common.schemas.games.DataElementSchema import DataElementSchema
 from ogd.common.schemas.games.EventSchema import EventSchema
-from ogd.common.schemas.games.PerCountSchema import PerCountSchema
-from ogd.common.schemas.games.FeatureSchema import FeatureSchema
-from ogd.common.schemas.games.FeatureMapSchema import FeatureMapSchema
+from ogd.common.configs.games.PerCountConfig import PerCountConfig
+from ogd.common.configs.games.FeatureConfig import FeatureConfig
+from ogd.common.configs.games.FeatureMapConfig import FeatureMapConfig
 from ogd.common.models.enums.IterationMode import IterationMode
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.utils import fileio

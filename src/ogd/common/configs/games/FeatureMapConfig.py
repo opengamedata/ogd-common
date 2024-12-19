@@ -2,13 +2,13 @@
 import logging
 from typing import Any, Dict, Optional
 # import local files
-from ogd.common.schemas.games.AggregateSchema import AggregateSchema
-from ogd.common.schemas.games.PerCountSchema import PerCountSchema
+from ogd.common.configs.games.AggregateConfig import AggregateConfig
+from ogd.common.configs.games.PerCountConfig import PerCountConfig
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
-class FeatureMapSchema(Schema):
+class FeatureMapConfig(Schema):
     """
     Dumb struct to contain the specification and config of a set of features for a game.
     """
@@ -58,7 +58,7 @@ class FeatureMapSchema(Schema):
         return "  \n\n".join(feature_summary + feature_list)
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FeatureMapSchema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FeatureMapConfig":
         _legacy_mode           : bool
         _legacy_perlevel_feats : Dict[str, PerCountSchema]
         _percount_feats        : Dict[str, PerCountSchema]
@@ -90,13 +90,13 @@ class FeatureMapSchema(Schema):
 
         _used = {"legacy", "perlevel", "per_count", "aggregate"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return FeatureMapSchema(name=name, legacy_mode=_legacy_mode, legacy_perlevel_feats=_legacy_perlevel_feats,
+        return FeatureMapConfig(name=name, legacy_mode=_legacy_mode, legacy_perlevel_feats=_legacy_perlevel_feats,
                                 percount_feats=_percount_feats, aggregate_feats=_aggregate_feats,
                                 other_elements=_leftovers)
 
     @classmethod
-    def Default(cls) -> "FeatureMapSchema":
-        return FeatureMapSchema(
+    def Default(cls) -> "FeatureMapConfig":
+        return FeatureMapConfig(
             name="DefaultFeatureMapSchema",
             legacy_mode=cls._DEFAULT_LEGACY_MODE,
             legacy_perlevel_feats=cls._DEFAULT_LEGACY_FEATS,

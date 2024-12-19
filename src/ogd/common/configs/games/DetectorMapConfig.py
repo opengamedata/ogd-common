@@ -2,12 +2,12 @@
 import logging
 from typing import Any, Dict, Optional
 # import local files
-from ogd.common.schemas.games.DetectorSchema import DetectorSchema
+from ogd.common.configs.games.DetectorConfig import DetectorConfig
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
-class DetectorMapSchema(Schema):
+class DetectorMapConfig(Schema):
     _DEFAULT_PERLEVEL_DETECTORS  = {}
     _DEFAULT_PERCOUNT_DETECTORS  = {}
     _DEFAULT_AGGREGATE_DETECTORS = {}
@@ -59,7 +59,7 @@ class DetectorMapSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DetectorMapSchema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DetectorMapConfig":
         _perlevel_detectors  : Dict[str, DetectorSchema]
         _percount_detectors  : Dict[str, DetectorSchema]
         _aggregate_detectors : Dict[str, DetectorSchema]
@@ -85,13 +85,13 @@ class DetectorMapSchema(Schema):
 
         _used = {"perlevel", "per_level", "per_count", "percount", "aggregate"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return DetectorMapSchema(name=name, perlevel_detectors=_perlevel_detectors,
+        return DetectorMapConfig(name=name, perlevel_detectors=_perlevel_detectors,
                                  percount_detectors=_percount_detectors, aggregate_detectors=_aggregate_detectors,
                                  other_elements=_leftovers)
 
     @classmethod
-    def Default(cls) -> "DetectorMapSchema":
-        return DetectorMapSchema(
+    def Default(cls) -> "DetectorMapConfig":
+        return DetectorMapConfig(
             name="DefaultDetectorMapSchema",
             perlevel_detectors=cls._DEFAULT_PERLEVEL_DETECTORS,
             percount_detectors=cls._DEFAULT_PERCOUNT_DETECTORS,

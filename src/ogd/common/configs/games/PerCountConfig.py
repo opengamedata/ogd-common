@@ -2,11 +2,11 @@
 import logging
 from typing import Any, Dict, Optional
 # import local files
-from ogd.common.schemas.games.FeatureSchema import FeatureSchema
+from ogd.common.configs.games.FeatureConfig import FeatureConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
-class PerCountSchema(FeatureSchema):
+class PerCountConfig(FeatureSchema):
 
     _DEFAULT_COUNT = 1
     _DEFAULT_PREFIX = "pre"
@@ -41,7 +41,7 @@ class PerCountSchema(FeatureSchema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "PerCountSchema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "PerCountConfig":
         _count  : int | str
         _prefix : str
 
@@ -61,11 +61,11 @@ class PerCountSchema(FeatureSchema):
 
         _used = {"count", "prefix"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return PerCountSchema(name=name, count=_count, prefix=_prefix, other_elements=_leftovers)
+        return PerCountConfig(name=name, count=_count, prefix=_prefix, other_elements=_leftovers)
 
     @classmethod
-    def Default(cls) -> "PerCountSchema":
-        return PerCountSchema(
+    def Default(cls) -> "PerCountConfig":
+        return PerCountConfig(
             name="DefaultPerCountSchema",
             count=cls._DEFAULT_COUNT,
             prefix=cls._DEFAULT_PREFIX,

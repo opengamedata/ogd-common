@@ -2,10 +2,10 @@
 import logging
 from typing import Any, Dict, Optional
 # import local files
-from ogd.common.schemas.games.FeatureSchema import FeatureSchema
+from ogd.common.configs.games.FeatureConfig import FeatureConfig
 from ogd.common.utils.typing import Map
 
-class AggregateSchema(FeatureSchema):
+class AggregateConfig(FeatureSchema):
     def __init__(self, name:str, other_elements:Optional[Map]=None):
         super().__init__(name=name, other_elements=other_elements)
 
@@ -21,12 +21,12 @@ class AggregateSchema(FeatureSchema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "AggregateSchema":
-        return AggregateSchema(name=name, other_elements=all_elements)
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "AggregateConfig":
+        return AggregateConfig(name=name, other_elements=all_elements)
 
     @classmethod
-    def Default(cls) -> "AggregateSchema":
-        return AggregateSchema(
-            name="DefaultAggregateSchema",
+    def Default(cls) -> "AggregateConfig":
+        return AggregateConfig(
+            name="DefaultAggregateConfig",
             other_elements={}
         )

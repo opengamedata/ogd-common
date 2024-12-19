@@ -24,7 +24,7 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          t_AggregateSchema,
+          t_AggregateConfig,
           t_DataElementSchema,
           t_DetectorMapSchema,
           t_DetectorSchema,

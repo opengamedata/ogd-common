@@ -3,10 +3,10 @@ import logging
 from typing import Any, Dict, Optional
 # import local files
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
-from ogd.common.schemas.games.GeneratorSchema import GeneratorSchema
+from ogd.common.configs.games.GeneratorConfig import GeneratorConfig
 from ogd.common.utils.typing import Map
 
-class DetectorSchema(GeneratorSchema):
+class DetectorConfig(GeneratorSchema):
     def __init__(self, name:str, other_elements:Optional[Map]=None):
         super().__init__(name=name, other_elements=other_elements)
 
@@ -20,9 +20,9 @@ class DetectorSchema(GeneratorSchema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DetectorSchema":
-        return DetectorSchema(name=name, other_elements=all_elements)
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DetectorConfig":
+        return DetectorConfig(name=name, other_elements=all_elements)
 
     @classmethod
-    def Default(cls) -> "DetectorSchema":
-        return DetectorSchema(name="DefaultDetectorSchema", other_elements={})
+    def Default(cls) -> "DetectorConfig":
+        return DetectorConfig(name="DefaultDetectorSchema", other_elements={})

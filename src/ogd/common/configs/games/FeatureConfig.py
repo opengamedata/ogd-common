@@ -2,12 +2,12 @@
 import logging
 from typing import Any, Dict, Optional
 # import local files
-from ogd.common.schemas.games.GeneratorSchema import GeneratorSchema
+from ogd.common.configs.games.GeneratorConfig import GeneratorConfig
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
-class SubfeatureSchema(Schema):
+class SubfeatureConfig(Schema):
     _DEFAULT_RETURN_TYPE = "str"
     _DEFAULT_DESCRIPTION = "Default Subfeature schema object. Does not correspond to any actual data."
 
@@ -37,7 +37,7 @@ class SubfeatureSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "SubfeatureSchema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "SubfeatureConfig":
         _return_type : str
         _description : str    
 
@@ -58,11 +58,11 @@ class SubfeatureSchema(Schema):
 
         _used = {"return_type", "description"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return SubfeatureSchema(name=name, return_type=_return_type, description=_description, other_elements=_leftovers)
+        return SubfeatureConfig(name=name, return_type=_return_type, description=_description, other_elements=_leftovers)
 
     @classmethod
-    def Default(cls) -> "SubfeatureSchema":
-        return SubfeatureSchema(
+    def Default(cls) -> "SubfeatureConfig":
+        return SubfeatureConfig(
             name="DefaultSubfeatureSchema",
             return_type=cls._DEFAULT_RETURN_TYPE,
             description=cls._DEFAULT_DESCRIPTION,
@@ -97,28 +97,28 @@ class SubfeatureSchema(Schema):
 
     # *** PRIVATE METHODS ***
 
-class FeatureSchema(GeneratorSchema):
+class FeatureConfig(GeneratorSchema):
     """Base class for all schemas related to defining feature Extractor configurations.
     """
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, other_elements:Optional[Map]=None):
-        self._subfeatures : Dict[str, SubfeatureSchema]
+        self._subfeatures : Dict[str, SubfeatureConfig]
         self._return_type : str
 
         if not isinstance(other_elements, dict):
             other_elements = {}
             Logger.Log(f"For {name} Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
 
-        self._return_type = FeatureSchema.ElementFromDict(all_elements=other_elements,
+        self._return_type = FeatureConfig.ElementFromDict(all_elements=other_elements,
             element_names=["return_type"],
-            parser_function=FeatureSchema._parseReturnType,
+            parser_function=FeatureConfig._parseReturnType,
             default_value="UNKNOWN"
         )
-        self._subfeatures = FeatureSchema.ElementFromDict(all_elements=other_elements,
+        self._subfeatures = FeatureConfig.ElementFromDict(all_elements=other_elements,
             element_names=["subfeatures"],
-            parser_function=FeatureSchema._parseSubfeatures,
+            parser_function=FeatureConfig._parseSubfeatures,
             default_value={}
         )
 
@@ -132,7 +132,7 @@ class FeatureSchema(GeneratorSchema):
         return self._return_type
 
     @property
-    def Subfeatures(self) -> Dict[str, SubfeatureSchema]:
+    def Subfeatures(self) -> Dict[str, SubfeatureConfig]:
         return self._subfeatures
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -154,10 +154,10 @@ class FeatureSchema(GeneratorSchema):
         return ret_val
 
     @staticmethod
-    def _parseSubfeatures(subfeatures) -> Dict[str, SubfeatureSchema]:
-        ret_val : Dict[str, SubfeatureSchema]
+    def _parseSubfeatures(subfeatures) -> Dict[str, SubfeatureConfig]:
+        ret_val : Dict[str, SubfeatureConfig]
         if isinstance(subfeatures, dict):
-            ret_val = {name:SubfeatureSchema.FromDict(name=name, all_elements=elems) for name,elems in subfeatures.items()}
+            ret_val = {name:SubfeatureConfig.FromDict(name=name, all_elements=elems) for name,elems in subfeatures.items()}
         else:
             ret_val = {}
             Logger.Log(f"Extractor subfeatures was unexpected type {type(subfeatures)}, defaulting to empty list.", logging.WARN)
