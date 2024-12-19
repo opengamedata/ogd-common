@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any, Dict # , overload
 # import local files
 from ogd.common.configs.Config import Config
-from ogd.common.configs.storage.CredentialSchema import CredentialSchema
+from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.utils.Logger import Logger
 
 
@@ -58,7 +58,7 @@ class DataStoreConfig(Config):
 
     @property
     @abc.abstractmethod
-    def Credential(self) -> CredentialSchema:
+    def Credential(self) -> CredentialConfig:
         pass
 
     @property
