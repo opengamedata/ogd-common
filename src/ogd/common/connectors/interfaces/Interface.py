@@ -16,7 +16,7 @@ from ogd.common.models.FeatureData import FeatureData
 from ogd.common.models.FeatureDataset import FeatureDataset
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
-from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.utils.SemanticVersion import SemanticVersion

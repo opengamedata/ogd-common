@@ -9,10 +9,11 @@ from typing import Dict, Final, List, Tuple, Optional
 from ogd.common.connectors.filters import *
 from ogd.common.connectors.filters.collections import *
 from ogd.common.connectors.interfaces.Interface import Interface
+from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
-from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
-from ogd.common.schemas.storage.MySQLSourceSchema import MySQLSchema
+from ogd.common.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.configs.storage.MySQLConfig import MySQLConfig
 from ogd.common.utils.Logger import Logger
 
 
@@ -40,7 +41,7 @@ class SQL:
         tunnel  : Optional[sshtunnel.SSHTunnelForwarder] = None
         db_conn : Optional[connection.MySQLConnection]   = None
         # Logger.Log("Preparing database connection...", logging.INFO)
-        if schema.Source is not None and isinstance(schema.Source, MySQLSchema):
+        if schema.Source is not None and isinstance(schema.Source, MySQLConfig):
             if schema.Source.HasSSH:
                 Logger.Log(f"Preparing to connect to MySQL via SSH, on host {schema.Source.SSH.Host}", level=logging.DEBUG)
                 if (schema.Source.SSH.Host != "" and schema.Source.SSH.User != "" and schema.Source.SSH.Pass != ""):
@@ -62,7 +63,7 @@ class SQL:
 
     # Function to help connect to a mySQL server.
     @staticmethod
-    def _connectToMySQL(login:MySQLSchema, db:str) -> Optional[connection.MySQLConnection]:
+    def _connectToMySQL(login:MySQLConfig, db:str) -> Optional[connection.MySQLConnection]:
         """Function to help connect to a mySQL server.
 
         Simply tries to make a connection, and prints an error in case of failure.
@@ -89,7 +90,7 @@ class SQL:
 
     ## Function to help connect to a mySQL server over SSH.
     @staticmethod
-    def _connectToMySQLviaSSH(sql:MySQLSchema, db:str) -> Tuple[Optional[sshtunnel.SSHTunnelForwarder], Optional[connection.MySQLConnection]]:
+    def _connectToMySQLviaSSH(sql:MySQLConfig, db:str) -> Tuple[Optional[sshtunnel.SSHTunnelForwarder], Optional[connection.MySQLConnection]]:
         """Function to help connect to a mySQL server over SSH.
 
         Simply tries to make a connection, and prints an error in case of failure.
@@ -164,7 +165,7 @@ class SQL:
                columns       :List[str]           = [],    filter         : Optional[str] = None,
                sort_columns  :Optional[List[str]] = None,  sort_direction : str           = "ASC", grouping : Optional[str] = None,
                distinct      :bool                = False, offset         : int           = 0,     limit    : int           = -1,
-               fetch_results :bool                = True,  params         : Tuple[str]    = tuple()) -> Optional[List[Tuple]]:
+               fetch_results :bool                = True,  params         : Tuple         = tuple()) -> Optional[List[Tuple]]:
         """Function to build and execute SELECT statements on a database connection.
 
         :param cursor: A database cursor, retrieved from the active connection.
@@ -223,10 +224,18 @@ class SQL:
 
 class MySQLFilters:
     @staticmethod
-    def FilterToMySQL(filter:Filter):
+    def FilterToMySQL(filter:Filter, column_name:str):
         if isinstance(filter, NoFilter):
-            return
-        elif isinstance(filter, MinFilter)
+            return ""
+        elif isinstance(filter, MinFilter):
+            return f"{column_name} > {filter.Min}" if filter.FilterMode == FilterMode.INCLUDE else f"{column_name} < {filter.Min}"
+        elif isinstance(filter, MaxFilter):
+            return f"{column_name} < {filter.Max}" if filter.FilterMode == FilterMode.INCLUDE else f"{column_name} > {filter.Max}"
+        elif isinstance(filter, MinMaxFilter):
+            return f"{filter.Min} < {column_name} AND {column_name} < {filter.Max}" if filter.FilterMode == FilterMode.INCLUDE else f"{filter.Min} > {column_name} AND {column_name} > {filter.Max}"
+        elif isinstance(filter, SetFilter):
+            set_str = ','.join(filter.Set)
+            return f"{column_name} IN ({set_str})" if filter.FilterMode == FilterMode.INCLUDE else f"{column_name} NOT IN ({set_str})"
 
 class MySQLInterface(Interface):
 
@@ -247,7 +256,7 @@ class MySQLInterface(Interface):
             self.Open(force_reopen=False)
         if not self._is_open:
             start = datetime.now()
-            if isinstance(self.GameSourceSchema.Source, MySQLSchema):
+            if isinstance(self.GameSourceSchema.Source, MySQLConfig):
                 self._tunnel, self._db = SQL.ConnectDB(schema=self.GameSourceSchema)
                 if self._db is not None:
                     self._db_cursor = self._getCursor()
@@ -273,7 +282,7 @@ class MySQLInterface(Interface):
         return True
 
     def _availableIDs(self, mode:IDMode, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
-        if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLSchema):
+        if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLConfig):
             _db_name     : str = self.GameSourceSchema.DatabaseName
             _table_name  : str = self.GameSourceSchema.TableName
 
@@ -302,7 +311,7 @@ class MySQLInterface(Interface):
 
     # def _IDsFromDates(self, min:datetime, max:datetime, versions:Optional[List[int]]=None) -> List[str]:
     #     ret_val = []
-    #     if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLSchema):
+    #     if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLConfig):
     #         # alias long setting names.
     #         _db_name     : str = self.GameSourceSchema.DatabaseName
     #         _table_name  : str = self.GameSourceSchema.TableName
@@ -334,7 +343,7 @@ class MySQLInterface(Interface):
 
     def _availableDates(self, id_filter:IDFilterCollection, version_filter:VersioningFilterCollection) -> Dict[str,datetime]:
         ret_val = {'min':datetime.now(), 'max':datetime.now()}
-        if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLSchema):
+        if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLConfig):
             _db_name     : str = self.GameSourceSchema.DatabaseName
             _table_name  : str = self.GameSourceSchema.TableName
 
@@ -358,7 +367,7 @@ class MySQLInterface(Interface):
 
     # def _datesFromIDs(self, id_list:List[str], id_mode:IDMode=IDMode.SESSION, versions:Optional[List[int]]=None) -> Dict[str, datetime]:
     #     ret_val = {'min':datetime.now(), 'max':datetime.now()}
-    #     if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLSchema):
+    #     if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLConfig):
     #         # alias long setting names.
     #         _db_name     : str = self.GameSourceSchema.DatabaseName
     #         _table_name  : str = self.GameSourceSchema.TableName
@@ -397,7 +406,7 @@ class MySQLInterface(Interface):
     def _getEventRows(self, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
         ret_val = []
         # grab data for the given session range. Sort by event time, so
-        if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLSchema):
+        if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLConfig):
             # filt = f"app_id='{self._game_id}' AND (session_id  BETWEEN '{next_slice[0]}' AND '{next_slice[-1]}'){ver_filter}"
             _db_name     : str = self.GameSourceSchema.DatabaseName
             _table_name  : str = self.GameSourceSchema.TableName

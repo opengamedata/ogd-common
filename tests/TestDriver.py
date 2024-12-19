@@ -11,21 +11,29 @@ sys.path.insert(0, str(Path(os.getcwd()) / "src"))
 import logging
 from ogd.common.utils.Logger import Logger
 Logger.InitializeLogger(level=logging.INFO, use_logfile=False)
-from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
+from ogd.common.configs.TestConfig import TestConfig
 
 from config.t_config import settings
 
-_config = TestConfigSchema.FromDict(name="APIUtilsTestConfig", all_elements=settings, logger=None)
+_config = TestConfig.FromDict(name="APIUtilsTestConfig", all_elements=settings, logger=None)
 
 # loader = TestLoader()
 # TODO : At the moment, this is just module-level, should eventually go to class-level selection.
 suite = TestSuite()
+if _config.EnabledTests.get('CONFIGS'):
+    print("***\nAdding configs:")
+    suite.addTest(defaultTestLoader.discover('./tests/cases/configs/', pattern="t_*.py", top_level_dir="./"))
+    print("Done\n***")
 if _config.EnabledTests.get('INTERFACES'):
     print("***\nAdding interfaces:")
     suite.addTest(defaultTestLoader.discover('./tests/cases/interfaces/', pattern="t_*.py", top_level_dir="./"))
     print("Done\n***")
+if _config.EnabledTests.get('SCHEMAS'):
+    print("***\nAdding schemas:")
+    suite.addTest(defaultTestLoader.discover('./tests/cases/schemas/', pattern="t_*.py", top_level_dir="./"))
+    print("Done\n***")
 if _config.EnabledTests.get('UTILS'):
-    print("***\nAdding APIUtils:")
+    print("***\nAdding Utils:")
     suite.addTest(defaultTestLoader.discover('./tests/cases/utils/', pattern="t_*.py", top_level_dir="./"))
     print("Done\n***")
 

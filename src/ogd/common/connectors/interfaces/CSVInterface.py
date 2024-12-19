@@ -7,7 +7,7 @@ from typing import Any, Dict, IO, List, Tuple, Optional
 ## import local files
 from ogd.common.connectors.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
-from ogd.common.schemas.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils.Logger import Logger
 
