@@ -6,12 +6,12 @@ from unittest import TestCase
 from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.schemas.games.FeatureSchema import FeatureSchema
+from src.ogd.common.schemas.games.FeatureConfig import FeatureConfig
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
-class t_FeatureSchema(TestCase):
-    """Testbed for the DetectorSchema class.
+class t_FeatureConfig(TestCase):
+    """Testbed for the DetectorConfig class.
 
         TODO : Implement tests
     """
@@ -37,7 +37,7 @@ class t_FeatureSchema(TestCase):
                 }
             }
         }
-        # cls.test_schema = FeatureSchema(
+        # cls.test_schema = FeatureConfig(
         #     name="ActiveTime Schema",
         #     all_elements=_elems
         # )
@@ -128,7 +128,7 @@ class t_FeatureSchema(TestCase):
                 }
             }
         }
-        # _schema = DetectorSchema.FromDict(name="ActiveTime Schema", all_elements=_dict, logger=None)
+        # _schema = DetectorConfig.FromDict(name="ActiveTime Schema", all_elements=_dict, logger=None)
         # self.assertIsInstance(_schema.Name, str)
         # self.assertEqual(_schema.Name, "ActiveTime Schema")
         # self.assertIsInstance(_schema.TypeName, str)

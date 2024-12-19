@@ -7,10 +7,10 @@ from ogd.common.schemas.configs.TestConfigSchema import TestConfigSchema
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.schemas.games.AggregateSchema import AggregateSchema
+from src.ogd.common.configs.games.AggregateConfig import AggregateConfig
 from tests.config.t_config import settings
 
-class t_AggregateSchema(TestCase):
+class t_AggregateConfig(TestCase):
     """Testbed for the GameSourceSchema class.
 
         TODO : Test more 'enabled' options/combinations.
@@ -37,7 +37,7 @@ class t_AggregateSchema(TestCase):
                 }
             }
         }
-        cls.test_schema = AggregateSchema(
+        cls.test_schema = AggregateConfig(
             name="ActiveTime Schema",
             other_elements=_elems
         )
@@ -113,7 +113,7 @@ class t_AggregateSchema(TestCase):
             }
         }
         _modes = { ExtractionMode.SESSION, ExtractionMode.PLAYER, ExtractionMode.POPULATION, ExtractionMode.DETECTOR }
-        _schema = AggregateSchema.FromDict(name="ActiveTime Schema", all_elements=_dict, logger=None)
+        _schema = AggregateConfig.FromDict(name="ActiveTime Schema", all_elements=_dict, logger=None)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "ActiveTime Schema")
         self.assertIsInstance(_schema.TypeName, str)

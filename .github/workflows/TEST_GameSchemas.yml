@@ -27,14 +27,14 @@ jobs:
           t_AggregateConfig,
           t_DataElementSchema,
           t_DetectorMapSchema,
-          t_DetectorSchema,
+          t_DetectorConfig,
           t_EventSchema,
           t_FeatureMapSchema,
-          t_FeatureSchema,
+          t_FeatureConfig,
           t_GameSchema,
           t_GameStateSchema,
-          t_GeneratorSchema,
-          t_PerCountSchema,
+          t_GeneratorConfig,
+          t_PerCountConfig,
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20

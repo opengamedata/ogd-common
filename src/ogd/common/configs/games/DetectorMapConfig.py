@@ -18,24 +18,24 @@ class DetectorMapConfig(Schema):
     Dumb struct to contain the specification and config of a set of features for a game.
     """
     def __init__(self, name:str,
-                 perlevel_detectors:Dict[str, DetectorSchema], percount_detectors:Dict[str, DetectorSchema], aggregate_detectors:Dict[str, DetectorSchema],
+                 perlevel_detectors:Dict[str, DetectorConfig], percount_detectors:Dict[str, DetectorConfig], aggregate_detectors:Dict[str, DetectorConfig],
                  other_elements:Optional[Map]=None):
-        self._perlevel_detectors  : Dict[str, DetectorSchema] = perlevel_detectors
-        self._percount_detectors  : Dict[str, DetectorSchema] = percount_detectors
-        self._aggregate_detectors : Dict[str, DetectorSchema] = aggregate_detectors
+        self._perlevel_detectors  : Dict[str, DetectorConfig] = perlevel_detectors
+        self._percount_detectors  : Dict[str, DetectorConfig] = percount_detectors
+        self._aggregate_detectors : Dict[str, DetectorConfig] = aggregate_detectors
 
         super().__init__(name=name, other_elements=other_elements)
 
     @property
-    def PerLevelDetectors(self) -> Dict[str, DetectorSchema]:
+    def PerLevelDetectors(self) -> Dict[str, DetectorConfig]:
         return self._perlevel_detectors
 
     @property
-    def PerCountDetectors(self) -> Dict[str, DetectorSchema]:
+    def PerCountDetectors(self) -> Dict[str, DetectorConfig]:
         return self._percount_detectors
 
     @property
-    def AggregateDetectors(self) -> Dict[str, DetectorSchema]:
+    def AggregateDetectors(self) -> Dict[str, DetectorConfig]:
         return self._aggregate_detectors
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -50,7 +50,7 @@ class DetectorMapConfig(Schema):
         return "  \n\n".join(feature_summary + feature_list)
 
     @property
-    def AsDict(self) -> Dict[str, Dict[str, DetectorSchema]]:
+    def AsDict(self) -> Dict[str, Dict[str, DetectorConfig]]:
         ret_val = {
             "perlevel"  : self.PerLevelDetectors,
             "per_count" : self.PerCountDetectors,
@@ -60,9 +60,9 @@ class DetectorMapConfig(Schema):
 
     @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DetectorMapConfig":
-        _perlevel_detectors  : Dict[str, DetectorSchema]
-        _percount_detectors  : Dict[str, DetectorSchema]
-        _aggregate_detectors : Dict[str, DetectorSchema]
+        _perlevel_detectors  : Dict[str, DetectorConfig]
+        _percount_detectors  : Dict[str, DetectorConfig]
+        _aggregate_detectors : Dict[str, DetectorConfig]
 
         if not isinstance(all_elements, dict):
             all_elements = {}
@@ -115,30 +115,30 @@ class DetectorMapConfig(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parsePerLevelDetectors(perlevels) -> Dict[str, DetectorSchema]:
-        ret_val : Dict[str, DetectorSchema]
+    def _parsePerLevelDetectors(perlevels) -> Dict[str, DetectorConfig]:
+        ret_val : Dict[str, DetectorConfig]
         if isinstance(perlevels, dict):
-            ret_val = { key : DetectorSchema(name=key, all_elements=val) for key,val in perlevels.items() }
+            ret_val = { key : DetectorConfig(name=key, all_elements=val) for key,val in perlevels.items() }
         else:
             ret_val = {}
             Logger.Log("Per-level detectors map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
 
     @staticmethod
-    def _parsePerCountDetectors(percounts) -> Dict[str, DetectorSchema]:
-        ret_val : Dict[str, DetectorSchema]
+    def _parsePerCountDetectors(percounts) -> Dict[str, DetectorConfig]:
+        ret_val : Dict[str, DetectorConfig]
         if isinstance(percounts, dict):
-            ret_val = { key : DetectorSchema(name=key, all_elements=val) for key,val in percounts.items() }
+            ret_val = { key : DetectorConfig(name=key, all_elements=val) for key,val in percounts.items() }
         else:
             ret_val = {}
             Logger.Log("Per-count detectors map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
 
     @staticmethod
-    def _parseAggregateDetectors(aggregates) -> Dict[str, DetectorSchema]:
-        ret_val : Dict[str, DetectorSchema]
+    def _parseAggregateDetectors(aggregates) -> Dict[str, DetectorConfig]:
+        ret_val : Dict[str, DetectorConfig]
         if isinstance(aggregates, dict):
-            ret_val = {key : DetectorSchema(name=key, all_elements=val) for key,val in aggregates.items()}
+            ret_val = {key : DetectorConfig(name=key, all_elements=val) for key,val in aggregates.items()}
         else:
             ret_val = {}
             Logger.Log("Per-count detectors map was not a dict, defaulting to empty dict", logging.WARN)

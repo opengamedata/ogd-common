@@ -20,13 +20,13 @@ class FeatureMapConfig(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, legacy_mode: bool,        legacy_perlevel_feats:Dict[str, PerCountSchema],
-                 percount_feats:Dict[str, PerCountSchema], aggregate_feats:Dict[str, AggregateSchema],
+    def __init__(self, name:str, legacy_mode: bool,        legacy_perlevel_feats:Dict[str, PerCountConfig],
+                 percount_feats:Dict[str, PerCountConfig], aggregate_feats:Dict[str, AggregateConfig],
                  other_elements:Optional[Map]=None):
         self._legacy_mode           : bool                       = legacy_mode
-        self._legacy_perlevel_feats : Dict[str, PerCountSchema]  = legacy_perlevel_feats
-        self._percount_feats        : Dict[str, PerCountSchema]  = percount_feats
-        self._aggregate_feats       : Dict[str, AggregateSchema] = aggregate_feats
+        self._legacy_perlevel_feats : Dict[str, PerCountConfig]  = legacy_perlevel_feats
+        self._percount_feats        : Dict[str, PerCountConfig]  = percount_feats
+        self._aggregate_feats       : Dict[str, AggregateConfig] = aggregate_feats
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -35,15 +35,15 @@ class FeatureMapConfig(Schema):
         return self._legacy_mode
 
     @property
-    def LegacyPerLevelFeatures(self) -> Dict[str, PerCountSchema]:
+    def LegacyPerLevelFeatures(self) -> Dict[str, PerCountConfig]:
         return self._legacy_perlevel_feats
 
     @property
-    def PerCountFeatures(self) -> Dict[str, PerCountSchema]:
+    def PerCountFeatures(self) -> Dict[str, PerCountConfig]:
         return self._percount_feats
 
     @property
-    def AggregateFeatures(self) -> Dict[str, AggregateSchema]:
+    def AggregateFeatures(self) -> Dict[str, AggregateConfig]:
         return self._aggregate_feats
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -60,9 +60,9 @@ class FeatureMapConfig(Schema):
     @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FeatureMapConfig":
         _legacy_mode           : bool
-        _legacy_perlevel_feats : Dict[str, PerCountSchema]
-        _percount_feats        : Dict[str, PerCountSchema]
-        _aggregate_feats       : Dict[str, AggregateSchema]
+        _legacy_perlevel_feats : Dict[str, PerCountConfig]
+        _percount_feats        : Dict[str, PerCountConfig]
+        _aggregate_feats       : Dict[str, AggregateConfig]
 
         if not isinstance(all_elements, dict):
             all_elements = {}
@@ -131,30 +131,30 @@ class FeatureMapConfig(Schema):
         return ret_val
 
     @staticmethod
-    def _parsePerLevelFeatures(perlevels) -> Dict[str, PerCountSchema]:
-        ret_val : Dict[str, PerCountSchema]
+    def _parsePerLevelFeatures(perlevels) -> Dict[str, PerCountConfig]:
+        ret_val : Dict[str, PerCountConfig]
         if isinstance(perlevels, dict):
-            ret_val = { key : PerCountSchema.FromDict(name=key, all_elements=val) for key,val in perlevels.items() }
+            ret_val = { key : PerCountConfig.FromDict(name=key, all_elements=val) for key,val in perlevels.items() }
         else:
             ret_val = {}
             Logger.Log("Per-level features map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
 
     @staticmethod
-    def _parsePerCountFeatures(percounts) -> Dict[str, PerCountSchema]:
-        ret_val : Dict[str, PerCountSchema]
+    def _parsePerCountFeatures(percounts) -> Dict[str, PerCountConfig]:
+        ret_val : Dict[str, PerCountConfig]
         if isinstance(percounts, dict):
-            ret_val = { key : PerCountSchema.FromDict(name=key, all_elements=val) for key,val in percounts.items() }
+            ret_val = { key : PerCountConfig.FromDict(name=key, all_elements=val) for key,val in percounts.items() }
         else:
             ret_val = {}
             Logger.Log("Per-count features map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
 
     @staticmethod
-    def _parseAggregateFeatures(aggregates) -> Dict[str, AggregateSchema]:
-        ret_val : Dict[str, AggregateSchema]
+    def _parseAggregateFeatures(aggregates) -> Dict[str, AggregateConfig]:
+        ret_val : Dict[str, AggregateConfig]
         if isinstance(aggregates, dict):
-            ret_val = {key : AggregateSchema(name=key, other_elements=val) for key,val in aggregates.items()}
+            ret_val = {key : AggregateConfig(name=key, other_elements=val) for key,val in aggregates.items()}
         else:
             ret_val = {}
             Logger.Log("Per-count features map was not a dict, defaulting to empty dict", logging.WARN)

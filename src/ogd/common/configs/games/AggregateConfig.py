@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 from ogd.common.configs.games.FeatureConfig import FeatureConfig
 from ogd.common.utils.typing import Map
 
-class AggregateConfig(FeatureSchema):
+class AggregateConfig(FeatureConfig):
     def __init__(self, name:str, other_elements:Optional[Map]=None):
         super().__init__(name=name, other_elements=other_elements)
 

@@ -6,7 +6,7 @@ from ogd.common.configs.games.FeatureConfig import FeatureConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
-class PerCountConfig(FeatureSchema):
+class PerCountConfig(FeatureConfig):
 
     _DEFAULT_COUNT = 1
     _DEFAULT_PREFIX = "pre"
@@ -66,7 +66,7 @@ class PerCountConfig(FeatureSchema):
     @classmethod
     def Default(cls) -> "PerCountConfig":
         return PerCountConfig(
-            name="DefaultPerCountSchema",
+            name="DefaultPerCountConfig",
             count=cls._DEFAULT_COUNT,
             prefix=cls._DEFAULT_PREFIX,
             other_elements={}

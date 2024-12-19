@@ -1,17 +1,17 @@
 __all__ = [
     "EventSchema",
-    "GeneratorSchema",
-    "DetectorSchema",
-    "FeatureSchema",
-    "AggregateSchema",
-    "PerCountSchema",
+    "GeneratorConfig",
+    "DetectorConfig",
+    "FeatureConfig",
+    "AggregateConfig",
+    "PerCountConfig",
     "GameSchema"
 ]
 
 from . import EventSchema
-from . import GeneratorSchema
-from . import DetectorSchema
-from . import FeatureSchema
-from . import AggregateSchema
-from . import PerCountSchema
+from . import GeneratorConfig
+from . import DetectorConfig
+from . import FeatureConfig
+from . import AggregateConfig
+from . import PerCountConfig
 from . import GameSchema

@@ -6,7 +6,7 @@ from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.configs.games.GeneratorConfig import GeneratorConfig
 from ogd.common.utils.typing import Map
 
-class DetectorConfig(GeneratorSchema):
+class DetectorConfig(GeneratorConfig):
     def __init__(self, name:str, other_elements:Optional[Map]=None):
         super().__init__(name=name, other_elements=other_elements)
 
@@ -25,4 +25,4 @@ class DetectorConfig(GeneratorSchema):
 
     @classmethod
     def Default(cls) -> "DetectorConfig":
-        return DetectorConfig(name="DefaultDetectorSchema", other_elements={})
+        return DetectorConfig(name="DefaultDetectorConfig", other_elements={})
