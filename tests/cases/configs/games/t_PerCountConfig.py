@@ -7,7 +7,7 @@ from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.schemas.games.PerCountConfig import PerCountConfig
+from src.ogd.common.configs.games.PerCountConfig import PerCountConfig
 from tests.config.t_config import settings
 
 class t_PerCountConfig(TestCase):
