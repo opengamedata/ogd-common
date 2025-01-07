@@ -6,11 +6,13 @@ on:
   workflow_call:
   push:
     paths:
-    - '.github/workflows/TEST_GameSchemas.yml'
+    # repo-wide dependencies
     - '.github/actions/test_config/**'
-    - 'tests/cases/schemas/games/**'
     - 'tests/config/**'
     - 'requirements.txt'
+    # specific dependencies
+    - '.github/workflows/TEST_GameSchemas.yml'
+    - 'tests/cases/schemas/games/**'
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-GameSchemas
@@ -24,17 +26,10 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          t_AggregateSchema,
           t_DataElementSchema,
-          t_DetectorMapSchema,
-          t_DetectorSchema,
           t_EventSchema,
-          t_FeatureMapSchema,
-          t_FeatureSchema,
           t_GameSchema,
-          t_GameStateSchema,
-          t_GeneratorSchema,
-          t_PerCountSchema,
+          t_GameStateSchema
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20

@@ -9,12 +9,16 @@ inputs:
     description: "Whether to output extra debugging lines from tests."
     required: false
     default: "False"
-  with_schemas:
-    description: "Whether to run the Schema tests."
+  with_configs:
+    description: "Whether to run the Config tests."
     required: false
     default: "False"
   with_interfaces:
     description: "Whether to run the interface tests."
+    required: false
+    default: "False"
+  with_schemas:
+    description: "Whether to run the Schema tests."
     required: false
     default: "False"
   with_utils:
@@ -38,11 +42,14 @@ runs:
     - name: Set Output Verbosity
       run: sed -i 's@"VERBOSE"\s*:\s*False@"VERBOSE":${{ inputs.verbose_output }}@g'       ${{ inputs.config_path }}/t_config.py
       shell: bash
-    - name: Set Schema test(s) to run or not
-      run: sed -i 's@"SCHEMAS"\s*:\s*True@"SCHEMAS":${{ inputs.with_schemas }}@g'          ${{ inputs.config_path }}/t_config.py
+    - name: Set Config test(s) to run or not
+      run: sed -i 's@"CONFIGS"\s*:\s*True@"CONFIGS":${{ inputs.with_configs }}@g'          ${{ inputs.config_path }}/t_config.py
       shell: bash
     - name: Set interface test(s) to run or not
       run: sed -i 's@"INTERFACES"\s*:\s*True@"INTERFACES":${{ inputs.with_interfaces }}@g' ${{ inputs.config_path }}/t_config.py
+      shell: bash
+    - name: Set Schema test(s) to run or not
+      run: sed -i 's@"SCHEMAS"\s*:\s*True@"SCHEMAS":${{ inputs.with_schemas }}@g'          ${{ inputs.config_path }}/t_config.py
       shell: bash
     - name: Set utils test(s) to run or not
       run: sed -i 's@"UTILS"\s*:\s*True@"UTILS":${{ inputs.with_utils }}@g'                ${{ inputs.config_path }}/t_config.py

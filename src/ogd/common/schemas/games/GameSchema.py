@@ -6,14 +6,14 @@ from shutil import copyfile
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 # import local files
 from ogd.common.schemas.Schema import Schema
-from ogd.common.schemas.games.AggregateSchema import AggregateSchema
-from ogd.common.schemas.games.DetectorSchema import DetectorSchema
-from ogd.common.schemas.games.DetectorMapSchema import DetectorMapSchema
+from ogd.common.configs.games.AggregateConfig import AggregateConfig
+from ogd.common.configs.games.DetectorConfig import DetectorConfig
+from ogd.common.configs.games.DetectorMapConfig import DetectorMapConfig
 from ogd.common.schemas.games.DataElementSchema import DataElementSchema
 from ogd.common.schemas.games.EventSchema import EventSchema
-from ogd.common.schemas.games.PerCountSchema import PerCountSchema
-from ogd.common.schemas.games.FeatureSchema import FeatureSchema
-from ogd.common.schemas.games.FeatureMapSchema import FeatureMapSchema
+from ogd.common.configs.games.PerCountConfig import PerCountConfig
+from ogd.common.configs.games.FeatureConfig import FeatureConfig
+from ogd.common.configs.games.FeatureMapConfig import FeatureMapConfig
 from ogd.common.models.enums.IterationMode import IterationMode
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.utils import fileio
@@ -47,9 +47,9 @@ class GameSchema(Schema):
 
     def __init__(self, name:str, game_id:str, enum_defs:Dict[str, List[str]],
                  game_state:Map, user_data:Map, event_list:List[EventSchema],
-                 detector_map:Dict[str, Dict[str, DetectorSchema]],
-                 aggregate_feats: Dict[str, AggregateSchema], percount_feats:Dict[str, PerCountSchema],
-                 legacy_perlevel_feats: Dict[str, PerCountSchema], use_legacy_mode:bool,
+                 detector_map:Dict[str, Dict[str, DetectorConfig]],
+                 aggregate_feats: Dict[str, AggregateConfig], percount_feats:Dict[str, PerCountConfig],
+                 legacy_perlevel_feats: Dict[str, PerCountConfig], use_legacy_mode:bool,
                  config:Map, min_level:Optional[int], max_level:Optional[int], other_ranges:Dict[str, range],
                  supported_vers:Optional[List[int]], other_elements:Optional[Map]=None):
         """Constructor for the GameSchema class.
@@ -58,7 +58,7 @@ class GameSchema(Schema):
         all features to be extracted.
 
         TODO: need to get game_state from schema file, and use a GameStateSchema instead of general Map.
-        TODO: Use DetectorMapSchema and FeatureMapSchema instead of just dicts... I think. Depending how these all work together.
+        TODO: Use DetectorMapConfig and FeatureMapConfig instead of just dicts... I think. Depending how these all work together.
         TODO : make parser functions for config and versions, so we can do ElementFromDict for them as well.
 
         :param name: _description_
@@ -74,13 +74,13 @@ class GameSchema(Schema):
         :param event_list: _description_
         :type event_list: List[EventSchema]
         :param detector_map: _description_
-        :type detector_map: Dict[str, Dict[str, DetectorSchema]]
+        :type detector_map: Dict[str, Dict[str, DetectorConfig]]
         :param aggregate_feats: _description_
-        :type aggregate_feats: Dict[str, AggregateSchema]
+        :type aggregate_feats: Dict[str, AggregateConfig]
         :param percount_feats: _description_
         :type percount_feats: Dict[str, PerCountFeatures]
         :param legacy_perlevel_feats: _description_
-        :type legacy_perlevel_feats: Dict[str, PerCountSchema]
+        :type legacy_perlevel_feats: Dict[str, PerCountConfig]
         :param use_legacy_mode: _description_
         :type use_legacy_mode: bool
         :param config: _description_
@@ -104,10 +104,10 @@ class GameSchema(Schema):
         self._game_state             : Map                                  = game_state
         self._user_data              : Map                                  = user_data
         self._event_list             : List[EventSchema]                    = event_list
-        self._detector_map           : Dict[str, Dict[str, DetectorSchema]] = detector_map
-        self._aggregate_feats        : Dict[str, AggregateSchema]           = aggregate_feats
-        self._percount_feats         : Dict[str, PerCountSchema]            = percount_feats
-        self._legacy_perlevel_feats  : Dict[str, PerCountSchema]            = legacy_perlevel_feats
+        self._detector_map           : Dict[str, Dict[str, DetectorConfig]] = detector_map
+        self._aggregate_feats        : Dict[str, AggregateConfig]           = aggregate_feats
+        self._percount_feats         : Dict[str, PerCountConfig]            = percount_feats
+        self._legacy_perlevel_feats  : Dict[str, PerCountConfig]            = legacy_perlevel_feats
         self._legacy_mode            : bool                                 = use_legacy_mode
         self._config                 : Map                                  = config
         self._min_level              : Optional[int]                        = min_level
@@ -157,7 +157,7 @@ class GameSchema(Schema):
         return [event.Name for event in self.Events]
 
     @property
-    def Detectors(self) -> Dict[str, Dict[str, DetectorSchema]]:
+    def Detectors(self) -> Dict[str, Dict[str, DetectorConfig]]:
         """Property for the dictionary of categorized detectors to extract.
         """
         return self._detector_map
@@ -172,19 +172,19 @@ class GameSchema(Schema):
         return ret_val
 
     @property
-    def PerCountDetectors(self) -> Dict[str, DetectorSchema]:
+    def PerCountDetectors(self) -> Dict[str, DetectorConfig]:
         """Property for the dictionary of per-custom-count detectors.
         """
         return self.Detectors.get("per_count", {})
 
     @property
-    def AggregateDetectors(self) -> Dict[str, DetectorSchema]:
+    def AggregateDetectors(self) -> Dict[str, DetectorConfig]:
         """Property for the dictionary of aggregate detectors.
         """
         return self.Detectors.get("aggregate", {})
 
     @property
-    def Features(self) -> Dict[str, Union[Dict[str, AggregateSchema], Dict[str, PerCountSchema]]]:
+    def Features(self) -> Dict[str, Union[Dict[str, AggregateConfig], Dict[str, PerCountConfig]]]:
         """Property for the dictionary of categorized features to extract.
         """
         return { 'aggregate' : self._aggregate_feats, 'per_count' : self._percount_feats, 'perlevel' : self._legacy_perlevel_feats }
@@ -199,19 +199,19 @@ class GameSchema(Schema):
         return ret_val
 
     @property
-    def LegacyPerLevelFeatures(self) -> Dict[str,PerCountSchema]:
+    def LegacyPerLevelFeatures(self) -> Dict[str,PerCountConfig]:
         """Property for the dictionary of legacy per-level features
         """
         return self._legacy_perlevel_feats
 
     @property
-    def PerCountFeatures(self) -> Dict[str,PerCountSchema]:
+    def PerCountFeatures(self) -> Dict[str,PerCountConfig]:
         """Property for the dictionary of per-custom-count features.
         """
         return self._percount_feats
 
     @property
-    def AggregateFeatures(self) -> Dict[str,AggregateSchema]:
+    def AggregateFeatures(self) -> Dict[str,AggregateConfig]:
         """Property for the dictionary of aggregate features.
         """
         return self._aggregate_feats
@@ -305,10 +305,10 @@ class GameSchema(Schema):
         _game_state             : Dict[str, Any]
         _user_data              : Dict[str, Any]
         _event_list             : List[EventSchema]
-        _detector_map           : Dict[str, Dict[str, DetectorSchema]]
-        _aggregate_feats        : Dict[str, AggregateSchema] = {}
-        _percount_feats         : Dict[str, PerCountSchema]  = {}
-        _legacy_perlevel_feats  : Dict[str, PerCountSchema]  = {}
+        _detector_map           : Dict[str, Dict[str, DetectorConfig]]
+        _aggregate_feats        : Dict[str, AggregateConfig] = {}
+        _percount_feats         : Dict[str, PerCountConfig]  = {}
+        _legacy_perlevel_feats  : Dict[str, PerCountConfig]  = {}
         _legacy_mode            : bool
         _config                 : Dict[str, Any]
         _min_level              : Optional[int]
@@ -349,7 +349,7 @@ class GameSchema(Schema):
             parser_function=cls._parseDetectorMap,
             default_value=cls._DEFAULT_DETECTOR_MAP
         )
-        _detector_map = _detector_map.AsDict # TODO : investigate weird Dict[str, Dict[str, DetectorSchema]] type inference
+        _detector_map = _detector_map.AsDict # TODO : investigate weird Dict[str, Dict[str, DetectorConfig]] type inference
 
     # 4. Get feature information
         _feat_map = cls.ElementFromDict(all_elements=all_elements, logger=logger,
@@ -465,7 +465,7 @@ class GameSchema(Schema):
             return False
         ret_val : bool
 
-        _detector_schema : Optional[DetectorSchema]
+        _detector_schema : Optional[DetectorConfig]
         match iter_mode:
             case IterationMode.AGGREGATE:
                 _detector_schema = self.Detectors['aggregate'].get(detector_name)
@@ -485,7 +485,7 @@ class GameSchema(Schema):
             return feature_name == "legacy"
         ret_val : bool
 
-        _feature_schema : Optional[FeatureSchema]
+        _feature_schema : Optional[FeatureConfig]
         match iter_mode:
             case IterationMode.AGGREGATE:
                 _feature_schema = self.AggregateFeatures.get(feature_name)
@@ -500,10 +500,10 @@ class GameSchema(Schema):
             ret_val = False
         return ret_val
 
-    def EnabledDetectors(self, iter_modes:Set[IterationMode], extract_modes:Set[ExtractionMode]=set()) -> Dict[str, DetectorSchema]:
+    def EnabledDetectors(self, iter_modes:Set[IterationMode], extract_modes:Set[ExtractionMode]=set()) -> Dict[str, DetectorConfig]:
         if self._legacy_mode:
             return {}
-        ret_val : Dict[str, DetectorSchema] = {}
+        ret_val : Dict[str, DetectorConfig] = {}
 
         if IterationMode.AGGREGATE in iter_modes:
             ret_val.update({key:val for key,val in self.AggregateDetectors.items() if val.Enabled.issuperset(extract_modes)})
@@ -511,10 +511,10 @@ class GameSchema(Schema):
             ret_val.update({key:val for key,val in self.PerCountDetectors.items() if val.Enabled.issuperset(extract_modes)})
         return ret_val
 
-    def EnabledFeatures(self, iter_modes:Set[IterationMode]={IterationMode.AGGREGATE, IterationMode.PERCOUNT}, extract_modes:Set[ExtractionMode]=set()) -> Dict[str, FeatureSchema]:
+    def EnabledFeatures(self, iter_modes:Set[IterationMode]={IterationMode.AGGREGATE, IterationMode.PERCOUNT}, extract_modes:Set[ExtractionMode]=set()) -> Dict[str, FeatureConfig]:
         if self._legacy_mode:
-            return {"legacy" : AggregateSchema("legacy", {"type":"legacy", "return_type":None, "description":"", "enabled":True})} if IterationMode.AGGREGATE in iter_modes else {}
-        ret_val : Dict[str, FeatureSchema] = {}
+            return {"legacy" : AggregateConfig("legacy", {"type":"legacy", "return_type":None, "description":"", "enabled":True})} if IterationMode.AGGREGATE in iter_modes else {}
+        ret_val : Dict[str, FeatureConfig] = {}
 
         if IterationMode.AGGREGATE in iter_modes:
             ret_val.update({key:val for key,val in self.AggregateFeatures.items() if val.Enabled.issuperset(extract_modes)})
@@ -609,22 +609,22 @@ class GameSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseDetectorMap(detector_map:Dict[str, Any]) -> DetectorMapSchema:
-        ret_val : DetectorMapSchema
+    def _parseDetectorMap(detector_map:Dict[str, Any]) -> DetectorMapConfig:
+        ret_val : DetectorMapConfig
         if isinstance(detector_map, dict):
-            ret_val = DetectorMapSchema.FromDict(name=f"Detectors", all_elements=detector_map)
+            ret_val = DetectorMapConfig.FromDict(name=f"Detectors", all_elements=detector_map)
         else:
-            ret_val = DetectorMapSchema.FromDict(name="Empty Features", all_elements={})
+            ret_val = DetectorMapConfig.FromDict(name="Empty Features", all_elements={})
             Logger.Log(f"detector_map was unexpected type {type(detector_map)}, defaulting to empty map.", logging.WARN)
         return ret_val
 
     @staticmethod
-    def _parseFeatureMap(feature_map:Dict[str, Any]) -> FeatureMapSchema:
-        ret_val : FeatureMapSchema
+    def _parseFeatureMap(feature_map:Dict[str, Any]) -> FeatureMapConfig:
+        ret_val : FeatureMapConfig
         if isinstance(feature_map, dict):
-            ret_val = FeatureMapSchema.FromDict(name=f"Features", all_elements=feature_map)
+            ret_val = FeatureMapConfig.FromDict(name=f"Features", all_elements=feature_map)
         else:
-            ret_val = FeatureMapSchema.FromDict(name="Empty Features", all_elements={})
+            ret_val = FeatureMapConfig.FromDict(name="Empty Features", all_elements={})
             Logger.Log(f"feature_map was unexpected type {type(feature_map)}, defaulting to empty map.", logging.WARN)
         return ret_val
 
