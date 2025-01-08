@@ -5,34 +5,30 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional, TypeAlias
 ## import local files
 from ogd.common import schemas
-from ogd.common.models.enums.TableType import TableType
 from ogd.common.schemas.Schema import Schema
-from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
+from ogd.common.schemas.tables.structures.ColumnSchema import ColumnSchema
+from ogd.common.schemas.tables.structures.TableStructureSchema import TableStructureSchema
+from ogd.common.schemas.tables.structures.EventTableStructureSchema import EventTableStructureSchema
+from ogd.common.schemas.tables.structures.FeatureTableStructureSchema import FeatureTableStructureSchema
+from ogd.common.schemas.tables.locations.TableLocationSchema import TableLocationSchema
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map, conversions
+from ogd.common.utils.typing import Map
 
 ColumnMapIndex   : TypeAlias = Optional[int | List[int] | Dict[str,int]]
 ColumnMapElement : TypeAlias = Optional[str | List[str] | Dict[str,str]]
 
-## @class TableSchema
+## @class TableStructureSchema
 class TableSchema(Schema):
-    """Dumb struct to hold info about the structure of data for a particular game, from a particular source.
-        In particular, it contains an ordered list of columns in the data source table,
-        and a mapping of those columns to the corresponding elements of a formal OGD structure.
+    """Dumb struct to hold a table structure and table location.
     """
-
-    @abc.abstractmethod
-    @classmethod
-    def _fromDict(cls, name:str, table_type:TableType, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableSchema":
-        pass
 
     # *** BUILT-INS & PROPERTIES ***
 
     _DEFAULT_COLUMNS = []
 
-    def __init__(self, name, table_type:TableType, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema], other_elements:Optional[Map]):
-        """Constructor for the TableSchema class.
+    def __init__(self, name, structure:TableStructureSchema, location:TableLocationSchema, other_elements:Optional[Map]):
+        """Constructor for the TableStructureSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
         class variables.
@@ -45,130 +41,28 @@ class TableSchema(Schema):
         :type is_legacy: bool, optional
         """
         # declare and initialize vars
-        # self._schema            : Optional[Dict[str, Any]] = all_elements
-        self._table_type    : TableType                 = table_type
-        self._column_map    : Dict[str, ColumnMapIndex] = column_map
-        self._table_columns : List[ColumnSchema]        = columns
+        self._structure : TableStructureSchema = structure
+        self._location  : TableLocationSchema  = location
 
         # after loading the file, take the stuff we need and store.
         super().__init__(name=name, other_elements=other_elements)
 
     @property
-    def TableKind(self) -> TableType:
-        """Property to show whether the given table schema is for events or features.
+    def Structure(self) -> TableStructureSchema:
+        """Function to get the table's full structure schema
 
-        If this TableSchema was read from a file, this will reflect the type indicated in the file,
-        *even if the specific TableSchema subclass does not match*.
-        If this TableSchema was generated through some other means, or no type was indicated in the source file,
-        this will reflect the type of the instance.
-
-        :return: Either TableType.EVENT or TableType.FEATURE
-        :rtype: TableType
+        :return: The table structure schema
+        :rtype: TableStructureSchema
         """
-        return self._table_type
+        return self._structure
 
     @property
     def Columns(self) -> List[ColumnSchema]:
-        return self._table_columns
+        return self._structure.Columns
 
     @property
-    def ColumnNames(self) -> List[str]:
-        """Function to get the names of all columns in the schema.
-
-        :return: Names of each column in the schema.
-        :rtype: List[str]
-        """
-        return [col.Name for col in self._table_columns]
-
-    @property
-    def ColumnMap(self) -> Dict[str, ColumnMapIndex]:
-        """Mapping from Event element names to the indices of the database columns mapped to them.
-        There may be a single index, indicating a 1-to-1 mapping of a database column to the element;
-        There may be a list of indices, indicating multiple columns will be concatenated to form the element value;
-        There may be a further mapping of keys to indicies, indicating multiple columns will be joined into a JSON object, with keys mapped to values found at the columns with given indices.
-
-        :return: The dictionary mapping of element names to indices.
-        :rtype: Dict[str, Union[int, List[int], Dict[str, int], None]]
-        """
-        return self._column_map
-
-    @property
-    def AppIDIndex(self) -> ColumnMapIndex:
-        return self._column_map['app_id']
-
-    @property
-    def AppIDColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.AppIDIndex, int):
-            ret_val = self.ColumnNames[self.AppIDIndex]
-        elif isinstance(self.AppIDIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.AppIDIndex])
-        return ret_val
-
-    @property
-    def UserIDIndex(self) -> ColumnMapIndex:
-        return self._column_map['user_id']
-
-    @property
-    def UserIDColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.UserIDIndex, int):
-            ret_val = self.ColumnNames[self.UserIDIndex]
-        elif isinstance(self.UserIDIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.UserIDIndex])
-        return ret_val
-
-    @property
-    def SessionIDIndex(self) -> ColumnMapIndex:
-        return self._column_map['session_id']
-
-    @property
-    def SessionIDColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.SessionIDIndex, int):
-            ret_val = self.ColumnNames[self.SessionIDIndex]
-        elif isinstance(self.SessionIDIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.SessionIDIndex])
-        return ret_val
-
-    @property
-    def AppVersionIndex(self) -> ColumnMapIndex:
-        return self._column_map['app_version']
-
-    @property
-    def AppVersionColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.AppVersionIndex, int):
-            ret_val = self.ColumnNames[self.AppVersionIndex]
-        elif isinstance(self.AppVersionIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.AppVersionIndex])
-        return ret_val
-
-    @property
-    def AppBranchIndex(self) -> ColumnMapIndex:
-        return self._column_map['app_branch']
-
-    @property
-    def AppBranchColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.AppBranchIndex, int):
-            ret_val = self.ColumnNames[self.AppBranchIndex]
-        elif isinstance(self.AppBranchIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.AppBranchIndex])
-        return ret_val
-
-    @property
-    def LogVersionIndex(self) -> ColumnMapIndex:
-        return self._column_map['log_version']
-
-    @property
-    def LogVersionColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.LogVersionIndex, int):
-            ret_val = self.ColumnNames[self.LogVersionIndex]
-        elif isinstance(self.LogVersionIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.LogVersionIndex])
-        return ret_val
+    def Location(self) -> TableLocationSchema:
+        return self._location
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -176,18 +70,14 @@ class TableSchema(Schema):
     def AsMarkdown(self) -> str:
         ret_val = "\n\n".join([
             "## Database Columns",
-            "The individual columns recorded in the database for this game.",
-            self._columnSetMarkdown,
-            f"## {self.TableKind} Object Elements",
-            "The elements (member variables) of each Event object, available to programmers when writing feature extractors. The right-hand side shows which database column(s) are mapped to a given element.",
-            self._columnMapMarkdown,
+            f"The individual columns recorded in the data source ({self.Location}) for this game.",
+            self.Structure.AsMarkdown,
             ""])
         return ret_val
 
     @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableSchema":
-        _column_schemas : List[ColumnSchema]
-        _table_type     : TableType
+        _structure : TableStructureSchema
 
         if not isinstance(all_elements, dict):
             all_elements = {}
@@ -196,11 +86,28 @@ class TableSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _table_type_str   = all_elements.get('table_type')
-        _table_type       = TableType.FromString(_table_type_str) if _table_type_str is not None else TableType.EVENT
-        _column_json_list = all_elements.get('columns', [])
-        _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), all_elements=column) for column in _column_json_list]
-        return cls._fromDict(name=name, table_type=_table_type, raw_map=all_elements.get('column_map', {}), column_schemas=_column_schemas)
+        _table_type_str  : str            = str(all_elements.get('table_type'))
+        _structure_elems : Dict[str, Any] = all_elements.get('structure', {})
+        _location_elems  : Dict[str, Any] = all_elements.get('location', {})
+        match _table_type_str.upper():
+            case "EVENT":
+                _structure = EventTableStructureSchema.FromDict(name=f"{name}EventStructure", all_elements=_structure_elems, logger=logger)
+            case "FEATURE":
+                _structure = FeatureTableStructureSchema.FromDict(name=f"{name}EventStructure", all_elements=_structure_elems, logger=logger)
+        _location = TableLocationSchema.FromDict(name=f"{name}Location", all_elements=_location_elems, logger=logger)
+
+        _used = {"table_type", "structure", "location"}
+        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        return TableSchema(name=name, structure=_structure, location=_location, other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "TableSchema":
+        return TableSchema(
+            name="DefaultTableSchema",
+            structure=EventTableStructureSchema.Default(),
+            location=TableLocationSchema.Default(),
+            other_elements={}
+        )
 
     # *** PUBLIC STATICS ***
 
@@ -219,77 +126,4 @@ class TableSchema(Schema):
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***
-
-    @property
-    def _columnSetMarkdown(self) -> str:
-        return "\n".join([item.AsMarkdown for item in self.Columns])
-
-    @property
-    def _columnMapMarkdown(self) -> str:
-        ret_val : str
-
-        event_column_list = []
-        for event_element,columns_mapped in self._column_map.items():
-            if columns_mapped is not None:
-                if isinstance(columns_mapped, str):
-                    event_column_list.append(f"**{event_element}** = Column '*{columns_mapped}*'  ")
-                elif isinstance(columns_mapped, list):
-                    mapped_list = ", ".join([f"'*{item}*'" for item in columns_mapped])
-                    event_column_list.append(f"**{event_element}** = Columns {mapped_list}  ") # figure out how to do one string foreach item in list.
-                elif isinstance(columns_mapped, int):
-                    event_column_list.append(f"**{event_element}** = Column '*{self.ColumnNames[columns_mapped]}*' (index {columns_mapped})  ")
-                else:
-                    event_column_list.append(f"**{event_element}** = Column '*{columns_mapped}*' (DEBUG: Type {type(columns_mapped)})  ")
-            else:
-                event_column_list.append(f"**{event_element}** = null  ")
-        ret_val = "\n".join(event_column_list)
-        return ret_val
     
-    @staticmethod
-    def _parseElement(elem:Any, name:str) -> Optional[ColumnMapElement]:
-        """_summary_
-
-        TODO : Pick a better name
-
-        :param elem: _description_
-        :type elem: Any
-        :param name: _description_
-        :type name: str
-        :return: _description_
-        :rtype: Optional[ColumnMapElement]
-        """
-        ret_val : Optional[str | List[str] | Dict[str, str]]
-        if elem is not None:
-            if isinstance(elem, str):
-                ret_val = elem
-            elif isinstance(elem, list):
-                ret_val = elem
-            elif isinstance(elem, dict):
-                ret_val = elem
-            else:
-                ret_val = str(elem)
-                Logger.Log(f"Column name(s) mapped to {name} was not a string or list, defaulting to str(name) == {ret_val} being mapped to {name}", logging.WARN)
-        else:
-            ret_val = None
-            Logger.Log(f"Column name mapped to {name} was left null, nothing will be mapped to {name}", logging.WARN)
-        return ret_val
-
-    def _getValueFromRow(self, row:Tuple, indices:Optional[int | List[int] | Dict[str, int]], concatenator:str, fallback:Any) -> Any:
-        ret_val : Any
-        if indices is not None:
-            if isinstance(indices, int):
-                # if there's a single index, use parse to get the value it is stated to be
-                # print(f"About to parse value {row[indices]} as type {self.Columns[indices]},\nFull list from row is {row},\nFull list of columns is {self.Columns},\nwith names {self.ColumnNames}")
-                ret_val = conversions.ConvertToType(variable=row[indices], to_type=self.Columns[indices].ValueType)
-            elif isinstance(indices, list):
-                ret_val = concatenator.join([str(row[index]) for index in indices])
-            elif isinstance(indices, dict):
-                ret_val = {}
-                for key,column_index in indices.items():
-                    if column_index > len(row):
-                        Logger.Log(f"Got column index of {column_index} for column {key}, but row only has {len(row)} columns!", logging.ERROR)
-                    _val = conversions.ConvertToType(variable=row[column_index], to_type=self._table_columns[column_index].ValueType)
-                    ret_val.update(_val if isinstance(_val, dict) else {key:_val})
-        else:
-            ret_val = fallback
-        return ret_val
