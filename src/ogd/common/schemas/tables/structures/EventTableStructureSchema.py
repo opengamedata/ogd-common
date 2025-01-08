@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Tuple, Optional
 # import local files
 from ogd.common.models.enums.TableType import TableType
 from ogd.common.models.Event import Event, EventSource
-from ogd.common.schemas.tables.TableStructureSchema import TableStructureSchema, ColumnMapIndex, ColumnMapElement
+from ogd.common.schemas.tables.structures.TableStructureSchema import TableStructureSchema, ColumnMapIndex, ColumnMapElement
 from ogd.common.schemas.tables.structures.ColumnSchema import ColumnSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions

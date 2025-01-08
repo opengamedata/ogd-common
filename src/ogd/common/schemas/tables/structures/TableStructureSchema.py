@@ -186,6 +186,28 @@ class TableStructureSchema(Schema):
 
     @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableStructureSchema":
+        """Function to generate a TableStructureSchema from a dictionary.
+
+        The structure is assumed to be as follows:
+        ```python
+        {
+            "table_type" : <either EVENT or FEATURE>,
+            "columns" : [<list of column schemas>],
+            "column_map" : {<mapping of column names to indices>}
+        }
+        ```
+
+        The specific handling of the column map will be determined by the specific TableStructureSchema subclass on which the FromDict feature is called.
+
+        :param name: The name of the returned TableStructureSchema object
+        :type name: str
+        :param all_elements: A dictionary containing all elements to be parsed into the TableStructureSchema object
+        :type all_elements: Dict[str, Any]
+        :param logger: An optional logger for outputting errors/warnings, defaults to None
+        :type logger: Optional[logging.Logger], optional
+        :return: An instance of the TableStructureSchema subclass on which the function is called
+        :rtype: TableStructureSchema
+        """
         _column_schemas : List[ColumnSchema]
         _table_type     : TableType
 
