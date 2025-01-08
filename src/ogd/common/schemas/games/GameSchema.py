@@ -1,8 +1,6 @@
 # import standard libraries
 import logging
-from importlib.resources import files
 from pathlib import Path
-from shutil import copyfile
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 # import local files
 from ogd.common.schemas.Schema import Schema
@@ -16,7 +14,6 @@ from ogd.common.configs.games.FeatureConfig import FeatureConfig
 from ogd.common.configs.games.FeatureMapConfig import FeatureMapConfig
 from ogd.common.models.enums.IterationMode import IterationMode
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
-from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
@@ -417,12 +414,11 @@ class GameSchema(Schema):
 
     # *** PUBLIC STATICS ***
 
-    @staticmethod
-    def FromFile(game_id:str, schema_path:Optional[Path] = None):
+    @classmethod
+    def FromFile(cls, game_id:str, schema_path:Optional[Path] = None, search_templates:bool=True) -> "GameSchema":
         # Give schema_path a default, don't think we can use game_id to construct it directly in the function header (so do it here if None)
         schema_path = schema_path or Path("./") / "ogd" / "games" / game_id / "schemas"
-        all_elements = GameSchema._loadSchemaFile(game_name=game_id, schema_path=schema_path)
-        return GameSchema.FromDict(name=game_id, all_elements=all_elements or {})
+        return cls._fromFile(schema_name=game_id, schema_path=schema_path, search_templates=search_templates)
 
     # *** PUBLIC METHODS ***
 
@@ -523,50 +519,6 @@ class GameSchema(Schema):
         return ret_val
 
     # *** PRIVATE STATICS ***
-
-    @staticmethod
-    def _loadSchemaFile(game_name:str, schema_path:Path) -> Optional[Dict[Any, Any]]:
-        ret_val = None
-
-        # 1. make sure the name and path are in the right form.
-        schema_name = f"{game_name.upper()}.json"
-        # 2. try to actually load the contents of the file.
-        try:
-            ret_val = fileio.loadJSONFile(filename=schema_name, path=schema_path)
-        except (ModuleNotFoundError, FileNotFoundError):
-            Logger.Log(f"Unable to load GameSchema for {game_name}, {schema_name} does not exist! Trying to load from json template instead...", logging.WARN, depth=1)
-            ret_val = GameSchema._schemaFromTemplate(schema_path=schema_path, schema_name=schema_name)
-            if ret_val is not None:
-                Logger.Log(f"Loaded schema for {game_name} from template.", logging.WARN, depth=1)
-            else:
-                Logger.Log(f"Failed to load schema for {game_name} from template.", logging.WARN, depth=1)
-        else:
-            if ret_val is None:
-                Logger.Log(f"Could not load game schema at {schema_path / schema_name}, the file was empty!", logging.ERROR)
-        return ret_val
-
-    @staticmethod
-    def _schemaFromTemplate(schema_path:Path, schema_name:str) -> Optional[Dict[Any, Any]]:
-        ret_val = None
-
-        template_name = schema_name + ".template"
-        try:
-            ret_val = fileio.loadJSONFile(filename=template_name, path=schema_path, autocorrect_extension=False)
-        except FileNotFoundError:
-            Logger.Log(       f"Could not load {schema_name} from template, the template does not exist at {schema_path}.", logging.WARN, depth=2)
-            print(f"(via print) Could not create {schema_name} from template, the template does not exist at {schema_path}.")
-        else:
-            Logger.Log(f"Trying to copy {schema_name} from template, for future use...", logging.DEBUG, depth=2)
-            template = schema_path / template_name
-            try:
-                copyfile(template, schema_path / schema_name)
-            except Exception as cp_err:
-                Logger.Log(       f"Could not copy {schema_name} from template, a {type(cp_err)} error occurred:\n{cp_err}", logging.WARN, depth=2)
-                print(f"(via print) Could not copy {schema_name} from template, a {type(cp_err)} error occurred:\n{cp_err}")
-            else:
-                Logger.Log(       f"Successfully copied {schema_name} from template.", logging.DEBUG, depth=2)
-        return ret_val
-
 
     @staticmethod
     def _parseEnumDefs(enums_list:Dict[str, Any]) -> Dict[str, List[str]]:

@@ -1,17 +1,13 @@
 ## import standard libraries
-import abc
 import logging
-from pathlib import Path
-from typing import Any, Dict, List, Tuple, Optional, TypeAlias
+from typing import Any, Dict, List, Optional, TypeAlias
 ## import local files
-from ogd.common import schemas
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.structures.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.structures.TableStructureSchema import TableStructureSchema
 from ogd.common.schemas.tables.structures.EventTableStructureSchema import EventTableStructureSchema
 from ogd.common.schemas.tables.structures.FeatureTableStructureSchema import FeatureTableStructureSchema
 from ogd.common.schemas.tables.locations.TableLocationSchema import TableLocationSchema
-from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
@@ -110,16 +106,6 @@ class TableSchema(Schema):
         )
 
     # *** PUBLIC STATICS ***
-
-    @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Path = Path(schemas.__file__).parent / "table_schemas/") -> "TableSchema":
-        _table_format_name : str = schema_name
-
-        if not _table_format_name.lower().endswith(".json"):
-            _table_format_name += ".json"
-        _schema = fileio.loadJSONFile(filename=_table_format_name, path=schema_path)
-
-        return cls.FromDict(name=schema_name, all_elements=_schema)
 
     # *** PUBLIC METHODS ***
 
