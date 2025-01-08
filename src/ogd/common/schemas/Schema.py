@@ -1,10 +1,13 @@
 # import standard libraries
 import abc
 import logging
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 # import local files
-from ogd.common.utils.typing import Map
+from ogd.common import schemas
+from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class Schema(abc.ABC):
 
@@ -95,6 +98,16 @@ class Schema(abc.ABC):
         return list(self._other_elements.keys())
 
     # *** PUBLIC STATICS ***
+
+    @classmethod
+    def FromFile(cls, schema_name:str, schema_path:Path = Path(schemas.__file__).parent / "table_schemas/") -> "Schema":
+        _table_format_name : str = schema_name
+
+        if not _table_format_name.lower().endswith(".json"):
+            _table_format_name += ".json"
+        _schema = fileio.loadJSONFile(filename=_table_format_name, path=schema_path)
+
+        return cls.FromDict(name=schema_name, all_elements=_schema)
 
     @classmethod
     def ElementFromDict(cls, all_elements:Dict[str, Any], element_names:List[str], parser_function:Callable, default_value:Any, logger:Optional[logging.Logger]=None) -> Any:
