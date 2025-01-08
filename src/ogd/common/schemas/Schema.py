@@ -2,6 +2,7 @@
 import abc
 import logging
 from pathlib import Path
+from shutil import copyfile
 from typing import Any, Callable, Dict, List, Optional
 # import local files
 from ogd.common import schemas
@@ -99,15 +100,9 @@ class Schema(abc.ABC):
 
     # *** PUBLIC STATICS ***
 
-    @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Path = Path(schemas.__file__).parent / "table_schemas/") -> "Schema":
-        _table_format_name : str = schema_name
-
-        if not _table_format_name.lower().endswith(".json"):
-            _table_format_name += ".json"
-        _schema = fileio.loadJSONFile(filename=_table_format_name, path=schema_path)
-
-        return cls.FromDict(name=schema_name, all_elements=_schema)
+    @staticmethod
+    def FromFile(cls, schema_name:str, schema_path:Path, search_templates:bool=False) -> "Schema":
+        return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     @classmethod
     def ElementFromDict(cls, all_elements:Dict[str, Any], element_names:List[str], parser_function:Callable, default_value:Any, logger:Optional[logging.Logger]=None) -> Any:
@@ -138,6 +133,65 @@ class Schema(abc.ABC):
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
+
+    @classmethod
+    def _fromFile(cls, schema_name:str, schema_path:Path, search_templates:bool=False) -> "Schema":
+        ret_val : Schema
+        _formatted_name : str = schema_name
+
+        # 1. make sure the name and path are in the right form.
+        if not _formatted_name.lower().endswith(".json"):
+            _formatted_name += ".json"
+        # 2. try to actually load the contents of the file.
+        try:
+            schema_contents = fileio.loadJSONFile(filename=_formatted_name, path=schema_path)
+        except (ModuleNotFoundError, FileNotFoundError) as err:
+            # Case 1: Didn't find module, nothing else to try
+            if isinstance(err, ModuleNotFoundError):
+                Logger.Log(f"Unable to load schema at {schema_path / schema_name}, module ({schema_path}) does not exist! Using default schema instead", logging.ERROR, depth=1)
+                ret_val = cls.Default()
+            # Case 2a: Didn't find file, search for template
+            elif search_templates:
+                Logger.Log(f"Unable to load schema at {schema_path / schema_name}, {schema_name} does not exist! Trying to load from json template instead...", logging.WARNING, depth=1)
+                ret_val = cls._schemaFromTemplate(schema_path=schema_path, schema_name=schema_name)
+            # Case 2b: Didn't find file, don't search for template
+            else:
+                Logger.Log(f"Unable to load schema at {schema_path / schema_name}, {schema_name} does not exist! Using default schema instead", logging.ERROR, depth=1)
+                ret_val = cls.Default()
+        else:
+            if schema_contents is None:
+                Logger.Log(f"Could not load schema at {schema_path / schema_name}, the file was empty! Using default schema instead", logging.ERROR, depth=1)
+                ret_val = cls.Default()
+            else:
+                ret_val = cls.FromDict(name=schema_name, all_elements=schema_contents)
+
+        return ret_val
+
+    @classmethod
+    def _schemaFromTemplate(cls, schema_path:Path, schema_name:str) -> "Schema":
+        ret_val : Schema
+
+        template_name = schema_name + ".template"
+        try:
+            template_contents = fileio.loadJSONFile(filename=template_name, path=schema_path, autocorrect_extension=False)
+        except FileNotFoundError:
+            _msg = f"Unable to load schema template at {schema_path / template_name}, {template_name} does not exist!."
+            Logger.Log(_msg, logging.WARN, depth=1)
+            print(f"(via print) {_msg}.")
+        else:
+            if template_contents is not None:
+                Logger.Log(f"Successfully loaded {schema_name} from template.", logging.INFO, depth=1)
+                Logger.Log(f"Trying to copy {schema_name} from template, for future use...", logging.DEBUG, depth=2)
+                template = schema_path / template_name
+                try:
+                    copyfile(template, schema_path / schema_name)
+                except Exception as cp_err:
+                    _msg = f"Could not make a copy of {schema_name} from template, a {type(cp_err)} error occurred:\n{cp_err}"
+                    Logger.Log(         _msg, logging.WARN, depth=1)
+                    print(f"(via print) {_msg}")
+                else:
+                    Logger.Log(f"Successfully copied {schema_name} from template.", logging.DEBUG, depth=2)
+        return cls.FromDict(name=schema_name, all_elements=template_contents)
     
     @staticmethod
     def _parseName(name):

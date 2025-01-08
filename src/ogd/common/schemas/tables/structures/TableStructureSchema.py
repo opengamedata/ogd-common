@@ -227,14 +227,9 @@ class TableStructureSchema(Schema):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Path = Path(schemas.__file__).parent / "table_schemas/") -> "TableStructureSchema":
-        _table_format_name : str = schema_name
-
-        if not _table_format_name.lower().endswith(".json"):
-            _table_format_name += ".json"
-        _schema = fileio.loadJSONFile(filename=_table_format_name, path=schema_path)
-
-        return cls.FromDict(name=schema_name, all_elements=_schema)
+    def FromFile(cls, schema_name:str, schema_path:Optional[str | Path]) -> "TableStructureSchema":
+        schema_path = schema_path or Path(schemas.__file__).parent / "table_schemas"
+        return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     # *** PUBLIC METHODS ***
 
