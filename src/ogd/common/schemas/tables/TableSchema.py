@@ -60,14 +60,18 @@ class TableSchema(Schema):
     def Columns(self) -> List[ColumnSchema]:
         return self._structure.Columns
 
+    @property
+    def Location(self) -> TableLocationSchema:
+        return self._location
+
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
     def AsMarkdown(self) -> str:
         ret_val = "\n\n".join([
             "## Database Columns",
-            "The individual columns recorded in the database for this game.",
-            self._structure.AsMarkdown,
+            f"The individual columns recorded in the data source ({self.Location}) for this game.",
+            self.Structure.AsMarkdown,
             ""])
         return ret_val
 
