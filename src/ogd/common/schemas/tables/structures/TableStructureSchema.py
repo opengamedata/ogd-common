@@ -22,8 +22,8 @@ class TableStructureSchema(Schema):
         and a mapping of those columns to the corresponding elements of a formal OGD structure.
     """
 
-    @abc.abstractmethod
     @classmethod
+    @abc.abstractmethod
     def _fromDict(cls, name:str, table_type:TableType, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableStructureSchema":
         pass
 
