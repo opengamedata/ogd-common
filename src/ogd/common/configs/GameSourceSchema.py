@@ -10,15 +10,6 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 class GameSourceSchema(Schema):
-
-    _DEFAULT_GAME_ID       = "UNKNOWN GAME"
-    _DEFAULT_SOURCE_NAME   = "OPENGAMEDATA_BQ"
-    _DEFAULT_DB_NAME       = "UNKNOWN GAME"
-    _DEFAULT_TABLE_NAME    = "_daily"
-    _DEFAULT_TABLE_SCHEMA  = "OPENGAMEDATA_BIGQUERY"
-
-    # *** BUILT-INS & PROPERTIES ***
-
     """A simple Schema structure containing configuration information for a particular game's data.
 
     TODO : use a TableSchema for the table_schema instead of just the name of the schema, like we do with source_schema.
@@ -34,10 +25,16 @@ class GameSourceSchema(Schema):
     - `TableSchema` : A schema indicating the structure of the table containing the given game's data.
 
     TODO : Implement and use a smart Load(...) function of TableSchema to load schema from given name, rather than FromFile.
-
-    :param Schema: _description_
-    :type Schema: _type_
     """
+
+    _DEFAULT_GAME_ID       = "UNKNOWN GAME"
+    _DEFAULT_SOURCE_NAME   = "OPENGAMEDATA_BQ"
+    _DEFAULT_DB_NAME       = "UNKNOWN GAME"
+    _DEFAULT_TABLE_NAME    = "_daily"
+    _DEFAULT_TABLE_SCHEMA  = "OPENGAMEDATA_BIGQUERY"
+
+    # *** BUILT-INS & PROPERTIES ***
+
     def __init__(self, name:str,  game_id:Optional[str],
                  source_name:str, source_schema:Optional[DataStoreConfig],
                  db_name:str,     table_name:str,  table_schema:str,
