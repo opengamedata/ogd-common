@@ -15,8 +15,8 @@ from ogd.common.utils.typing import Map, conversions
 ColumnMapIndex   : TypeAlias = Optional[int | List[int] | Dict[str,int]]
 ColumnMapElement : TypeAlias = Optional[str | List[str] | Dict[str,str]]
 
-## @class TableSchema
-class TableSchema(Schema):
+## @class TableStructureSchema
+class TableStructureSchema(Schema):
     """Dumb struct to hold info about the structure of data for a particular game, from a particular source.
         In particular, it contains an ordered list of columns in the data source table,
         and a mapping of those columns to the corresponding elements of a formal OGD structure.
@@ -24,7 +24,7 @@ class TableSchema(Schema):
 
     @abc.abstractmethod
     @classmethod
-    def _fromDict(cls, name:str, table_type:TableType, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableSchema":
+    def _fromDict(cls, name:str, table_type:TableType, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableStructureSchema":
         pass
 
     # *** BUILT-INS & PROPERTIES ***
@@ -32,7 +32,7 @@ class TableSchema(Schema):
     _DEFAULT_COLUMNS = []
 
     def __init__(self, name, table_type:TableType, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema], other_elements:Optional[Map]):
-        """Constructor for the TableSchema class.
+        """Constructor for the TableStructureSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
         class variables.
@@ -57,9 +57,9 @@ class TableSchema(Schema):
     def TableKind(self) -> TableType:
         """Property to show whether the given table schema is for events or features.
 
-        If this TableSchema was read from a file, this will reflect the type indicated in the file,
-        *even if the specific TableSchema subclass does not match*.
-        If this TableSchema was generated through some other means, or no type was indicated in the source file,
+        If this TableStructureSchema was read from a file, this will reflect the type indicated in the file,
+        *even if the specific TableStructureSchema subclass does not match*.
+        If this TableStructureSchema was generated through some other means, or no type was indicated in the source file,
         this will reflect the type of the instance.
 
         :return: Either TableType.EVENT or TableType.FEATURE
@@ -185,7 +185,7 @@ class TableSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableSchema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableStructureSchema":
         _column_schemas : List[ColumnSchema]
         _table_type     : TableType
 
@@ -205,7 +205,7 @@ class TableSchema(Schema):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Path = Path(schemas.__file__).parent / "table_schemas/") -> "TableSchema":
+    def FromFile(cls, schema_name:str, schema_path:Path = Path(schemas.__file__).parent / "table_schemas/") -> "TableStructureSchema":
         _table_format_name : str = schema_name
 
         if not _table_format_name.lower().endswith(".json"):
