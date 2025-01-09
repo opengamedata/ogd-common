@@ -7,7 +7,7 @@ from unittest import TestCase, main
 # import locals
 _path = Path(os.getcwd()) / "src"
 sys.path.insert(0, str(_path.absolute()))
-from ogd.common.utils.SemanticVersion import SemanticVersion
+from ogd.common.models.SemanticVersion import SemanticVersion
 
 def setUpModule():
     from ogd.common.utils.Logger import Logger

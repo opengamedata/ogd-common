@@ -19,7 +19,7 @@ from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
-from ogd.common.utils.SemanticVersion import SemanticVersion
+from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.utils.Logger import Logger
 
 class Interface(StorageConnector):
