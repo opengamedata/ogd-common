@@ -49,7 +49,7 @@ class Readme:
                 ]))
                 # 3. Append any important data from the data changelog.
         except FileNotFoundError as err:
-            Logger.Log(f"Could not open README.md for writing.", logging.ERROR)
+            Logger.Log("Could not open README.md for writing.", logging.ERROR)
             traceback.print_tb(err.__traceback__)
         else:
             Logger.Log(f"Wrote readme file to {path}/README.md", logging.INFO)
@@ -61,7 +61,7 @@ class Readme:
         try:
             with open(game_schema_dir / f"{self.GameName}_readme_src.md", "r") as readme_src:
                 ret_val = readme_src.read()
-        except FileNotFoundError as err:
+        except FileNotFoundError:
             Logger.Log(f"Could not find {self._game_schema.GameName}_readme_src", logging.WARNING)
         finally:
             return ret_val
@@ -93,11 +93,11 @@ class Readme:
     def _getDatabaseChangelog(self) -> str:
         ret_val = "No changelog prepared"
 
-        changelog_dir = Path(f"./schemas/")
+        changelog_dir = Path("./schemas/")
         try:
             with open(changelog_dir / "database_changelog_src.md", "r") as changelog_src:
                 ret_val = changelog_src.read()
-        except FileNotFoundError as err:
-            Logger.Log(f"Could not find database_changelog_src", logging.WARNING)
+        except FileNotFoundError:
+            Logger.Log("Could not find database_changelog_src", logging.WARNING)
         finally:
             return ret_val
