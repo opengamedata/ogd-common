@@ -1,19 +1,12 @@
-import json
 import logging
 import os
-import re
-import shutil
-import sys
 import traceback
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, IO, List, Optional, Set
 
 # import local files
 from ogd.common.schemas.games.GameSchema import GameSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import ExportRow
 
 class Readme:
     def __init__(self, game_schema:GameSchema, table_schema:TableSchema):
