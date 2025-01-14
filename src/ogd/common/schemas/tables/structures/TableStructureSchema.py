@@ -5,10 +5,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional, TypeAlias
 ## import local files
 from ogd.common import schemas
-from ogd.common.models.enums.TableType import TableType
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.structures.ColumnSchema import ColumnSchema
-from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
 
@@ -24,14 +22,14 @@ class TableStructureSchema(Schema):
 
     @classmethod
     @abc.abstractmethod
-    def _fromDict(cls, name:str, table_type:TableType, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableStructureSchema":
+    def _fromDict(cls, name:str, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableStructureSchema":
         pass
 
     # *** BUILT-INS & PROPERTIES ***
 
     _DEFAULT_COLUMNS = []
 
-    def __init__(self, name, table_type:TableType, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema], other_elements:Optional[Map]):
+    def __init__(self, name, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema], other_elements:Optional[Map]):
         """Constructor for the TableStructureSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
@@ -46,26 +44,11 @@ class TableStructureSchema(Schema):
         """
         # declare and initialize vars
         # self._schema            : Optional[Dict[str, Any]] = all_elements
-        self._table_type    : TableType                 = table_type
         self._column_map    : Dict[str, ColumnMapIndex] = column_map
         self._table_columns : List[ColumnSchema]        = columns
 
         # after loading the file, take the stuff we need and store.
         super().__init__(name=name, other_elements=other_elements)
-
-    @property
-    def TableKind(self) -> TableType:
-        """Property to show whether the given table schema is for events or features.
-
-        If this TableStructureSchema was read from a file, this will reflect the type indicated in the file,
-        *even if the specific TableStructureSchema subclass does not match*.
-        If this TableStructureSchema was generated through some other means, or no type was indicated in the source file,
-        this will reflect the type of the instance.
-
-        :return: Either TableType.EVENT or TableType.FEATURE
-        :rtype: TableType
-        """
-        return self._table_type
 
     @property
     def Columns(self) -> List[ColumnSchema]:
@@ -172,18 +155,6 @@ class TableStructureSchema(Schema):
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
-    @property
-    def AsMarkdown(self) -> str:
-        ret_val = "\n\n".join([
-            "## Database Columns",
-            "The individual columns recorded in the database for this game.",
-            self._columnSetMarkdown,
-            f"## {self.TableKind} Object Elements",
-            "The elements (member variables) of each Event object, available to programmers when writing feature extractors. The right-hand side shows which database column(s) are mapped to a given element.",
-            self._columnMapMarkdown,
-            ""])
-        return ret_val
-
     @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableStructureSchema":
         """Function to generate a TableStructureSchema from a dictionary.
@@ -209,7 +180,6 @@ class TableStructureSchema(Schema):
         :rtype: TableStructureSchema
         """
         _column_schemas : List[ColumnSchema]
-        _table_type     : TableType
 
         if not isinstance(all_elements, dict):
             all_elements = {}
@@ -218,11 +188,9 @@ class TableStructureSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _table_type_str   = all_elements.get('table_type')
-        _table_type       = TableType.FromString(_table_type_str) if _table_type_str is not None else TableType.EVENT
         _column_json_list = all_elements.get('columns', [])
         _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), all_elements=column) for column in _column_json_list]
-        return cls._fromDict(name=name, table_type=_table_type, raw_map=all_elements.get('column_map', {}), column_schemas=_column_schemas)
+        return cls._fromDict(name=name, raw_map=all_elements.get('column_map', {}), column_schemas=_column_schemas)
 
     # *** PUBLIC STATICS ***
 
