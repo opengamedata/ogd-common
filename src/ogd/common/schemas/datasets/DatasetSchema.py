@@ -389,10 +389,6 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
     # *** PUBLIC STATICS ***
 
-    @staticmethod
-    def EmptySchema() -> "DatasetSchema":
-        return DatasetSchema.FromDict(name="NOT FOUND", all_elements={}, logger=None)
-
     # *** PUBLIC METHODS ***
 
     # TODO : once we have official minimum Python up to 3.11, import Self and set other:Optional[Self]
