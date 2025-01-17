@@ -17,8 +17,25 @@ class DataStoreConfig(Config):
     - A config "name" for use within ogd software for identifying a particular data source config
     - A resource "location" for use by the StorageConnector (such as a filename, cloud project name, or database host)
     """
-    # @overload
-    # def __init__(self, name:str, other_elements:Dict[str, Any]): ...
+
+    # *** ABSTRACTS ***
+
+    @property
+    @abc.abstractmethod
+    def Location(self) -> str | Path:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def Credential(self) -> CredentialConfig:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def AsConnectionInfo(self) -> str:
+        pass
+
+    # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, other_elements:Dict[str, Any] | Any):
         self._source_type : str
@@ -51,20 +68,11 @@ class DataStoreConfig(Config):
         """
         return self._source_type
 
-    @property
-    @abc.abstractmethod
-    def Location(self) -> str | Path:
-        pass
+    # *** PUBLIC STATICS ***
 
-    @property
-    @abc.abstractmethod
-    def Credential(self) -> CredentialConfig:
-        pass
+    # *** PUBLIC METHODS ***
 
-    @property
-    @abc.abstractmethod
-    def AsConnectionInfo(self) -> str:
-        pass
+    # *** PRIVATE STATICS ***
 
     @staticmethod
     def _parseSourceType(source_type) -> str:
@@ -75,3 +83,5 @@ class DataStoreConfig(Config):
             ret_val = str(source_type)
             Logger.Log(f"Data Source typename was unexpected type {type(source_type)}, defaulting to str(source_type)={ret_val}.", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***
