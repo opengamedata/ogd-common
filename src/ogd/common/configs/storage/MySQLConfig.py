@@ -1,9 +1,12 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, Optional, Type
+from pathlib import Path
+from typing import Any, Dict, Optional
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
+from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
+from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
 from ogd.common.utils.Logger import Logger
 
 class SSHConfig(Schema):
@@ -12,11 +15,10 @@ class SSHConfig(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, ssh_host:Optional[str], ssh_user:Optional[str], ssh_pass:Optional[str], ssh_port:int, other_elements:Dict[str, Any]):
-        self._host : Optional[str] = ssh_host
-        self._user : Optional[str] = ssh_user
-        self._pass : Optional[str] = ssh_pass
-        self._port : int           = ssh_port
+    def __init__(self, name:str, ssh_host:Optional[str], ssh_credential:PasswordCredential, ssh_port:int, other_elements:Dict[str, Any]):
+        self._host       : Optional[str]      = ssh_host
+        self._credential : PasswordCredential = ssh_credential
+        self._port       : int                = ssh_port
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -25,11 +27,11 @@ class SSHConfig(Schema):
 
     @property
     def User(self) -> Optional[str]:
-        return self._user
+        return self._credential.User
 
     @property
     def Pass(self) -> Optional[str]:
-        return self._pass
+        return self._credential.Pass
 
     @property
     def Port(self) -> int:
@@ -70,33 +72,27 @@ class SSHConfig(Schema):
             parser_function=cls._parseHost,
             default_value=None # TODO : use class default
         )
-        _user = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["SSH_USER"],
-            parser_function=cls._parseUser,
-            default_value=None
-        )
-        _pass = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["SSH_PW", "SSH_PASS"],
-            parser_function=cls._parsePass,
-            default_value=None
-        )
         _port = cls.ElementFromDict(all_elements=all_elements, logger=logger,
             element_names=["SSH_PORT"],
             parser_function=cls._parsePort,
             default_value=22
         )
+        # TODO : determine whether this could work as own parser function.
+        _credential = PasswordCredential.FromDict(name=f"{name}Credential",
+                                                  all_elements=all_elements.get("SSH_CREDENTIAL", {}),
+                                                  logger=logger
+        )
 
-        _used = {"SSH_HOST", "SSH_USER", "SSH_PW", "SSH_PASS", "SSH_PORT"}
+        _used = {"SSH_HOST", "SSH_PORT", "SSH_CREDENTIAL"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return SSHConfig(name=name, ssh_host=_host, ssh_user=_user, ssh_pass=_pass, ssh_port=_port, other_elements=_leftovers)
+        return SSHConfig(name=name, ssh_host=_host, ssh_credential=_credential, ssh_port=_port, other_elements=_leftovers)
 
     @classmethod
     def Default(cls) -> "SSHConfig":
         return SSHConfig(
             name="DefaultSSHConfig",
             ssh_host=cls._DEFAULT_HOST,
-            ssh_user=cls._DEFAULT_USER,
-            ssh_pass=cls._DEFAULT_PASS,
+            ssh_credential=PasswordCredential.Default(),
             ssh_port=cls._DEFAULT_PORT,
             other_elements={}
         )
@@ -139,12 +135,11 @@ class MySQLConfig(DataStoreConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, db_host:str, db_port:int, db_user:str, db_pass:Optional[str], ssh_cfg:SSHConfig, other_elements:Dict[str, Any]):
-        self._db_host  : str           = db_host
-        self._db_port  : int           = db_port
-        self._db_user  : str           = db_user
-        self._db_pass  : Optional[str] = db_pass
-        self._ssh_cfg  : SSHConfig     = ssh_cfg
+    def __init__(self, name:str, db_host:str, db_port:int, db_credential:PasswordCredential, ssh_cfg:"SSHConfig", other_elements:Dict[str, Any]):
+        self._db_host    : str                = db_host
+        self._db_port    : int                = db_port
+        self._credential : PasswordCredential = db_credential
+        self._ssh_cfg    : SSHConfig          = ssh_cfg
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -156,19 +151,19 @@ class MySQLConfig(DataStoreConfig):
         return self._db_port
 
     @property
-    def DBUser(self) -> str:
-        return self._db_user
+    def DBUser(self) -> Optional[str]:
+        return self._credential.User
 
     @property
     def DBPass(self) -> Optional[str]:
-        return self._db_pass
+        return self._credential.Pass
 
     @property
     def SSHConfig(self) -> SSHConfig:
         return self._ssh_cfg
 
     @property
-    def SSH(self) -> SSHConfig:
+    def SSH(self) -> "SSHConfig":
         """Shortened alias for SSHConfig, convenient when using sub-elements of the SSHConfig.
 
         :return: The schema describing the configuration for an SSH connection to a data source.
@@ -185,8 +180,6 @@ class MySQLConfig(DataStoreConfig):
         """
         return (self.SSH.Host is not None and self.SSH.User is not None and self.SSH.Pass is not None)
 
-    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
-
     @property
     def AsMarkdown(self) -> str:
         ret_val : str
@@ -194,6 +187,14 @@ class MySQLConfig(DataStoreConfig):
         ssh_part = f"{self.SSH.AsConnectionInfo} -> " if self.HasSSH else ""
         ret_val  = f"{self.Name} : `{ssh_part}{self.AsConnectionInfo}` ({self.Type})"
         return ret_val
+
+    @property
+    def Location(self) -> str | Path:
+        return f"{self.DBHost}:{self.DBPort}"
+
+    @property
+    def Credential(self) -> CredentialConfig:
+        return self._credential
 
     @property
     def AsConnectionInfo(self) -> str:
@@ -204,8 +205,6 @@ class MySQLConfig(DataStoreConfig):
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "MySQLConfig":
         _db_host  : str
         _db_port  : int
-        _db_user  : str
-        _db_pass  : Optional[str]
         _ssh_cfg  : SSHConfig
 
         if not isinstance(all_elements, dict):
@@ -226,25 +225,20 @@ class MySQLConfig(DataStoreConfig):
             parser_function=cls._parseDBPort,
             default_value=3306
         )
-        _db_user = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["DB_USER"],
-            parser_function=cls._parseDBUser,
-            default_value="UNKNOWN USER"
-        )
-        _db_pass = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["DB_PW", "DB_PASS"],
-            parser_function=cls._parseDBPass,
-            default_value=None
+        # TODO : determine whether this could work as own parser function.
+        _credential = PasswordCredential.FromDict(name=f"{name}Credential",
+                                                  all_elements=all_elements.get("DB_CREDENTIAL", {}),
+                                                  logger=logger
         )
         # Parse SSH info, if it exists. Don't notify, if it doesn't exist.
         # TODO : probably shouldn't have keys expected for SSH be hardcoded here, maybe need a way to get back what stuff it didn't use?
-        _ssh_keys = {"SSH_HOST", "SSH_PORT", "SSH_USER", "SSH_PW", "SSH_PASS"}
+        _ssh_keys = {"SSH_HOST", "SSH_PORT", "SSH_CREDENTIAL"}
         _ssh_elems = { key : all_elements.get(key) for key in _ssh_keys.intersection(all_elements.keys()) }
         _ssh_cfg = SSHConfig.FromDict(name=f"{name}-SSH", all_elements=_ssh_elems, logger=logger)
 
-        _used = {"DB_HOST", "DB_PORT", "DB_USER", "DB_PW", "DB_PASS"}.union(_ssh_keys)
+        _used = {"DB_HOST", "DB_PORT", "DB_CREDENTIAL"}.union(_ssh_keys)
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return MySQLConfig(name=name, db_host=_db_host, db_port=_db_port, db_user=_db_user, db_pass=_db_pass, ssh_cfg=_ssh_cfg, other_elements=_leftovers)
+        return MySQLConfig(name=name, db_host=_db_host, db_port=_db_port, db_credential=_credential, ssh_cfg=_ssh_cfg, other_elements=_leftovers)
 
     @classmethod
     def Default(cls) -> "MySQLConfig":
@@ -252,8 +246,7 @@ class MySQLConfig(DataStoreConfig):
             name="DefaultMySQLConfig",
             db_host=cls._DEFAULT_HOST,
             db_port=cls._DEFAULT_PORT,
-            db_user=cls._DEFAULT_USER,
-            db_pass=cls._DEFAULT_PASS,
+            db_credential=PasswordCredential.Default(),
             ssh_cfg=SSHConfig.Default(),
             other_elements={}
         )
