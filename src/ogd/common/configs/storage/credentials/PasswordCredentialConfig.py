@@ -20,7 +20,7 @@ class PasswordCredential(CredentialConfig):
         self._pass = password
 
     @property
-    def User(self) -> Optional[str]:
+    def User(self) -> str:
         return self._user
 
     @property
@@ -38,7 +38,7 @@ class PasswordCredential(CredentialConfig):
 
     @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "PasswordCredential":
-        _user : Optional[str]
+        _user : str
         _pass : Optional[str]
 
         if not isinstance(all_elements, dict):
