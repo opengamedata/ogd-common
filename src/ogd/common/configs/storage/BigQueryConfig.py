@@ -33,7 +33,7 @@ class BigQueryConfig(DataStoreConfig):
 
     @property
     def AsConnectionInfo(self) -> str:
-        ret_val : str = f"{self.ProjectID}"
+        ret_val : str = f"{self.Location}"
         return ret_val
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
