@@ -19,7 +19,12 @@ class BigQueryConfig(DataStoreConfig):
         super().__init__(name=name, other_elements=other_elements)
 
     @property
-    def ProjectID(self) -> str:
+    def Location(self) -> str:
+        """The Project ID for the BigQuery source
+
+        :return: _description_
+        :rtype: str
+        """
         return self._project_id
 
     @property
