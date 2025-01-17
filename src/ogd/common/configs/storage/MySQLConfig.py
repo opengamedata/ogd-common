@@ -26,7 +26,7 @@ class SSHConfig(Schema):
         return self._host
 
     @property
-    def User(self) -> Optional[str]:
+    def User(self) -> str:
         return self._credential.User
 
     @property
@@ -56,8 +56,6 @@ class SSHConfig(Schema):
     @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "SSHConfig":
         _host : Optional[str]
-        _user : Optional[str]
-        _pass : Optional[str]
         _port : int
 
         if not isinstance(all_elements, dict):
@@ -151,7 +149,7 @@ class MySQLConfig(DataStoreConfig):
         return self._db_port
 
     @property
-    def DBUser(self) -> Optional[str]:
+    def DBUser(self) -> str:
         return self._credential.User
 
     @property
