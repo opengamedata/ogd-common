@@ -6,7 +6,7 @@ from ogd.common.configs.Config import Config
 from ogd.common.utils.Logger import Logger
 
 
-class CredentialConfig(Config):
+class EmptyCredential(Config):
     """Dumb struct to contain data pertaining to credentials for accessing a data source.
 
     In general, a credential can have a key, or a user-password combination.
@@ -25,7 +25,7 @@ class CredentialConfig(Config):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "CredentialConfig":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "EmptyCredential":
         _user : str
 
         if not isinstance(all_elements, dict):
@@ -35,11 +35,11 @@ class CredentialConfig(Config):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        return CredentialConfig(name=name, other_elements=all_elements)
+        return EmptyCredential(name=name, other_elements=all_elements)
 
     @classmethod
-    def Default(cls) -> "CredentialConfig":
-        return CredentialConfig(
+    def Default(cls) -> "EmptyCredential":
+        return EmptyCredential(
             name="DefaultEmptyCredential",
             other_elements={}
         )
