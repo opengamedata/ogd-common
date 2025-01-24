@@ -4,6 +4,9 @@ from typing import Any, Dict, Optional
 from pathlib import Path
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
+from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
+from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
+from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
 from ogd.common.utils.Logger import Logger
 
 class FileStoreConfig(DataStoreConfig):
@@ -12,14 +15,11 @@ class FileStoreConfig(DataStoreConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, folder_path:Path, file_name:str, other_elements:Dict[str, Any]):
+    def __init__(self, name:str, folder_path:Path, file_name:str, file_credential:EmptyCredential | PasswordCredential, other_elements:Dict[str, Any]):
         self._folder_path : Path = folder_path
         self._file_name   : str  = file_name
+        self._credential = file_credential
         super().__init__(name=name, other_elements=other_elements)
-
-    @property
-    def FilePath(self) -> Path:
-        return self._folder_path / self.FileName
 
     @property
     def FolderPath(self) -> Path:
@@ -33,7 +33,13 @@ class FileStoreConfig(DataStoreConfig):
     def FileExtension(self) -> str:
         return self._file_name.split(".")[-1]
 
-    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+    @property
+    def Location(self) -> str | Path:
+        return self._folder_path / self.FileName
+
+    @property
+    def Credential(self) -> CredentialConfig:
+        return self._credential
 
     @property
     def AsMarkdown(self) -> str:
@@ -70,10 +76,21 @@ class FileStoreConfig(DataStoreConfig):
             parser_function=cls._parseFilename,
             default_value=FileStoreConfig._DEFAULT_FILE_NAME
         )
+        # TODO : determine whether this could work as own parser function.
+        _cred_elements = all_elements.get("FILE_CREDENTIAL")
+        if _cred_elements:
+            _credential = PasswordCredential.FromDict(name=f"{name}Credential",
+                                                    all_elements=_cred_elements,
+                                                    logger=logger
+            )
+        else:
+            _credential = EmptyCredential.FromDict(name=name, all_elements={}, logger=logger)
 
         _used = {"PATH", "FILENAME"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return FileStoreConfig(name=name, folder_path=_folder_path, file_name=_file_name, other_elements=_leftovers)
+        return FileStoreConfig(name=name, folder_path=_folder_path, file_name=_file_name, file_credential=_credential, other_elements=_leftovers)
+
+    # *** PUBLIC STATICS ***
 
     @classmethod
     def Default(cls) -> "FileStoreConfig":
@@ -81,10 +98,9 @@ class FileStoreConfig(DataStoreConfig):
             name="DefaultFileStoreConfig",
             folder_path=cls._DEFAULT_FOLDER_PATH,
             file_name=cls._DEFAULT_FILE_NAME,
+            file_credential=EmptyCredential.Default(),
             other_elements={}
         )
-
-    # *** PUBLIC STATICS ***
 
     # *** PUBLIC METHODS ***
 
