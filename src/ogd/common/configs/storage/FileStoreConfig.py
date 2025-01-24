@@ -15,7 +15,7 @@ class FileStoreConfig(DataStoreConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, folder_path:Path, file_name:str, file_credential:EmptyCredential | PasswordCredential = EmptyCredential.Default(), other_elements:Dict[str, Any]):
+    def __init__(self, name:str, folder_path:Path, file_name:str, file_credential:EmptyCredential | PasswordCredential, other_elements:Dict[str, Any]):
         self._folder_path : Path = folder_path
         self._file_name   : str  = file_name
         self._credential = file_credential
