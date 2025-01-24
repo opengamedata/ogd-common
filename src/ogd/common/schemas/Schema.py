@@ -100,7 +100,7 @@ class Schema(abc.ABC):
 
     # *** PUBLIC STATICS ***
 
-    @staticmethod
+    @classmethod
     def FromFile(cls, schema_name:str, schema_path:Path, search_templates:bool=False):
         return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
