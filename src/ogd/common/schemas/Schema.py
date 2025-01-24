@@ -61,7 +61,7 @@ class Schema(abc.ABC):
         self._name : str
         self._other_elements : Map
 
-        self._name = Schema._parseName(name)
+        self._name = Schema._parseString(name)
 
         self._other_elements = other_elements or {}
         if len(self._other_elements.keys()) > 0:
@@ -126,11 +126,11 @@ class Schema(abc.ABC):
                 value = all_elements[name]
                 match (value_type):
                     case builtins.int:
-                        return Schema._parseInt(element_name=name, value=value)
+                        return Schema._parseInt(name=name, value=value)
                     case builtins.float:
-                        return Schema._parseFloat()
+                        return Schema._parseFloat(name=name, value=value)
                     case builtins.str:
-                        return Schema._parseString(element_name=name, value=value)
+                        return Schema._parseString(name=name, value=value)
                     case date:
                         return Schema._parseDate()
                     case datetime:
@@ -208,14 +208,37 @@ class Schema(abc.ABC):
                     Logger.Log(f"Successfully copied {schema_name} from template.", logging.DEBUG, depth=2)
         return cls.FromDict(name=schema_name, all_elements=template_contents)
     
-    @staticmethod
-    def _parseName(name):
-        ret_val : str
-        if isinstance(name, str):
-            ret_val = name
+    @classmethod
+    def _parseInt(cls, name:str, value:Any) -> int:
+        ret_val : int
+        if isinstance(value, int):
+            ret_val = value
+        elif isinstance(value, float):
+            ret_val = int(round(value))
+            Logger.Log(f"{cls.__name__} element {name} was a float value, rounding to nearest int ({ret_val}).", logging.WARN)
         else:
-            ret_val = str(name)
-            Logger.Log(f"Schema name was not a string, defaulting to str(name) == {ret_val}", logging.WARN)
+            ret_val = int(value)
+            Logger.Log(f"{cls.__name__} element {name} was unexpected type {type(value)}, defaulting to int(value) == {ret_val}.", logging.WARN)
+        return ret_val
+    
+    @classmethod
+    def _parseFloat(cls, name:str, value:Any) -> float:
+        ret_val : float
+        if isinstance(value, float):
+            ret_val = value
+        else:
+            ret_val = int(value)
+            Logger.Log(f"{cls.__name__} element {name} was unexpected type {type(value)}, defaulting to float(value) == {ret_val}.", logging.WARN)
+        return ret_val
+
+    @classmethod
+    def _parseString(cls, name:str, value:Any) -> str:
+        ret_val : str
+        if isinstance(value, str):
+            ret_val = value
+        else:
+            ret_val = str(value)
+            Logger.Log(f"{cls.__name__} element {name} was unexpected type {type(value)}, defaulting to str(value) == {ret_val}", logging.WARN)
         return ret_val
 
     # *** PRIVATE METHODS ***
