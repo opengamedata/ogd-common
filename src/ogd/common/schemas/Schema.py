@@ -105,7 +105,7 @@ class Schema(abc.ABC):
         return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     @classmethod
-    def ElementFromDict(cls, all_elements:Dict[str, Any], element_names:List[str], parser_function:Callable, default_value:Any, logger:Optional[logging.Logger]=None) -> Any:
+    def ElementFromDict(cls, all_elements:Dict[str, Any], element_names:List[str], parser_function:Callable, default_value:Any) -> Any:
         """_summary_
 
         TODO : Redo this concept in a way that we can still get type safety by directly calling parse functions in individual schema classes.
@@ -127,7 +127,7 @@ class Schema(abc.ABC):
             if name in all_elements:
                 return parser_function(all_elements[name])
         _msg = f"{cls.__name__} config does not have a '{element_names[0]}' element; defaulting to {element_names[0]}={default_value}"
-        logger.warning(_msg) if logger else Logger.Log(_msg, logging.WARN)
+        Logger.Log(_msg, logging.WARN)
         return default_value
 
     # *** PUBLIC METHODS ***
