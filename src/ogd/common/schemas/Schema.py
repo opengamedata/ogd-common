@@ -2,7 +2,7 @@
 import abc
 import builtins
 import logging
-from datetime import date, datetime, timedelta
+import datetime
 from pathlib import Path
 from shutil import copyfile
 from typing import Any, Dict, List, Optional, Type
@@ -61,7 +61,7 @@ class Schema(abc.ABC):
         self._name : str
         self._other_elements : Map
 
-        self._name = Schema._parseString(name)
+        self._name = Schema._parseString(name="DefaultSchemaName", value=name)
 
         self._other_elements = other_elements or {}
         if len(self._other_elements.keys()) > 0:
@@ -131,11 +131,11 @@ class Schema(abc.ABC):
                         return Schema._parseFloat(name=name, value=value)
                     case builtins.str:
                         return Schema._parseString(name=name, value=value)
-                    case date:
+                    case datetime.date:
                         return Schema._parseDate()
-                    case datetime:
+                    case datetime.datetime:
                         return Schema._parseDatetime()
-                    case timedelta:
+                    case datetime.timedelta:
                         return Schema._parseTimedelta()
                     case _:
                         _msg = f"Requested type of {value_type} for '{valid_keys[0]}' is unknown; defaulting to {valid_keys[0]}={default_value}"
