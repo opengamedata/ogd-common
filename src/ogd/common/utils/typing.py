@@ -4,7 +4,7 @@ import logging
 import re
 from datetime import datetime, timedelta, timezone
 from json.decoder import JSONDecodeError
-from typing import Any, Callable, Dict, List, Optional, TypeAlias
+from typing import Any, Dict, List, Optional, TypeAlias
 ## import 3rd-party libraries
 from dateutil import parser
 ## import local files

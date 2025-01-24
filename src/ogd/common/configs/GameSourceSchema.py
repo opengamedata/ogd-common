@@ -1,5 +1,6 @@
 # import standard libraries
 import logging
+from pathlib import Path
 from typing import Any, Dict, Optional
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
@@ -45,7 +46,8 @@ class GameSourceSchema(Schema):
         self._db_name           : str                        = db_name
         self._table_name        : str                        = table_name
         self._table_schema_name : str                        = table_schema
-        self._table_schema      : TableSchema = TableSchema.FromFile(schema_name=self._table_schema_name)
+        _path : Path = Path("./tables/")
+        self._table_schema      : TableSchema = TableSchema.FromFile(schema_name=self._table_schema_name, schema_path=_path)
 
         if game_id is not None:
             self._game_id = game_id
