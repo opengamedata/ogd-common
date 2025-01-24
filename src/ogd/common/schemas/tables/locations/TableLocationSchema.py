@@ -63,9 +63,9 @@ class TableLocationSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _table_name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["table"],
-            parser_function=cls._parseTableName,
+        _table_name = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["table"],
+            value_type=cls._parseTableName,
             default_value=TableLocationSchema._DEFAULT_TABLE_NAME
         )
 

@@ -69,19 +69,19 @@ class DataElementSchema(Schema):
             else:
                 all_elements = {}
                 Logger.Log(f"For EventDataElement config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _type = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["type"],
-            parser_function=cls._parseElementType,
+        _type = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["type"],
+            value_type=cls._parseElementType,
             default_value=cls._DEFAULT_TYPE
         )
-        _description = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["description"],
-            parser_function=cls._parseDescription,
+        _description = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["description"],
+            value_type=cls._parseDescription,
             default_value=cls._DEFAULT_DESCRIPTION
         )
-        _details = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["details"],
-            parser_function=cls._parseDetails,
+        _details = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["details"],
+            value_type=cls._parseDetails,
             default_value=cls._DEFAULT_DETAILS
         )
 

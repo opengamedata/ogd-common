@@ -45,14 +45,14 @@ class SubfeatureConfig(Schema):
             _elements = {}
             Logger.Log(f"For {name} subfeature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
 
-        _return_type = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["return_type"],
-            parser_function=cls._parseReturnType,
+        _return_type = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["return_type"],
+            value_type=cls._parseReturnType,
             default_value=cls._DEFAULT_RETURN_TYPE
         )
-        _description = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["description"],
-            parser_function=cls._parseDescription,
+        _description = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["description"],
+            value_type=cls._parseDescription,
             default_value=cls._DEFAULT_DESCRIPTION
         )
 
@@ -111,14 +111,14 @@ class FeatureConfig(GeneratorConfig):
             other_elements = {}
             Logger.Log(f"For {name} Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
 
-        self._return_type = FeatureConfig.ElementFromDict(all_elements=other_elements,
-            element_names=["return_type"],
-            parser_function=FeatureConfig._parseReturnType,
+        self._return_type = FeatureConfig.ParseElement(all_elements=other_elements,
+            valid_keys=["return_type"],
+            value_type=FeatureConfig._parseReturnType,
             default_value="UNKNOWN"
         )
-        self._subfeatures = FeatureConfig.ElementFromDict(all_elements=other_elements,
-            element_names=["subfeatures"],
-            parser_function=FeatureConfig._parseSubfeatures,
+        self._subfeatures = FeatureConfig.ParseElement(all_elements=other_elements,
+            valid_keys=["subfeatures"],
+            value_type=FeatureConfig._parseSubfeatures,
             default_value={}
         )
 

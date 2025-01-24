@@ -63,10 +63,10 @@ class t_Schema(TestCase):
         _elems_to_check = ["foo"]
         _parser_function = lambda x : x
         _default_val = 0
-        _elem = Schema.ElementFromDict(all_elements=_elems, element_names=_elems_to_check, parser_function=_parser_function, default_value=_default_val)
+        _elem = Schema.ParseElement(all_elements=_elems, valid_keys=_elems_to_check, value_type=_parser_function, default_value=_default_val)
         self.assertEqual(_elem, 1)
         _elems_to_check = ["bar"]
-        _elem = Schema.ElementFromDict(all_elements=_elems, element_names=_elems_to_check, parser_function=_parser_function, default_value=_default_val)
+        _elem = Schema.ParseElement(all_elements=_elems, valid_keys=_elems_to_check, value_type=_parser_function, default_value=_default_val)
         self.assertIsInstance(_elem, int)
         self.assertEqual(_elem, 2)
 
@@ -79,10 +79,10 @@ class t_Schema(TestCase):
         _elems_to_check = ["foo", "bar"]
         _parser_function = lambda x : x
         _default_val = 0
-        _elem = Schema.ElementFromDict(all_elements=_elems, element_names=_elems_to_check, parser_function=_parser_function, default_value=_default_val)
+        _elem = Schema.ParseElement(all_elements=_elems, valid_keys=_elems_to_check, value_type=_parser_function, default_value=_default_val)
         self.assertEqual(_elem, 1)
         _elems_to_check = ["bar", "foo"]
-        _elem = Schema.ElementFromDict(all_elements=_elems, element_names=_elems_to_check, parser_function=_parser_function, default_value=_default_val)
+        _elem = Schema.ParseElement(all_elements=_elems, valid_keys=_elems_to_check, value_type=_parser_function, default_value=_default_val)
         self.assertIsInstance(_elem, int)
         self.assertEqual(_elem, 2)
 
@@ -95,7 +95,7 @@ class t_Schema(TestCase):
         _elems_to_check = ["fizz", "foo"]
         _parser_function = lambda x : x
         _default_val = 0
-        _elem = Schema.ElementFromDict(all_elements=_elems, element_names=_elems_to_check, parser_function=_parser_function, default_value=_default_val)
+        _elem = Schema.ParseElement(all_elements=_elems, valid_keys=_elems_to_check, value_type=_parser_function, default_value=_default_val)
         self.assertIsInstance(_elem, int)
         self.assertEqual(_elem, 1)
 
@@ -108,7 +108,7 @@ class t_Schema(TestCase):
         _elems_to_check = ["baz"]
         _parser_function = lambda x : str(2*int(x))
         _default_val = 0
-        _elem = Schema.ElementFromDict(all_elements=_elems, element_names=_elems_to_check, parser_function=_parser_function, default_value=_default_val)
+        _elem = Schema.ParseElement(all_elements=_elems, valid_keys=_elems_to_check, value_type=_parser_function, default_value=_default_val)
         self.assertIsInstance(_elem, str)
         self.assertEqual(_elem, "6")
 
@@ -121,17 +121,17 @@ class t_Schema(TestCase):
         _elems_to_check = ["fizz"]
         _parser_function = lambda x : x
         _default_val = 0
-        _elem = Schema.ElementFromDict(all_elements=_elems, element_names=_elems_to_check, parser_function=_parser_function, default_value=_default_val)
+        _elem = Schema.ParseElement(all_elements=_elems, valid_keys=_elems_to_check, value_type=_parser_function, default_value=_default_val)
         self.assertIsInstance(_elem, int)
         self.assertEqual(_elem, 0)
 
     def test_parseName(self):
-        _name = Schema._parseName("Foo")
+        _name = Schema._parseString("Foo")
         self.assertIsInstance(_name, str)
         self.assertEqual(_name, "Foo")
 
     def test_parseName_nonstr(self):
-        _name = Schema._parseName(123)
+        _name = Schema._parseString(123)
         self.assertIsInstance(_name, str)
         self.assertEqual(_name, "123")
 

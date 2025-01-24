@@ -57,19 +57,19 @@ class FileIndexingConfig(Config):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _local_dir = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["LOCAL_DIR"],
-            parser_function=cls._parseLocalDir,
+        _local_dir = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["LOCAL_DIR"],
+            value_type=cls._parseLocalDir,
             default_value=FileIndexingConfig._DEFAULT_LOCAL_DIR
         )
-        _remote_url = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["REMOTE_URL"],
-            parser_function=cls._parseRemoteURL,
+        _remote_url = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["REMOTE_URL"],
+            value_type=cls._parseRemoteURL,
             default_value=FileIndexingConfig._DEFAULT_REMOTE_URL
         )
-        _templates_url = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["TEMPLATES_URL"],
-            parser_function=cls._parseTemplatesURL,
+        _templates_url = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["TEMPLATES_URL"],
+            value_type=cls._parseTemplatesURL,
             default_value=FileIndexingConfig._DEFAULT_TEMPLATE_URL
         )
 

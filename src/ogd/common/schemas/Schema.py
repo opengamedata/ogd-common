@@ -1,9 +1,11 @@
 # import standard libraries
 import abc
+import builtins
 import logging
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from shutil import copyfile
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type
 # import local files
 from ogd.common import schemas
 from ogd.common.utils import fileio
@@ -105,28 +107,41 @@ class Schema(abc.ABC):
         return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     @classmethod
-    def ElementFromDict(cls, all_elements:Dict[str, Any], element_names:List[str], parser_function:Callable, default_value:Any) -> Any:
-        """_summary_
+    def ParseElement(cls, all_elements:Dict[str, Any], valid_keys:List[str], value_type:Type, default_value:Any) -> Any:
+        """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 
-        TODO : Redo this concept in a way that we can still get type safety by directly calling parse functions in individual schema classes.
-
-        :param all_elements: _description_
+        :param all_elements: A dictionary containing all elements to search through
         :type all_elements: Dict[str, Any]
-        :param element_names: _description_
-        :type element_names: List[str]
-        :param parser_function: _description_
-        :type parser_function: Callable
-        :param default_value: _description_
+        :param valid_keys: A list of which keys to search for to find the desired element. This function will choose they first key in the list that appears in the `all_elements` dictionary.
+        :type valid_keys: List[str]
+        :param value_type: The desired type of value to return
+        :type value_type: Type
+        :param default_value: A default value to return, if a valid value could not be parsed.
         :type default_value: Any
-        :param logger: _description_, defaults to None
-        :type logger: Optional[logging.Logger], optional
-        :return: _description_
+        :return: The targeted value, with given type; otherwise the given default value.
         :rtype: Any
         """
-        for name in element_names:
+        for name in valid_keys:
             if name in all_elements:
-                return parser_function(all_elements[name])
-        _msg = f"{cls.__name__} config does not have a '{element_names[0]}' element; defaulting to {element_names[0]}={default_value}"
+                value = all_elements[name]
+                match (value_type):
+                    case builtins.int:
+                        return Schema._parseInt(element_name=name, value=value)
+                    case builtins.float:
+                        return Schema._parseFloat()
+                    case builtins.str:
+                        return Schema._parseString(element_name=name, value=value)
+                    case date:
+                        return Schema._parseDate()
+                    case datetime:
+                        return Schema._parseDatetime()
+                    case timedelta:
+                        return Schema._parseTimedelta()
+                    case _:
+                        _msg = f"Requested type of {value_type} for '{valid_keys[0]}' is unknown; defaulting to {valid_keys[0]}={default_value}"
+                        Logger.Log(_msg, logging.WARN)
+                        return default_value
+        _msg = f"{cls.__name__} config does not have a '{valid_keys[0]}' element; defaulting to {valid_keys[0]}={default_value}"
         Logger.Log(_msg, logging.WARN)
         return default_value
 

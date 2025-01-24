@@ -59,14 +59,14 @@ class FileListConfigSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _files_base = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["files_base"],
-            parser_function=cls._parseFilesBase,
+        _files_base = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["files_base"],
+            value_type=cls._parseFilesBase,
             default_value=FileListConfigSchema.DEFAULT_FILE_BASE
         )
-        _templates_base = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["templates_base"],
-            parser_function=cls._parseTemplatesBase,
+        _templates_base = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["templates_base"],
+            value_type=cls._parseTemplatesBase,
             default_value=FileListConfigSchema.DEFAULT_TEMPLATE_BASE
         )
         _used = {"files_base", "templates_base"}
@@ -222,9 +222,9 @@ class FileListSchema(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
     # 1. Parse config
-        _config = DatasetSchema.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["CONFIG"],
-            parser_function=cls._parseConfig,
+        _config = DatasetSchema.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["CONFIG"],
+            value_type=cls._parseConfig,
             default_value=FileListConfigSchema.Default()
         )
     # 2. Parse games

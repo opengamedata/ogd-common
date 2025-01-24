@@ -48,14 +48,14 @@ class PerCountConfig(FeatureConfig):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For {name} Per-count Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _count = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["count"],
-            parser_function=cls._parseCount,
+        _count = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["count"],
+            value_type=cls._parseCount,
             default_value=cls._DEFAULT_COUNT
         )
-        _prefix = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["prefix"],
-            parser_function=cls._parsePrefix,
+        _prefix = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["prefix"],
+            value_type=cls._parsePrefix,
             default_value=cls._DEFAULT_PREFIX
         )
 

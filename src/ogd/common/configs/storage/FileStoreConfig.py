@@ -66,14 +66,14 @@ class FileStoreConfig(DataStoreConfig):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _folder_path = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["PATH"],
-            parser_function=cls._parseFolder,
+        _folder_path = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["PATH"],
+            value_type=cls._parseFolder,
             default_value=FileStoreConfig._DEFAULT_FOLDER_PATH
         )
-        _file_name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["FILENAME"],
-            parser_function=cls._parseFilename,
+        _file_name = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["FILENAME"],
+            value_type=cls._parseFilename,
             default_value=FileStoreConfig._DEFAULT_FILE_NAME
         )
         # TODO : determine whether this could work as own parser function.

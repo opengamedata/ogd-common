@@ -62,14 +62,14 @@ class BigQueryConfig(DataStoreConfig):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For {name} BigQuery Source config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _project_id = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["PROJECT_ID", "DATASET_ID"],
-            parser_function=cls._parseProjectID,
+        _project_id = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["PROJECT_ID", "DATASET_ID"],
+            value_type=cls._parseProjectID,
             default_value=BigQueryConfig._DEFAULT_PROJECT_ID
         )
-        _credential = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["PROJECT_KEY"],
-            parser_function=cls._parseCredential,
+        _credential = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["PROJECT_KEY"],
+            value_type=cls._parseCredential,
             default_value=BigQueryConfig._DEFAULT_CREDENTIAL
         )
 

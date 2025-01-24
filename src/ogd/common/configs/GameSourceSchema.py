@@ -134,14 +134,14 @@ class GameSourceSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _game_id = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["game", "game_id"],
-            parser_function=cls._parseGameID,
+        _game_id = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["game", "game_id"],
+            value_type=cls._parseGameID,
             default_value=name
         )
-        _source_name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["source"],
-            parser_function=cls._parseSource,
+        _source_name = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["source"],
+            value_type=cls._parseSource,
             default_value=GameSourceSchema._DEFAULT_SOURCE_NAME
         )
         if _source_name in data_sources.keys():
@@ -150,19 +150,19 @@ class GameSourceSchema(Schema):
             _source_schema = None
             _msg = f"{name} config's 'source' name ({_source_name}) was not found in available source schemas; defaulting to source_schema={_source_schema}"
             logger.warning(_msg) if logger else Logger.Log(_msg, logging.WARN)
-        _db_name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["database"],
-            parser_function=cls._parseDBName,
+        _db_name = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["database"],
+            value_type=cls._parseDBName,
             default_value=name
         )
-        _table_name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["table"],
-            parser_function=cls._parseTableName,
+        _table_name = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["table"],
+            value_type=cls._parseTableName,
             default_value=GameSourceSchema._DEFAULT_TABLE_NAME
         )
-        _table_schema = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["schema"],
-            parser_function=cls._parseTableSchemaName,
+        _table_schema = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["schema"],
+            value_type=cls._parseTableSchemaName,
             default_value=GameSourceSchema._DEFAULT_TABLE_SCHEMA
         )
 

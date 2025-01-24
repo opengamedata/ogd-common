@@ -65,14 +65,14 @@ class SSHConfig(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _host = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["SSH_HOST"],
-            parser_function=cls._parseHost,
+        _host = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["SSH_HOST"],
+            value_type=cls._parseHost,
             default_value=None # TODO : use class default
         )
-        _port = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["SSH_PORT"],
-            parser_function=cls._parsePort,
+        _port = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["SSH_PORT"],
+            value_type=cls._parsePort,
             default_value=22
         )
         # TODO : determine whether this could work as own parser function.
@@ -213,14 +213,14 @@ class MySQLConfig(DataStoreConfig):
             else:
                 Logger.Log(_msg, logging.WARN)
         # Parse DB info
-        _db_host = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["DB_HOST"],
-            parser_function=cls._parseDBHost,
+        _db_host = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["DB_HOST"],
+            value_type=cls._parseDBHost,
             default_value="UNKNOWN DB HOST"
         )
-        _db_port = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["DB_PORT"],
-            parser_function=cls._parseDBPort,
+        _db_port = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["DB_PORT"],
+            value_type=cls._parseDBPort,
             default_value=3306
         )
         # TODO : determine whether this could work as own parser function.

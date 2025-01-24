@@ -64,14 +64,14 @@ class KeyCredential(CredentialConfig):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _file = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["FILE", "KEY"],
-            parser_function=cls._parseFile,
+        _file = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["FILE", "KEY"],
+            value_type=cls._parseFile,
             default_value=cls._DEFAULT_FILE
         )
-        _path = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["PATH"],
-            parser_function=cls._parsePath,
+        _path = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["PATH"],
+            value_type=cls._parsePath,
             default_value=cls._DEFAULT_PATH
         )
         # if we didn't find a PATH, but the FILE has a '/' in it,

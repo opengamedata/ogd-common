@@ -67,19 +67,19 @@ class DetectorMapConfig(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For DetectorMap config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _perlevel_detectors = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["perlevel", "per_level"],
-            parser_function=cls._parsePerLevelDetectors,
+        _perlevel_detectors = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["perlevel", "per_level"],
+            value_type=cls._parsePerLevelDetectors,
             default_value=cls._DEFAULT_PERLEVEL_DETECTORS
         )
-        _percount_detectors = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["per_count", "percount"],
-            parser_function=cls._parsePerCountDetectors,
+        _percount_detectors = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["per_count", "percount"],
+            value_type=cls._parsePerCountDetectors,
             default_value=cls._DEFAULT_PERCOUNT_DETECTORS
         )
-        _aggregate_detectors = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["aggregate"],
-            parser_function=cls._parseAggregateDetectors,
+        _aggregate_detectors = cls.ParseElement(all_elements=all_elements, logger=logger,
+            valid_keys=["aggregate"],
+            value_type=cls._parseAggregateDetectors,
             default_value=cls._DEFAULT_AGGREGATE_DETECTORS
         )
 
