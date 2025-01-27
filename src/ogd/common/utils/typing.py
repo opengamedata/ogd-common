@@ -131,7 +131,7 @@ class conversions:
         elif re.fullmatch(pattern=r"-?\d+", string=time_str):
             try:
                 ret_val = datetime.timedelta(seconds=int(time_str))
-            except ValueError as err:
+            except ValueError:
                 pass
             else:
                 return ret_val
