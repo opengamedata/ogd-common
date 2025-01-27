@@ -273,79 +273,79 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     # 1. Parse dates
         _date_modified = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["date_modified"],
-            value_type=cls._parseDateModified,
+            to_type=cls._parseDateModified,
             default_value=DatasetSchema._DEFAULT_DATE_MODIFIED
         )
         _start_date = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["start_date"],
-            value_type=cls._parseStartDate,
+            to_type=cls._parseStartDate,
             default_value=DatasetSchema._DEFAULT_START_DATE
         )
         _end_date = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["end_date"],
-            value_type=cls._parseEndDate,
+            to_type=cls._parseEndDate,
             default_value=DatasetSchema._DEFAULT_END_DATE
         )
     # 2. Parse metadata
         _ogd_revision = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["ogd_revision"],
-            value_type=cls._parseOGDRevision,
+            to_type=cls._parseOGDRevision,
             default_value=DatasetSchema._DEFAULT_OGD_REVISION
         )
         _session_ct = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["sessions"],
-            value_type=cls._parseSessionCount,
+            to_type=cls._parseSessionCount,
             default_value=DatasetSchema._DEFAULT_SESSION_COUNT
         )
         _player_ct = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["players"],
-            value_type=cls._parsePlayerCount,
+            to_type=cls._parsePlayerCount,
             default_value=DatasetSchema._DEFAULT_PLAYER_COUNT
         )
     # 3. Parse file/template paths
         _raw_file = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["raw_file"],
-            value_type=cls._parseRawFile,
+            to_type=cls._parseRawFile,
             default_value=DatasetSchema._DEFAULT_RAW_FILE
         )
         _events_file = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["events_file"],
-            value_type=cls._parseEventsFile,
+            to_type=cls._parseEventsFile,
             default_value=DatasetSchema._DEFAULT_EVENTS_FILE
         )
         _events_template = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["events_template"],
-            value_type=cls._parseEventsTemplate,
+            to_type=cls._parseEventsTemplate,
             default_value=DatasetSchema._DEFAULT_EVENTS_TEMPLATE
         )
         _sessions_file = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["sessions_file"],
-            value_type=cls._parseSessionsFile,
+            to_type=cls._parseSessionsFile,
             default_value=DatasetSchema._DEFAULT_SESSIONS_FILE
         )
         _sessions_template = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["sessions_template"],
-            value_type=cls._parseSessionsTemplate,
+            to_type=cls._parseSessionsTemplate,
             default_value=DatasetSchema._DEFAULT_SESSIONS_TEMPLATE
         )
         _players_file = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["players_file"],
-            value_type=cls._parsePlayersFile,
+            to_type=cls._parsePlayersFile,
             default_value=DatasetSchema._DEFAULT_PLAYERS_FILE
         )
         _players_template = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["players_template"],
-            value_type=cls._parsePlayersTemplate,
+            to_type=cls._parsePlayersTemplate,
             default_value=DatasetSchema._DEFAULT_PLAYERS_TEMPLATE
         )
         _population_file = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["population_file"],
-            value_type=cls._parsePopulationFile,
+            to_type=cls._parsePopulationFile,
             default_value=DatasetSchema._DEFAULT_POPULATION_FILE
         )
         _population_template = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["population_template"],
-            value_type=cls._parsePopulationTemplate,
+            to_type=cls._parsePopulationTemplate,
             default_value=DatasetSchema._DEFAULT_POPULATION_FILE
         )
 

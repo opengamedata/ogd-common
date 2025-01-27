@@ -136,12 +136,12 @@ class GameSourceSchema(Schema):
                 Logger.Log(_msg, logging.WARN)
         _game_id = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["game", "game_id"],
-            value_type=cls._parseGameID,
+            to_type=cls._parseGameID,
             default_value=name
         )
         _source_name = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["source"],
-            value_type=cls._parseSource,
+            to_type=cls._parseSource,
             default_value=GameSourceSchema._DEFAULT_SOURCE_NAME
         )
         if _source_name in data_sources.keys():
@@ -152,17 +152,17 @@ class GameSourceSchema(Schema):
             logger.warning(_msg) if logger else Logger.Log(_msg, logging.WARN)
         _db_name = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["database"],
-            value_type=cls._parseDBName,
+            to_type=cls._parseDBName,
             default_value=name
         )
         _table_name = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["table"],
-            value_type=cls._parseTableName,
+            to_type=cls._parseTableName,
             default_value=GameSourceSchema._DEFAULT_TABLE_NAME
         )
         _table_schema = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["schema"],
-            value_type=cls._parseTableSchemaName,
+            to_type=cls._parseTableSchemaName,
             default_value=GameSourceSchema._DEFAULT_TABLE_SCHEMA
         )
 

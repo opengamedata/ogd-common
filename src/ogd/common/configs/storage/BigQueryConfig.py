@@ -64,12 +64,12 @@ class BigQueryConfig(DataStoreConfig):
             Logger.Log(f"For {name} BigQuery Source config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
         _project_id = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["PROJECT_ID", "DATASET_ID"],
-            value_type=cls._parseProjectID,
+            to_type=cls._parseProjectID,
             default_value=BigQueryConfig._DEFAULT_PROJECT_ID
         )
         _credential = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["PROJECT_KEY"],
-            value_type=cls._parseCredential,
+            to_type=cls._parseCredential,
             default_value=BigQueryConfig._DEFAULT_CREDENTIAL
         )
 

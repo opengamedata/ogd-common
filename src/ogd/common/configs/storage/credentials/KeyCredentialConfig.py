@@ -66,12 +66,12 @@ class KeyCredential(CredentialConfig):
                 Logger.Log(_msg, logging.WARN)
         _file = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["FILE", "KEY"],
-            value_type=cls._parseFile,
+            to_type=cls._parseFile,
             default_value=cls._DEFAULT_FILE
         )
         _path = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["PATH"],
-            value_type=cls._parsePath,
+            to_type=cls._parsePath,
             default_value=cls._DEFAULT_PATH
         )
         # if we didn't find a PATH, but the FILE has a '/' in it,

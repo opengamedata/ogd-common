@@ -69,22 +69,22 @@ class FeatureMapConfig(Schema):
             Logger.Log(f"For FeatureMap config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
         _legacy_mode = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["legacy"],
-            value_type=cls._parseLegacyMode,
+            to_type=cls._parseLegacyMode,
             default_value=cls._DEFAULT_LEGACY_MODE
         )
         _legacy_perlevel_feats = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["perlevel", "per_level"],
-            value_type=cls._parsePerLevelFeatures,
+            to_type=cls._parsePerLevelFeatures,
             default_value=cls._DEFAULT_LEGACY_FEATS
         )
         _percount_feats = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["per_count", "percount"],
-            value_type=cls._parsePerCountFeatures,
+            to_type=cls._parsePerCountFeatures,
             default_value=cls._DEFAULT_PERCOUNT_FEATS
         )
         _aggregate_feats = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["aggregate"],
-            value_type=cls._parseAggregateFeatures,
+            to_type=cls._parseAggregateFeatures,
             default_value=cls._DEFAULT_AGGREGATE_FEATS
         )
 

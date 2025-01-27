@@ -47,12 +47,12 @@ class SubfeatureConfig(Schema):
 
         _return_type = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["return_type"],
-            value_type=cls._parseReturnType,
+            to_type=cls._parseReturnType,
             default_value=cls._DEFAULT_RETURN_TYPE
         )
         _description = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["description"],
-            value_type=cls._parseDescription,
+            to_type=cls._parseDescription,
             default_value=cls._DEFAULT_DESCRIPTION
         )
 
@@ -113,12 +113,12 @@ class FeatureConfig(GeneratorConfig):
 
         self._return_type = FeatureConfig.ParseElement(all_elements=other_elements,
             valid_keys=["return_type"],
-            value_type=FeatureConfig._parseReturnType,
+            to_type=FeatureConfig._parseReturnType,
             default_value="UNKNOWN"
         )
         self._subfeatures = FeatureConfig.ParseElement(all_elements=other_elements,
             valid_keys=["subfeatures"],
-            value_type=FeatureConfig._parseSubfeatures,
+            to_type=FeatureConfig._parseSubfeatures,
             default_value={}
         )
 

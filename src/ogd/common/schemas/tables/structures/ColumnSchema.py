@@ -70,22 +70,22 @@ class ColumnSchema(Schema):
 
         _readable = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["readable"],
-            value_type=cls._parseReadable,
+            to_type=cls._parseReadable,
             default_value=name
         )
         _description = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["description"],
-            value_type=cls._parseDescription,
+            to_type=cls._parseDescription,
             default_value="NO DESCRIPTION GIVEN"
         )
         _value_type = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["type"],
-            value_type=cls._parseValueType,
+            to_type=cls._parseValueType,
             default_value="TYPE NOT GIVEN"
         )
         _name = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["name"],
-            value_type=cls._parseString,
+            to_type=cls._parseString,
             default_value=name
         )
         _used = {"name", "readable", "description", "type"}

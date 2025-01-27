@@ -265,7 +265,7 @@ class TableStructureSchema(Schema):
             if isinstance(indices, int):
                 # if there's a single index, use parse to get the value it is stated to be
                 # print(f"About to parse value {row[indices]} as type {self.Columns[indices]},\nFull list from row is {row},\nFull list of columns is {self.Columns},\nwith names {self.ColumnNames}")
-                ret_val = conversions.ConvertToType(variable=row[indices], to_type=self.Columns[indices].ValueType)
+                ret_val = conversions.ConvertToType(value=row[indices], to_type=self.Columns[indices].ValueType)
             elif isinstance(indices, list):
                 ret_val = concatenator.join([str(row[index]) for index in indices])
             elif isinstance(indices, dict):
@@ -273,7 +273,7 @@ class TableStructureSchema(Schema):
                 for key,column_index in indices.items():
                     if column_index > len(row):
                         Logger.Log(f"Got column index of {column_index} for column {key}, but row only has {len(row)} columns!", logging.ERROR)
-                    _val = conversions.ConvertToType(variable=row[column_index], to_type=self._table_columns[column_index].ValueType)
+                    _val = conversions.ConvertToType(value=row[column_index], to_type=self._table_columns[column_index].ValueType)
                     ret_val.update(_val if isinstance(_val, dict) else {key:_val})
         else:
             ret_val = fallback

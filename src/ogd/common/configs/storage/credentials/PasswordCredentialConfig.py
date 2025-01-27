@@ -50,12 +50,12 @@ class PasswordCredential(CredentialConfig):
                 Logger.Log(_msg, logging.WARN)
         _user = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["USER"],
-            value_type=cls._parseUser,
+            to_type=cls._parseUser,
             default_value=cls._DEFAULT_USER
         )
         _pass = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["PASS"],
-            value_type=cls._parsePass,
+            to_type=cls._parsePass,
             default_value=cls._DEFAULT_PASS
         )
 

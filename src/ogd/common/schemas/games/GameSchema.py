@@ -321,29 +321,29 @@ class GameSchema(Schema):
 
         _enum_defs = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["enums"],
-            value_type=cls._parseEnumDefs,
+            to_type=cls._parseEnumDefs,
             default_value=cls._DEFAULT_ENUMS
         )
         _game_state = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["game_state"],
-            value_type=cls._parseGameState,
+            to_type=cls._parseGameState,
             default_value=cls._DEFAULT_GAME_STATE
         )
         _user_data = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["user_data"],
-            value_type=cls._parseUserData,
+            to_type=cls._parseUserData,
             default_value=cls._DEFAULT_USER_DATA
         )
         _event_list = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["events"],
-            value_type=cls._parseEventList,
+            to_type=cls._parseEventList,
             default_value=cls._DEFAULT_EVENT_LIST
         )
 
     # 3. Get detector information
         _detector_map = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["detectors"],
-            value_type=cls._parseDetectorMap,
+            to_type=cls._parseDetectorMap,
             default_value=cls._DEFAULT_DETECTOR_MAP
         )
         _detector_map = _detector_map.AsDict # TODO : investigate weird Dict[str, Dict[str, DetectorConfig]] type inference
@@ -351,7 +351,7 @@ class GameSchema(Schema):
     # 4. Get feature information
         _feat_map = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["features"],
-            value_type=cls._parseFeatureMap,
+            to_type=cls._parseFeatureMap,
             default_value={}
         )
         _aggregate_feats.update(_feat_map.AggregateFeatures)

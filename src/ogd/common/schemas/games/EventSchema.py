@@ -77,12 +77,12 @@ class EventSchema(Schema):
             Logger.Log(f"For {name} Event config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
         _description = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["description"],
-            value_type=cls._parseDescription,
+            to_type=cls._parseDescription,
             default_value=cls._DEFAULT_DESCRIPTION
         )
         _event_data = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["event_data"],
-            value_type=cls._parseEventDataElements,
+            to_type=cls._parseEventDataElements,
             default_value=cls._DEFAULT_EVENT_DATA
         )
 

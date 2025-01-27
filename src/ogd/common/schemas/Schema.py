@@ -8,6 +8,7 @@ from shutil import copyfile
 from typing import Any, Dict, List, Optional, Type
 # import local files
 from ogd.common import schemas
+from ogd.common.utils.typing import conversions
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
@@ -107,7 +108,7 @@ class Schema(abc.ABC):
         return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     @classmethod
-    def ParseElement(cls, all_elements:Dict[str, Any], valid_keys:List[str], value_type:Type, default_value:Any) -> Any:
+    def ParseElement(cls, all_elements:Dict[str, Any], valid_keys:List[str], to_type:Type, default_value:Any) -> Any:
         """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 
         :param all_elements: A dictionary containing all elements to search through
@@ -124,23 +125,7 @@ class Schema(abc.ABC):
         for name in valid_keys:
             if name in all_elements:
                 value = all_elements[name]
-                match (value_type):
-                    case builtins.int:
-                        return Schema._parseInt(name=name, value=value)
-                    case builtins.float:
-                        return Schema._parseFloat(name=name, value=value)
-                    case builtins.str:
-                        return Schema._parseString(name=name, value=value)
-                    case datetime.date:
-                        return Schema._parseDate()
-                    case datetime.datetime:
-                        return Schema._parseDatetime()
-                    case datetime.timedelta:
-                        return Schema._parseTimedelta()
-                    case _:
-                        _msg = f"Requested type of {value_type} for '{valid_keys[0]}' is unknown; defaulting to {valid_keys[0]}={default_value}"
-                        Logger.Log(_msg, logging.WARN)
-                        return default_value
+                return conversions.ConvertToType(value=value, to_type=to_type, name=f"{cls.__name__} element {name}")
         _msg = f"{cls.__name__} config does not have a '{valid_keys[0]}' element; defaulting to {valid_keys[0]}={default_value}"
         Logger.Log(_msg, logging.WARN)
         return default_value
@@ -207,38 +192,4 @@ class Schema(abc.ABC):
                 else:
                     Logger.Log(f"Successfully copied {schema_name} from template.", logging.DEBUG, depth=2)
         return cls.FromDict(name=schema_name, all_elements=template_contents)
-    
-    @classmethod
-    def _parseInt(cls, name:str, value:Any) -> int:
-        ret_val : int
-        if isinstance(value, int):
-            ret_val = value
-        elif isinstance(value, float):
-            ret_val = int(round(value))
-            Logger.Log(f"{cls.__name__} element {name} was a float value, rounding to nearest int ({ret_val}).", logging.WARN)
-        else:
-            ret_val = int(value)
-            Logger.Log(f"{cls.__name__} element {name} was unexpected type {type(value)}, defaulting to int(value) == {ret_val}.", logging.WARN)
-        return ret_val
-    
-    @classmethod
-    def _parseFloat(cls, name:str, value:Any) -> float:
-        ret_val : float
-        if isinstance(value, float):
-            ret_val = value
-        else:
-            ret_val = int(value)
-            Logger.Log(f"{cls.__name__} element {name} was unexpected type {type(value)}, defaulting to float(value) == {ret_val}.", logging.WARN)
-        return ret_val
-
-    @classmethod
-    def _parseString(cls, name:str, value:Any) -> str:
-        ret_val : str
-        if isinstance(value, str):
-            ret_val = value
-        else:
-            ret_val = str(value)
-            Logger.Log(f"{cls.__name__} element {name} was unexpected type {type(value)}, defaulting to str(value) == {ret_val}", logging.WARN)
-        return ret_val
-
     # *** PRIVATE METHODS ***

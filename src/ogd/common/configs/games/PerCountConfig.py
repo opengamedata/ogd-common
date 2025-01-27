@@ -50,12 +50,12 @@ class PerCountConfig(FeatureConfig):
             Logger.Log(f"For {name} Per-count Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
         _count = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["count"],
-            value_type=cls._parseCount,
+            to_type=cls._parseCount,
             default_value=cls._DEFAULT_COUNT
         )
         _prefix = cls.ParseElement(all_elements=all_elements, logger=logger,
             valid_keys=["prefix"],
-            value_type=cls._parsePrefix,
+            to_type=cls._parsePrefix,
             default_value=cls._DEFAULT_PREFIX
         )
 
