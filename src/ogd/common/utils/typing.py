@@ -122,9 +122,9 @@ class conversions:
                                     minutes=int(pieces[1]),
                                     seconds=int(seconds_pieces[0]),
                                     milliseconds=int(seconds_pieces[1]) if len(seconds_pieces) > 1 else 0)
-            except ValueError as err:
+            except ValueError:
                 pass
-            except IndexError as err:
+            except IndexError:
                 pass
             else:
                 return ret_val
@@ -147,7 +147,7 @@ class conversions:
             try:
                 pieces = time_str.removeprefix("UTC").split(":")
                 ret_val = datetime.timezone(datetime.timedelta(hours=int(pieces[0]), minutes=int(pieces[1])))
-            except ValueError as err:
+            except ValueError:
                 pass
             else:
                 return ret_val
@@ -260,7 +260,6 @@ class conversions:
         except JSONDecodeError as err:
             Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to JSON, got the following error:\n{str(err)}", logging.WARN)
             ret_val = {}
-        finally:
-            return ret_val
+        return ret_val
 
     # *** PRIVATE METHODS ***
