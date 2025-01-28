@@ -29,7 +29,7 @@ class Schema(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any])-> "Schema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "Schema":
         """_summary_
 
         TODO : Make classmethod, slightly simplifies how we access default values
@@ -182,7 +182,7 @@ class Schema(abc.ABC):
                 Logger.Log(f"Could not load schema at {schema_path / schema_name}, the file was empty! Using default schema instead", logging.ERROR, depth=1)
                 ret_val = cls.Default()
             else:
-                ret_val = cls.FromDict(name=schema_name, all_elements=schema_contents)
+                ret_val = cls.FromDict(name=schema_name, unparsed_elements=schema_contents)
 
         return ret_val
 
@@ -210,5 +210,5 @@ class Schema(abc.ABC):
                     print(f"(via print) {_msg}")
                 else:
                     Logger.Log(f"Successfully copied {schema_name} from template.", logging.DEBUG, depth=2)
-        return cls.FromDict(name=schema_name, all_elements=template_contents)
+        return cls.FromDict(name=schema_name, unparsed_elements=template_contents)
     # *** PRIVATE METHODS ***
