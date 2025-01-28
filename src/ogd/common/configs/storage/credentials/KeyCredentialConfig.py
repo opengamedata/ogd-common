@@ -64,12 +64,12 @@ class KeyCredential(CredentialConfig):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _file = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _file = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["FILE", "KEY"],
             to_type=cls._parseFile,
             default_value=cls._DEFAULT_FILE
         )
-        _path = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _path = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["PATH"],
             to_type=cls._parsePath,
             default_value=cls._DEFAULT_PATH

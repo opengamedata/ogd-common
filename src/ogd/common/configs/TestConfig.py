@@ -69,12 +69,12 @@ class TestConfig(Config):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _verbose = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _verbose = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["VERBOSE"],
             to_type=cls._parseVerbose,
             default_value=cls._DEFAULT_VERBOSE
         )
-        _enabled_tests = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _enabled_tests = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["ENABLED"],
             to_type=cls._parseEnabledTests,
             default_value=cls._DEFAULT_ENABLED_TESTS

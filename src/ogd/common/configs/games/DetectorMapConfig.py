@@ -67,17 +67,17 @@ class DetectorMapConfig(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For DetectorMap config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _perlevel_detectors = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _perlevel_detectors = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["perlevel", "per_level"],
             to_type=cls._parsePerLevelDetectors,
             default_value=cls._DEFAULT_PERLEVEL_DETECTORS
         )
-        _percount_detectors = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _percount_detectors = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["per_count", "percount"],
             to_type=cls._parsePerCountDetectors,
             default_value=cls._DEFAULT_PERCOUNT_DETECTORS
         )
-        _aggregate_detectors = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _aggregate_detectors = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["aggregate"],
             to_type=cls._parseAggregateDetectors,
             default_value=cls._DEFAULT_AGGREGATE_DETECTORS

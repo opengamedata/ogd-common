@@ -59,12 +59,12 @@ class FileListConfigSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _files_base = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _files_base = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["files_base"],
             to_type=cls._parseFilesBase,
             default_value=FileListConfigSchema.DEFAULT_FILE_BASE
         )
-        _templates_base = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _templates_base = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["templates_base"],
             to_type=cls._parseTemplatesBase,
             default_value=FileListConfigSchema.DEFAULT_TEMPLATE_BASE
@@ -222,7 +222,7 @@ class FileListSchema(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
     # 1. Parse config
-        _config = DatasetSchema.ParseElement(all_elements=all_elements, logger=logger,
+        _config = DatasetSchema.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["CONFIG"],
             to_type=cls._parseConfig,
             default_value=FileListConfigSchema.Default()

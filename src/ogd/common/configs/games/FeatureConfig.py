@@ -45,12 +45,12 @@ class SubfeatureConfig(Schema):
             _elements = {}
             Logger.Log(f"For {name} subfeature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
 
-        _return_type = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _return_type = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["return_type"],
             to_type=cls._parseReturnType,
             default_value=cls._DEFAULT_RETURN_TYPE
         )
-        _description = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _description = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["description"],
             to_type=cls._parseDescription,
             default_value=cls._DEFAULT_DESCRIPTION
@@ -111,12 +111,12 @@ class FeatureConfig(GeneratorConfig):
             other_elements = {}
             Logger.Log(f"For {name} Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
 
-        self._return_type = FeatureConfig.ParseElement(all_elements=other_elements,
+        self._return_type = FeatureConfig.ParseElement(unparsed_elements=other_elements,
             valid_keys=["return_type"],
             to_type=FeatureConfig._parseReturnType,
             default_value="UNKNOWN"
         )
-        self._subfeatures = FeatureConfig.ParseElement(all_elements=other_elements,
+        self._subfeatures = FeatureConfig.ParseElement(unparsed_elements=other_elements,
             valid_keys=["subfeatures"],
             to_type=FeatureConfig._parseSubfeatures,
             default_value={}

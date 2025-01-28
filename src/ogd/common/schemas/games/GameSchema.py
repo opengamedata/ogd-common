@@ -319,29 +319,29 @@ class GameSchema(Schema):
 
     # 2. set instance vars, starting with event data
 
-        _enum_defs = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _enum_defs = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["enums"],
             to_type=cls._parseEnumDefs,
             default_value=cls._DEFAULT_ENUMS
         )
-        _game_state = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _game_state = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["game_state"],
             to_type=cls._parseGameState,
             default_value=cls._DEFAULT_GAME_STATE
         )
-        _user_data = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _user_data = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["user_data"],
             to_type=cls._parseUserData,
             default_value=cls._DEFAULT_USER_DATA
         )
-        _event_list = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _event_list = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["events"],
             to_type=cls._parseEventList,
             default_value=cls._DEFAULT_EVENT_LIST
         )
 
     # 3. Get detector information
-        _detector_map = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _detector_map = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["detectors"],
             to_type=cls._parseDetectorMap,
             default_value=cls._DEFAULT_DETECTOR_MAP
@@ -349,7 +349,7 @@ class GameSchema(Schema):
         _detector_map = _detector_map.AsDict # TODO : investigate weird Dict[str, Dict[str, DetectorConfig]] type inference
 
     # 4. Get feature information
-        _feat_map = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _feat_map = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["features"],
             to_type=cls._parseFeatureMap,
             default_value={}

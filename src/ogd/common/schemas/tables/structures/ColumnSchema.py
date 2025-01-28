@@ -68,22 +68,22 @@ class ColumnSchema(Schema):
             else:
                 Logger.Log(_msg, logging.WARN)
 
-        _readable = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _readable = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["readable"],
             to_type=cls._parseReadable,
             default_value=name
         )
-        _description = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _description = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["description"],
             to_type=cls._parseDescription,
             default_value="NO DESCRIPTION GIVEN"
         )
-        _value_type = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _value_type = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["type"],
             to_type=cls._parseValueType,
             default_value="TYPE NOT GIVEN"
         )
-        _name = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _name = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["name"],
             to_type=cls._parseString,
             default_value=name

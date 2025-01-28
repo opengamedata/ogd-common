@@ -41,18 +41,18 @@ class PerCountConfig(FeatureConfig):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "PerCountConfig":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "PerCountConfig":
         _count  : int | str
         _prefix : str
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements = {}
             Logger.Log(f"For {name} Per-count Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _count = cls._parseCount(all_elements=all_elements)
-        _prefix = cls._parsePrefix(all_elements=all_elements)
+        _count = cls._parseCount(all_elements=unparsed_elements)
+        _prefix = cls._parsePrefix(all_elements=unparsed_elements)
 
         _used = {"count", "prefix"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
         return PerCountConfig(name=name, count=_count, prefix=_prefix, other_elements=_leftovers)
 
     @classmethod
@@ -73,7 +73,7 @@ class PerCountConfig(FeatureConfig):
     @staticmethod
     def _parseCount(all_elements:Dict[str, Any]) -> int | str:
         return PerCountConfig.ParseElement(
-            all_elements=all_elements,
+            unparsed_elements=all_elements,
             valid_keys=["count"],
             to_type=[int, str],
             default_value=PerCountConfig._DEFAULT_COUNT,
@@ -83,7 +83,7 @@ class PerCountConfig(FeatureConfig):
     @staticmethod
     def _parsePrefix(all_elements:Dict[str, Any]) -> str:
         return PerCountConfig.ParseElement(
-            all_elements=all_elements,
+            unparsed_elements=all_elements,
             valid_keys=["prefix"],
             to_type=str,
             default_value=PerCountConfig._DEFAULT_PREFIX,

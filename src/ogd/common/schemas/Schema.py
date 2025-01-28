@@ -119,7 +119,7 @@ class Schema(abc.ABC):
         return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     @classmethod
-    def ParseElement(cls, all_elements:Dict[str, Any], valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False) -> Any:
+    def ParseElement(cls, unparsed_elements:Dict[str, Any], valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False) -> Any:
         """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 
         :param all_elements: A dictionary containing all elements to search through
@@ -138,10 +138,10 @@ class Schema(abc.ABC):
         ret_val : Any = default_value
 
         for name in valid_keys:
-            if name in all_elements:
-                value = all_elements[name]
+            if name in unparsed_elements:
+                value = unparsed_elements[name]
                 if remove_target:
-                    del all_elements[name]
+                    del unparsed_elements[name]
                 ret_val = conversions.ConvertToType(value=value, to_type=to_type, name=f"{cls.__name__} element {name}")
         _msg = f"{cls.__name__} config does not have a '{valid_keys[0]}' element; defaulting to {valid_keys[0]}={default_value}"
         Logger.Log(_msg, logging.WARN)

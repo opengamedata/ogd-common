@@ -65,12 +65,12 @@ class SSHConfig(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _host = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _host = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["SSH_HOST"],
             to_type=cls._parseHost,
             default_value=None # TODO : use class default
         )
-        _port = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _port = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["SSH_PORT"],
             to_type=cls._parsePort,
             default_value=22
@@ -213,12 +213,12 @@ class MySQLConfig(DataStoreConfig):
             else:
                 Logger.Log(_msg, logging.WARN)
         # Parse DB info
-        _db_host = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _db_host = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["DB_HOST"],
             to_type=cls._parseDBHost,
             default_value="UNKNOWN DB HOST"
         )
-        _db_port = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _db_port = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["DB_PORT"],
             to_type=cls._parseDBPort,
             default_value=3306

@@ -67,22 +67,22 @@ class FeatureMapConfig(Schema):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For FeatureMap config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _legacy_mode = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _legacy_mode = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["legacy"],
             to_type=cls._parseLegacyMode,
             default_value=cls._DEFAULT_LEGACY_MODE
         )
-        _legacy_perlevel_feats = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _legacy_perlevel_feats = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["perlevel", "per_level"],
             to_type=cls._parsePerLevelFeatures,
             default_value=cls._DEFAULT_LEGACY_FEATS
         )
-        _percount_feats = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _percount_feats = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["per_count", "percount"],
             to_type=cls._parsePerCountFeatures,
             default_value=cls._DEFAULT_PERCOUNT_FEATS
         )
-        _aggregate_feats = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _aggregate_feats = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["aggregate"],
             to_type=cls._parseAggregateFeatures,
             default_value=cls._DEFAULT_AGGREGATE_FEATS
@@ -134,7 +134,7 @@ class FeatureMapConfig(Schema):
     def _parsePerLevelFeatures(perlevels) -> Dict[str, PerCountConfig]:
         ret_val : Dict[str, PerCountConfig]
         if isinstance(perlevels, dict):
-            ret_val = { key : PerCountConfig.FromDict(name=key, all_elements=val) for key,val in perlevels.items() }
+            ret_val = { key : PerCountConfig.FromDict(name=key, unparsed_elements=val) for key,val in perlevels.items() }
         else:
             ret_val = {}
             Logger.Log("Per-level features map was not a dict, defaulting to empty dict", logging.WARN)
@@ -144,7 +144,7 @@ class FeatureMapConfig(Schema):
     def _parsePerCountFeatures(percounts) -> Dict[str, PerCountConfig]:
         ret_val : Dict[str, PerCountConfig]
         if isinstance(percounts, dict):
-            ret_val = { key : PerCountConfig.FromDict(name=key, all_elements=val) for key,val in percounts.items() }
+            ret_val = { key : PerCountConfig.FromDict(name=key, unparsed_elements=val) for key,val in percounts.items() }
         else:
             ret_val = {}
             Logger.Log("Per-count features map was not a dict, defaulting to empty dict", logging.WARN)

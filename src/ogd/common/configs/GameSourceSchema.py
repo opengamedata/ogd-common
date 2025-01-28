@@ -134,12 +134,12 @@ class GameSourceSchema(Schema):
                 logger.warning(_msg)
             else:
                 Logger.Log(_msg, logging.WARN)
-        _game_id = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _game_id = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["game", "game_id"],
             to_type=cls._parseGameID,
             default_value=name
         )
-        _source_name = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _source_name = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["source"],
             to_type=cls._parseSource,
             default_value=GameSourceSchema._DEFAULT_SOURCE_NAME
@@ -150,17 +150,17 @@ class GameSourceSchema(Schema):
             _source_schema = None
             _msg = f"{name} config's 'source' name ({_source_name}) was not found in available source schemas; defaulting to source_schema={_source_schema}"
             logger.warning(_msg) if logger else Logger.Log(_msg, logging.WARN)
-        _db_name = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _db_name = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["database"],
             to_type=cls._parseDBName,
             default_value=name
         )
-        _table_name = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _table_name = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["table"],
             to_type=cls._parseTableName,
             default_value=GameSourceSchema._DEFAULT_TABLE_NAME
         )
-        _table_schema = cls.ParseElement(all_elements=all_elements, logger=logger,
+        _table_schema = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["schema"],
             to_type=cls._parseTableSchemaName,
             default_value=GameSourceSchema._DEFAULT_TABLE_SCHEMA
