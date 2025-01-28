@@ -14,8 +14,8 @@ class PerCountConfig(FeatureConfig):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, count:int|str, prefix:str, other_elements:Optional[Map]=None):
-        self._count  : int | str = count or self._parseCount(unparsed_elements=other_elements)
-        self._prefix : str       = prefix
+        self._count  : int | str = count  or self._parseCount(unparsed_elements=other_elements or {})
+        self._prefix : str       = prefix or self._parsePrefix(unparsed_elements=other_elements or {})
 
         super().__init__(name=name, other_elements=other_elements)
 
