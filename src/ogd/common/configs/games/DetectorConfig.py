@@ -20,8 +20,8 @@ class DetectorConfig(GeneratorConfig):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DetectorConfig":
-        return DetectorConfig(name=name, other_elements=all_elements)
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DetectorConfig":
+        return DetectorConfig(name=name, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "DetectorConfig":

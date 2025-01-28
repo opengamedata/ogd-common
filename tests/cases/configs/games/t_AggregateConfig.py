@@ -113,7 +113,7 @@ class t_AggregateConfig(TestCase):
             }
         }
         _modes = { ExtractionMode.SESSION, ExtractionMode.PLAYER, ExtractionMode.POPULATION, ExtractionMode.DETECTOR }
-        _schema = AggregateConfig.FromDict(name="ActiveTime Schema", all_elements=_dict, logger=None)
+        _schema = AggregateConfig.FromDict(name="ActiveTime Schema", unparsed_elements=_dict, logger=None)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "ActiveTime Schema")
         self.assertIsInstance(_schema.TypeName, str)

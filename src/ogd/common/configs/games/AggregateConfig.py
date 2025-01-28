@@ -21,8 +21,8 @@ class AggregateConfig(FeatureConfig):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "AggregateConfig":
-        return AggregateConfig(name=name, other_elements=all_elements)
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "AggregateConfig":
+        return AggregateConfig(name=name, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "AggregateConfig":

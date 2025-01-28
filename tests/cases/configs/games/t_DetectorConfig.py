@@ -101,7 +101,7 @@ class t_DetectorConfig(TestCase):
                 }
             }
         }
-        _schema = DetectorConfig.FromDict(name="ActiveTime Schema", all_elements=_dict, logger=None)
+        _schema = DetectorConfig.FromDict(name="ActiveTime Schema", unparsed_elements=_dict, logger=None)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "ActiveTime Schema")
         self.assertIsInstance(_schema.TypeName, str)
