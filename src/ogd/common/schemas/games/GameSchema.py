@@ -574,9 +574,9 @@ class GameSchema(Schema):
     def _parseFeatureMap(feature_map:Dict[str, Any]) -> FeatureMapConfig:
         ret_val : FeatureMapConfig
         if isinstance(feature_map, dict):
-            ret_val = FeatureMapConfig.FromDict(name=f"Features", all_elements=feature_map)
+            ret_val = FeatureMapConfig.FromDict(name=f"Features", unparsed_elements=feature_map)
         else:
-            ret_val = FeatureMapConfig.FromDict(name="Empty Features", all_elements={})
+            ret_val = FeatureMapConfig.FromDict(name="Empty Features", unparsed_elements={})
             Logger.Log(f"feature_map was unexpected type {type(feature_map)}, defaulting to empty map.", logging.WARN)
         return ret_val
 

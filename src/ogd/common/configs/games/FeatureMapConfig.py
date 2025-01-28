@@ -58,38 +58,26 @@ class FeatureMapConfig(Schema):
         return "  \n\n".join(feature_summary + feature_list)
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FeatureMapConfig":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FeatureMapConfig":
         _legacy_mode           : bool
         _legacy_perlevel_feats : Dict[str, PerCountConfig]
         _percount_feats        : Dict[str, PerCountConfig]
         _aggregate_feats       : Dict[str, AggregateConfig]
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements = {}
             Logger.Log(f"For FeatureMap config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _legacy_mode = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
+        _legacy_mode = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["legacy"],
             to_type=cls._parseLegacyMode,
             default_value=cls._DEFAULT_LEGACY_MODE
         )
-        _legacy_perlevel_feats = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["perlevel", "per_level"],
-            to_type=cls._parsePerLevelFeatures,
-            default_value=cls._DEFAULT_LEGACY_FEATS
-        )
-        _percount_feats = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["per_count", "percount"],
-            to_type=cls._parsePerCountFeatures,
-            default_value=cls._DEFAULT_PERCOUNT_FEATS
-        )
-        _aggregate_feats = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["aggregate"],
-            to_type=cls._parseAggregateFeatures,
-            default_value=cls._DEFAULT_AGGREGATE_FEATS
-        )
+        _legacy_perlevel_feats = cls._parsePerLevelFeatures(unparsed_elements=unparsed_elements)
+        _percount_feats = cls._parsePerCountFeatures(unparsed_elements=unparsed_elements)
+        _aggregate_feats = cls._parseAggregateFeatures(unparsed_elements=unparsed_elements)
 
         _used = {"legacy", "perlevel", "per_count", "aggregate"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
         return FeatureMapConfig(name=name, legacy_mode=_legacy_mode, legacy_perlevel_feats=_legacy_perlevel_feats,
                                 percount_feats=_percount_feats, aggregate_feats=_aggregate_feats,
                                 other_elements=_leftovers)
@@ -131,8 +119,15 @@ class FeatureMapConfig(Schema):
         return ret_val
 
     @staticmethod
-    def _parsePerLevelFeatures(perlevels) -> Dict[str, PerCountConfig]:
+    def _parsePerLevelFeatures(unparsed_elements:Map) -> Dict[str, PerCountConfig]:
         ret_val : Dict[str, PerCountConfig]
+
+        perlevels = FeatureMapConfig.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["perlevel", "per_level"],
+            to_type=dict,
+            default_value=FeatureMapConfig._DEFAULT_LEGACY_FEATS
+        )
         if isinstance(perlevels, dict):
             ret_val = { key : PerCountConfig.FromDict(name=key, unparsed_elements=val) for key,val in perlevels.items() }
         else:
@@ -141,8 +136,15 @@ class FeatureMapConfig(Schema):
         return ret_val
 
     @staticmethod
-    def _parsePerCountFeatures(percounts) -> Dict[str, PerCountConfig]:
+    def _parsePerCountFeatures(unparsed_elements:Map) -> Dict[str, PerCountConfig]:
         ret_val : Dict[str, PerCountConfig]
+
+        percounts = FeatureMapConfig.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["per_count", "percount"],
+            to_type=dict,
+            default_value=FeatureMapConfig._DEFAULT_PERCOUNT_FEATS
+        )
         if isinstance(percounts, dict):
             ret_val = { key : PerCountConfig.FromDict(name=key, unparsed_elements=val) for key,val in percounts.items() }
         else:
@@ -151,13 +153,20 @@ class FeatureMapConfig(Schema):
         return ret_val
 
     @staticmethod
-    def _parseAggregateFeatures(aggregates) -> Dict[str, AggregateConfig]:
+    def _parseAggregateFeatures(unparsed_elements:Map) -> Dict[str, AggregateConfig]:
         ret_val : Dict[str, AggregateConfig]
+
+        aggregates = FeatureMapConfig.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["aggregate"],
+            to_type=dict,
+            default_value=FeatureMapConfig._DEFAULT_AGGREGATE_FEATS
+        )
         if isinstance(aggregates, dict):
-            ret_val = {key : AggregateConfig(name=key, other_elements=val) for key,val in aggregates.items()}
+            ret_val = {key : AggregateConfig.FromDict(name=key, unparsed_elements=val) for key,val in aggregates.items()}
         else:
             ret_val = {}
-            Logger.Log("Per-count features map was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log("Aggregate features map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
 
     # *** PRIVATE METHODS ***

@@ -20,9 +20,9 @@ class DetectorMapConfig(Schema):
     def __init__(self, name:str,
                  perlevel_detectors:Dict[str, DetectorConfig], percount_detectors:Dict[str, DetectorConfig], aggregate_detectors:Dict[str, DetectorConfig],
                  other_elements:Optional[Map]=None):
-        self._perlevel_detectors  : Dict[str, DetectorConfig] = perlevel_detectors
-        self._percount_detectors  : Dict[str, DetectorConfig] = percount_detectors
-        self._aggregate_detectors : Dict[str, DetectorConfig] = aggregate_detectors
+        self._perlevel_detectors  : Dict[str, DetectorConfig] = perlevel_detectors or self._parsePerLevelDetectors(unparsed_elements=other_elements or {})
+        self._percount_detectors  : Dict[str, DetectorConfig] = percount_detectors or self._parsePerCountDetectors(unparsed_elements=other_elements or {})
+        self._aggregate_detectors : Dict[str, DetectorConfig] = aggregate_detectors or self._parseAggregateDetectors(unparsed_elements=other_elements or {})
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -59,7 +59,41 @@ class DetectorMapConfig(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DetectorMapConfig":
+    def FromDict(cls, name:str, unparsed_elements:Map)-> "DetectorMapConfig":
+        """Function to generate a DetectorMapConfig from a JSON-formatted dictionary.
+
+        Expected structure is:
+        {
+            "perlevel" : {
+                "example" : {
+                    "type":"ExampleDetectorClass",
+                    "enabled":true,
+                    "description":"Info about the per-level detector; the perlevel is a legacy sub-dict and should not be included."
+                }
+            },
+            "per_count" : {
+                "example" : {
+                    "type":"ExampleDetectorClass",
+                    "enabled":true,
+                    "description":"Info about the per-count detector; the per-count is generally optional."
+                }
+            },
+            "aggregate" : {
+                "example" : {
+                    "type":"ExampleDetectorClass",
+                    "enabled":true,
+                    "description":"Info about the aggregate (session-level) detector."
+                }
+            },
+        }
+
+        :param name: The name of the detector map configuration.
+        :type name: str
+        :param unparsed_elements: Elements of the source dictionary that have not yet been parsed, and will be used to construct the config.
+        :type unparsed_elements: Map
+        :return: A DetectorMapConfig based on the given collection of elements.
+        :rtype: DetectorMapConfig
+        """
         _perlevel_detectors  : Dict[str, DetectorConfig]
         _percount_detectors  : Dict[str, DetectorConfig]
         _aggregate_detectors : Dict[str, DetectorConfig]
@@ -67,8 +101,8 @@ class DetectorMapConfig(Schema):
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
             Logger.Log(f"For DetectorMap config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _perlevel_detectors = cls._parsePerLevelDetectors(unparsed_elements=unparsed_elements)
-        _percount_detectors = cls._parsePerCountDetectors(unparsed_elements=unparsed_elements)
+        _perlevel_detectors  = cls._parsePerLevelDetectors(unparsed_elements=unparsed_elements)
+        _percount_detectors  = cls._parsePerCountDetectors(unparsed_elements=unparsed_elements)
         _aggregate_detectors = cls._parseAggregateDetectors(unparsed_elements=unparsed_elements)
 
         _used = {"perlevel", "per_level", "per_count", "percount", "aggregate"}
@@ -87,6 +121,7 @@ class DetectorMapConfig(Schema):
             other_elements={}
         )
 
+    # TODO : Bring back AsMarkdownRow for markdown table approach to representing game schemas.
     # @property
     # def AsMarkdownRow(self) -> str:
     #     ret_val : str = f"| {self.Name} | {self.ElementType} | {self.Description} |"
