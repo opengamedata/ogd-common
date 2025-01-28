@@ -19,13 +19,21 @@ class conversions:
     # *** PUBLIC STATICS ***
 
     @staticmethod
-    def ConvertToType(value:Any, to_type:str | Type, name:str) -> Any:
+    def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str) -> Any:
         """Applies whatever parsing is appropriate based on what type the schema said a column contained.
 
-        :param input: _description_
-        :type input: str
-        :param col_schema: _description_
-        :type col_schema: ColumnSchema
+        :param value: _description_
+        :type value: Any
+        :param to_type: The desired type of the element.
+            * If a string, the function will match against a set of recognized type names.
+            * If a type, the function will match against a set of recognized types.
+            * If a list of types, the function will attempt to match the raw value's type against all types in the list.  
+                If a match is found, where "match" means the raw value is an instance of the given type, the return value will be the same type as the raw value.  
+                If the raw value's type matches nothing in the list, the return value will be a parsed instance of the first type in the list.
+                The function naively assumes the first type in the list is a recognized type; if it is not, a value of None will be returned.
+        :type to_type: str | Type | List[Type]
+        :param name: _description_
+        :type name: str
         :return: _description_
         :rtype: Any
         """
@@ -78,6 +86,15 @@ class conversions:
                     _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
                     Logger.Log(_msg, logging.WARN)
                     ret_val = None
+        # Handle case where there are multiple valid types accepted (i.e. got a list, and everything in list is a type/str)
+        elif isinstance(to_type, List) and all(type(x) in {type, str} for x in to_type):
+            _found = False
+            for t in to_type:
+                if isinstance(value, t):
+                    ret_val = value
+                    _found = True
+            if not _found:
+                ret_val = conversions.ConvertToType(value, to_type=to_type[0], name=name)
         else:
             ret_val = None
         return ret_val
