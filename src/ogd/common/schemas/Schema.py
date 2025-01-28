@@ -62,7 +62,7 @@ class Schema(abc.ABC):
         self._name : str
         self._other_elements : Map
 
-        self._name = Schema._parseString(name="DefaultSchemaName", value=name)
+        self._name = name or "DefaultSchemaName"
 
         self._other_elements = other_elements or {}
         if len(self._other_elements.keys()) > 0:
