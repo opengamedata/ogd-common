@@ -48,16 +48,8 @@ class PerCountConfig(FeatureConfig):
         if not isinstance(all_elements, dict):
             all_elements = {}
             Logger.Log(f"For {name} Per-count Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _count = cls.ParseElement(all_elements=all_elements, logger=logger,
-            valid_keys=["count"],
-            to_type=cls._parseCount,
-            default_value=cls._DEFAULT_COUNT
-        )
-        _prefix = cls.ParseElement(all_elements=all_elements, logger=logger,
-            valid_keys=["prefix"],
-            to_type=cls._parsePrefix,
-            default_value=cls._DEFAULT_PREFIX
-        )
+        _count = cls._parseCount(all_elements=all_elements)
+        _prefix = cls._parsePrefix(all_elements=all_elements)
 
         _used = {"count", "prefix"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
@@ -79,25 +71,23 @@ class PerCountConfig(FeatureConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseCount(count) -> int | str:
-        ret_val : int | str
-        if isinstance(count, int):
-            ret_val = count
-        elif isinstance(count, str):
-            ret_val = count
-        else:
-            ret_val = 0
-            Logger.Log(f"Extractor count was unexpected type {type(count)}, defaulting to count=0.", logging.WARN)
-        return ret_val
+    def _parseCount(all_elements:Dict[str, Any]) -> int | str:
+        return PerCountConfig.ParseElement(
+            all_elements=all_elements,
+            valid_keys=["count"],
+            to_type=[int, str],
+            default_value=PerCountConfig._DEFAULT_COUNT,
+            remove_target=True
+        )
 
     @staticmethod
-    def _parsePrefix(prefix) -> str:
-        ret_val : str
-        if isinstance(prefix, str):
-            ret_val = prefix
-        else:
-            ret_val = str(prefix)
-            Logger.Log(f"Extractor prefix was unexpected type {type(prefix)}, defaulting to str(prefix).", logging.WARN)
-        return ret_val
+    def _parsePrefix(all_elements:Dict[str, Any]) -> str:
+        return PerCountConfig.ParseElement(
+            all_elements=all_elements,
+            valid_keys=["prefix"],
+            to_type=str,
+            default_value=PerCountConfig._DEFAULT_PREFIX,
+            remove_target=True
+        )
 
     # *** PRIVATE METHODS ***
