@@ -45,6 +45,8 @@ class conversions:
             ret_val = None
         elif isinstance(to_type, str):
             match (to_type.upper()):
+                case 'BOOL':
+                    ret_val = conversions._parseBool(name=name, value=value)
                 case 'STR':
                     ret_val = conversions._parseString(value=value, name=name)
                 case 'INT':
@@ -68,6 +70,8 @@ class conversions:
                     ret_val = None
         elif isinstance(to_type, Type):
             match (to_type):
+                case builtins.bool:
+                    ret_val = conversions._parseBool(name=name, value=value)
                 case builtins.int:
                     ret_val = conversions._parseInt(name=name, value=value)
                 case builtins.float:
@@ -173,6 +177,21 @@ class conversions:
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
+
+    @staticmethod
+    def _parseBool(name:str, value:Any) -> bool:
+        ret_val : bool
+        match type(value):
+            case builtins.bool:
+                ret_val = value
+            case builtins.int | builtins.float:
+                ret_val = bool(value)
+            case builtins.str:
+                ret_val = True if value.upper() in {'TRUE', 'YES'} else False if value.upper() in {'FALSE', 'NO'} else bool(value)
+            case _:
+                ret_val = bool(value)
+                Logger.Log(f"{name} was unexpected type {type(value)}, defaulting to bool(value) == {ret_val}.", logging.WARN)
+        return ret_val
 
     @staticmethod
     def _parseInt(name:str, value:Any) -> int:
