@@ -108,15 +108,15 @@ class Schema(abc.ABC):
         return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     @classmethod
-    def ParseElement(cls, all_elements:Dict[str, Any], valid_keys:List[str], to_type:Type, default_value:Any) -> Any:
+    def ParseElement(cls, all_elements:Dict[str, Any], valid_keys:List[str], to_type:Type | List[Type], default_value:Any) -> Any:
         """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 
         :param all_elements: A dictionary containing all elements to search through
         :type all_elements: Dict[str, Any]
         :param valid_keys: A list of which keys to search for to find the desired element. This function will choose they first key in the list that appears in the `all_elements` dictionary.
         :type valid_keys: List[str]
-        :param value_type: The desired type of value to return
-        :type value_type: Type
+        :param value_type: The desired type of value to return, or list of valid types. If a list, the returned value will either be the first type in the list of which the raw value is an instance, or a parsed instance of the first item in the list.
+        :type value_type: Type | List[Type]
         :param default_value: A default value to return, if a valid value could not be parsed.
         :type default_value: Any
         :return: The targeted value, with given type; otherwise the given default value.
