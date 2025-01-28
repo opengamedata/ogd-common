@@ -564,9 +564,9 @@ class GameSchema(Schema):
     def _parseDetectorMap(detector_map:Dict[str, Any]) -> DetectorMapConfig:
         ret_val : DetectorMapConfig
         if isinstance(detector_map, dict):
-            ret_val = DetectorMapConfig.FromDict(name=f"Detectors", all_elements=detector_map)
+            ret_val = DetectorMapConfig.FromDict(name=f"Detectors", unparsed_elements=detector_map)
         else:
-            ret_val = DetectorMapConfig.FromDict(name="Empty Features", all_elements={})
+            ret_val = DetectorMapConfig.FromDict(name="Empty Features", unparsed_elements={})
             Logger.Log(f"detector_map was unexpected type {type(detector_map)}, defaulting to empty map.", logging.WARN)
         return ret_val
 
