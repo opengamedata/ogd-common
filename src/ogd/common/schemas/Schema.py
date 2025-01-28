@@ -1,17 +1,14 @@
 # import standard libraries
 import abc
-import builtins
 import logging
-import datetime
 from pathlib import Path
 from shutil import copyfile
 from typing import Any, Dict, List, Optional, Type
 # import local files
 from ogd.common import schemas
-from ogd.common.utils.typing import conversions
+from ogd.common.utils.typing import conversions, Map
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
 
 class Schema(abc.ABC):
 
@@ -29,15 +26,13 @@ class Schema(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "Schema":
+    def FromDict(cls, name:str, unparsed_elements:Map)-> "Schema":
         """_summary_
-
-        TODO : Make classmethod, slightly simplifies how we access default values
 
         :param name: _description_
         :type name: str
         :param all_elements: _description_
-        :type all_elements: Dict[str, Any]
+        :type all_elements: Map
         :param logger: _description_, defaults to None
         :type logger: Optional[logging.Logger], optional
         :return: _description_
@@ -84,11 +79,11 @@ class Schema(abc.ABC):
         return self._name
 
     @property
-    def NonStandardElements(self) -> Dict[str, Any]:
+    def NonStandardElements(self) -> Map:
         """Gets a sub-dictionary of any non-standard schema elements found in the source dictionary for the given schema instance.
 
         :return: A dictionary of any non-standard schema elements found in the source dictionary for the given schema instance.
-        :rtype: Dict[str, Any]
+        :rtype: Map
         """
         return self._other_elements
 
@@ -119,11 +114,11 @@ class Schema(abc.ABC):
         return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     @classmethod
-    def ParseElement(cls, unparsed_elements:Dict[str, Any], valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False) -> Any:
+    def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False) -> Any:
         """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 
         :param all_elements: A dictionary containing all elements to search through
-        :type all_elements: Dict[str, Any]
+        :type all_elements: Map
         :param valid_keys: A list of which keys to search for to find the desired element. This function will choose they first key in the list that appears in the `all_elements` dictionary.
         :type valid_keys: List[str]
         :param value_type: The desired type of value to return, or list of valid types. If a list, the returned value will either be the first type in the list of which the raw value is an instance, or a parsed instance of the first item in the list.
