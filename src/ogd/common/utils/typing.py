@@ -104,6 +104,19 @@ class conversions:
         return ret_val
 
     @staticmethod
+    def BoolFromString(bool_str:str) -> bool:
+        ret_val : bool
+
+        match bool_str.upper():
+            case 'TRUE' | 'YES':
+                ret_val = True
+            case 'FALSE' | 'NO':
+                ret_val = False
+            case _:
+                ret_val = bool(bool_str)
+        return ret_val
+
+    @staticmethod
     def DatetimeFromString(time_str:str) -> datetime.datetime:
         ret_val : datetime.datetime
 
@@ -187,7 +200,7 @@ class conversions:
             case builtins.int | builtins.float:
                 ret_val = bool(value)
             case builtins.str:
-                ret_val = True if value.upper() in {'TRUE', 'YES'} else False if value.upper() in {'FALSE', 'NO'} else bool(value)
+                ret_val = conversions.BoolFromString(bool_str=value)
             case _:
                 ret_val = bool(value)
                 Logger.Log(f"{name} was unexpected type {type(value)}, defaulting to bool(value) == {ret_val}.", logging.WARN)
