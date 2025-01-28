@@ -21,6 +21,11 @@ class PerCountConfig(FeatureConfig):
 
     @property
     def Count(self) -> int | str:
+        """Property for the 'count' of instances for the Per-Count Feature
+
+        :return: _description_
+        :rtype: int | str
+        """
         return self._count
 
     @property
