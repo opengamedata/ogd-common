@@ -58,7 +58,45 @@ class FeatureMapConfig(Schema):
         return "  \n\n".join(feature_summary + feature_list)
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FeatureMapConfig":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "FeatureMapConfig":
+        """Function to generate a DetectorMapConfig from a JSON-formatted dictionary.
+
+        Expected structure is:
+        {
+            "legacy" : {
+                "enabled" : false,
+                "return_type" : "Not really sure if this is used or not, in any case, legacy element is optional and not expected to occur in general."
+            }
+            "perlevel" : {
+                "example" : {
+                    "type":"ExampleDetectorClass",
+                    "enabled":true,
+                    "description":"Info about the per-level detector; the perlevel is a legacy sub-dict and should not be included."
+                }
+            },
+            "per_count" : {
+                "example" : {
+                    "type":"ExampleDetectorClass",
+                    "enabled":true,
+                    "description":"Info about the per-count detector; the per-count is generally optional."
+                }
+            },
+            "aggregate" : {
+                "example" : {
+                    "type":"ExampleDetectorClass",
+                    "enabled":true,
+                    "description":"Info about the aggregate (session-level) detector."
+                }
+            },
+        }
+
+        :param name: The name of the detector map configuration.
+        :type name: str
+        :param unparsed_elements: Elements of the source dictionary that have not yet been parsed, and will be used to construct the config.
+        :type unparsed_elements: Map
+        :return: A DetectorMapConfig based on the given collection of elements.
+        :rtype: DetectorMapConfig
+        """
         _legacy_mode           : bool
         _legacy_perlevel_feats : Dict[str, PerCountConfig]
         _percount_feats        : Dict[str, PerCountConfig]
