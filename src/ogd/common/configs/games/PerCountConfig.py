@@ -14,7 +14,7 @@ class PerCountConfig(FeatureConfig):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, count:int|str, prefix:str, other_elements:Optional[Map]=None):
-        self._count  : int | str = count
+        self._count  : int | str = count or self._parseCount(unparsed_elements=other_elements)
         self._prefix : str       = prefix
 
         super().__init__(name=name, other_elements=other_elements)
@@ -53,8 +53,8 @@ class PerCountConfig(FeatureConfig):
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
             Logger.Log(f"For {name} Per-count Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _count = cls._parseCount(all_elements=unparsed_elements)
-        _prefix = cls._parsePrefix(all_elements=unparsed_elements)
+        _count = cls._parseCount(unparsed_elements=unparsed_elements)
+        _prefix = cls._parsePrefix(unparsed_elements=unparsed_elements)
 
         _used = {"count", "prefix"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
@@ -76,9 +76,9 @@ class PerCountConfig(FeatureConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseCount(all_elements:Dict[str, Any]) -> int | str:
+    def _parseCount(unparsed_elements:Dict[str, Any]) -> int | str:
         return PerCountConfig.ParseElement(
-            unparsed_elements=all_elements,
+            unparsed_elements=unparsed_elements,
             valid_keys=["count"],
             to_type=[int, str],
             default_value=PerCountConfig._DEFAULT_COUNT,
@@ -86,9 +86,9 @@ class PerCountConfig(FeatureConfig):
         )
 
     @staticmethod
-    def _parsePrefix(all_elements:Dict[str, Any]) -> str:
+    def _parsePrefix(unparsed_elements:Dict[str, Any]) -> str:
         return PerCountConfig.ParseElement(
-            unparsed_elements=all_elements,
+            unparsed_elements=unparsed_elements,
             valid_keys=["prefix"],
             to_type=str,
             default_value=PerCountConfig._DEFAULT_PREFIX,
