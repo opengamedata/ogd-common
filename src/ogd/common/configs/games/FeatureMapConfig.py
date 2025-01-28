@@ -6,7 +6,7 @@ from ogd.common.configs.games.AggregateConfig import AggregateConfig
 from ogd.common.configs.games.PerCountConfig import PerCountConfig
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import conversions, Map
 
 class FeatureMapConfig(Schema):
     """
@@ -67,11 +67,7 @@ class FeatureMapConfig(Schema):
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
             Logger.Log(f"For FeatureMap config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _legacy_mode = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
-            valid_keys=["legacy"],
-            to_type=cls._parseLegacyMode,
-            default_value=cls._DEFAULT_LEGACY_MODE
-        )
+        _legacy_mode = cls._parseLegacyMode(unparsed_elements=unparsed_elements)
         _legacy_perlevel_feats = cls._parsePerLevelFeatures(unparsed_elements=unparsed_elements)
         _percount_feats = cls._parsePerCountFeatures(unparsed_elements=unparsed_elements)
         _aggregate_feats = cls._parseAggregateFeatures(unparsed_elements=unparsed_elements)
@@ -109,13 +105,21 @@ class FeatureMapConfig(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseLegacyMode(legacy_element) -> bool:
-        ret_val : bool
-        if isinstance(legacy_element, dict):
-            ret_val = legacy_element.get("enabled", False)
-        else:
-            ret_val = bool(legacy_element)
-            Logger.Log(f"LegacyMode element was not a dict, defaulting to bool(legacy_element) == {ret_val}", logging.WARN)
+    def _parseLegacyMode(unparsed_elements:Map) -> bool:
+        ret_val : bool = False
+
+        legacy_element = unparsed_elements.get("legacy", None)
+        if legacy_element:
+            if isinstance(legacy_element, dict):
+                ret_val = FeatureMapConfig.ParseElement(
+                    unparsed_elements=legacy_element,
+                    valid_keys=["enabled"],
+                    to_type=bool,
+                    default_value=FeatureMapConfig._DEFAULT_LEGACY_MODE,
+                )
+            else:
+                ret_val = conversions.ConvertToType(value=legacy_element, to_type=bool, name="legacy_element")
+                Logger.Log(f"LegacyMode element was not a dict, defaulting to bool(legacy_element) == {ret_val}", logging.WARN)
         return ret_val
 
     @staticmethod
