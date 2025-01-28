@@ -29,7 +29,7 @@ class Schema(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "Schema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any])-> "Schema":
         """_summary_
 
         TODO : Make classmethod, slightly simplifies how we access default values
