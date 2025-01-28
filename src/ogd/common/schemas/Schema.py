@@ -122,13 +122,17 @@ class Schema(abc.ABC):
         :return: The targeted value, with given type; otherwise the given default value.
         :rtype: Any
         """
+        ret_val : Any = default_value
+
         for name in valid_keys:
             if name in all_elements:
                 value = all_elements[name]
-                return conversions.ConvertToType(value=value, to_type=to_type, name=f"{cls.__name__} element {name}")
+                ret_val = conversions.ConvertToType(value=value, to_type=to_type, name=f"{cls.__name__} element {name}")
         _msg = f"{cls.__name__} config does not have a '{valid_keys[0]}' element; defaulting to {valid_keys[0]}={default_value}"
         Logger.Log(_msg, logging.WARN)
-        return default_value
+
+        # if we got empty value back from conversion, use default instead, that's more likely what we want.
+        return ret_val or default_value
 
     # *** PUBLIC METHODS ***
 
