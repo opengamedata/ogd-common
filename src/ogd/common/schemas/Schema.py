@@ -105,10 +105,21 @@ class Schema(abc.ABC):
 
     @classmethod
     def FromFile(cls, schema_name:str, schema_path:Path, search_templates:bool=False):
+        """_summary_
+
+        :param schema_name: _description_
+        :type schema_name: str
+        :param schema_path: _description_
+        :type schema_path: Path
+        :param search_templates: _description_, defaults to False
+        :type search_templates: bool, optional
+        :return: _description_
+        :rtype: _type_
+        """
         return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     @classmethod
-    def ParseElement(cls, all_elements:Dict[str, Any], valid_keys:List[str], to_type:Type | List[Type], default_value:Any) -> Any:
+    def ParseElement(cls, all_elements:Dict[str, Any], valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False) -> Any:
         """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 
         :param all_elements: A dictionary containing all elements to search through
@@ -119,6 +130,8 @@ class Schema(abc.ABC):
         :type value_type: Type | List[Type]
         :param default_value: A default value to return, if a valid value could not be parsed.
         :type default_value: Any
+        :param remove_target: Whether to remove the target element, if found; defaults to False.
+        :type remove_target: bool, optional
         :return: The targeted value, with given type; otherwise the given default value.
         :rtype: Any
         """
@@ -127,6 +140,8 @@ class Schema(abc.ABC):
         for name in valid_keys:
             if name in all_elements:
                 value = all_elements[name]
+                if remove_target:
+                    del all_elements[name]
                 ret_val = conversions.ConvertToType(value=value, to_type=to_type, name=f"{cls.__name__} element {name}")
         _msg = f"{cls.__name__} config does not have a '{valid_keys[0]}' element; defaulting to {valid_keys[0]}={default_value}"
         Logger.Log(_msg, logging.WARN)
