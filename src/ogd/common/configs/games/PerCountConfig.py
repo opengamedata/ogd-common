@@ -41,7 +41,7 @@ class PerCountConfig(FeatureConfig):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "PerCountConfig":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "PerCountConfig":
         _count  : int | str
         _prefix : str
 
