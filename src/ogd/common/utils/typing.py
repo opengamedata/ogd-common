@@ -61,6 +61,8 @@ class conversions:
                     ret_val = conversions._parseTimezone(value=value, name=name)
                 case 'JSON':
                     ret_val = conversions._parseJSON(value=value, name=name)
+                case 'LIST':
+                    ret_val = conversions._parseList(value=value, name=name)
                 case _dummy if _dummy.startswith('ENUM'):
                     # if the column is supposed to be an enum, for now we just stick with the string.
                     ret_val = str(value)
@@ -86,6 +88,8 @@ class conversions:
                     ret_val = conversions._parseTimezone(value=value, name=name)
                 case builtins.dict:
                     ret_val = conversions._parseJSON(value=value, name=name)
+                case builtins.list:
+                    ret_val = conversions._parseList(value=value, name=name)
                 case _:
                     _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
                     Logger.Log(_msg, logging.WARN)
@@ -203,7 +207,7 @@ class conversions:
                 ret_val = conversions.BoolFromString(bool_str=value)
             case _:
                 ret_val = bool(value)
-                Logger.Log(f"{name} was unexpected type {type(value)}, defaulting to bool(value) == {ret_val}.", logging.WARN)
+                Logger.Log(f"{name} was unexpected type {type(value)}, expected a bool! Defaulting to bool(value) == {ret_val}.", logging.WARN)
         return ret_val
 
     @staticmethod
@@ -217,7 +221,7 @@ class conversions:
                 Logger.Log(f"{name} was a float value, rounding to nearest int: {ret_val}.", logging.WARN)
             case _:
                 ret_val = int(value)
-                Logger.Log(f"{name} was unexpected type {type(value)}, defaulting to int(value) == {ret_val}.", logging.WARN)
+                Logger.Log(f"{name} was unexpected type {type(value)}, expected an int! Defaulting to int(value) == {ret_val}.", logging.WARN)
         return ret_val
 
     @staticmethod
@@ -230,7 +234,7 @@ class conversions:
                 ret_val = float(value)
             case _:
                 ret_val = int(value)
-                Logger.Log(f"{name} was unexpected type {type(value)}, defaulting to float(value) == {ret_val}.", logging.WARN)
+                Logger.Log(f"{name} was unexpected type {type(value)}, expected a float! Defaulting to float(value) == {ret_val}.", logging.WARN)
         return ret_val
 
     @staticmethod
@@ -241,7 +245,7 @@ class conversions:
                 ret_val = value
             case _:
                 ret_val = str(value)
-                Logger.Log(f"{name} was unexpected type {type(value)}, defaulting to str(value) == {ret_val}", logging.WARN)
+                Logger.Log(f"{name} was unexpected type {type(value)}, expected a string! Defaulting to str(value) == {ret_val}", logging.WARN)
         return ret_val
 
     @staticmethod
@@ -258,7 +262,7 @@ class conversions:
                 ret_val = conversions.DatetimeFromString(time_str=value)
             case _:
                 ret_val = conversions.DatetimeFromString(str(value))
-                Logger.Log(f"{name} was unexpected type {type(value)}, defaulting to datetime(str(value)) == {ret_val}", logging.WARN)
+                Logger.Log(f"{name} was unexpected type {type(value)}, expected a datetime! Defaulting to datetime(str(value)) == {ret_val}", logging.WARN)
         return ret_val
 
     @staticmethod
@@ -274,7 +278,7 @@ class conversions:
                 ret_val = conversions.TimedeltaFromString(time_str=value)
             case _:
                 ret_val = conversions.TimedeltaFromString(str(value))
-                Logger.Log(f"{name} was unexpected type {type(value)}, defaulting to timedelta(str(value)) == {ret_val}", logging.WARN)
+                Logger.Log(f"{name} was unexpected type {type(value)}, expected a timedelta! Defaulting to timedelta(str(value)) == {ret_val}", logging.WARN)
         return ret_val
 
     @staticmethod
@@ -287,7 +291,28 @@ class conversions:
                 ret_val = conversions.TimezoneFromString(time_str=value)
             case _:
                 ret_val = conversions.TimezoneFromString(str(value))
-                Logger.Log(f"{name} was unexpected type {type(value)}, defaulting to timezone(str(value)) == {ret_val}", logging.WARN)
+                Logger.Log(f"{name} was unexpected type {type(value)}, expected a timezone! Defaulting to timezone(str(value)) == {ret_val}", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def _parseList(value:Any, name:str) -> Optional[List]:
+        ret_val : Optional[List]
+        try:
+            match type(value):
+                case builtins.list:
+                    # if input was a list already, then just give it back. Else, try to load it from string.
+                    ret_val = value
+                case builtins.str:
+                    if value not in {'None', ''}: # watch out for nasty corner cases.
+                        ret_val = list(json.loads(value))
+                    else:
+                        ret_val = None
+                case _:
+                    ret_val = list(json.loads(str(value)))
+                    Logger.Log(f"{name} was unexpected type {type(value)}, expected a list! Defaulting to list(json.parse(str(value))) == {ret_val}", logging.WARN)
+        except JSONDecodeError as err:
+            Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to list, got the following error:\n{str(err)}\nDefaulting to empty list", logging.WARN)
+            ret_val = []
         return ret_val
 
     @staticmethod
@@ -299,15 +324,15 @@ class conversions:
                     # if input was a dict already, then just give it back. Else, try to load it from string.
                     ret_val = value
                 case builtins.str:
-                    if value != 'None' and value != '': # watch out for nasty corner cases.
+                    if value not in {'None', ''}: # watch out for nasty corner cases.
                         ret_val = json.loads(value)
                     else:
                         ret_val = None
                 case _:
                     ret_val = json.loads(str(value))
-                    Logger.Log(f"{name} was unexpected type {type(value)}, defaulting to json.parse(str(value)) == {ret_val}", logging.WARN)
+                    Logger.Log(f"{name} was unexpected type {type(value)}, expected a dict! Defaulting to json.parse(str(value)) == {ret_val}", logging.WARN)
         except JSONDecodeError as err:
-            Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to JSON, got the following error:\n{str(err)}", logging.WARN)
+            Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to JSON, got the following error:\n{str(err)}\nDefaulting to empty dict", logging.WARN)
             ret_val = {}
         return ret_val
 
