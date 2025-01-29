@@ -13,7 +13,7 @@ class SubfeatureConfig(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, return_type:str, description:str, other_elements:Optional[Map]=None):
+    def __init__(self, name:str, return_type:str, description:str, other_elements:Map):
         self._return_type : str = return_type or self._parseReturnType(unparsed_elements=other_elements or {})
         self._description : str = description or self._parseDescription(unparsed_elements=other_elements or {})
 
@@ -97,7 +97,7 @@ class FeatureConfig(GeneratorConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, return_type:str, subfeatures:Dict[str, SubfeatureConfig], other_elements:Optional[Map]=None):
+    def __init__(self, name:str, return_type:Optional[str], subfeatures:Optional[Dict[str, SubfeatureConfig]], other_elements:Optional[Map]=None):
         self._subfeatures : Dict[str, SubfeatureConfig]
         self._return_type : str
 
@@ -108,10 +108,8 @@ class FeatureConfig(GeneratorConfig):
         self._return_type = return_type or FeatureConfig._parseReturnType(unparsed_elements=other_elements)
         self._subfeatures = subfeatures or FeatureConfig._parseSubfeatures(unparsed_elements=other_elements)
 
-        _used = {"return_type", "subfeatures"}
-        _leftovers = { key : val for key,val in other_elements.items() if key not in _used }
-
-        super().__init__(name=name, other_elements=_leftovers)
+        # Don't explicitly pass in other params, let them be parsed from other_elements.
+        super().__init__(name=name, enabled=None, type_name=None, description=None, other_elements=other_elements)
 
     @property
     def ReturnType(self) -> str:
