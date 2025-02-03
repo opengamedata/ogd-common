@@ -2,6 +2,7 @@
 import builtins
 import json
 import logging
+import pathlib
 import re
 import datetime
 from json.decoder import JSONDecodeError
@@ -53,6 +54,8 @@ class conversions:
                     ret_val = conversions._parseInt(value=value, name=name)
                 case 'FLOAT':
                     ret_val = conversions._parseFloat(value=value, name=name)
+                case 'PATH':
+                    ret_val = conversions._parsePath(value=value, name=name)
                 case 'DATETIME':
                     ret_val = conversions._parseDatetime(value=value, name=name)
                 case 'TIMEDELTA':
@@ -80,6 +83,8 @@ class conversions:
                     ret_val = conversions._parseFloat(name=name, value=value)
                 case builtins.str:
                     ret_val = conversions._parseString(name=name, value=value)
+                case pathlib.Path:
+                    ret_val = conversions._parsePath(value=value, name=name)
                 case datetime.datetime:
                     ret_val = conversions._parseDatetime(value=value, name=name)
                 case datetime.timedelta:
@@ -246,6 +251,19 @@ class conversions:
             case _:
                 ret_val = str(value)
                 Logger.Log(f"{name} was unexpected type {type(value)}, expected a string! Defaulting to str(value) == {ret_val}", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def _parsePath(name:str, value:Any) -> pathlib.Path:
+        ret_val : pathlib.Path
+        match type(value):
+            case pathlib.Path:
+                ret_val = value
+            case builtins.str:
+                ret_val = pathlib.Path(value)
+            case _:
+                ret_val = pathlib.Path(str(value))
+                Logger.Log(f"{name} was unexpected type {type(value)}, expected a Path! Defaulting to Path(str(value)) == {ret_val}", logging.WARN)
         return ret_val
 
     @staticmethod
