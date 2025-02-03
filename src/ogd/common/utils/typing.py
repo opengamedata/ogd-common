@@ -16,6 +16,11 @@ Map       : TypeAlias = Dict[str, Any] # type alias: we'll call any dict using s
 ExportRow : TypeAlias = List[Any]
 
 class conversions:
+    """Utility class with simple, "common-sense" parsing and warning logs for converting between types.
+
+    In particular, this is intended for use by config/schema classes,
+    where incoming values may be strings that must be parsed into the proper type internally.
+    """
 
     # *** PUBLIC STATICS ***
 
