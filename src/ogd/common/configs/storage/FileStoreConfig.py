@@ -80,11 +80,11 @@ class FileStoreConfig(DataStoreConfig):
         _cred_elements = all_elements.get("FILE_CREDENTIAL")
         if _cred_elements:
             _credential = PasswordCredential.FromDict(name=f"{name}Credential",
-                                                    all_elements=_cred_elements,
+                                                    unparsed_elements=_cred_elements,
                                                     logger=logger
             )
         else:
-            _credential = EmptyCredential.FromDict(name=name, all_elements={}, logger=logger)
+            _credential = EmptyCredential.FromDict(name=name, unparsed_elements={}, logger=logger)
 
         _used = {"PATH", "FILENAME"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }

@@ -77,7 +77,7 @@ class SSHConfig(Schema):
         )
         # TODO : determine whether this could work as own parser function.
         _credential = PasswordCredential.FromDict(name=f"{name}Credential",
-                                                  all_elements=all_elements.get("SSH_CREDENTIAL", {}),
+                                                  unparsed_elements=all_elements.get("SSH_CREDENTIAL", {}),
                                                   logger=logger
         )
 
@@ -225,7 +225,7 @@ class MySQLConfig(DataStoreConfig):
         )
         # TODO : determine whether this could work as own parser function.
         _credential = PasswordCredential.FromDict(name=f"{name}Credential",
-                                                  all_elements=all_elements.get("DB_CREDENTIAL", {}),
+                                                  unparsed_elements=all_elements.get("DB_CREDENTIAL", {}),
                                                   logger=logger
         )
         # Parse SSH info, if it exists. Don't notify, if it doesn't exist.
