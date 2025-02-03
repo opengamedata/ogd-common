@@ -1,7 +1,7 @@
 # import standard libraries
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Optional
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.utils.Logger import Logger

@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 # import local files
 from ogd.common.configs.Config import Config
 from ogd.common.utils.Logger import Logger
