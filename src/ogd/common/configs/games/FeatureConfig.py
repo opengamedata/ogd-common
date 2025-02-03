@@ -1,8 +1,9 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Set
 # import local files
 from ogd.common.configs.games.GeneratorConfig import GeneratorConfig
+from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
@@ -13,9 +14,17 @@ class SubfeatureConfig(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, return_type:str, description:str, other_elements:Map):
-        self._return_type : str = return_type or self._parseReturnType(unparsed_elements=other_elements or {})
-        self._description : str = description or self._parseDescription(unparsed_elements=other_elements or {})
+    def __init__(self, name:str,
+                 # params for class
+                 return_type:Optional[str], description:Optional[str],
+                 # params for parent
+                 # dict of leftovers
+                 other_elements:Optional[Map]=None
+        ):
+        unparsed_elements : Map = other_elements or {}
+        
+        self._return_type : str = return_type or self._parseReturnType(unparsed_elements=unparsed_elements)
+        self._description : str = description or self._parseDescription(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -97,19 +106,21 @@ class FeatureConfig(GeneratorConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, return_type:Optional[str], subfeatures:Optional[Dict[str, SubfeatureConfig]], other_elements:Optional[Map]=None):
-        self._subfeatures : Dict[str, SubfeatureConfig]
-        self._return_type : str
+    def __init__(self, name:str,
+                 # params for class
+                 return_type:Optional[str], subfeatures:Optional[Dict[str, SubfeatureConfig]],
+                 # params for parent
+                 enabled:Optional[Set[ExtractionMode]]=None, type_name:Optional[str]=None, description:Optional[str]=None,
+                 # dict of leftovers
+                 other_elements:Optional[Map]=None
+        ):
+        unparsed_elements : Map = other_elements or {}
 
-        if not isinstance(other_elements, dict):
-            other_elements = {}
-            Logger.Log(f"For {name} Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-
-        self._return_type = return_type or FeatureConfig._parseReturnType(unparsed_elements=other_elements)
-        self._subfeatures = subfeatures or FeatureConfig._parseSubfeatures(unparsed_elements=other_elements)
+        self._subfeatures : Dict[str, SubfeatureConfig] = subfeatures or FeatureConfig._parseSubfeatures(unparsed_elements=unparsed_elements)
+        self._return_type : str                         = return_type or FeatureConfig._parseReturnType(unparsed_elements=unparsed_elements)
 
         # Don't explicitly pass in other params, let them be parsed from other_elements.
-        super().__init__(name=name, enabled=None, type_name=None, description=None, other_elements=other_elements)
+        super().__init__(name=name, enabled=enabled, type_name=type_name, description=description, other_elements=unparsed_elements)
 
     @property
     def ReturnType(self) -> str:

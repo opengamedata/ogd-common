@@ -1,7 +1,7 @@
 """Detector Config Module
 """
 # import standard libraries
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Set
 # import local files
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.configs.games.GeneratorConfig import GeneratorConfig
@@ -10,8 +10,16 @@ from ogd.common.utils.typing import Map
 class DetectorConfig(GeneratorConfig):
     """Schema for tracking the configuration of a detector.
     """
-    def __init__(self, name:str, other_elements:Optional[Map]=None):
-        super().__init__(name=name, other_elements=other_elements)
+    def __init__(self, name:str,
+                 # params for class
+                 # params for parent
+                 enabled:Optional[Set[ExtractionMode]]=None, type_name:Optional[str]=None, description:Optional[str]=None,
+                 # dict of leftovers
+                 other_elements:Optional[Map]=None
+        ):
+        unparsed_elements : Map = other_elements or {}
+
+        super().__init__(name=name, enabled=enabled, type_name=type_name, description=description, other_elements=unparsed_elements)
 
     @property
     def AsMarkdown(self) -> str:

@@ -1,8 +1,9 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Set
 # import local files
-from ogd.common.configs.games.FeatureConfig import FeatureConfig
+from ogd.common.configs.games.FeatureConfig import FeatureConfig, SubfeatureConfig
+from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
@@ -13,11 +14,21 @@ class PerCountConfig(FeatureConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, count:int|str, prefix:str, other_elements:Optional[Map]=None):
-        self._count  : int | str = count  or self._parseCount(unparsed_elements=other_elements or {})
-        self._prefix : str       = prefix or self._parsePrefix(unparsed_elements=other_elements or {})
+    def __init__(self, name:str,
+                 # params for class
+                 count:int|str, prefix:str,
+                 # params for parent
+                 return_type:Optional[str]=None, subfeatures:Optional[Dict[str, SubfeatureConfig]]=None,
+                 enabled:Optional[Set[ExtractionMode]]=None, type_name:Optional[str]=None, description:Optional[str]=None,
+                 # dict of leftovers
+                 other_elements:Optional[Map]=None
+        ):
+        unparsed_elements : Map = other_elements or {}
 
-        super().__init__(name=name, other_elements=other_elements)
+        self._count  : int | str = count  or self._parseCount(unparsed_elements=unparsed_elements)
+        self._prefix : str       = prefix or self._parsePrefix(unparsed_elements=unparsed_elements)
+
+        super().__init__(name=name, return_type=return_type, subfeatures=subfeatures, enabled=enabled, type_name=type_name, description=description, other_elements=unparsed_elements)
 
     @property
     def Count(self) -> int | str:
@@ -76,7 +87,7 @@ class PerCountConfig(FeatureConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseCount(unparsed_elements:Dict[str, Any]) -> int | str:
+    def _parseCount(unparsed_elements:Map) -> int | str:
         return PerCountConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["count"],
@@ -86,7 +97,7 @@ class PerCountConfig(FeatureConfig):
         )
 
     @staticmethod
-    def _parsePrefix(unparsed_elements:Dict[str, Any]) -> str:
+    def _parsePrefix(unparsed_elements:Map) -> str:
         return PerCountConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["prefix"],

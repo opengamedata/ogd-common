@@ -12,18 +12,18 @@ class GeneratorConfig(Schema):
     _DEFAULT_TYPE = "UNKNOWN TYPE"
     _DEFAULT_DESCRIPTION = "Default Generator schema object. Does not correspond to any actual data."
 
-    def __init__(self, name:str, enabled:Optional[Set[ExtractionMode]], type_name:Optional[str], description:Optional[str], other_elements:Map):
+    def __init__(self, name:str, enabled:Optional[Set[ExtractionMode]], type_name:Optional[str], description:Optional[str], other_elements:Optional[Map]=None):
+        unparsed_elements : Map = other_elements or {}
+
         self._enabled     : Set[ExtractionMode]
         self._type_name   : str
         self._description : str
 
-        self._enabled     = enabled     or GeneratorConfig._parseEnabled(unparsed_elements=other_elements)
-        self._type_name   = type_name   or GeneratorConfig._parseType(unparsed_elements=other_elements)
-        self._description = description or GeneratorConfig._parseDescription(unparsed_elements=other_elements)
+        self._enabled     = enabled     or GeneratorConfig._parseEnabled(unparsed_elements=unparsed_elements)
+        self._type_name   = type_name   or GeneratorConfig._parseType(unparsed_elements=unparsed_elements)
+        self._description = description or GeneratorConfig._parseDescription(unparsed_elements=unparsed_elements)
 
-        _used = {"type", "enabled", "description"}
-        _leftovers = { key : val for key,val in other_elements.items() if key not in _used }
-        super().__init__(name=name, other_elements=_leftovers)
+        super().__init__(name=name, other_elements=unparsed_elements)
 
     @property
     def TypeName(self) -> str:
