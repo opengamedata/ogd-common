@@ -54,12 +54,9 @@ class Schema(abc.ABC):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, other_elements:Optional[Map]=None):
-        self._name : str
-        self._other_elements : Map
+        self._name : str           = name or "DefaultSchemaName"
+        self._other_elements : Map = other_elements or {}
 
-        self._name = name or "DefaultSchemaName"
-
-        self._other_elements = other_elements or {}
         if len(self._other_elements.keys()) > 0:
             Logger.Log(f"Schema for {self.Name} contained nonstandard elements {self.NonStandardElementNames}")
 
