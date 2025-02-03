@@ -53,17 +53,14 @@ class KeyCredential(CredentialConfig):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "KeyCredential":
+    def FromDict(cls, name:str, unparsed_elements:Map)-> "KeyCredential":
         _file : Optional[str]
         _path : Optional[Path]
 
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
             _msg = f"For {name} key credential config, all_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
+            Logger.Log(_msg, logging.WARN)
         _file = cls._parseFilename(unparsed_elements=unparsed_elements)
         _path = cls._parsePath(unparsed_elements=unparsed_elements)
         # if we didn't find a PATH, but the FILE has a '/' in it,

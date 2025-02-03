@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 # import local files
 from ogd.common.configs.Config import Config
 from ogd.common.utils.Logger import Logger
-
+from ogd.common.utils.typing import Map
 
 class EmptyCredential(Config):
     """Dumb struct to contain data pertaining to credentials for accessing a data source.
@@ -25,16 +25,11 @@ class EmptyCredential(Config):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "EmptyCredential":
-        _user : str
-
+    def FromDict(cls, name:str, unparsed_elements:Map)-> "EmptyCredential":
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
             _msg = f"For {name} empty credential config, all_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
+            Logger.Log(_msg, logging.WARN)
         return EmptyCredential(name=name, other_elements=unparsed_elements)
 
     @classmethod

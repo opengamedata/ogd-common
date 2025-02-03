@@ -39,17 +39,14 @@ class PasswordCredential(CredentialConfig):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Map, logger:Optional[logging.Logger]=None)-> "PasswordCredential":
+    def FromDict(cls, name:str, unparsed_elements:Map)-> "PasswordCredential":
         _user : str
         _pass : Optional[str]
 
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
             _msg = f"For {name} password credential config, all_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
+            Logger.Log(_msg, logging.WARN)
         _user = cls._parseUser(unparsed_elements=unparsed_elements)
         _pass = cls._parsePass(unparsed_elements=unparsed_elements)
 
