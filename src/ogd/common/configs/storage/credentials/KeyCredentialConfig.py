@@ -54,6 +54,23 @@ class KeyCredential(CredentialConfig):
 
     @classmethod
     def FromDict(cls, name:str, unparsed_elements:Map)-> "KeyCredential":
+        """Create a Key Credential from a dict.
+
+        Expects dictionary to have the following form:
+        ```json
+        {
+           "FILE" : "key.txt",
+           "PATH" : "./"
+        }
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Map
+        :return: _description_
+        :rtype: KeyCredential
+        """
         _file : Optional[str]
         _path : Optional[Path]
 
@@ -70,9 +87,7 @@ class KeyCredential(CredentialConfig):
             _path = _full_path.parent
             _file = _full_path.name
 
-        _used = {"FILE", "KEY", "PATH"}
-        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return KeyCredential(name=name, filename=_file, path=_path, other_elements=_leftovers)
+        return KeyCredential(name=name, filename=_file, path=_path, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "KeyCredential":
