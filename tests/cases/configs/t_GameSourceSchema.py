@@ -34,7 +34,7 @@ class t_GameSourceSchema(TestCase):
             name="Game Source Schema",
             game_id="AQUALAB",
             source_name="AQUALAB_BQ",
-            source_schema=BigQueryConfig.FromDict(name="AQUALAB_BQ", all_elements=source_elems, logger=None),
+            source_schema=BigQueryConfig.FromDict(name="AQUALAB_BQ", unparsed_elements=source_elems, logger=None),
             db_name="aqualab",
             table_name="aqualab_daily",
             table_schema="OPENGAMEDATA_BIGQUERY",
@@ -106,7 +106,7 @@ class t_GameSourceSchema(TestCase):
             "PROJECT_ID" : "aqualab-project",
             "PROJECT_KEY": "./key.txt"
         }
-        _sources : Dict[str, DataStoreConfig] = { "AQUALAB_BQ" : BigQueryConfig.FromDict(name="AQUALAB_BQ", all_elements=source_elems, logger=None) }
+        _sources : Dict[str, DataStoreConfig] = { "AQUALAB_BQ" : BigQueryConfig.FromDict(name="AQUALAB_BQ", unparsed_elements=source_elems, logger=None) }
         _schema = GameSourceSchema.FromDict(name="AQUALAB", all_elements=_dict, logger=None, data_sources=_sources)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "AQUALAB")
