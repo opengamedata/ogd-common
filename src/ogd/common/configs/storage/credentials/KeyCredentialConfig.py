@@ -15,6 +15,7 @@ class KeyCredential(CredentialConfig):
 
     def __init__(self, name:str, filename:str, path:Path | str, other_elements:Optional[Map]):
         unparsed_elements : Map = other_elements or {}
+
         if isinstance(path, str):
             path = Path(path)
         self._path : Path = path     or self._parsePath(unparsed_elements=unparsed_elements)
@@ -42,6 +43,28 @@ class KeyCredential(CredentialConfig):
         :rtype: Path
         """
         return self.Folder / self.File
+
+    @property
+    def Key(self) -> Optional[str]:
+        """The actual key, loaded from the file
+
+        This property loads from the file whenever invoked,
+        just to minimize the degree to which keys stick around in the code.
+
+        :return: The full path to the key credential file.
+        :rtype: Path
+        """
+        ret_val  : Optional[str] = None
+        try:
+            with open(self.Filepath) as keyfile:
+                try:
+                    ret_val = keyfile.read()
+                except IOError:
+                    Logger.Log(f"Could not read key file at {self.Filepath}, an I/O error occurred!")
+        except FileNotFoundError:
+            Logger.Log(f"Could not open key file {self.Filepath}, the file does not exist!")
+        finally:
+            return ret_val
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
