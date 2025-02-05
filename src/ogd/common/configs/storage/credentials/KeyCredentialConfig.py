@@ -23,7 +23,7 @@ class KeyCredential(CredentialConfig):
         super().__init__(name=name, other_elements=unparsed_elements)
 
     @property
-    def File(self) -> str:
+    def Filename(self) -> str:
         return self._file
 
     @property
@@ -42,7 +42,7 @@ class KeyCredential(CredentialConfig):
         :return: The full path to the key credential file.
         :rtype: Path
         """
-        return self.Folder / self.File
+        return self.Folder / self.Filename
 
     @property
     def Key(self) -> Optional[str]:
