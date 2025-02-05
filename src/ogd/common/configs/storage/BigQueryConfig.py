@@ -13,13 +13,20 @@ class BigQueryConfig(DataStoreConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, project_id:str, credential:KeyCredential, other_elements:Dict[str, Any]):
+    def __init__(self, name:str,
+                 # params for class
+                 project_id:str, credential:KeyCredential,
+                 # params for parent
+                 store_type:Optional[str]=None,
+                 # dict of leftovers
+                 other_elements:Optional[Map]=None
+        ):
         unparsed_elements : Map = other_elements or {}
 
         self._project_id : str           = project_id or BigQueryConfig._parseProjectID(unparsed_elements=unparsed_elements)
         self._credential : KeyCredential = credential or BigQueryConfig._parseCredential(unparsed_elements=unparsed_elements)
 
-        super().__init__(name=name, other_elements=unparsed_elements)
+        super().__init__(name=name, store_type=store_type, other_elements=unparsed_elements)
 
     @property
     def Location(self) -> str:
