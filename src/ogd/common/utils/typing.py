@@ -25,7 +25,7 @@ class conversions:
     # *** PUBLIC STATICS ***
 
     @staticmethod
-    def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str) -> Any:
+    def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed Element") -> Any:
         """Applies whatever parsing is appropriate based on what type the schema said a column contained.
 
         :param value: _description_
@@ -338,7 +338,7 @@ class conversions:
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseToType(value:Any, to_type:str | Type, name:str) -> Any:
+    def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element") -> Any:
         """Private function to attempt to parse a value to a specific type.
 
         Unlike the main ConvertToType function, however,
