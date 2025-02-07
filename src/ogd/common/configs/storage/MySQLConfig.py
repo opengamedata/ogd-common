@@ -1,7 +1,7 @@
 # import standard libraries
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Optional
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
@@ -62,7 +62,7 @@ class SSHConfig(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Map, logger:Optional[logging.Logger]=None)-> "SSHConfig":
+    def FromDict(cls, name:str, unparsed_elements:Map)-> "SSHConfig":
         _host : str
         _port : int
 
@@ -225,10 +225,7 @@ class MySQLConfig(DataStoreConfig):
         # Parse DB info
         _db_host = cls._parseDBHost(unparsed_elements=unparsed_elements)
         _db_port = cls._parseDBPort(unparsed_elements=unparsed_elements)
-        # TODO : determine whether this could work as own parser function.
         _credential = cls._parseCredential(unparsed_elements=unparsed_elements)
-        # Parse SSH info, if it exists. Don't notify, if it doesn't exist.
-        # TODO : probably shouldn't have keys expected for SSH be hardcoded here, maybe need a way to get back what stuff it didn't use?
         _ssh_cfg = cls._parseSSHConfig(unparsed_elements=unparsed_elements)
 
         return MySQLConfig(name=name, db_host=_db_host, db_port=_db_port, db_credential=_credential, ssh_cfg=_ssh_cfg, other_elements=unparsed_elements)
@@ -289,6 +286,8 @@ class MySQLConfig(DataStoreConfig):
     def _parseSSHConfig(unparsed_elements:Map) -> SSHConfig:
         ret_val : SSHConfig
 
+        # Parse SSH info, if it exists. Don't notify, if it doesn't exist.
+        # TODO : probably shouldn't have keys expected for SSH be hardcoded here, maybe need a way to get back what stuff it didn't use?
         _ssh_keys = {"SSH_HOST", "SSH_PORT", "SSH_CREDENTIAL"}
         _ssh_elems = { key : unparsed_elements.get(key) for key in _ssh_keys.intersection(unparsed_elements.keys()) }
         ret_val = SSHConfig.FromDict(name=f"MySQLSSHConfig", unparsed_elements=_ssh_elems)
