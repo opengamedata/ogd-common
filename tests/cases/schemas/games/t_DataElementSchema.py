@@ -18,7 +18,7 @@ class t_DataElementSchema(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         # 1. Get testing config
-        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", all_elements=settings, logger=None)
+        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings, logger=None)
         _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
         Logger.std_logger.setLevel(_level)
 

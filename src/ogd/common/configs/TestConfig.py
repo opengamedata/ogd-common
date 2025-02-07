@@ -28,8 +28,8 @@ class TestConfig(Config):
     def __init__(self, name:str, verbose:bool, enabled_tests:Dict[str, bool], other_elements:Optional[Map]=None):
         unparsed_elements : Map = other_elements or {}
 
-        self._verbose       : bool            = verbose
-        self._enabled_tests : Dict[str, bool] = enabled_tests
+        self._verbose       : bool            = verbose       or self._parseVerbose(unparsed_elements=unparsed_elements)
+        self._enabled_tests : Dict[str, bool] = enabled_tests or self._parseEnabledTests(unparsed_elements=unparsed_elements)
         super().__init__(name=name, other_elements=unparsed_elements)
 
     @property
@@ -60,31 +60,18 @@ class TestConfig(Config):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TestConfig":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "TestConfig":
         _verbose         : bool
         _enabled_tests   : Dict[str, bool]
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements = {}
             _msg = f"For {name} testing config, all_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
-        _verbose = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["VERBOSE"],
-            to_type=cls._parseVerbose,
-            default_value=cls._DEFAULT_VERBOSE
-        )
-        _enabled_tests = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["ENABLED"],
-            to_type=cls._parseEnabledTests,
-            default_value=cls._DEFAULT_ENABLED_TESTS
-        )
+            Logger.Log(_msg, logging.WARN)
+        _verbose = cls._parseVerbose(unparsed_elements=unparsed_elements)
+        _enabled_tests = cls._parseEnabledTests(unparsed_elements=unparsed_elements)
 
-        _used = {"VERBOSE", "ENABLED"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return TestConfig(name=name, verbose=_verbose, enabled_tests=_enabled_tests, other_elements=_leftovers)
+        return TestConfig(name=name, verbose=_verbose, enabled_tests=_enabled_tests, other_elements=unparsed_elements)
 
     # *** PUBLIC METHODS ***
 
