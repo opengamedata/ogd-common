@@ -74,7 +74,7 @@ class t_IndexingConfig(TestCase):
             "REMOTE_URL"    : "https://fieldday-web.ad.education.wisc.edu/opengamedata/",
             "TEMPLATES_URL" : "https://github.com/opengamedata/opengamedata-samples"
         }
-        _schema = FileIndexingConfig.FromDict(name="FILE_INDEXING", all_elements=_dict, logger=None)
+        _schema = FileIndexingConfig.FromDict(name="FILE_INDEXING", unparsed_elements=_dict, logger=None)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "FILE_INDEXING")
         self.assertIsInstance(_schema.LocalDirectory, Path)
