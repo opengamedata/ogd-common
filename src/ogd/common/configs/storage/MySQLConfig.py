@@ -290,7 +290,7 @@ class MySQLConfig(DataStoreConfig):
         # TODO : probably shouldn't have keys expected for SSH be hardcoded here, maybe need a way to get back what stuff it didn't use?
         _ssh_keys = {"SSH_HOST", "SSH_PORT", "SSH_CREDENTIAL"}
         _ssh_elems = { key : unparsed_elements.get(key) for key in _ssh_keys.intersection(unparsed_elements.keys()) }
-        ret_val = SSHConfig.FromDict(name=f"MySQLSSHConfig", unparsed_elements=_ssh_elems)
+        ret_val = SSHConfig.FromDict(name="MySQLSSHConfig", unparsed_elements=_ssh_elems)
 
         return ret_val
 
