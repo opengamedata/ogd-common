@@ -52,25 +52,25 @@ class conversions:
         elif isinstance(to_type, str):
             match (to_type.upper()):
                 case 'BOOL':
-                    ret_val = conversions._parseBool(name=name, value=value)
+                    ret_val = conversions.ToBool(name=name, value=value)
                 case 'STR':
-                    ret_val = conversions._parseString(value=value, name=name)
+                    ret_val = conversions.ToString(value=value, name=name)
                 case 'INT':
-                    ret_val = conversions._parseInt(value=value, name=name)
+                    ret_val = conversions.ToInt(value=value, name=name)
                 case 'FLOAT':
-                    ret_val = conversions._parseFloat(value=value, name=name)
+                    ret_val = conversions.ToFloat(value=value, name=name)
                 case 'PATH':
-                    ret_val = conversions._parsePath(value=value, name=name)
+                    ret_val = conversions.ToPath(value=value, name=name)
                 case 'DATETIME':
-                    ret_val = conversions._parseDatetime(value=value, name=name)
+                    ret_val = conversions.ToDatetime(value=value, name=name)
                 case 'TIMEDELTA':
-                    ret_val = conversions._parseTimedelta(value=value, name=name)
+                    ret_val = conversions.ToTimedelta(value=value, name=name)
                 case 'TIMEZONE':
-                    ret_val = conversions._parseTimezone(value=value, name=name)
+                    ret_val = conversions.ToTimezone(value=value, name=name)
                 case 'JSON':
-                    ret_val = conversions._parseJSON(value=value, name=name)
+                    ret_val = conversions.ToJSON(value=value, name=name)
                 case 'LIST':
-                    ret_val = conversions._parseList(value=value, name=name)
+                    ret_val = conversions.ToList(value=value, name=name)
                 case _dummy if _dummy.startswith('ENUM'):
                     # if the column is supposed to be an enum, for now we just stick with the string.
                     ret_val = str(value)
@@ -81,25 +81,25 @@ class conversions:
         elif isinstance(to_type, Type):
             match (to_type):
                 case builtins.bool:
-                    ret_val = conversions._parseBool(name=name, value=value)
+                    ret_val = conversions.ToBool(name=name, value=value)
                 case builtins.int:
-                    ret_val = conversions._parseInt(name=name, value=value)
+                    ret_val = conversions.ToInt(name=name, value=value)
                 case builtins.float:
-                    ret_val = conversions._parseFloat(name=name, value=value)
+                    ret_val = conversions.ToFloat(name=name, value=value)
                 case builtins.str:
-                    ret_val = conversions._parseString(name=name, value=value)
+                    ret_val = conversions.ToString(name=name, value=value)
                 case pathlib.Path:
-                    ret_val = conversions._parsePath(value=value, name=name)
+                    ret_val = conversions.ToPath(value=value, name=name)
                 case datetime.datetime:
-                    ret_val = conversions._parseDatetime(value=value, name=name)
+                    ret_val = conversions.ToDatetime(value=value, name=name)
                 case datetime.timedelta:
-                    ret_val = conversions._parseTimedelta(value=value, name=name)
+                    ret_val = conversions.ToTimedelta(value=value, name=name)
                 case datetime.timezone:
-                    ret_val = conversions._parseTimezone(value=value, name=name)
+                    ret_val = conversions.ToTimezone(value=value, name=name)
                 case builtins.dict:
-                    ret_val = conversions._parseJSON(value=value, name=name)
+                    ret_val = conversions.ToJSON(value=value, name=name)
                 case builtins.list:
-                    ret_val = conversions._parseList(value=value, name=name)
+                    ret_val = conversions.ToList(value=value, name=name)
                 case _:
                     _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
                     Logger.Log(_msg, logging.WARN)
@@ -108,6 +108,8 @@ class conversions:
         elif isinstance(to_type, List) and all(type(x) in {type, str} for x in to_type):
             _found = False
             for t in to_type:
+                # TODO : add better ways to check if value matches the type,
+                # e.g. if t is bool, we could check not just for bool type, but for string TRUE or FALSE, before moving to next type
                 if isinstance(value, t):
                     ret_val = value
                     _found = True
@@ -115,6 +117,128 @@ class conversions:
                 ret_val = conversions.ConvertToType(value, to_type=to_type[0], name=name)
         else:
             ret_val = None
+        return ret_val
+
+    @staticmethod
+    def ToBool(name:str, value:Any) -> bool:
+        ret_val : bool
+
+        _parsed = conversions._parseBool(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = bool(value)
+            _msg = f"{name} was unexpected type {type(value)}, expected a bool! Defaulting to bool(value) == {ret_val}."
+            Logger.Log(_msg, logging.WARN)
+
+        return ret_val
+
+    @staticmethod
+    def ToInt(name:str, value:Any) -> int:
+        ret_val : int
+
+        _parsed = conversions._parseInt(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = int(value)
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected an int! Defaulting to int(value) == {ret_val}.", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToFloat(name:str, value:Any) -> float:
+        ret_val : float
+
+        _parsed = conversions._parseFloat(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = int(value)
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a float! Defaulting to float(value) == {ret_val}.", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToString(name:str, value:Any) -> str:
+        ret_val : str
+
+        _parsed = conversions._parseString(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = str(value)
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a string! Defaulting to str(value) == {ret_val}", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToPath(name:str, value:Any) -> pathlib.Path:
+        ret_val : pathlib.Path
+
+        _parsed = conversions._parsePath(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = pathlib.Path(str(value))
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a Path! Defaulting to Path(str(value)) == {ret_val}", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToDatetime(name:str, value:Any) -> datetime.datetime:
+        ret_val : datetime.datetime
+
+        _parsed = conversions._parseDatetime(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = conversions.DatetimeFromString(str(value))
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a datetime! Defaulting to datetime(str(value)) == {ret_val}", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToTimedelta(value:Any, name:str) -> Optional[datetime.timedelta]:
+        ret_val : Optional[datetime.timedelta]
+
+        _parsed = conversions._parseTimedelta(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = conversions.TimedeltaFromString(str(value))
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a timedelta! Defaulting to timedelta(str(value)) == {ret_val}", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToTimezone(value:Any, name:str) -> Optional[datetime.timezone]:
+        ret_val : Optional[datetime.timezone]
+
+        _parsed = conversions._parseTimezone(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = conversions.TimezoneFromString(str(value))
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a timezone! Defaulting to timezone(str(value)) == {ret_val}", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToList(value:Any, name:str) -> Optional[List]:
+        ret_val : Optional[List]
+
+        _parsed = conversions._parseList(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = list(json.loads(str(value)))
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a list! Defaulting to list(json.parse(str(value))) == {ret_val}", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToJSON(value:Any, name:str) -> Optional[Dict]:
+        ret_val : Optional[Dict]
+
+        _parsed = conversions._parseJSON(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = json.loads(str(value))
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a dict! Defaulting to json.parse(str(value)) == {ret_val}", logging.WARN)
         return ret_val
 
     @staticmethod
@@ -206,8 +330,19 @@ class conversions:
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseBool(name:str, value:Any) -> bool:
-        ret_val : bool
+    def _parseBool(name:str, value:Any) -> Optional[bool]:
+        """Attempt to turn a given value into a bool
+
+        Returns None if the value type was not recognized
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a bool representation
+        :type value: Any
+        :return: The bool representation of value, if type of value was recognized, else None
+        :rtype: Optional[bool]
+        """
+        ret_val : Optional[bool]
         match type(value):
             case builtins.bool:
                 ret_val = value
@@ -216,13 +351,23 @@ class conversions:
             case builtins.str:
                 ret_val = conversions.BoolFromString(bool_str=value)
             case _:
-                ret_val = bool(value)
-                Logger.Log(f"{name} was unexpected type {type(value)}, expected a bool! Defaulting to bool(value) == {ret_val}.", logging.WARN)
+                ret_val = None
         return ret_val
 
     @staticmethod
-    def _parseInt(name:str, value:Any) -> int:
-        ret_val : int
+    def _parseInt(name:str, value:Any) -> Optional[int]:
+        """Attempt to turn a given value into an int
+
+        Returns None if the value type was not recognized
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to an int representation
+        :type value: Any
+        :return: The int representation of value, if type of value was recognized, else None
+        :rtype: Optional[int]
+        """
+        ret_val : Optional[int]
         match type(value):
             case builtins.int:
                 ret_val = value
@@ -230,50 +375,92 @@ class conversions:
                 ret_val = int(round(value))
                 Logger.Log(f"{name} was a float value, rounding to nearest int: {ret_val}.", logging.WARN)
             case _:
-                ret_val = int(value)
-                Logger.Log(f"{name} was unexpected type {type(value)}, expected an int! Defaulting to int(value) == {ret_val}.", logging.WARN)
+                ret_val = None
         return ret_val
 
     @staticmethod
-    def _parseFloat(name:str, value:Any) -> float:
-        ret_val : float
+    def _parseFloat(name:str, value:Any) -> Optional[float]:
+        """Attempt to turn a given value into a float
+
+        Returns None if the value type was not recognized
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a float representation
+        :type value: Any
+        :return: The float representation of value, if type of value was recognized, else None
+        :rtype: Optional[float]
+        """
+        ret_val : Optional[float]
         match type(value):
             case builtins.float:
                 ret_val = value
             case builtins.int:
                 ret_val = float(value)
             case _:
-                ret_val = int(value)
-                Logger.Log(f"{name} was unexpected type {type(value)}, expected a float! Defaulting to float(value) == {ret_val}.", logging.WARN)
+                ret_val = None
         return ret_val
 
     @staticmethod
-    def _parseString(name:str, value:Any) -> str:
-        ret_val : str
+    def _parseString(name:str, value:Any) -> Optional[str]:
+        """Attempt to turn a given value into a str
+
+        Returns None if the value type was not recognized.
+        This is a cheat, relative to other _parse<Type> functions in the conversions class,
+        because anything that is not a string will be converted with str(value).
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a str representation
+        :type value: Any
+        :return: The str representation of value, if type of value was recognized, else None
+        :rtype: Optional[str]
+        """
+        ret_val : Optional[str]
         match type(value):
             case builtins.str:
                 ret_val = value
             case _:
                 ret_val = str(value)
-                Logger.Log(f"{name} was unexpected type {type(value)}, expected a string! Defaulting to str(value) == {ret_val}", logging.WARN)
         return ret_val
 
     @staticmethod
-    def _parsePath(name:str, value:Any) -> pathlib.Path:
-        ret_val : pathlib.Path
+    def _parsePath(name:str, value:Any) -> Optional[pathlib.Path]:
+        """Attempt to turn a given value into a path
+
+        Returns None if the value type was not recognized.
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a path representation
+        :type value: Any
+        :return: The path representation of value, if type of value was recognized, else None
+        :rtype: Optional[path]
+        """
+        ret_val : Optional[pathlib.Path]
         match type(value):
             case pathlib.Path:
                 ret_val = value
             case builtins.str:
                 ret_val = pathlib.Path(value)
             case _:
-                ret_val = pathlib.Path(str(value))
-                Logger.Log(f"{name} was unexpected type {type(value)}, expected a Path! Defaulting to Path(str(value)) == {ret_val}", logging.WARN)
+                ret_val = None
         return ret_val
 
     @staticmethod
-    def _parseDatetime(name:str, value:Any) -> datetime.datetime:
-        ret_val : datetime.datetime
+    def _parseDatetime(name:str, value:Any) -> Optional[datetime.datetime]:
+        """Attempt to turn a given value into a datetime
+
+        Returns None if the value type was not recognized.
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a datetime representation
+        :type value: Any
+        :return: The datetime representation of value, if type of value was recognized, else None
+        :rtype: Optional[datetime]
+        """
+        ret_val : Optional[datetime.datetime]
         match type(value):
             case datetime.datetime:
                 ret_val = value
@@ -284,12 +471,22 @@ class conversions:
             case builtins.str:
                 ret_val = conversions.DatetimeFromString(time_str=value)
             case _:
-                ret_val = conversions.DatetimeFromString(str(value))
-                Logger.Log(f"{name} was unexpected type {type(value)}, expected a datetime! Defaulting to datetime(str(value)) == {ret_val}", logging.WARN)
+                ret_val = None
         return ret_val
 
     @staticmethod
     def _parseTimedelta(value:Any, name:str) -> Optional[datetime.timedelta]:
+        """Attempt to turn a given value into a timedelta
+
+        Returns None if the value type was not recognized.
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a timedelta representation
+        :type value: Any
+        :return: The timedelta representation of value, if type of value was recognized, else None
+        :rtype: Optional[timedelta]
+        """
         ret_val : Optional[datetime.timedelta]
         match type(value):
             case datetime.timedelta:
@@ -300,12 +497,22 @@ class conversions:
             case builtins.str:
                 ret_val = conversions.TimedeltaFromString(time_str=value)
             case _:
-                ret_val = conversions.TimedeltaFromString(str(value))
-                Logger.Log(f"{name} was unexpected type {type(value)}, expected a timedelta! Defaulting to timedelta(str(value)) == {ret_val}", logging.WARN)
+                ret_val = None
         return ret_val
 
     @staticmethod
     def _parseTimezone(value:Any, name:str) -> Optional[datetime.timezone]:
+        """Attempt to turn a given value into a timezone
+
+        Returns None if the value type was not recognized.
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a timezone representation
+        :type value: Any
+        :return: The timezone representation of value, if type of value was recognized, else None
+        :rtype: Optional[timezone]
+        """
         ret_val : Optional[datetime.timezone]
         match type(value):
             case datetime.timezone:
@@ -313,12 +520,22 @@ class conversions:
             case builtins.str:
                 ret_val = conversions.TimezoneFromString(time_str=value)
             case _:
-                ret_val = conversions.TimezoneFromString(str(value))
-                Logger.Log(f"{name} was unexpected type {type(value)}, expected a timezone! Defaulting to timezone(str(value)) == {ret_val}", logging.WARN)
+                ret_val = None
         return ret_val
 
     @staticmethod
     def _parseList(value:Any, name:str) -> Optional[List]:
+        """Attempt to turn a given value into a list
+
+        Returns None if the value type was not recognized.
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a list representation
+        :type value: Any
+        :return: The list representation of value, if type of value was recognized, else None
+        :rtype: Optional[List]
+        """
         ret_val : Optional[List]
         try:
             match type(value):
@@ -331,8 +548,7 @@ class conversions:
                     else:
                         ret_val = None
                 case _:
-                    ret_val = list(json.loads(str(value)))
-                    Logger.Log(f"{name} was unexpected type {type(value)}, expected a list! Defaulting to list(json.parse(str(value))) == {ret_val}", logging.WARN)
+                    ret_val = None
         except JSONDecodeError as err:
             Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to list, got the following error:\n{str(err)}\nDefaulting to empty list", logging.WARN)
             ret_val = []
@@ -340,6 +556,17 @@ class conversions:
 
     @staticmethod
     def _parseJSON(value:Any, name:str) -> Optional[Dict]:
+        """Attempt to turn a given value into a JSON-style dictionary
+
+        Returns None if the value type was not recognized.
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a JSON representation
+        :type value: Any
+        :return: The JSON representation of value, if type of value was recognized, else None
+        :rtype: Optional[Dict]
+        """
         ret_val : Optional[Dict]
         try:
             match type(value):
@@ -352,8 +579,7 @@ class conversions:
                     else:
                         ret_val = None
                 case _:
-                    ret_val = json.loads(str(value))
-                    Logger.Log(f"{name} was unexpected type {type(value)}, expected a dict! Defaulting to json.parse(str(value)) == {ret_val}", logging.WARN)
+                    ret_val = None
         except JSONDecodeError as err:
             Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to JSON, got the following error:\n{str(err)}\nDefaulting to empty dict", logging.WARN)
             ret_val = {}
