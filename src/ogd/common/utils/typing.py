@@ -106,14 +106,22 @@ class conversions:
                     ret_val = None
         # Handle case where there are multiple valid types accepted (i.e. got a list, and everything in list is a type/str)
         elif isinstance(to_type, List) and all(type(x) in {type, str} for x in to_type):
-            _found = False
+            found = False
+            # for each candidate type, check if value already had that type
             for t in to_type:
-                # TODO : add better ways to check if value matches the type,
-                # e.g. if t is bool, we could check not just for bool type, but for string TRUE or FALSE, before moving to next type
                 if isinstance(value, t):
                     ret_val = value
-                    _found = True
-            if not _found:
+                    found = True
+            # if we didn't find exact match between value and candidate type, make a "soft" parse attempt on each type
+            if not found:
+                for t in to_type:
+                    _parsed = conversions._parseToType(value=value, to_type=t, name=name)
+                    if _parsed is not None:
+                        ret_val = _parsed
+                        found = True
+            # If none of the parsers knew how to handle the type of value param,
+            # force the issue by calling a "hard" conversion on first type in list of candidate types.
+            if not found:
                 ret_val = conversions.ConvertToType(value, to_type=to_type[0], name=name)
         else:
             ret_val = None
@@ -328,6 +336,86 @@ class conversions:
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
+
+    @staticmethod
+    def _parseToType(value:Any, to_type:str | Type, name:str) -> Any:
+        """Private function to attempt to parse a value to a specific type.
+
+        Unlike the main ConvertToType function, however,
+        this function will not attempt a conversion if the type of the "value" variable is not recognized.
+        Instead, it will simply return None
+
+        :param value: _description_
+        :type value: Any
+        :param to_type: _description_
+        :type to_type: str | Type | List[Type]
+        :param name: _description_
+        :type name: str
+        :return: _description_
+        :rtype: Any
+        """
+        ret_val : Any
+
+        if value is None:
+            ret_val = None
+        elif value == "None" or value == "null" or value == "nan":
+            ret_val = None
+        elif isinstance(to_type, str):
+            match (to_type.upper()):
+                case 'BOOL':
+                    ret_val = conversions._parseBool(name=name, value=value)
+                case 'STR':
+                    ret_val = conversions._parseString(value=value, name=name)
+                case 'INT':
+                    ret_val = conversions._parseInt(value=value, name=name)
+                case 'FLOAT':
+                    ret_val = conversions._parseFloat(value=value, name=name)
+                case 'PATH':
+                    ret_val = conversions._parsePath(value=value, name=name)
+                case 'DATETIME':
+                    ret_val = conversions._parseDatetime(value=value, name=name)
+                case 'TIMEDELTA':
+                    ret_val = conversions._parseTimedelta(value=value, name=name)
+                case 'TIMEZONE':
+                    ret_val = conversions._parseTimezone(value=value, name=name)
+                case 'JSON':
+                    ret_val = conversions._parseJSON(value=value, name=name)
+                case 'LIST':
+                    ret_val = conversions._parseList(value=value, name=name)
+                case _dummy if _dummy.startswith('ENUM'):
+                    # if the column is supposed to be an enum, for now we just stick with the string.
+                    ret_val = str(value)
+                case _:
+                    _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
+                    Logger.Log(_msg, logging.WARNING)
+                    ret_val = None
+        elif isinstance(to_type, Type):
+            match (to_type):
+                case builtins.bool:
+                    ret_val = conversions._parseBool(name=name, value=value)
+                case builtins.int:
+                    ret_val = conversions._parseInt(name=name, value=value)
+                case builtins.float:
+                    ret_val = conversions._parseFloat(name=name, value=value)
+                case builtins.str:
+                    ret_val = conversions._parseString(name=name, value=value)
+                case pathlib.Path:
+                    ret_val = conversions._parsePath(value=value, name=name)
+                case datetime.datetime:
+                    ret_val = conversions._parseDatetime(value=value, name=name)
+                case datetime.timedelta:
+                    ret_val = conversions._parseTimedelta(value=value, name=name)
+                case datetime.timezone:
+                    ret_val = conversions._parseTimezone(value=value, name=name)
+                case builtins.dict:
+                    ret_val = conversions._parseJSON(value=value, name=name)
+                case builtins.list:
+                    ret_val = conversions._parseList(value=value, name=name)
+                case _:
+                    _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
+                    Logger.Log(_msg, logging.WARN)
+                    ret_val = None
+        return ret_val
 
     @staticmethod
     def _parseBool(name:str, value:Any) -> Optional[bool]:
