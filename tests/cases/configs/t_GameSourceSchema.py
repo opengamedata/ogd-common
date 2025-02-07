@@ -107,7 +107,7 @@ class t_GameSourceSchema(TestCase):
             "PROJECT_KEY": "./key.txt"
         }
         _sources : Dict[str, DataStoreConfig] = { "AQUALAB_BQ" : BigQueryConfig.FromDict(name="AQUALAB_BQ", unparsed_elements=source_elems, logger=None) }
-        _schema = GameSourceSchema.FromDict(name="AQUALAB", all_elements=_dict, logger=None, data_sources=_sources)
+        _schema = GameSourceSchema.FromDict(name="AQUALAB", unparsed_elements=_dict, logger=None, data_sources=_sources)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "AQUALAB")
         self.assertIsInstance(_schema.SourceName, str)

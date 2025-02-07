@@ -33,6 +33,7 @@ class GameSourceSchema(Schema):
     _DEFAULT_DB_NAME       = "UNKNOWN GAME"
     _DEFAULT_TABLE_NAME    = "_daily"
     _DEFAULT_TABLE_SCHEMA  = "OPENGAMEDATA_BIGQUERY"
+    _DEFAULT_TABLE_FOLDER_PATH = Path("./tables/")
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -40,14 +41,15 @@ class GameSourceSchema(Schema):
                  source_name:str, source_schema:Optional[DataStoreConfig],
                  db_name:str,     table_name:str,  table_schema:str,
                  other_elements:Dict[str, Any]):
-        self._game_id           : str
-        self._source_name       : str                        = source_name
+        unparsed_elements : Map = other_elements or {}
+
+        self._game_id           : str                       = game_id       or self._parseGameID(unparsed_elements=unparsed_elements, name=name)
+        self._source_name       : str                       = source_name   or self._parseSource(unparsed_elements=unparsed_elements)
         self._source_schema     : Optional[DataStoreConfig] = source_schema
-        self._db_name           : str                        = db_name
-        self._table_name        : str                        = table_name
-        self._table_schema_name : str                        = table_schema
-        _path : Path = Path("./tables/")
-        self._table_schema      : TableSchema = TableSchema.FromFile(schema_name=self._table_schema_name, schema_path=_path)
+        self._db_name           : str                       = db_name       or self._parseDBName(unparsed_elements=unparsed_elements)
+        self._table_name        : str                       = table_name    or self._parseTableName(unparsed_elements=unparsed_elements)
+        self._table_schema_name : str                       = table_schema  or self._parseTableSchemaName(unparsed_elements=unparsed_elements)
+        self._table_schema      : TableSchema = TableSchema.FromFile(schema_name=self._table_schema_name, schema_path=self._DEFAULT_TABLE_FOLDER_PATH)
 
         if game_id is not None:
             self._game_id = game_id
@@ -107,8 +109,10 @@ class GameSourceSchema(Schema):
         )
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger], data_sources:Dict[str, DataStoreConfig]) -> "GameSourceSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], data_sources:Dict[str, DataStoreConfig]) -> "GameSourceSchema":
         """Create a GameSourceSchema from a given dictionary
+
+        TODO : data_sources shouldn't really be a param here. Better to have e.g. a way to register the list into GameSourceSchema class, or something.
 
         :param name: _description_
         :type name: str
@@ -127,47 +131,24 @@ class GameSourceSchema(Schema):
         _table_schema  : str
         _table_name    : str
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements = {}
             _msg = f"For {name} Game Source config, all_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
-        _game_id = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["game", "game_id"],
-            to_type=cls._parseGameID,
-            default_value=name
-        )
-        _source_name = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["source"],
-            to_type=cls._parseSource,
-            default_value=GameSourceSchema._DEFAULT_SOURCE_NAME
-        )
+            Logger.Log(_msg, logging.WARN)
+        _game_id = cls._parseGameID(unparsed_elements=unparsed_elements)
+        _source_name = cls._parseSource(unparsed_elements=unparsed_elements)
         if _source_name in data_sources.keys():
             _source_schema = data_sources[_source_name]
         else:
             _source_schema = None
             _msg = f"{name} config's 'source' name ({_source_name}) was not found in available source schemas; defaulting to source_schema={_source_schema}"
-            logger.warning(_msg) if logger else Logger.Log(_msg, logging.WARN)
-        _db_name = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["database"],
-            to_type=cls._parseDBName,
-            default_value=name
-        )
-        _table_name = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["table"],
-            to_type=cls._parseTableName,
-            default_value=GameSourceSchema._DEFAULT_TABLE_NAME
-        )
-        _table_schema = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["schema"],
-            to_type=cls._parseTableSchemaName,
-            default_value=GameSourceSchema._DEFAULT_TABLE_SCHEMA
-        )
+            Logger.Log(_msg, logging.WARN)
+        _db_name = cls._parseDBName(unparsed_elements=unparsed_elements)
+        _table_name = cls._parseTableName(unparsed_elements=unparsed_elements)
+        _table_schema = cls._parseTableSchemaName(unparsed_elements=unparsed_elements)
 
         _used = {"source", "database", "table", "schema"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
         return GameSourceSchema(name=name, game_id=_game_id, source_name=_source_name, source_schema=_source_schema,
                                 db_name=_db_name, table_name=_table_name, table_schema=_table_schema,
                                 other_elements=_leftovers)
@@ -184,53 +165,53 @@ class GameSourceSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseSource(source) -> str:
-        ret_val : str
-        if isinstance(source, str):
-            ret_val = source
-        else:
-            ret_val = str(source)
-            Logger.Log(f"Game Source source name was unexpected type {type(source)}, defaulting to str(source)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseSource(unparsed_elements:Map) -> str:
+        return GameSourceSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["source"],
+            to_type=str,
+            default_value=GameSourceSchema._DEFAULT_SOURCE_NAME,
+            remove_target=True
+        )
 
     @staticmethod
-    def _parseGameID(game_id) -> str:
-        ret_val : str
-        if isinstance(game_id, str):
-            ret_val = game_id
-        else:
-            ret_val = str(game_id)
-            Logger.Log(f"Game Source app ID was unexpected type {type(game_id)}, defaulting to str(game_id)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseGameID(unparsed_elements:Map, name:Optional[str]=None) -> str:
+        return GameSourceSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["game", "game_id"],
+            to_type=str,
+            default_value=name or GameSourceSchema._DEFAULT_GAME_ID,
+            remove_target=True
+        )
 
     @staticmethod
-    def _parseDBName(db_name) -> str:
-        ret_val : str
-        if isinstance(db_name, str):
-            ret_val = db_name
-        else:
-            ret_val = str(db_name)
-            Logger.Log(f"MySQL Data Source DB name was unexpected type {type(db_name)}, defaulting to str(db_name)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseDBName(unparsed_elements:Map) -> str:
+        return GameSourceSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["database"],
+            to_type=str,
+            default_value=GameSourceSchema._DEFAULT_DB_NAME,
+            remove_target=True
+        )
 
     @staticmethod
-    def _parseTableName(table) -> str:
-        ret_val : str
-        if isinstance(table, str):
-            ret_val = table
-        else:
-            ret_val = str(table)
-            Logger.Log(f"Game Source table name was unexpected type {type(table)}, defaulting to str(table)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseTableName(unparsed_elements:Map) -> str:
+        return GameSourceSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["table"],
+            to_type=str,
+            default_value=GameSourceSchema._DEFAULT_TABLE_NAME,
+            remove_target=True
+        )
 
     @staticmethod
-    def _parseTableSchemaName(table_schema_name) -> str:
-        ret_val : str
-        if isinstance(table_schema_name, str):
-            ret_val = table_schema_name
-        else:
-            ret_val = str(table_schema_name)
-            Logger.Log(f"Game Source table schema name type was unexpected type {type(table_schema_name)}, defaulting to str(schema)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseTableSchemaName(unparsed_elements:Map) -> str:
+        return GameSourceSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["schema"],
+            to_type=str,
+            default_value=GameSourceSchema._DEFAULT_TABLE_SCHEMA,
+            remove_target=True
+        )
 
     # *** PRIVATE METHODS ***
