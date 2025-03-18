@@ -272,17 +272,9 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     # 1. Parse dates
         _date_modified = cls._parseDateModified(unparsed_elements=unparsed_elements)
         _start_date = cls._parseStartDate(unparsed_elements=unparsed_elements)
-        _end_date = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
-            valid_keys=["end_date"],
-            to_type=cls._parseEndDate,
-            default_value=DatasetSchema._DEFAULT_END_DATE
-        )
+        _end_date = cls._parseEndDate(unparsed_elements=unparsed_elements)
     # 2. Parse metadata
-        _ogd_revision = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
-            valid_keys=["ogd_revision"],
-            to_type=cls._parseOGDRevision,
-            default_value=DatasetSchema._DEFAULT_OGD_REVISION
-        )
+        _ogd_revision = cls._parseOGDRevision(unparsed_elements=unparsed_elements)
         _session_ct = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["sessions"],
             to_type=cls._parseSessionCount,
@@ -422,14 +414,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
     @staticmethod
     def _parseDateModified(unparsed_elements:Map) -> date | str:
-        """Function to obtain the modified date from an input of Any type.
-        We expect either a date, or a formatted string.
+        """Function to obtain the modified date from a dictionary.
 
-        Valid string formats are: MM/DD/YYYY
-
-        :param date_modified: The input representation of the dataset modification date
-        :type date_modified: Any
-        :return: The Python date object obtained from the input, or a string if the date could not be parsed
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Map
+        :return: _description_
         :rtype: date | str
         """
         ret_val : date | str
@@ -476,6 +465,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             default_value=DatasetSchema._DEFAULT_START_DATE,
             remove_target=True
         )
+
         if isinstance(start_date, datetime):
             ret_val = start_date.date()
         if isinstance(start_date, date):
@@ -496,20 +486,25 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseEndDate(end_date) -> date | str:
-        """Function to obtain the end date from an input of Any type.
-        We expect either a date, or a formatted string.
+    def _parseEndDate(unparsed_elements:Map) -> date | str:
+        """Function to obtain the end date from a dictionary.
 
-        Valid string formats are: MM/DD/YYYY
-
-        TODO : handle more date formats
-
-        :param end_date: The input representation of the dataset end date
-        :type end_date: Any
-        :return: The Python date object obtained from the input, or a string if the date could not be parsed
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Map
+        :return: _description_
         :rtype: date | str
         """
         ret_val : date | str
+        end_date = DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["end_date"],
+            to_type=datetime,
+            default_value=DatasetSchema._DEFAULT_END_DATE,
+            remove_target=True
+        )
+
+        if isinstance(end_date, datetime):
+            ret_val = end_date.date()
         if isinstance(end_date, date):
             ret_val = end_date
         elif isinstance(end_date, str):
@@ -528,38 +523,34 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseOGDRevision(revision) -> str:
-        ret_val : str
-        if isinstance(revision, str):
-            ret_val = revision
-        else:
-            ret_val = str(revision)
-            Logger.Log(f"Dataset OGD revision was unexpected type {type(revision)}, defaulting to str(revision)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseOGDRevision(unparsed_elements:Map) -> str:
+        return DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["ogd_revision"],
+            to_type=str,
+            default_value=DatasetSchema._DEFAULT_OGD_REVISION,
+            remove_target=True
+        )
 
     @staticmethod
-    def _parseSessionCount(sess_ct) -> Optional[int]:
-        ret_val : Optional[int]
-        if isinstance(sess_ct, int):
-            ret_val = sess_ct
-        elif sess_ct == None:
-            ret_val = None
-        else:
-            ret_val = int(sess_ct)
-            Logger.Log(f"Dataset session count was unexpected type {type(sess_ct)}, defaulting to int(sess_ct)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseSessionCount(unparsed_elements:Map) -> Optional[int]:
+        return DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["sessions"],
+            to_type=int,
+            default_value=DatasetSchema._DEFAULT_SESSION_COUNT,
+            remove_target=True
+        )
 
     @staticmethod
-    def _parsePlayerCount(player_ct) -> Optional[int]:
-        ret_val : Optional[int]
-        if isinstance(player_ct, int):
-            ret_val = player_ct
-        elif player_ct == None:
-            ret_val = None
-        else:
-            ret_val = int(player_ct)
-            Logger.Log(f"Dataset player count was unexpected type {type(player_ct)}, defaulting to int(player_ct)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parsePlayerCount(unparsed_elements:Map) -> Optional[int]:
+        return DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["players"],
+            to_type=int,
+            default_value=DatasetSchema._DEFAULT_PLAYER_COUNT,
+            remove_target=True
+        )
 
     @staticmethod
     def _parseRawFile(raw_file:Optional[Path | str]) -> Optional[Path]:
