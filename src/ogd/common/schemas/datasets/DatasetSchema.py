@@ -275,62 +275,18 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         _end_date = cls._parseEndDate(unparsed_elements=unparsed_elements)
     # 2. Parse metadata
         _ogd_revision = cls._parseOGDRevision(unparsed_elements=unparsed_elements)
-        _session_ct = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
-            valid_keys=["sessions"],
-            to_type=cls._parseSessionCount,
-            default_value=DatasetSchema._DEFAULT_SESSION_COUNT
-        )
-        _player_ct = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
-            valid_keys=["players"],
-            to_type=cls._parsePlayerCount,
-            default_value=DatasetSchema._DEFAULT_PLAYER_COUNT
-        )
+        _session_ct = cls._parseSessionCount(unparsed_elements=unparsed_elements)
+        _player_ct = cls._parsePlayerCount(unparsed_elements=unparsed_elements)
     # 3. Parse file/template paths
-        _raw_file = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
-            valid_keys=["raw_file"],
-            to_type=cls._parseRawFile,
-            default_value=DatasetSchema._DEFAULT_RAW_FILE
-        )
-        _events_file = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
-            valid_keys=["events_file"],
-            to_type=cls._parseEventsFile,
-            default_value=DatasetSchema._DEFAULT_EVENTS_FILE
-        )
-        _events_template = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
-            valid_keys=["events_template"],
-            to_type=cls._parseEventsTemplate,
-            default_value=DatasetSchema._DEFAULT_EVENTS_TEMPLATE
-        )
-        _sessions_file = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
-            valid_keys=["sessions_file"],
-            to_type=cls._parseSessionsFile,
-            default_value=DatasetSchema._DEFAULT_SESSIONS_FILE
-        )
-        _sessions_template = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
-            valid_keys=["sessions_template"],
-            to_type=cls._parseSessionsTemplate,
-            default_value=DatasetSchema._DEFAULT_SESSIONS_TEMPLATE
-        )
-        _players_file = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
-            valid_keys=["players_file"],
-            to_type=cls._parsePlayersFile,
-            default_value=DatasetSchema._DEFAULT_PLAYERS_FILE
-        )
-        _players_template = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
-            valid_keys=["players_template"],
-            to_type=cls._parsePlayersTemplate,
-            default_value=DatasetSchema._DEFAULT_PLAYERS_TEMPLATE
-        )
-        _population_file = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
-            valid_keys=["population_file"],
-            to_type=cls._parsePopulationFile,
-            default_value=DatasetSchema._DEFAULT_POPULATION_FILE
-        )
-        _population_template = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
-            valid_keys=["population_template"],
-            to_type=cls._parsePopulationTemplate,
-            default_value=DatasetSchema._DEFAULT_POPULATION_FILE
-        )
+        _raw_file = cls._parseRawFile(unparsed_elements=unparsed_elements)
+        _events_file = cls._parseEventsFile(unparsed_elements=unparsed_elements)
+        _events_template = cls._parseEventsTemplate(unparsed_elements=unparsed_elements)
+        _sessions_file = cls._parseSessionsFile(unparsed_elements=unparsed_elements)
+        _sessions_template = cls._parseSessionsTemplate(unparsed_elements=unparsed_elements)
+        _players_file = cls._parsePlayersFile(unparsed_elements=unparsed_elements)
+        _players_template = cls._parsePlayersTemplate(unparsed_elements=unparsed_elements)
+        _population_file = cls._parsePopulationFile(unparsed_elements=unparsed_elements)
+        _population_template = cls._parsePopulationTemplate(unparsed_elements=unparsed_elements)
 
         _used = {"date_modified", "start_date", "end_date", "ogd_revision", "sessions", "players",
                  "raw_file", "events_file", "events_template",
@@ -553,130 +509,193 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         )
 
     @staticmethod
-    def _parseRawFile(raw_file:Optional[Path | str]) -> Optional[Path]:
+    def _parseRawFile(unparsed_elements:Map) -> Optional[Path]:
         ret_val : Optional[Path]
-        if raw_file == None:
-            ret_val = None
-        elif isinstance(raw_file, Path):
-            ret_val = raw_file
-        elif isinstance(raw_file, str):
-            ret_val = Path(raw_file) if raw_file != "" else None
+
+        raw_val : Path | str = DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["raw_file"],
+            to_type=[Path, str],
+            default_value=DatasetSchema._DEFAULT_RAW_FILE,
+            remove_target=True
+        )
+        if isinstance(raw_val, Path):
+            ret_val = raw_val
+        elif isinstance(raw_val, str):
+            ret_val = Path(raw_val)
         else:
-            ret_val = Path(str(raw_file))
-            Logger.Log(f"Dataset raw event file was unexpected type {type(raw_file)}, defaulting to Path(str(raw_file))={ret_val}.", logging.WARN)
+            ret_val = None
+            Logger.Log(f"Invalid raw file path for dataset schema, expected a path, but got {str(raw_val)}, using {ret_val} instead")
+
         return ret_val
 
     @staticmethod
-    def _parseEventsFile(events_file:Optional[Path | str]) -> Optional[Path]:
+    def _parseEventsFile(unparsed_elements:Map) -> Optional[Path]:
         ret_val : Optional[Path]
-        if events_file == None:
-            ret_val = None
-        elif isinstance(events_file, Path):
-            ret_val = events_file
-        elif isinstance(events_file, str):
-            ret_val = Path(events_file) if events_file != "" else None
+
+        evt_val : Path | str = DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["events_file"],
+            to_type=[Path, str],
+            default_value=DatasetSchema._DEFAULT_EVENTS_FILE,
+            remove_target=True
+        )
+        if isinstance(evt_val, Path):
+            ret_val = evt_val
+        elif isinstance(evt_val, str):
+            ret_val = Path(evt_val)
         else:
-            ret_val = Path(str(events_file))
-            Logger.Log(f"Dataset all event file was unexpected type {type(events_file)}, defaulting to Path(str(events_file))={ret_val}.", logging.WARN)
+            ret_val = None
+            Logger.Log(f"Invalid events file path for dataset schema, expected a path, but got {str(evt_val)}, using {ret_val} instead")
+
         return ret_val
 
     @staticmethod
-    def _parseSessionsFile(sessions_file:Optional[Path | str]) -> Optional[Path]:
+    def _parseSessionsFile(unparsed_elements:Map) -> Optional[Path]:
         ret_val : Optional[Path]
-        if sessions_file == None:
-            ret_val = None
-        elif isinstance(sessions_file, Path):
-            ret_val = sessions_file
-        elif isinstance(sessions_file, str):
-            ret_val = Path(sessions_file) if sessions_file != "" else None
+
+        sess_val : Path | str = DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["sessions_file"],
+            to_type=[Path, str],
+            default_value=DatasetSchema._DEFAULT_SESSIONS_FILE,
+            remove_target=True
+        )
+        if isinstance(sess_val, Path):
+            ret_val = sess_val
+        elif isinstance(sess_val, str):
+            ret_val = Path(sess_val)
         else:
-            ret_val = Path(str(sessions_file))
-            Logger.Log(f"Dataset session feature file was unexpected type {type(sessions_file)}, defaulting to Path(str(sessions_file))={ret_val}.", logging.WARN)
+            ret_val = None
+            Logger.Log(f"Invalid session file path for dataset schema, expected a path, but got {str(sess_val)}, using {ret_val} instead")
+
         return ret_val
 
     @staticmethod
-    def _parsePlayersFile(players_file:Optional[Path | str]) -> Optional[Path]:
+    def _parsePlayersFile(unparsed_elements:Map) -> Optional[Path]:
         ret_val : Optional[Path]
-        if players_file == None:
-            ret_val = None
-        elif isinstance(players_file, Path):
-            ret_val = players_file
-        elif isinstance(players_file, str):
-            ret_val = Path(players_file) if players_file != "" else None
+
+        play_val : Path | str = DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["players_file"],
+            to_type=[Path, str],
+            default_value=DatasetSchema._DEFAULT_PLAYERS_FILE,
+            remove_target=True
+        )
+        if isinstance(play_val, Path):
+            ret_val = play_val
+        elif isinstance(play_val, str):
+            ret_val = Path(play_val)
         else:
-            ret_val = Path(str(players_file))
-            Logger.Log(f"Dataset player feature file was unexpected type {type(players_file)}, defaulting to Path(str(players_file))={ret_val}.", logging.WARN)
+            ret_val = None
+            Logger.Log(f"Invalid player file path for dataset schema, expected a path, but got {str(play_val)}, using {ret_val} instead")
+
         return ret_val
 
     @staticmethod
-    def _parsePopulationFile(pop_file:Optional[Path | str]) -> Optional[Path]:
+    def _parsePopulationFile(unparsed_elements:Map) -> Optional[Path]:
         ret_val : Optional[Path]
-        if pop_file == None:
-            ret_val = None
-        elif isinstance(pop_file, Path):
-            ret_val = pop_file
-        elif isinstance(pop_file, str):
-            ret_val = Path(pop_file) if pop_file != "" else None
+
+        pop_val : Path | str = DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["population_file"],
+            to_type=[Path, str],
+            default_value=DatasetSchema._DEFAULT_POPULATION_FILE,
+            remove_target=True
+        )
+        if isinstance(pop_val, Path):
+            ret_val = pop_val
+        elif isinstance(pop_val, str):
+            ret_val = Path(pop_val)
         else:
-            ret_val = Path(str(pop_file))
-            Logger.Log(f"Dataset population feature file was unexpected type {type(pop_file)}, defaulting to Path(str(pop_file))={ret_val}.", logging.WARN)
+            ret_val = None
+            Logger.Log(f"Invalid population file path for dataset schema, expected a path, but got {str(pop_val)}, using {ret_val} instead")
+
         return ret_val
 
 
     @staticmethod
-    def _parseEventsTemplate(events_tplate:Optional[Path | str]) -> Optional[Path]:
+    def _parseEventsTemplate(unparsed_elements:Map) -> Optional[Path]:
         ret_val : Optional[Path]
-        if events_tplate == None:
-            ret_val = None
-        elif isinstance(events_tplate, Path):
+
+        events_tplate : Path | str = DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["events_template"],
+            to_type=[Path, str],
+            default_value=DatasetSchema._DEFAULT_EVENTS_TEMPLATE,
+            remove_target=True
+        )
+        if isinstance(events_tplate, Path):
             ret_val = events_tplate
         elif isinstance(events_tplate, str):
-            ret_val = Path(events_tplate) if events_tplate != "" else None
+            ret_val = Path(events_tplate)
         else:
-            ret_val = Path(str(events_tplate))
-            Logger.Log(f"Dataset events template was unexpected type {type(events_tplate)}, defaulting to Path(str(events_tplate))={ret_val}.", logging.WARN)
+            ret_val = None
+            Logger.Log(f"Invalid events template path for dataset schema, expected a path, but got {str(events_tplate)}, using {ret_val} instead")
+
         return ret_val
 
     @staticmethod
-    def _parseSessionsTemplate(sessions_tplate:Optional[Path | str]) -> Optional[Path]:
+    def _parseSessionsTemplate(unparsed_elements:Map) -> Optional[Path]:
         ret_val : Optional[Path]
-        if sessions_tplate == None:
-            ret_val = None
-        elif isinstance(sessions_tplate, Path):
+
+        sessions_tplate : Path | str = DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["sessions_template"],
+            to_type=[Path, str],
+            default_value=DatasetSchema._DEFAULT_SESSIONS_TEMPLATE,
+            remove_target=True
+        )
+        if isinstance(sessions_tplate, Path):
             ret_val = sessions_tplate
         elif isinstance(sessions_tplate, str):
-            ret_val = Path(sessions_tplate) if sessions_tplate != "" else None
+            ret_val = Path(sessions_tplate)
         else:
-            ret_val = Path(str(sessions_tplate))
-            Logger.Log(f"Dataset session template file was unexpected type {type(sessions_tplate)}, defaulting to Path(str(sessions_tplate))={ret_val}.", logging.WARN)
+            ret_val = None
+            Logger.Log(f"Invalid sessions template path for dataset schema, expected a path, but got {str(sessions_tplate)}, using {ret_val} instead")
+
         return ret_val
 
     @staticmethod
-    def _parsePlayersTemplate(players_tplate:Optional[Path | str]) -> Optional[Path]:
+    def _parsePlayersTemplate(unparsed_elements:Map) -> Optional[Path]:
         ret_val : Optional[Path]
-        if players_tplate == None:
-            ret_val = None
-        elif isinstance(players_tplate, Path):
+
+        players_tplate : Path | str = DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["players_template"],
+            to_type=[Path, str],
+            default_value=DatasetSchema._DEFAULT_PLAYERS_TEMPLATE,
+            remove_target=True
+        )
+        if isinstance(players_tplate, Path):
             ret_val = players_tplate
         elif isinstance(players_tplate, str):
-            ret_val = Path(players_tplate) if players_tplate != "" else None
+            ret_val = Path(players_tplate)
         else:
-            ret_val = Path(str(players_tplate))
-            Logger.Log(f"Dataset players template file was unexpected type {type(players_tplate)}, defaulting to Path(str(players_tplate))={ret_val}.", logging.WARN)
+            ret_val = None
+            Logger.Log(f"Invalid player template path for dataset schema, expected a path, but got {str(players_tplate)}, using {ret_val} instead")
+
         return ret_val
 
     @staticmethod
-    def _parsePopulationTemplate(pop_tplate:Optional[Path | str]) -> Optional[Path]:
+    def _parsePopulationTemplate(unparsed_elements:Map) -> Optional[Path]:
         ret_val : Optional[Path]
-        if pop_tplate == None:
-            ret_val = None
-        elif isinstance(pop_tplate, Path):
+
+        pop_tplate : Path | str = DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["population_template"],
+            to_type=[Path, str],
+            default_value=DatasetSchema._DEFAULT_POPULATION_TEMPLATE,
+            remove_target=True
+        )
+        if isinstance(pop_tplate, Path):
             ret_val = pop_tplate
         elif isinstance(pop_tplate, str):
-            ret_val = Path(pop_tplate) if pop_tplate != "" else None
+            ret_val = Path(pop_tplate)
         else:
-            ret_val = Path(str(pop_tplate))
-            Logger.Log(f"Dataset population template file was unexpected type {type(pop_tplate)}, defaulting to Path(str(pop_tplate))={ret_val}.", logging.WARN)
+            ret_val = None
+            Logger.Log(f"Invalid population template path for dataset schema, expected a path, but got {str(pop_tplate)}, using {ret_val} instead")
+
         return ret_val
 
     # *** PRIVATE METHODS ***
