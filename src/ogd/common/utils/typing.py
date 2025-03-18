@@ -90,7 +90,7 @@ class conversions:
                     ret_val = conversions.ToString(name=name, value=value)
                 case pathlib.Path:
                     ret_val = conversions.ToPath(value=value, name=name)
-                case datetime.datetime:
+                case datetime.datetime | datetime.date:
                     ret_val = conversions.ToDatetime(value=value, name=name)
                 case datetime.timedelta:
                     ret_val = conversions.ToTimedelta(value=value, name=name)
