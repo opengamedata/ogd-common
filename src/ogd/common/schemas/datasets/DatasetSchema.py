@@ -266,19 +266,12 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
             _msg = f"For {name} dataset schema, all_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
+            Logger.Log(_msg, logging.WARN)
         _game_id = cls._parseGameID(name)
         _key = DatasetKey(key=name, game_id=_game_id)
     # 1. Parse dates
         _date_modified = cls._parseDateModified(unparsed_elements=unparsed_elements)
-        _start_date = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
-            valid_keys=["start_date"],
-            to_type=cls._parseStartDate,
-            default_value=DatasetSchema._DEFAULT_START_DATE
-        )
+        _start_date = cls._parseStartDate(unparsed_elements=unparsed_elements)
         _end_date = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["end_date"],
             to_type=cls._parseEndDate,
@@ -428,7 +421,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return conversions.ToString(name="Game ID", value=game_id)
 
     @staticmethod
-    def _parseDateModified(unparsed_elements:Map) -> date:
+    def _parseDateModified(unparsed_elements:Map) -> date | str:
         """Function to obtain the modified date from an input of Any type.
         We expect either a date, or a formatted string.
 
@@ -439,7 +432,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         :return: The Python date object obtained from the input, or a string if the date could not be parsed
         :rtype: date | str
         """
-        ret_val : date
+        ret_val : date | str
         date_modified = DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["date_modified"],
@@ -447,6 +440,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             default_value=DatasetSchema._DEFAULT_DATE_MODIFIED,
             remove_target=True
         )
+        if isinstance(date_modified, datetime):
+            ret_val = date_modified.date()
         if isinstance(date_modified, date):
             ret_val = date_modified
         elif isinstance(date_modified, str):
@@ -465,20 +460,24 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseStartDate(start_date) -> date | str:
-        """Function to obtain the start date from an input of Any type.
-        We expect either a date, or a formatted string.
+    def _parseStartDate(unparsed_elements:Map) -> date | str:
+        """Function to obtain the start date from a dictionary.
 
-        Valid string formats are: MM/DD/YYYY
-
-        TODO : handle more date formats
-
-        :param start_date: The input representation of the dataset start date
-        :type start_date: Any
-        :return: The Python date object obtained from the input, or a string if the date could not be parsed
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Map
+        :return: _description_
         :rtype: date | str
         """
         ret_val : date | str
+        start_date = DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["start_date"],
+            to_type=datetime,
+            default_value=DatasetSchema._DEFAULT_START_DATE,
+            remove_target=True
+        )
+        if isinstance(start_date, datetime):
+            ret_val = start_date.date()
         if isinstance(start_date, date):
             ret_val = start_date
         elif isinstance(start_date, str):
