@@ -264,6 +264,17 @@ class conversions:
 
     @staticmethod
     def DatetimeFromString(time_str:str) -> datetime.datetime:
+        """_summary_
+
+        TODO : handle more date formats, or something. I dunno, copied this from another area where we were parsing dates.
+
+        :param time_str: _description_
+        :type time_str: str
+        :raises ValueError: _description_
+        :raises ValueError: _description_
+        :return: _description_
+        :rtype: datetime.datetime
+        """
         ret_val : datetime.datetime
 
         if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
