@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional, Self
 # ogd imports
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import Map, conversions
 
 class DatasetKey:
 
@@ -109,6 +109,8 @@ class DatasetSchema(Schema):
                  players_file:Optional[Path],    players_template:Optional[Path],
                  population_file:Optional[Path], population_template:Optional[Path],
                  other_elements:Optional[Map]=None):
+        unparsed_elements : Map = other_elements or {}
+
         self._key                 : DatasetKey     = key
         self._date_modified       : date | str     = date_modified
         self._start_date          : date | str     = start_date
@@ -243,7 +245,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DatasetSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetSchema":
         _key                 : DatasetKey
         _date_modified       : date | str
         _start_date          : date | str
@@ -261,8 +263,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         _population_file     : Optional[Path]
         _population_template : Optional[Path]
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements = {}
             _msg = f"For {name} dataset schema, all_elements was not a dict, defaulting to empty dict"
             if logger:
                 logger.warning(_msg)
@@ -271,79 +273,75 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         _game_id = cls._parseGameID(name)
         _key = DatasetKey(key=name, game_id=_game_id)
     # 1. Parse dates
-        _date_modified = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["date_modified"],
-            to_type=cls._parseDateModified,
-            default_value=DatasetSchema._DEFAULT_DATE_MODIFIED
-        )
-        _start_date = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
+        _date_modified = cls._parseDateModified(unparsed_elements=unparsed_elements)
+        _start_date = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["start_date"],
             to_type=cls._parseStartDate,
             default_value=DatasetSchema._DEFAULT_START_DATE
         )
-        _end_date = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
+        _end_date = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["end_date"],
             to_type=cls._parseEndDate,
             default_value=DatasetSchema._DEFAULT_END_DATE
         )
     # 2. Parse metadata
-        _ogd_revision = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
+        _ogd_revision = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["ogd_revision"],
             to_type=cls._parseOGDRevision,
             default_value=DatasetSchema._DEFAULT_OGD_REVISION
         )
-        _session_ct = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
+        _session_ct = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["sessions"],
             to_type=cls._parseSessionCount,
             default_value=DatasetSchema._DEFAULT_SESSION_COUNT
         )
-        _player_ct = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
+        _player_ct = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["players"],
             to_type=cls._parsePlayerCount,
             default_value=DatasetSchema._DEFAULT_PLAYER_COUNT
         )
     # 3. Parse file/template paths
-        _raw_file = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
+        _raw_file = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["raw_file"],
             to_type=cls._parseRawFile,
             default_value=DatasetSchema._DEFAULT_RAW_FILE
         )
-        _events_file = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
+        _events_file = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["events_file"],
             to_type=cls._parseEventsFile,
             default_value=DatasetSchema._DEFAULT_EVENTS_FILE
         )
-        _events_template = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
+        _events_template = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["events_template"],
             to_type=cls._parseEventsTemplate,
             default_value=DatasetSchema._DEFAULT_EVENTS_TEMPLATE
         )
-        _sessions_file = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
+        _sessions_file = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["sessions_file"],
             to_type=cls._parseSessionsFile,
             default_value=DatasetSchema._DEFAULT_SESSIONS_FILE
         )
-        _sessions_template = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
+        _sessions_template = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["sessions_template"],
             to_type=cls._parseSessionsTemplate,
             default_value=DatasetSchema._DEFAULT_SESSIONS_TEMPLATE
         )
-        _players_file = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
+        _players_file = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["players_file"],
             to_type=cls._parsePlayersFile,
             default_value=DatasetSchema._DEFAULT_PLAYERS_FILE
         )
-        _players_template = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
+        _players_template = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["players_template"],
             to_type=cls._parsePlayersTemplate,
             default_value=DatasetSchema._DEFAULT_PLAYERS_TEMPLATE
         )
-        _population_file = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
+        _population_file = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["population_file"],
             to_type=cls._parsePopulationFile,
             default_value=DatasetSchema._DEFAULT_POPULATION_FILE
         )
-        _population_template = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
+        _population_template = cls.ParseElement(unparsed_elements=unparsed_elements, logger=logger,
             valid_keys=["population_template"],
             to_type=cls._parsePopulationTemplate,
             default_value=DatasetSchema._DEFAULT_POPULATION_FILE
@@ -353,7 +351,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
                  "raw_file", "events_file", "events_template",
                  "sessions_file", "sessions_template", "players_file", "players_template",
                  "population_file", "population_template"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
         return DatasetSchema(name=name, key=_key,
                              date_modified=_date_modified, start_date=_start_date, end_date=_end_date,
                              ogd_revision=_ogd_revision,   session_ct=_session_ct, player_ct=_player_ct,
@@ -415,30 +413,40 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseGameID(dataset_name) -> str:
-        ret_val : str
-        if isinstance(dataset_name, str):
-            ret_val = dataset_name.split('_')[0]
-        else:
-            ret_val = str(dataset_name).split('_')[0]
-            Logger.Log(f"Dataset name was unexpected type {type(dataset_name)}, defaulting to str(dataset_name).split('_')[0]={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseGameID(game_id:Any) -> str:
+        """Private function to get game_id from an input value.
+
+        Historically, this is assumed to come from outside the main dictionary of schema elements,
+        so it just takes a variable we assume to be directly convertible to a string,
+        hence the function directly uses the conversion function, instead of the Schema.ParseElement function.
+
+        :param game_id: A value that, when converted to a string, will be the name of the game whose data is contained in the dataset
+        :type game_id: Any
+        :return: The name of the game whose data is contained in the dataset
+        :rtype: str
+        """
+        return conversions.ToString(name="Game ID", value=game_id)
 
     @staticmethod
-    def _parseDateModified(date_modified) -> date | str:
+    def _parseDateModified(unparsed_elements:Map) -> date:
         """Function to obtain the modified date from an input of Any type.
         We expect either a date, or a formatted string.
 
         Valid string formats are: MM/DD/YYYY
-
-        TODO : handle more date formats
 
         :param date_modified: The input representation of the dataset modification date
         :type date_modified: Any
         :return: The Python date object obtained from the input, or a string if the date could not be parsed
         :rtype: date | str
         """
-        ret_val : date | str
+        ret_val : date
+        date_modified = DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["date_modified"],
+            to_type=datetime,
+            default_value=DatasetSchema._DEFAULT_DATE_MODIFIED,
+            remove_target=True
+        )
         if isinstance(date_modified, date):
             ret_val = date_modified
         elif isinstance(date_modified, str):
