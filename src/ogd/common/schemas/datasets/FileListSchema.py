@@ -12,7 +12,7 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.utils.typing import Map
 
-class FileListSchema(Schema):
+class FileListConfigSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -48,7 +48,7 @@ class FileListSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileListSchema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileListConfigSchema":
         _files_base     : Optional[str]
         _templates_base : Optional[str]
 
@@ -62,22 +62,22 @@ class FileListSchema(Schema):
         _files_base = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["files_base"],
             to_type=cls._parseFilesBase,
-            default_value=FileListSchema.DEFAULT_FILE_BASE
+            default_value=FileListConfigSchema.DEFAULT_FILE_BASE
         )
         _templates_base = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["templates_base"],
             to_type=cls._parseTemplatesBase,
-            default_value=FileListSchema.DEFAULT_TEMPLATE_BASE
+            default_value=FileListConfigSchema.DEFAULT_TEMPLATE_BASE
         )
         _used = {"files_base", "templates_base"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return FileListSchema(name=name, file_base_path=_files_base, template_base_path=_templates_base, other_elements=_leftovers)
+        return FileListConfigSchema(name=name, file_base_path=_files_base, template_base_path=_templates_base, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def Default(cls) -> "FileListSchema":
-        return FileListSchema(
+    def Default(cls) -> "FileListConfigSchema":
+        return FileListConfigSchema(
             name="CONFIG NOT FOUND",
             file_base_path=cls.DEFAULT_FILE_BASE,
             template_base_path=cls.DEFAULT_TEMPLATE_BASE,
@@ -191,9 +191,9 @@ class FileListSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, game_file_lists:Dict[str, GameDatasetCollectionSchema], file_list_config:FileListSchema, other_elements:Dict[str, Any]):
+    def __init__(self, name:str, game_file_lists:Dict[str, GameDatasetCollectionSchema], file_list_config:FileListConfigSchema, other_elements:Dict[str, Any]):
         self._games_file_lists : Dict[str, GameDatasetCollectionSchema] = game_file_lists
-        self._config           : FileListSchema                   = file_list_config
+        self._config           : FileListConfigSchema                   = file_list_config
 
         super().__init__(name=name, other_elements={})
 
@@ -204,7 +204,7 @@ class FileListSchema(Schema):
     def Games(self) -> Dict[str, GameDatasetCollectionSchema]:
         return self._games_file_lists
     @property
-    def Config(self) -> FileListSchema:
+    def Config(self) -> FileListConfigSchema:
         return self._config
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -217,7 +217,7 @@ class FileListSchema(Schema):
     @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileListSchema":
         _games_file_lists : Dict[str, GameDatasetCollectionSchema]
-        _config           : FileListSchema
+        _config           : FileListConfigSchema
 
         if not isinstance(all_elements, dict):
             all_elements = {}
@@ -225,7 +225,7 @@ class FileListSchema(Schema):
         _config = DatasetSchema.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["CONFIG"],
             to_type=cls._parseConfig,
-            default_value=FileListSchema.Default()
+            default_value=FileListConfigSchema.Default()
         )
     # 2. Parse games
         _used = {"CONFIG"}
@@ -238,7 +238,7 @@ class FileListSchema(Schema):
         return FileListSchema(
             name="DefaultFileListSchema",
             game_file_lists=cls._DEFAULT_GAME_FILE_LISTS,
-            file_list_config=FileListSchema.Default(),
+            file_list_config=FileListConfigSchema.Default(),
             other_elements={}
         )
 
@@ -249,12 +249,12 @@ class FileListSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseConfig(config) -> FileListSchema:
-        ret_val : FileListSchema
+    def _parseConfig(config) -> FileListConfigSchema:
+        ret_val : FileListConfigSchema
         if isinstance(config, dict):
-            ret_val = FileListSchema.FromDict(name="ConfigSchema", all_elements=config)
+            ret_val = FileListConfigSchema.FromDict(name="ConfigSchema", all_elements=config)
         else:
-            ret_val = FileListSchema.Default()
+            ret_val = FileListConfigSchema.Default()
             Logger.Log(f"Config was unexpected type {type(config)}, defaulting to empty ConfigSchema.", logging.WARN)
         return ret_val
 
