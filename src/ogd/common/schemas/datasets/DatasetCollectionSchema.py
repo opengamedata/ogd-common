@@ -189,7 +189,7 @@ class DatasetCollectionSchema(Schema):
 
     def __init__(self, name:str, game_file_lists:Dict[str, GameDatasetCollectionSchema], file_list_config:DatasetCollectionConfig, other_elements:Dict[str, Any]):
         self._games_file_lists : Dict[str, GameDatasetCollectionSchema] = game_file_lists
-        self._config           : DatasetCollectionConfig                   = file_list_config
+        self._config           : DatasetCollectionConfig                = file_list_config
 
         super().__init__(name=name, other_elements={})
 
@@ -211,22 +211,17 @@ class DatasetCollectionSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DatasetCollectionSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetCollectionSchema":
         _games_file_lists : Dict[str, GameDatasetCollectionSchema]
         _config           : DatasetCollectionConfig
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-    # 1. Parse config
-        _config = DatasetSchema.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["CONFIG"],
-            to_type=cls._parseConfig,
-            default_value=DatasetCollectionConfig.Default()
-        )
-    # 2. Parse games
-        _used = {"CONFIG"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        _games_file_lists = cls._parseGamesFileLists(games_dict=_leftovers)
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements = {}
+            _msg = f"For {name} dataset collection schema, unparsed_elements was not a dict, defaulting to empty dict"
+            Logger.Log(_msg, logging.WARN)
+        _config = DatasetCollectionSchema._parseConfig(name=f"{name}Config", unparsed_elements=unparsed_elements)
+        _games_file_lists = cls._parseGamesFileLists(unparsed_elements=unparsed_elements)
+
         return DatasetCollectionSchema(name=name, game_file_lists=_games_file_lists, file_list_config=_config, other_elements={})
 
     @classmethod
@@ -245,26 +240,32 @@ class DatasetCollectionSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseConfig(config) -> DatasetCollectionConfig:
+    def _parseConfig(name:str, unparsed_elements:Map) -> DatasetCollectionConfig:
         ret_val : DatasetCollectionConfig
-        if isinstance(config, dict):
-            ret_val = DatasetCollectionConfig.FromDict(name="ConfigSchema", all_elements=config)
+
+        _config_elem = DatasetCollectionConfig.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["CONFIG"],
+            to_type=Dict,
+            default_value=DatasetCollectionConfig.Default(),
+            remove_target=True
+        )
+        # If parse gave us back a dict, then we pass it into the FromDict for config,
+        # else assume it was the default value we can return directly.
+        if isinstance(_config_elem, dict):
+            ret_val = DatasetCollectionConfig.FromDict(name=name, unparsed_elements=_config_elem)
         else:
-            ret_val = DatasetCollectionConfig.Default()
-            Logger.Log(f"Config was unexpected type {type(config)}, defaulting to empty ConfigSchema.", logging.WARN)
+            ret_val = _config_elem
+
         return ret_val
 
     @staticmethod
-    def _parseGamesFileLists(games_dict:Dict[str, Any]) -> Dict[str, GameDatasetCollectionSchema]:
+    def _parseGamesFileLists(unparsed_elements:Map) -> Dict[str, GameDatasetCollectionSchema]:
         ret_val : Dict[str, GameDatasetCollectionSchema]
-        if isinstance(games_dict, dict):
-            ret_val = {
-                key : GameDatasetCollectionSchema.FromDict(key, datasets if isinstance(datasets, dict) else {})
-                for key, datasets in games_dict.items()
-            }
-        else:
-            ret_val = {}
-            Logger.Log(f"Collection of games was unexpected type {type(games_dict)}, defaulting to empty dictionary.", logging.WARN)
+        ret_val = {
+            key : GameDatasetCollectionSchema.FromDict(key, datasets if isinstance(datasets, dict) else {})
+            for key, datasets in unparsed_elements.items()
+        }
         return ret_val
 
     # *** PRIVATE METHODS ***
