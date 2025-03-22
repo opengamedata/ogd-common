@@ -124,17 +124,14 @@ class GameDatasetCollectionSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "GameDatasetCollectionSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "GameDatasetCollectionSchema":
         _game_datasets : Dict[str, DatasetSchema]
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements = {}
             _msg = f"For {name} game dataset collection, all_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
-        _game_datasets = cls._parseGameDatasets(datasets=all_elements)
+            Logger.Log(_msg, logging.WARN)
+        _game_datasets = cls._parseGameDatasets(datasets=unparsed_elements)
         return GameDatasetCollectionSchema(name=name, game_datasets=_game_datasets, other_elements={})
 
     # *** PUBLIC STATICS ***
@@ -152,8 +149,10 @@ class GameDatasetCollectionSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseGameDatasets(datasets:Dict[str, Any]) -> Dict[str, DatasetSchema]:
+    def _parseGameDatasets(unparsed_elements:Map) -> Dict[str, DatasetSchema]:
         ret_val : Dict[str, DatasetSchema]
+
+        datasets = { key : DatasetSchema.FromDict(name=key, unparsed_elements=val) for key,val in unparsed_elements.items() }
         if isinstance(datasets, dict):
             ret_val = {
                 key : DatasetSchema.FromDict(key, dataset if isinstance(dataset, dict) else {})
