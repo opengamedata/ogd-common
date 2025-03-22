@@ -62,13 +62,13 @@ class GameStateSchema(Schema):
         return "\n\n".join(ret_val)
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "GameStateSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "GameStateSchema":
         _game_state  : Dict[str, DataElementSchema]
 
-        if not isinstance(all_elements, dict):
-            all_elements   = {}
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements   = {}
             Logger.Log(f"For {name} Event config, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _game_state = cls._parseGameStateElements(event_data=all_elements)
+        _game_state = cls._parseGameStateElements(unparsed_elements=unparsed_elements)
 
         _leftovers = {}
         return GameStateSchema(name=name, game_state=_game_state, other_elements=_leftovers)
@@ -86,13 +86,16 @@ class GameStateSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseGameStateElements(event_data):
+    def _parseGameStateElements(unparsed_elements:Map):
         ret_val : Dict[str, DataElementSchema]
-        if isinstance(event_data, dict):
-            ret_val = {name:DataElementSchema.FromDict(name=name, all_elements=elems) for name,elems in event_data.items()}
+        if isinstance(unparsed_elements, dict):
+            ret_val = {
+                name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
+                for name,elems in unparsed_elements.items()
+            }
         else:
             ret_val = {}
-            Logger.Log(f"event_data was unexpected type {type(event_data)}, defaulting to empty dict.", logging.WARN)
+            Logger.Log(f"unparsed_elements was unexpected type {type(unparsed_elements)}, defaulting to {ret_val}.", logging.WARN)
         return ret_val
 
     # *** PRIVATE METHODS ***
