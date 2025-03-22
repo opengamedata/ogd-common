@@ -143,7 +143,7 @@ class GameDatasetCollectionSchema(Schema):
             unparsed_elements = {}
             _msg = f"For {name} game dataset collection, all_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
-        _game_datasets = cls._parseGameDatasets(datasets=unparsed_elements)
+        _game_datasets = cls._parseGameDatasets(unparsed_elements=unparsed_elements)
         return GameDatasetCollectionSchema(name=name, game_datasets=_game_datasets, other_elements={})
 
     # *** PUBLIC STATICS ***
@@ -164,15 +164,11 @@ class GameDatasetCollectionSchema(Schema):
     def _parseGameDatasets(unparsed_elements:Map) -> Dict[str, DatasetSchema]:
         ret_val : Dict[str, DatasetSchema]
 
-        datasets = { key : DatasetSchema.FromDict(name=key, unparsed_elements=val) for key,val in unparsed_elements.items() }
-        if isinstance(datasets, dict):
-            ret_val = {
-                key : DatasetSchema.FromDict(key, dataset if isinstance(dataset, dict) else {})
-                for key,dataset in datasets.items()
-            }
-        else:
-            ret_val = {}
-            Logger.Log(f"Collection of datasets was unexpected type {type(datasets)}, defaulting to empty dictionary.", logging.WARN)
+        ret_val = {
+            key : DatasetSchema.FromDict(name=key, unparsed_elements=val)
+            for key,val in unparsed_elements.items()
+        }
+
         return ret_val
 
     # *** PRIVATE METHODS ***
