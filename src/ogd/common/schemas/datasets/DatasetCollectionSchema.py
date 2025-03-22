@@ -12,7 +12,7 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.utils.typing import Map
 
-class FileListConfigSchema(Schema):
+class DatasetCollectionConfig(Schema):
     """Simple Config-y class to track the base URLs/paths for a list of files and/or file templates.
 
     This is a separate class from DatasetCollectionSchema because this config exists as its own sub-element of a `file_list.json` file.
@@ -57,7 +57,7 @@ class FileListConfigSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "FileListConfigSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetCollectionConfig":
         _files_base     : Optional[str]
         _templates_base : Optional[str]
 
@@ -69,13 +69,13 @@ class FileListConfigSchema(Schema):
         _templates_base = cls._parseTemplatesBase(unparsed_elements=unparsed_elements)
         _used = {"files_base", "templates_base"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return FileListConfigSchema(name=name, file_base_path=_files_base, template_base_path=_templates_base, other_elements=_leftovers)
+        return DatasetCollectionConfig(name=name, file_base_path=_files_base, template_base_path=_templates_base, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def Default(cls) -> "FileListConfigSchema":
-        return FileListConfigSchema(
+    def Default(cls) -> "DatasetCollectionConfig":
+        return DatasetCollectionConfig(
             name="CONFIG NOT FOUND",
             file_base_path=cls._DEFAULT_FILE_BASE,
             template_base_path=cls._DEFAULT_TEMPLATE_BASE,
@@ -88,21 +88,21 @@ class FileListConfigSchema(Schema):
 
     @staticmethod
     def _parseFilesBase(unparsed_elements:Map) -> str:
-        return FileListConfigSchema.ParseElement(
+        return DatasetCollectionConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["files_base"],
             to_type=str,
-            default_value=FileListConfigSchema._DEFAULT_FILE_BASE,
+            default_value=DatasetCollectionConfig._DEFAULT_FILE_BASE,
             remove_target=True
         )
 
     @staticmethod
     def _parseTemplatesBase(unparsed_elements:Map) -> str:
-        return FileListConfigSchema.ParseElement(
+        return DatasetCollectionConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["templates_base"],
             to_type=str,
-            default_value=FileListConfigSchema._DEFAULT_TEMPLATE_BASE,
+            default_value=DatasetCollectionConfig._DEFAULT_TEMPLATE_BASE,
             remove_target=True
         )
 
@@ -188,9 +188,9 @@ class DatasetCollectionSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, game_file_lists:Dict[str, GameDatasetCollectionSchema], file_list_config:FileListConfigSchema, other_elements:Dict[str, Any]):
+    def __init__(self, name:str, game_file_lists:Dict[str, GameDatasetCollectionSchema], file_list_config:DatasetCollectionConfig, other_elements:Dict[str, Any]):
         self._games_file_lists : Dict[str, GameDatasetCollectionSchema] = game_file_lists
-        self._config           : FileListConfigSchema                   = file_list_config
+        self._config           : DatasetCollectionConfig                   = file_list_config
 
         super().__init__(name=name, other_elements={})
 
@@ -201,7 +201,7 @@ class DatasetCollectionSchema(Schema):
     def Games(self) -> Dict[str, GameDatasetCollectionSchema]:
         return self._games_file_lists
     @property
-    def Config(self) -> FileListConfigSchema:
+    def Config(self) -> DatasetCollectionConfig:
         return self._config
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -214,7 +214,7 @@ class DatasetCollectionSchema(Schema):
     @classmethod
     def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DatasetCollectionSchema":
         _games_file_lists : Dict[str, GameDatasetCollectionSchema]
-        _config           : FileListConfigSchema
+        _config           : DatasetCollectionConfig
 
         if not isinstance(all_elements, dict):
             all_elements = {}
@@ -222,7 +222,7 @@ class DatasetCollectionSchema(Schema):
         _config = DatasetSchema.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["CONFIG"],
             to_type=cls._parseConfig,
-            default_value=FileListConfigSchema.Default()
+            default_value=DatasetCollectionConfig.Default()
         )
     # 2. Parse games
         _used = {"CONFIG"}
@@ -235,7 +235,7 @@ class DatasetCollectionSchema(Schema):
         return DatasetCollectionSchema(
             name="DefaultDatasetCollectionSchema",
             game_file_lists=cls._DEFAULT_GAME_FILE_LISTS,
-            file_list_config=FileListConfigSchema.Default(),
+            file_list_config=DatasetCollectionConfig.Default(),
             other_elements={}
         )
 
@@ -246,12 +246,12 @@ class DatasetCollectionSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseConfig(config) -> FileListConfigSchema:
-        ret_val : FileListConfigSchema
+    def _parseConfig(config) -> DatasetCollectionConfig:
+        ret_val : DatasetCollectionConfig
         if isinstance(config, dict):
-            ret_val = FileListConfigSchema.FromDict(name="ConfigSchema", all_elements=config)
+            ret_val = DatasetCollectionConfig.FromDict(name="ConfigSchema", all_elements=config)
         else:
-            ret_val = FileListConfigSchema.Default()
+            ret_val = DatasetCollectionConfig.Default()
             Logger.Log(f"Config was unexpected type {type(config)}, defaulting to empty ConfigSchema.", logging.WARN)
         return ret_val
 
