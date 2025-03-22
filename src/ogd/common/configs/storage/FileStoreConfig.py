@@ -81,7 +81,7 @@ class FileStoreConfig(DataStoreConfig):
 
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
-            _msg = f"For {name} File source config, all_elements was not a dict, defaulting to empty dict"
+            _msg = f"For {name} File source config, unparsed_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
         _folder_path = cls._parseFolder(unparsed_elements=unparsed_elements)
         _file_name = cls._parseFilename(unparsed_elements=unparsed_elements)

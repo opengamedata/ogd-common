@@ -52,7 +52,7 @@ class SubfeatureConfig(Schema):
 
         if not isinstance(unparsed_elements, dict):
             _elements = {}
-            Logger.Log(f"For {name} subfeature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log(f"For {name} subfeature config, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
 
         _return_type = cls._parseReturnType(unparsed_elements=unparsed_elements)
         _description = cls._parseDescription(unparsed_elements=unparsed_elements)

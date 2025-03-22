@@ -68,7 +68,7 @@ class SSHConfig(Schema):
 
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
-            _msg = f"For {name} MySQL Source config, all_elements was not a dict, defaulting to empty dict"
+            _msg = f"For {name} MySQL Source config, unparsed_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
         _host = cls._parseHost(unparsed_elements=unparsed_elements)
         _port = cls._parsePort(unparsed_elements=unparsed_elements)
@@ -220,7 +220,7 @@ class MySQLConfig(DataStoreConfig):
 
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
-            _msg = f"For {name} MySQL Data Source config, all_elements was not a dict, defaulting to empty dict"
+            _msg = f"For {name} MySQL Data Source config, unparsed_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
         # Parse DB info
         _db_host = cls._parseDBHost(unparsed_elements=unparsed_elements)

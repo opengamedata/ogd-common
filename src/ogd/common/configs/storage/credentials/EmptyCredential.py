@@ -28,7 +28,7 @@ class EmptyCredential(Config):
     def FromDict(cls, name:str, unparsed_elements:Map)-> "EmptyCredential":
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
-            _msg = f"For {name} empty credential config, all_elements was not a dict, defaulting to empty dict"
+            _msg = f"For {name} empty credential config, unparsed_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
         return EmptyCredential(name=name, other_elements=unparsed_elements)
 

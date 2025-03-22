@@ -91,7 +91,7 @@ class BigQueryConfig(DataStoreConfig):
 
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
-            Logger.Log(f"For {name} BigQuery Source config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log(f"For {name} BigQuery Source config, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
         _project_id = cls._parseProjectID(unparsed_elements=unparsed_elements)
         _credential = cls._parseCredential(unparsed_elements=unparsed_elements)
 

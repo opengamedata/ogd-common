@@ -100,7 +100,7 @@ class DetectorMapConfig(Schema):
 
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
-            Logger.Log(f"For DetectorMap config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log(f"For DetectorMap config of `{name}`, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
         _perlevel_detectors  = cls._parsePerLevelDetectors(unparsed_elements=unparsed_elements)
         _percount_detectors  = cls._parsePerCountDetectors(unparsed_elements=unparsed_elements)
         _aggregate_detectors = cls._parseAggregateDetectors(unparsed_elements=unparsed_elements)

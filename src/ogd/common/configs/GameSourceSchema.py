@@ -133,7 +133,7 @@ class GameSourceSchema(Schema):
 
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
-            _msg = f"For {name} Game Source config, all_elements was not a dict, defaulting to empty dict"
+            _msg = f"For {name} Game Source config, unparsed_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
         _game_id = cls._parseGameID(unparsed_elements=unparsed_elements)
         _source_name = cls._parseSource(unparsed_elements=unparsed_elements)

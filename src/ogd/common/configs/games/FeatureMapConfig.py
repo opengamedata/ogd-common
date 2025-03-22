@@ -104,7 +104,7 @@ class FeatureMapConfig(Schema):
 
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
-            Logger.Log(f"For FeatureMap config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log(f"For FeatureMap config of `{name}`, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
         _legacy_mode = cls._parseLegacyMode(unparsed_elements=unparsed_elements)
         _legacy_perlevel_feats = cls._parsePerLevelFeatures(unparsed_elements=unparsed_elements)
         _percount_feats = cls._parsePerCountFeatures(unparsed_elements=unparsed_elements)

@@ -45,7 +45,7 @@ class PasswordCredential(CredentialConfig):
 
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
-            _msg = f"For {name} password credential config, all_elements was not a dict, defaulting to empty dict"
+            _msg = f"For {name} password credential config, unparsed_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
         _user = cls._parseUser(unparsed_elements=unparsed_elements)
         _pass = cls._parsePass(unparsed_elements=unparsed_elements)

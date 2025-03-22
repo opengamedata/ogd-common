@@ -265,7 +265,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
-            _msg = f"For {name} dataset schema, all_elements was not a dict, defaulting to empty dict"
+            _msg = f"For {name} dataset schema, unparsed_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
         _game_id = cls._parseGameID(name)
         _key = DatasetKey(key=name, game_id=_game_id)

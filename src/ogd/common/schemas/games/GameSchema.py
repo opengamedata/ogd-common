@@ -315,7 +315,7 @@ class GameSchema(Schema):
 
         if not isinstance(all_elements, dict):
             all_elements   = {}
-            Logger.Log(f"For {_game_id} GameSchema, all_elements was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log(f"For {_game_id} GameSchema, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
 
     # 2. set instance vars, starting with event data
 

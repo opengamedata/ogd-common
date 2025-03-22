@@ -59,7 +59,7 @@ class DatasetCollectionConfig(Schema):
 
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
-            _msg = f"For {name} indexing config, all_elements was not a dict, defaulting to empty dict"
+            _msg = f"For {name} indexing config, unparsed_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
         _files_base = cls._parseFilesBase(unparsed_elements=unparsed_elements)
         _templates_base = cls._parseTemplatesBase(unparsed_elements=unparsed_elements)
@@ -141,7 +141,7 @@ class GameDatasetCollectionSchema(Schema):
 
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
-            _msg = f"For {name} game dataset collection, all_elements was not a dict, defaulting to empty dict"
+            _msg = f"For {name} game dataset collection, unparsed_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
         _game_datasets = cls._parseGameDatasets(unparsed_elements=unparsed_elements)
         return GameDatasetCollectionSchema(name=name, game_datasets=_game_datasets, other_elements={})

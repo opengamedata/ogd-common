@@ -63,7 +63,7 @@ class PerCountConfig(FeatureConfig):
 
         if not isinstance(unparsed_elements, dict):
             unparsed_elements = {}
-            Logger.Log(f"For {name} Per-count Feature config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log(f"For {name} Per-count Feature config, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
         _count = cls._parseCount(unparsed_elements=unparsed_elements)
         _prefix = cls._parsePrefix(unparsed_elements=unparsed_elements)
 

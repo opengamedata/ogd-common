@@ -65,10 +65,10 @@ class DataElementSchema(Schema):
         if not isinstance(all_elements, dict):
             if isinstance(all_elements, str):
                 all_elements = { 'description' : all_elements }
-                Logger.Log(f"For EventDataElement config of `{name}`, all_elements was a str, probably in legacy format. Defaulting to all_elements = {'{'} description : {all_elements['description']} {'}'}", logging.WARN)
+                Logger.Log(f"For EventDataElement config of `{name}`, unparsed_elements was a str, probably in legacy format. Defaulting to all_elements = {'{'} description : {all_elements['description']} {'}'}", logging.WARN)
             else:
                 all_elements = {}
-                Logger.Log(f"For EventDataElement config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
+                Logger.Log(f"For EventDataElement config of `{name}`, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
         _type = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
             valid_keys=["type"],
             to_type=cls._parseElementType,

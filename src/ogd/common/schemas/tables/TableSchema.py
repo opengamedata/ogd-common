@@ -77,7 +77,7 @@ class TableSchema(Schema):
 
         if not isinstance(all_elements, dict):
             all_elements = {}
-            _msg = f"For {name} Table Schema, all_elements was not a dict, defaulting to empty dict"
+            _msg = f"For {name} Table Schema, unparsed_elements was not a dict, defaulting to empty dict"
             if logger:
                 logger.warning(_msg)
             else:
