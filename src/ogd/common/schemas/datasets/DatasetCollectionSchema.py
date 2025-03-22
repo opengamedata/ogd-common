@@ -12,15 +12,11 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.utils.typing import Map
 
+# Simple Config-y class to track the base URLs/paths for a list of files and/or file templates.
 class DatasetCollectionConfig(Schema):
     """Simple Config-y class to track the base URLs/paths for a list of files and/or file templates.
 
     This is a separate class from DatasetCollectionSchema because this config exists as its own sub-element of a `file_list.json` file.
-
-    :param Schema: _description_
-    :type Schema: _type_
-    :return: _description_
-    :rtype: _type_
     """
 
     # *** BUILT-INS & PROPERTIES ***
@@ -108,7 +104,14 @@ class DatasetCollectionConfig(Schema):
 
     # *** PRIVATE METHODS ***
 
+# Simple class to manage a mapping of dataset names to dataset schemas.
 class GameDatasetCollectionSchema(Schema):
+    """Simple class to manage a mapping of dataset names to dataset schemas.
+
+    This exists separately from `DatasetCollectionSchema` because there is,
+    in turn, a map of game IDs to these collections.
+    It's obviously more convenient code-wise not to have a dict of dicts of datasets directly in `DatasetCollectionSchema`.
+    """
     _DEFAULT_DATASETS = {}
 
     # *** BUILT-INS & PROPERTIES ***
