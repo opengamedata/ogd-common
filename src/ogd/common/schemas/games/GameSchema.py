@@ -554,7 +554,7 @@ class GameSchema(Schema):
     def _parseEventList(events_list:Dict[str, Any]) -> List[EventSchema]:
         ret_val : List[EventSchema]
         if isinstance(events_list, dict):
-            ret_val = [EventSchema.FromDict(name=key, all_elements=val) for key,val in events_list.items()]
+            ret_val = [EventSchema.FromDict(name=key, unparsed_elements=val) for key,val in events_list.items()]
         else:
             ret_val = []
             Logger.Log(f"events_list was unexpected type {type(events_list)}, defaulting to empty List.", logging.WARN)
