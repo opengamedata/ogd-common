@@ -1,11 +1,10 @@
 ## import standard libraries
 import logging
-from pathlib import Path
-from typing import Any, Dict, List, Tuple, Optional, TypeAlias
+from typing import Any, Dict, Optional
 ## import local files
 from ogd.common.schemas.tables.locations.TableLocationSchema import TableLocationSchema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map, conversions
+from ogd.common.utils.typing import Map
 
 ## @class TableStructureSchema
 class DatabaseTableLocationSchema(TableLocationSchema):
