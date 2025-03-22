@@ -15,7 +15,7 @@ from ogd.common.utils.typing import Map
 class FileListConfigSchema(Schema):
     """Simple Config-y class to track the base URLs/paths for a list of files and/or file templates.
 
-    This is a separate class from FileListSchema because this config exists as its own sub-element of a `file_list.json` file.
+    This is a separate class from DatasetCollectionSchema because this config exists as its own sub-element of a `file_list.json` file.
 
     :param Schema: _description_
     :type Schema: _type_
@@ -174,7 +174,7 @@ class GameDatasetCollectionSchema(Schema):
 
     # *** PRIVATE METHODS ***
 
-class FileListSchema(Schema):
+class DatasetCollectionSchema(Schema):
     """_summary_
 
     TODO : The way this is structured and parsed from a dict is weird, need to see if there's a better way.
@@ -212,7 +212,7 @@ class FileListSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileListSchema":
+    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "DatasetCollectionSchema":
         _games_file_lists : Dict[str, GameDatasetCollectionSchema]
         _config           : FileListConfigSchema
 
@@ -228,12 +228,12 @@ class FileListSchema(Schema):
         _used = {"CONFIG"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         _games_file_lists = cls._parseGamesFileLists(games_dict=_leftovers)
-        return FileListSchema(name=name, game_file_lists=_games_file_lists, file_list_config=_config, other_elements={})
+        return DatasetCollectionSchema(name=name, game_file_lists=_games_file_lists, file_list_config=_config, other_elements={})
 
     @classmethod
-    def Default(cls) -> "FileListSchema":
-        return FileListSchema(
-            name="DefaultFileListSchema",
+    def Default(cls) -> "DatasetCollectionSchema":
+        return DatasetCollectionSchema(
+            name="DefaultDatasetCollectionSchema",
             game_file_lists=cls._DEFAULT_GAME_FILE_LISTS,
             file_list_config=FileListConfigSchema.Default(),
             other_elements={}
