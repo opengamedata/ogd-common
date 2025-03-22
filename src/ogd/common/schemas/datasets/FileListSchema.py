@@ -16,8 +16,8 @@ class FileListConfigSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    DEFAULT_FILE_BASE = "https://fieldday-web.ad.education.wisc.edu/opengamedata/"
-    DEFAULT_TEMPLATE_BASE = "https://github.com/opengamedata/opengamedata-samples"
+    _DEFAULT_FILE_BASE = "https://fieldday-web.ad.education.wisc.edu/opengamedata/"
+    _DEFAULT_TEMPLATE_BASE = "https://github.com/opengamedata/opengamedata-samples"
 
     def __init__(self, name:str, file_base_path:Optional[str | Path], template_base_path:Optional[str | Path], other_elements:Optional[Map]=None):
         self._files_base     : Optional[str | Path] = file_base_path
@@ -48,29 +48,18 @@ class FileListConfigSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "FileListConfigSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "FileListConfigSchema":
         _files_base     : Optional[str]
         _templates_base : Optional[str]
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements = {}
             _msg = f"For {name} indexing config, all_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
-        _files_base = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["files_base"],
-            to_type=cls._parseFilesBase,
-            default_value=FileListConfigSchema.DEFAULT_FILE_BASE
-        )
-        _templates_base = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["templates_base"],
-            to_type=cls._parseTemplatesBase,
-            default_value=FileListConfigSchema.DEFAULT_TEMPLATE_BASE
-        )
+            Logger.Log(_msg, logging.WARN)
+        _files_base = cls._parseFilesBase(unparsed_elements=unparsed_elements)
+        _templates_base = cls._parseTemplatesBase(unparsed_elements=unparsed_elements)
         _used = {"files_base", "templates_base"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
         return FileListConfigSchema(name=name, file_base_path=_files_base, template_base_path=_templates_base, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
@@ -79,8 +68,8 @@ class FileListConfigSchema(Schema):
     def Default(cls) -> "FileListConfigSchema":
         return FileListConfigSchema(
             name="CONFIG NOT FOUND",
-            file_base_path=cls.DEFAULT_FILE_BASE,
-            template_base_path=cls.DEFAULT_TEMPLATE_BASE,
+            file_base_path=cls._DEFAULT_FILE_BASE,
+            template_base_path=cls._DEFAULT_TEMPLATE_BASE,
             other_elements={}
         )
 
@@ -89,24 +78,24 @@ class FileListConfigSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseFilesBase(files_base) -> str:
-        ret_val : str
-        if isinstance(files_base, str):
-            ret_val = files_base
-        else:
-            ret_val = str(files_base)
-            Logger.Log(f"Filepath base was unexpected type {type(files_base)}, defaulting to str(files_name)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseFilesBase(unparsed_elements:Map) -> str:
+        return FileListConfigSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["files_base"],
+            to_type=str,
+            default_value=FileListConfigSchema._DEFAULT_FILE_BASE,
+            remove_target=True
+        )
 
     @staticmethod
-    def _parseTemplatesBase(templates_base) -> str:
-        ret_val : str
-        if isinstance(templates_base, str):
-            ret_val = templates_base
-        else:
-            ret_val = str(templates_base)
-            Logger.Log(f"Templates base was unexpected type {type(templates_base)}, defaulting to str(templates_name)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseTemplatesBase(unparsed_elements:Map) -> str:
+        return FileListConfigSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["templates_base"],
+            to_type=str,
+            default_value=FileListConfigSchema._DEFAULT_TEMPLATE_BASE,
+            remove_target=True
+        )
 
     # *** PRIVATE METHODS ***
 
