@@ -13,6 +13,15 @@ from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.utils.typing import Map
 
 class FileListConfigSchema(Schema):
+    """Simple Config-y class to track the base URLs/paths for a list of files and/or file templates.
+
+    This is a separate class from FileListSchema because this config exists as its own sub-element of a `file_list.json` file.
+
+    :param Schema: _description_
+    :type Schema: _type_
+    :return: _description_
+    :rtype: _type_
+    """
 
     # *** BUILT-INS & PROPERTIES ***
 
