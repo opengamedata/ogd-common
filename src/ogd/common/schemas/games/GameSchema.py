@@ -295,7 +295,7 @@ class GameSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "GameSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "GameSchema":
     # 1. define local vars
         _game_id                : str                                  = name
         _enum_defs              : Dict[str, List[str]]
@@ -313,55 +313,32 @@ class GameSchema(Schema):
         _other_ranges           : Dict[str, range]
         _supported_vers         : Optional[List[int]]
 
-        if not isinstance(all_elements, dict):
-            all_elements   = {}
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements   = {}
             Logger.Log(f"For {_game_id} GameSchema, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
 
     # 2. set instance vars, starting with event data
 
-        _enum_defs = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["enums"],
-            to_type=cls._parseEnumDefs,
-            default_value=cls._DEFAULT_ENUMS
-        )
-        _game_state = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["game_state"],
-            to_type=cls._parseGameState,
-            default_value=cls._DEFAULT_GAME_STATE
-        )
-        _user_data = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["user_data"],
-            to_type=cls._parseUserData,
-            default_value=cls._DEFAULT_USER_DATA
-        )
-        _event_list = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["events"],
-            to_type=cls._parseEventList,
-            default_value=cls._DEFAULT_EVENT_LIST
-        )
+        _enum_defs = cls._parseEnumDefs(unparsed_elements=unparsed_elements)
+        _game_state = cls._parseGameState(unparsed_elements=unparsed_elements)
+        _user_data = cls._parseUserData(unparsed_elements=unparsed_elements)
+
+        _event_list = cls._parseEventList(unparsed_elements=unparsed_elements)
 
     # 3. Get detector information
-        _detector_map = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["detectors"],
-            to_type=cls._parseDetectorMap,
-            default_value=cls._DEFAULT_DETECTOR_MAP
-        )
-        _detector_map = _detector_map.AsDict # TODO : investigate weird Dict[str, Dict[str, DetectorConfig]] type inference
+        # TODO : investigate weird Dict[str, Dict[str, DetectorConfig]] type inference
+        _detector_map = cls._parseDetectorMap(unparsed_elements=unparsed_elements).AsDict
 
     # 4. Get feature information
-        _feat_map = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["features"],
-            to_type=cls._parseFeatureMap,
-            default_value={}
-        )
+        _feat_map = cls._parseFeatureMap(unparsed_elements=unparsed_elements)
         _aggregate_feats.update(_feat_map.AggregateFeatures)
         _percount_feats.update(_feat_map.PerCountFeatures)
         _legacy_perlevel_feats.update(_feat_map.LegacyPerLevelFeatures)
         _legacy_mode = _feat_map.LegacyMode
 
     # 5. Get config, if any
-        if "config" in all_elements.keys():
-            _config = all_elements['config']
+        if "config" in unparsed_elements.keys():
+            _config = unparsed_elements['config']
         else:
             Logger.Log(f"{_game_id} game schema does not define any config items.", logging.INFO)
         if "SUPPORTED_VERS" in _config:
@@ -371,16 +348,13 @@ class GameSchema(Schema):
             Logger.Log(f"{_game_id} game schema does not define supported versions, defaulting to support all versions.", logging.INFO)
 
     # 6. Get level range and other ranges, if any
-        if "level_range" in all_elements.keys():
-            _min_level, _max_level = cls._parseLevelRange(all_elements['level_range'])
-        else:
-            Logger.Log(f"{_game_id} game schema does not define a level range.", logging.INFO)
+        _min_level, _max_level = cls._parseLevelRange(unparsed_elements=unparsed_elements)
 
-        _other_ranges = {key : range(val.get('min', 0), val.get('max', 1)) for key,val in all_elements.items() if key.endswith("_range")}
+        _other_ranges = {key : range(val.get('min', 0), val.get('max', 1)) for key,val in unparsed_elements.items() if key.endswith("_range")}
 
     # 7. Collect any other, unexpected elements
         _used = {'enums', 'game_state', 'user_data', 'events', 'detectors', 'features', 'level_range', 'config'}.union(_other_ranges.keys())
-        _leftovers = { key:val for key,val in all_elements.items() if key not in _used }
+        _leftovers = { key:val for key,val in unparsed_elements.items() if key not in _used }
         return GameSchema(name=name, game_id=_game_id, enum_defs=_enum_defs,
                           game_state=_game_state, user_data=_user_data,
                           event_list=_event_list, detector_map=_detector_map,
@@ -521,73 +495,133 @@ class GameSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseEnumDefs(enums_list:Dict[str, Any]) -> Dict[str, List[str]]:
+    def _parseEnumDefs(unparsed_elements:Map) -> Dict[str, List[str]]:
+        """_summary_
+
+        TODO : Fully parse this, rather than just getting dictionary.
+
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Map
+        :return: _description_
+        :rtype: Dict[str, List[str]]
+        """
         ret_val : Dict[str, List[str]]
+
+        enums_list = GameSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["enums"],
+            to_type=Dict,
+            default_value=GameSchema._DEFAULT_ENUMS,
+            remove_target=True
+        )
         if isinstance(enums_list, dict):
             ret_val = enums_list
         else:
-            ret_val = {}
-            Logger.Log(f"enums_list was unexpected type {type(enums_list)}, defaulting to empty Dict.", logging.WARN)
+            ret_val = GameSchema._DEFAULT_ENUMS
+            Logger.Log(f"enums_list was unexpected type {type(enums_list)}, defaulting to {ret_val}.", logging.WARN)
         return ret_val
 
     @staticmethod
-    def _parseGameState(game_state:Dict[str, Any]) -> Dict[str, DataElementSchema]:
+    def _parseGameState(unparsed_elements:Map) -> Dict[str, DataElementSchema]:
         ret_val : Dict[str, DataElementSchema]
-        if isinstance(game_state, dict):
-            ret_val = {name:DataElementSchema.FromDict(name=name, all_elements=elems) for name,elems in game_state.items()}
-        else:
-            ret_val = {}
-            Logger.Log(f"game_state was unexpected type {type(game_state)}, defaulting to empty dict.", logging.WARN)
+
+        game_state = GameSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["game_state"],
+            to_type=Dict,
+            default_value=GameSchema._DEFAULT_GAME_STATE,
+            remove_target=True
+        )
+        ret_val = {
+            name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
+            for name,elems in game_state.items()
+        }
+
         return ret_val
 
     @staticmethod
-    def _parseUserData(user_data:Dict[str, Any]) -> Dict[str, DataElementSchema]:
+    def _parseUserData(unparsed_elements:Map) -> Dict[str, DataElementSchema]:
         ret_val : Dict[str, DataElementSchema]
-        if isinstance(user_data, dict):
-            ret_val = {name:DataElementSchema.FromDict(name=name, all_elements=elems) for name,elems in user_data.items()}
-        else:
-            ret_val = {}
-            Logger.Log(f"user_data was unexpected type {type(user_data)}, defaulting to empty dict.", logging.WARN)
+
+        user_data = GameSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["user_data"],
+            to_type=Dict,
+            default_value=GameSchema._DEFAULT_USER_DATA,
+            remove_target=True
+        )
+        ret_val = {
+            name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
+            for name,elems in user_data.items()
+        }
+
         return ret_val
 
     @staticmethod
-    def _parseEventList(events_list:Dict[str, Any]) -> List[EventSchema]:
+    def _parseEventList(unparsed_elements:Map) -> List[EventSchema]:
         ret_val : List[EventSchema]
-        if isinstance(events_list, dict):
-            ret_val = [EventSchema.FromDict(name=key, unparsed_elements=val) for key,val in events_list.items()]
-        else:
-            ret_val = []
-            Logger.Log(f"events_list was unexpected type {type(events_list)}, defaulting to empty List.", logging.WARN)
+
+        events_list = GameSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["events"],
+            to_type=Dict,
+            default_value=GameSchema._DEFAULT_EVENT_LIST,
+            remove_target=True
+        )
+        ret_val = [
+            EventSchema.FromDict(name=key, unparsed_elements=val) for key,val in events_list.items()
+        ]
+
         return ret_val
 
     @staticmethod
-    def _parseDetectorMap(detector_map:Dict[str, Any]) -> DetectorMapConfig:
+    def _parseDetectorMap(unparsed_elements:Map) -> DetectorMapConfig:
         ret_val : DetectorMapConfig
-        if isinstance(detector_map, dict):
-            ret_val = DetectorMapConfig.FromDict(name=f"Detectors", unparsed_elements=detector_map)
-        else:
-            ret_val = DetectorMapConfig.FromDict(name="Empty Features", unparsed_elements={})
-            Logger.Log(f"detector_map was unexpected type {type(detector_map)}, defaulting to empty map.", logging.WARN)
+
+        detector_map = GameSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["detectors"],
+            to_type=Dict,
+            default_value=GameSchema._DEFAULT_DETECTOR_MAP,
+            remove_target=True
+        )
+        ret_val = DetectorMapConfig.FromDict(name=f"Detectors", unparsed_elements=detector_map)
+
         return ret_val
 
     @staticmethod
-    def _parseFeatureMap(feature_map:Dict[str, Any]) -> FeatureMapConfig:
+    def _parseFeatureMap(unparsed_elements:Map) -> FeatureMapConfig:
         ret_val : FeatureMapConfig
-        if isinstance(feature_map, dict):
-            ret_val = FeatureMapConfig.FromDict(name=f"Features", unparsed_elements=feature_map)
-        else:
-            ret_val = FeatureMapConfig.FromDict(name="Empty Features", unparsed_elements={})
-            Logger.Log(f"feature_map was unexpected type {type(feature_map)}, defaulting to empty map.", logging.WARN)
+
+        feature_map = GameSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["features"],
+            to_type=Dict,
+            default_value=GameSchema._DEFAULT_FEATURE_MAP,
+            remove_target=True
+        )
+        ret_val = FeatureMapConfig.FromDict(name=f"Features", unparsed_elements=feature_map)
         return ret_val
 
     @staticmethod
-    def _parseLevelRange(level_range:Dict[str, int]) -> Tuple[Optional[int], Optional[int]]:
+    def _parseLevelRange(unparsed_elements:Map) -> Tuple[Optional[int], Optional[int]]:
         ret_val : Tuple[Optional[int], Optional[int]]
+
+        level_range = GameSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["level_range"],
+            to_type=Dict,
+            default_value=None,
+            remove_target=True
+        )
+
         if isinstance(level_range, dict):
             ret_val = (level_range.get("min", None), level_range.get("max", None))
+        elif level_range == None:
+            ret_val = (GameSchema._DEFAULT_MIN_LEVEL, GameSchema._DEFAULT_MAX_LEVEL)
         else:
-            ret_val = (None, None)
-            Logger.Log(f"level_range was unexpected type {type(level_range)}, defaulting to no specified range.", logging.WARN)
+            ret_val = (GameSchema._DEFAULT_MIN_LEVEL, GameSchema._DEFAULT_MAX_LEVEL)
+            Logger.Log(f"level_range was unexpected type {type(level_range)}, defaulting to {ret_val}.", logging.WARN)
         return ret_val
 
     # *** PRIVATE METHODS ***

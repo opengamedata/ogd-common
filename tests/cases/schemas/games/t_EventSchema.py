@@ -81,7 +81,7 @@ class t_EventSchema(TestCase):
                },
                "description" : "The buildings available for the player to construct"
         }
-        _schema = EventSchema.FromDict(name="available_buildings Schema", all_elements=_dict, logger=None)
+        _schema = EventSchema.FromDict(name="available_buildings Schema", unparsed_elements=_dict, logger=None)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "available_buildings Schema")
 

@@ -80,7 +80,7 @@ class t_GameStateSchema(TestCase):
                },
                "description" : "The buildings available for the player to construct"
         }
-        _schema = GameStateSchema.FromDict(name="available_buildings Schema", all_elements=_dict, logger=None)
+        _schema = GameStateSchema.FromDict(name="available_buildings Schema", unparsed_elements=_dict, logger=None)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "available_buildings Schema")
 
