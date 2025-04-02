@@ -34,11 +34,17 @@ class GameSchema(Schema):
     _DEFAULT_PERCOUNTS = {}
     _DEFAULT_LEGACY_PERCOUNTS = {}
     _DEFAULT_LEGACY_MODE = False
+    _DEFAULT_FEATURE_MAP = FeatureMapConfig(name="DefaultFeatureMap", legacy_mode=_DEFAULT_LEGACY_MODE, legacy_perlevel_feats=_DEFAULT_LEGACY_PERCOUNTS,
+                                            percount_feats=_DEFAULT_PERCOUNTS, aggregate_feats=_DEFAULT_AGGREGATES, other_elements={})
     _DEFAULT_CONFIG = {}
     _DEFAULT_MIN_LEVEL = None
     _DEFAULT_MAX_LEVEL = None
     _DEFAULT_OTHER_RANGES = {}
     _DEFAULT_VERSIONS = None
+    _DEFAULT_GAME_FOLDER = Path("./") / "ogd" / "games"
+    @property
+    def _DEFAULT_LEGACY_CONFIG(self) -> AggregateConfig:
+        return AggregateConfig.FromDict("legacy", {"type":"legacy", "return_type":None, "description":"", "enabled":True})
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -296,6 +302,23 @@ class GameSchema(Schema):
 
     @classmethod
     def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "GameSchema":
+        """_summary_
+
+        TODO : Need to have parse functions for all the variables, currently only have about half of them.
+        In particular, we have all features theoretically under one parsed 'map' below, which is weird,
+        since we clearly have vars for each kind of feature separately here.
+
+        :param name: _description_
+        :type name: str
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Dict[str, Any]
+        :param logger: _description_, defaults to None
+        :type logger: Optional[logging.Logger], optional
+        :raises ValueError: _description_
+        :raises ValueError: _description_
+        :return: _description_
+        :rtype: GameSchema
+        """
     # 1. define local vars
         _game_id                : str                                  = name
         _enum_defs              : Dict[str, List[str]]
@@ -390,9 +413,14 @@ class GameSchema(Schema):
 
     @classmethod
     def FromFile(cls, game_id:str, schema_path:Optional[Path] = None, search_templates:bool=True) -> "GameSchema":
+        ret_val : Schema
         # Give schema_path a default, don't think we can use game_id to construct it directly in the function header (so do it here if None)
-        schema_path = schema_path or Path("./") / "ogd" / "games" / game_id / "schemas"
-        return cls._fromFile(schema_name=game_id, schema_path=schema_path, search_templates=search_templates)
+        schema_path = schema_path or cls._DEFAULT_GAME_FOLDER / game_id / "schemas"
+        ret_val = cls._fromFile(schema_name=game_id, schema_path=schema_path, search_templates=search_templates)
+        if isinstance(ret_val, GameSchema):
+            return ret_val
+        else:
+            raise ValueError(f"The result of the class _fromFile function was not a GameSchema!")
 
     # *** PUBLIC METHODS ***
 
@@ -483,7 +511,7 @@ class GameSchema(Schema):
 
     def EnabledFeatures(self, iter_modes:Set[IterationMode]={IterationMode.AGGREGATE, IterationMode.PERCOUNT}, extract_modes:Set[ExtractionMode]=set()) -> Dict[str, FeatureConfig]:
         if self._legacy_mode:
-            return {"legacy" : AggregateConfig("legacy", {"type":"legacy", "return_type":None, "description":"", "enabled":True})} if IterationMode.AGGREGATE in iter_modes else {}
+            return {"legacy" : self._DEFAULT_LEGACY_CONFIG} if IterationMode.AGGREGATE in iter_modes else {}
         ret_val : Dict[str, FeatureConfig] = {}
 
         if IterationMode.AGGREGATE in iter_modes:
