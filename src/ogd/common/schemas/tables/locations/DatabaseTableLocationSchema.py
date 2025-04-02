@@ -46,7 +46,7 @@ class DatabaseTableLocationSchema(TableLocationSchema):
         )
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "DatabaseTableLocationSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatabaseTableLocationSchema":
         """Create a TableLocationSchema from a given dictionary
 
         :param name: _description_
@@ -62,24 +62,11 @@ class DatabaseTableLocationSchema(TableLocationSchema):
         """
         _table_name    : str
 
-        if not isinstance(all_elements, dict):
+        if not isinstance(unparsed_elements, dict):
             all_elements = {}
-            _msg = f"For {name} Table Location schema, unparsed_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
-        _table_name = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["table"],
-            to_type=cls._parseTableName,
-            default_value=DatabaseTableLocationSchema._DEFAULT_TABLE_NAME
-        )
-        _db_name = cls.ParseElement(unparsed_elements=all_elements, logger=logger,
-            valid_keys=["database"],
-            to_type=cls._parseDatabaseName,
-            default_value=DatabaseTableLocationSchema._DEFAULT_DB_NAME
-        )
-
+            Logger.Log(f"For {name} Table Location schema, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
+        _table_name = cls._parseTableName(unparsed_elements=unparsed_elements)
+        _db_name = cls._parseDatabaseName(unparsed_elements=unparsed_elements)
         _used = {"table", "database"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
         return DatabaseTableLocationSchema(name=name, table_name=_table_name, database_name=_db_name, other_elements=_leftovers)
@@ -91,21 +78,21 @@ class DatabaseTableLocationSchema(TableLocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseTableName(table) -> str:
-        ret_val : str
-        if isinstance(table, str):
-            ret_val = table
-        else:
-            ret_val = str(table)
-            Logger.Log(f"Game Source table name was unexpected type {type(table)}, defaulting to str(table)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseTableName(unparsed_elements:Map) -> str:
+        return DatabaseTableLocationSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["table"],
+            to_type=str,
+            default_value=DatabaseTableLocationSchema._DEFAULT_TABLE_NAME,
+            remove_target=True
+        )
 
     @staticmethod
-    def _parseDatabaseName(table) -> str:
-        ret_val : str
-        if isinstance(table, str):
-            ret_val = table
-        else:
-            ret_val = str(table)
-            Logger.Log(f"Game Source table name was unexpected type {type(table)}, defaulting to str(table)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseDatabaseName(unparsed_elements:Map) -> str:
+        return DatabaseTableLocationSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["database"],
+            to_type=str,
+            default_value=DatabaseTableLocationSchema._DEFAULT_DB_NAME,
+            remove_target=True
+        )
