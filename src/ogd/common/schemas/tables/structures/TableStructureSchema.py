@@ -156,7 +156,7 @@ class TableStructureSchema(Schema):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableStructureSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "TableStructureSchema":
         """Function to generate a TableStructureSchema from a dictionary.
 
         The structure is assumed to be as follows:
@@ -181,23 +181,26 @@ class TableStructureSchema(Schema):
         """
         _column_schemas : List[ColumnSchema]
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements = {}
             _msg = f"For {name} Table Schema, unparsed_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
-        _column_json_list = all_elements.get('columns', [])
-        _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), all_elements=column) for column in _column_json_list]
-        return cls._fromDict(name=name, raw_map=all_elements.get('column_map', {}), column_schemas=_column_schemas)
+            Logger.Log(_msg, logging.WARN)
+        _column_json_list = unparsed_elements.get('columns', [])
+        _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), unparsed_elements=column) for column in _column_json_list]
+        return cls._fromDict(name=name, raw_map=unparsed_elements.get('column_map', {}), column_schemas=_column_schemas)
 
     # *** PUBLIC STATICS ***
 
     @classmethod
     def FromFile(cls, schema_name:str, schema_path:Optional[str | Path]) -> "TableStructureSchema":
+        ret_val : Schema
+
         schema_path = schema_path or Path(schemas.__file__).parent / "table_schemas"
-        return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
+        ret_val = cls._fromFile(schema_name=schema_name, schema_path=Path(schema_path))
+        if isinstance(ret_val, TableStructureSchema):
+            return ret_val
+        else:
+            raise ValueError(f"TableStructureSchema's call to _fromFile yielded a Schema of different type!")
 
     # *** PUBLIC METHODS ***
 
@@ -228,35 +231,6 @@ class TableStructureSchema(Schema):
             else:
                 event_column_list.append(f"**{event_element}** = null  ")
         ret_val = "\n".join(event_column_list)
-        return ret_val
-    
-    @staticmethod
-    def _parseElement(elem:Any, name:str) -> Optional[ColumnMapElement]:
-        """_summary_
-
-        TODO : Pick a better name
-
-        :param elem: _description_
-        :type elem: Any
-        :param name: _description_
-        :type name: str
-        :return: _description_
-        :rtype: Optional[ColumnMapElement]
-        """
-        ret_val : Optional[str | List[str] | Dict[str, str]]
-        if elem is not None:
-            if isinstance(elem, str):
-                ret_val = elem
-            elif isinstance(elem, list):
-                ret_val = elem
-            elif isinstance(elem, dict):
-                ret_val = elem
-            else:
-                ret_val = str(elem)
-                Logger.Log(f"Column name(s) mapped to {name} was not a string or list, defaulting to str(name) == {ret_val} being mapped to {name}", logging.WARN)
-        else:
-            ret_val = None
-            Logger.Log(f"Column name mapped to {name} was left null, nothing will be mapped to {name}", logging.WARN)
         return ret_val
 
     def _getValueFromRow(self, row:Tuple, indices:Optional[int | List[int] | Dict[str, int]], concatenator:str, fallback:Any) -> Any:

@@ -87,9 +87,9 @@ class TableSchema(Schema):
         _location_elems  : Dict[str, Any] = all_elements.get('location', {})
         match _table_type_str.upper():
             case "EVENT":
-                _structure = EventTableStructureSchema.FromDict(name=f"{name}EventStructure", all_elements=_structure_elems, logger=logger)
+                _structure = EventTableStructureSchema.FromDict(name=f"{name}EventStructure", unparsed_elements=_structure_elems, logger=logger)
             case "FEATURE":
-                _structure = FeatureTableStructureSchema.FromDict(name=f"{name}EventStructure", all_elements=_structure_elems, logger=logger)
+                _structure = FeatureTableStructureSchema.FromDict(name=f"{name}EventStructure", unparsed_elements=_structure_elems, logger=logger)
         _location = TableLocationSchema.FromDict(name=f"{name}Location", all_elements=_location_elems, logger=logger)
 
         _used = {"table_type", "structure", "location"}
