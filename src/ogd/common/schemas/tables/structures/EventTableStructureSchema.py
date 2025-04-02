@@ -196,7 +196,7 @@ class EventTableStructureSchema(TableStructureSchema):
             # if the item was found in the given "column_map" dictionary...
             if key in raw_map:
                 # parse what was mapped to the item. Could get back a string, or a list, or a dict...
-                element = cls._parseElement(elem=map[key], name=key)
+                element = cls._retrieveElement(elem=map[key], name=key)
                 # then if we got a string, we just find it in list of column names
                 if isinstance(element, str):
                     _column_map[key] = column_names.index(element)

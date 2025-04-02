@@ -232,6 +232,33 @@ class TableStructureSchema(Schema):
                 event_column_list.append(f"**{event_element}** = null  ")
         ret_val = "\n".join(event_column_list)
         return ret_val
+    
+    @staticmethod
+    def _parseElement(elem:Any, name:str) -> Optional[ColumnMapElement]:
+        """_summary_
+
+        :param elem: _description_
+        :type elem: Any
+        :param name: _description_
+        :type name: str
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
+        ret_val : Optional[str | List[str] | Dict[str, str]]
+        if elem is not None:
+            if isinstance(elem, str):
+                ret_val = elem
+            elif isinstance(elem, list):
+                ret_val = elem
+            elif isinstance(elem, dict):
+                ret_val = elem
+            else:
+                ret_val = str(elem)
+                Logger.Log(f"Column name(s) mapped to {name} was not a string or list, defaulting to str(name) == {ret_val} being mapped to {name}", logging.WARN)
+        else:
+            ret_val = None
+            Logger.Log(f"Column name mapped to {name} was left null, nothing will be mapped to {name}", logging.WARN)
+        return ret_val
 
     def _getValueFromRow(self, row:Tuple, indices:Optional[int | List[int] | Dict[str, int]], concatenator:str, fallback:Any) -> Any:
         ret_val : Any
