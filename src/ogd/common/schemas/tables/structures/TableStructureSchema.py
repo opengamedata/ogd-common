@@ -234,7 +234,7 @@ class TableStructureSchema(Schema):
         return ret_val
     
     @staticmethod
-    def _parseElement(elem:Any, name:str) -> Optional[ColumnMapElement]:
+    def _retrieveElement(elem:Any, name:str) -> Optional[ColumnMapElement]:
         """_summary_
 
         :param elem: _description_
