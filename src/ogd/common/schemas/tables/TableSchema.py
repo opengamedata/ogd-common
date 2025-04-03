@@ -24,6 +24,7 @@ class TableSchema(Schema):
     _DEFAULT_COLUMNS = []
     _DEFAULT_TABLE_TYPE = "EVENT"
     _DEFAULT_STRUCTURE = {}
+    _DEFAULT_LOCATION = {}
 
     def __init__(self, name, structure:TableStructureSchema, location:TableLocationSchema, other_elements:Optional[Map]):
         """Constructor for the TableStructureSchema class.
@@ -141,7 +142,7 @@ class TableSchema(Schema):
             unparsed_elements=unparsed_elements,
             valid_keys=["location"],
             to_type=Dict,
-            default_value=TableSchema._DEFAULT_TABLE_TYPE,
+            default_value=TableSchema._DEFAULT_LOCATION,
             remove_target=True
         )
         ret_val = TableLocationSchema.FromDict(name=f"{name}Location", unparsed_elements=_location)
