@@ -21,7 +21,6 @@ class TableSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    _DEFAULT_COLUMNS = []
     _DEFAULT_TABLE_TYPE = "EVENT"
     _DEFAULT_STRUCTURE = {}
     _DEFAULT_LOCATION = {}
