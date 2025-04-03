@@ -22,6 +22,8 @@ class TableSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     _DEFAULT_COLUMNS = []
+    _DEFAULT_TABLE_TYPE = "EVENT"
+    _DEFAULT_STRUCTURE = {}
 
     def __init__(self, name, structure:TableStructureSchema, location:TableLocationSchema, other_elements:Optional[Map]):
         """Constructor for the TableStructureSchema class.
@@ -72,28 +74,19 @@ class TableSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "TableSchema":
         _structure : TableStructureSchema
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements = {}
             _msg = f"For {name} Table Schema, unparsed_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
-        _table_type_str  : str            = str(all_elements.get('table_type'))
-        _structure_elems : Dict[str, Any] = all_elements.get('structure', {})
-        _location_elems  : Dict[str, Any] = all_elements.get('location', {})
-        match _table_type_str.upper():
-            case "EVENT":
-                _structure = EventTableStructureSchema.FromDict(name=f"{name}EventStructure", unparsed_elements=_structure_elems, logger=logger)
-            case "FEATURE":
-                _structure = FeatureTableStructureSchema.FromDict(name=f"{name}EventStructure", unparsed_elements=_structure_elems, logger=logger)
-        _location = TableLocationSchema.FromDict(name=f"{name}Location", all_elements=_location_elems, logger=logger)
+            Logger.Log(_msg, logging.WARN)
+        _table_type_str  = cls._parseTableType(unparsed_elements=unparsed_elements)
+        _structure       = cls._parseStructure(name=name, table_type=_table_type_str, unparsed_elements=unparsed_elements)
+        _location        = cls._parseLocation(name=name, unparsed_elements=unparsed_elements)
 
         _used = {"table_type", "structure", "location"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
         return TableSchema(name=name, structure=_structure, location=_location, other_elements=_leftovers)
 
     @classmethod
@@ -110,6 +103,50 @@ class TableSchema(Schema):
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
+
+    @staticmethod
+    def _parseTableType(unparsed_elements:Map) -> str:
+        return TableSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["table_type"],
+            to_type=str,
+            default_value=TableSchema._DEFAULT_TABLE_TYPE,
+            remove_target=True
+        )
+
+    @staticmethod
+    def _parseStructure(name:str, table_type:str, unparsed_elements:Map) -> TableStructureSchema:
+        ret_val : TableStructureSchema
+
+        _structure = TableSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["structure"],
+            to_type=Dict,
+            default_value=TableSchema._DEFAULT_STRUCTURE,
+            remove_target=True
+        )
+        match table_type.upper():
+            case "EVENT":
+                ret_val = EventTableStructureSchema.FromDict(name=f"{name}EventStructure", unparsed_elements=_structure)
+            case "FEATURE":
+                ret_val = FeatureTableStructureSchema.FromDict(name=f"{name}EventStructure", unparsed_elements=_structure)
+        
+        return ret_val
+
+    @staticmethod
+    def _parseLocation(name:str, unparsed_elements:Map) -> TableLocationSchema:
+        ret_val : TableLocationSchema
+
+        _location = TableSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["location"],
+            to_type=Dict,
+            default_value=TableSchema._DEFAULT_TABLE_TYPE,
+            remove_target=True
+        )
+        ret_val = TableLocationSchema.FromDict(name=f"{name}Location", unparsed_elements=_location)
+
+        return ret_val
 
     # *** PRIVATE METHODS ***
     
