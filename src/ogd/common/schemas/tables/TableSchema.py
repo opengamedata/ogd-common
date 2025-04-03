@@ -14,7 +14,7 @@ from ogd.common.utils.typing import Map
 ColumnMapIndex   : TypeAlias = Optional[int | List[int] | Dict[str,int]]
 ColumnMapElement : TypeAlias = Optional[str | List[str] | Dict[str,str]]
 
-## @class TableStructureSchema
+## @class TableSchema
 class TableSchema(Schema):
     """Dumb struct to hold a table structure and table location.
     """
