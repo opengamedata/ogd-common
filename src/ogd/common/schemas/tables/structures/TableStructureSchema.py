@@ -192,7 +192,7 @@ class TableStructureSchema(Schema):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Optional[str | Path]) -> "TableStructureSchema":
+    def FromFile(cls, schema_name:str, schema_path:Optional[str | Path], search_templates:bool=False) -> "TableStructureSchema":
         ret_val : Schema
 
         schema_path = schema_path or Path(schemas.__file__).parent / "table_schemas"
