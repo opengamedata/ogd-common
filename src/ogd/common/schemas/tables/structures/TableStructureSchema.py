@@ -200,7 +200,7 @@ class TableStructureSchema(Schema):
         if isinstance(ret_val, TableStructureSchema):
             return ret_val
         else:
-            raise ValueError(f"TableStructureSchema's call to _fromFile yielded a Schema of different type!")
+            raise ValueError("TableStructureSchema's call to _fromFile yielded a Schema of different type!")
 
     # *** PUBLIC METHODS ***
 
