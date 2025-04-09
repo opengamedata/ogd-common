@@ -10,6 +10,7 @@ from ogd.common.models.FeatureData import FeatureData
 from ogd.common.models.Event import Event, EventSource
 from ogd.common.schemas.tables.structures.TableStructureSchema import TableStructureSchema, ColumnMapIndex, ColumnMapElement
 from ogd.common.schemas.tables.structures.ColumnSchema import ColumnSchema
+from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.utils.typing import Map
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
@@ -222,12 +223,14 @@ class FeatureTableStructureSchema(TableStructureSchema):
 
     _conversion_warnings = Counter()
     def RowToFeatureData(self, row:Tuple, concatenator:str = '.', fallbacks:Map={}) -> FeatureData:
-        """Function to convert a row to an Event, based on the loaded schema.
+        """Function to convert a row to a FeatureData value, based on the loaded schema.
         In general, columns specified in the schema's column_map are mapped to corresponding elements of the Event.
         If the column_map gave a list, rather than a single column name, the values from each column are concatenated in order with '.' character separators.
         Finally, the concatenated values (or single value) are parsed according to the type required by Event.
         One exception: For event_data, we expect to create a Dict object, so each column in the list will have its value parsed according to the type in 'columns',
             and placed into a dict mapping the original column name to the parsed value (unless the parsed value is a dict, then it is merged into the top-level dict).
+
+        TODO : actually implement this whole dang function.
 
         :param row: The raw row data for an event. Generally assumed to be a tuple, though in principle a list would be fine too.
         :type  row: Tuple[str]
@@ -340,6 +343,9 @@ class FeatureTableStructureSchema(TableStructureSchema):
             FeatureTableStructureSchema._conversion_warnings["index"] += 1
             index = int(index)
 
-        return FeatureData.Default() # TODO : actually implement this whole dang function.
+        return FeatureData(name="FeaturesNotImplemented", feature_type="FeaturesNotImplemented", count_index=None,
+                           cols=[], vals=[], mode=ExtractionMode.SESSION, app_id="NONE", user_id=None, session_id="NONE",
+                           app_version=None, app_branch=None, log_version=None
+                           )
 
     # *** PRIVATE STATICS ***
