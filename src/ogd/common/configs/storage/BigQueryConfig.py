@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, Optional
+from typing import Optional
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.KeyCredentialConfig import KeyCredential
@@ -9,7 +9,7 @@ from ogd.common.utils.typing import Map
 
 class BigQueryConfig(DataStoreConfig):
     _DEFAULT_PROJECT_ID = "wcer-field-day-ogd-1798"
-    _DEFAULT_CREDENTIAL = { "FILE" : KeyCredential._DEFAULT_FILE, "PATH" : KeyCredential._DEFAULT_PATH }
+    _DEFAULT_CREDENTIAL = KeyCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
 
