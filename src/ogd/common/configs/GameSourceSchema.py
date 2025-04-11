@@ -162,11 +162,6 @@ class GameSourceSchema(Schema):
 
     # *** PUBLIC STATICS ***
 
-    @staticmethod
-    def EmptySchema() -> "GameSourceSchema":
-        return GameSourceSchema(name="NOT FOUND", game_id="NOT FOUND", source_name="NOT FOUND", source_schema=None, db_name="NOT FOUND",
-                                table_name="NOT FOUND", table_schema="NOT FOUND", other_elements={})
-
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
