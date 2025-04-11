@@ -109,8 +109,6 @@ class DatasetSchema(Schema):
                  players_file:Optional[Path],    players_template:Optional[Path],
                  population_file:Optional[Path], population_template:Optional[Path],
                  other_elements:Optional[Map]=None):
-        unparsed_elements : Map = other_elements or {}
-
         self._key                 : DatasetKey     = key
         self._date_modified       : date | str     = date_modified
         self._start_date          : date | str     = start_date

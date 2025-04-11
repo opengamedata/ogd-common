@@ -3,9 +3,8 @@ import abc
 import logging
 from pathlib import Path
 from shutil import copyfile
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, List, Optional, Type
 # import local files
-from ogd.common import schemas
 from ogd.common.utils.typing import conversions, Map
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger

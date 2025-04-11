@@ -301,7 +301,7 @@ class GameSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "GameSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "GameSchema":
         """_summary_
 
         TODO : Need to have parse functions for all the variables, currently only have about half of them.
@@ -413,6 +413,18 @@ class GameSchema(Schema):
 
     @classmethod
     def FromFile(cls, game_id:str, schema_path:Optional[Path] = None, search_templates:bool=True) -> "GameSchema":
+        """Function to get a GameSchema from a file
+
+        :param game_id: _description_
+        :type game_id: str
+        :param schema_path: _description_, defaults to None
+        :type schema_path: Optional[Path], optional
+        :param search_templates: _description_, defaults to True
+        :type search_templates: bool, optional
+        :raises ValueError: _description_
+        :return: _description_
+        :rtype: GameSchema
+        """
         ret_val : Schema
         # Give schema_path a default, don't think we can use game_id to construct it directly in the function header (so do it here if None)
         schema_path = schema_path or cls._DEFAULT_GAME_FOLDER / game_id / "schemas"
@@ -420,7 +432,7 @@ class GameSchema(Schema):
         if isinstance(ret_val, GameSchema):
             return ret_val
         else:
-            raise ValueError(f"The result of the class _fromFile function was not a GameSchema!")
+            raise ValueError("The result of the class _fromFile function was not a GameSchema!")
 
     # *** PUBLIC METHODS ***
 
@@ -613,7 +625,7 @@ class GameSchema(Schema):
             default_value=GameSchema._DEFAULT_DETECTOR_MAP,
             remove_target=True
         )
-        ret_val = DetectorMapConfig.FromDict(name=f"Detectors", unparsed_elements=detector_map)
+        ret_val = DetectorMapConfig.FromDict(name="DetectorMap", unparsed_elements=detector_map)
 
         return ret_val
 
@@ -628,7 +640,7 @@ class GameSchema(Schema):
             default_value=GameSchema._DEFAULT_FEATURE_MAP,
             remove_target=True
         )
-        ret_val = FeatureMapConfig.FromDict(name=f"Features", unparsed_elements=feature_map)
+        ret_val = FeatureMapConfig.FromDict(name="FeatureMap", unparsed_elements=feature_map)
         return ret_val
 
     @staticmethod
