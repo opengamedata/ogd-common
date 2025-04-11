@@ -60,6 +60,13 @@ class GameSourceSchema(Schema):
 
     @property
     def GameID(self) -> str:
+        """Property to get the Game ID (also called App ID) associated with the given game source
+
+        By convention, this is a human-readable simplification of the games name, in CONSTANT_CASE format
+
+        :return: _description_
+        :rtype: str
+        """
         return self._game_id
 
     @property

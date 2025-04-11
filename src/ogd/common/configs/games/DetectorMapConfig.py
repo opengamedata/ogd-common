@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 # import local files
 from ogd.common.configs.games.DetectorConfig import DetectorConfig
 from ogd.common.schemas.Schema import Schema

@@ -278,7 +278,7 @@ class MySQLConfig(DataStoreConfig):
             default_value={},
             remove_target=True
         )
-        ret_val = PasswordCredential.FromDict(name=f"MySQLCredential", unparsed_elements=_cred_elements)
+        ret_val = PasswordCredential.FromDict(name="MySQLCredential", unparsed_elements=_cred_elements)
 
         return ret_val
 
