@@ -43,7 +43,7 @@ class GameSourceSchema(Schema):
         unparsed_elements : Map = other_elements or {}
 
         self._game_id           : str                       = game_id       or self._parseGameID(unparsed_elements=unparsed_elements, name=name)
-        self._source_name       : str                       = source_name   or self._parseSource(unparsed_elements=unparsed_elements)
+        self._source_name       : str                       = source_name   or self._parseSourceName(unparsed_elements=unparsed_elements)
         self._source_schema     : Optional[DataStoreConfig] = source_schema
         self._db_name           : str                       = db_name       or self._parseDBName(unparsed_elements=unparsed_elements)
         self._table_name        : str                       = table_name    or self._parseTableName(unparsed_elements=unparsed_elements)
@@ -142,7 +142,7 @@ class GameSourceSchema(Schema):
             _msg = f"For {name} Game Source config, unparsed_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
         _game_id = cls._parseGameID(unparsed_elements=unparsed_elements)
-        _source_name = cls._parseSource(unparsed_elements=unparsed_elements)
+        _source_name = cls._parseSourceName(unparsed_elements=unparsed_elements)
         if _source_name in data_sources.keys():
             _source_schema = data_sources[_source_name]
         else:
@@ -166,7 +166,7 @@ class GameSourceSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseSource(unparsed_elements:Map) -> str:
+    def _parseSourceName(unparsed_elements:Map) -> str:
         return GameSourceSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["source"],
