@@ -12,7 +12,7 @@ on:
     - 'requirements.txt'
     # specific dependencies
     - '.github/workflows/TEST_Configs.yml'
-    - 'tests/cases/configs/**'
+    - 'tests/cases/configs/*.py'
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-ConfigSchemas
