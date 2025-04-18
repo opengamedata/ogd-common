@@ -12,8 +12,6 @@ from ogd.common.utils.typing import Map
 
 class GameSourceSchema(Schema):
     """A simple Schema structure containing configuration information for a particular game's data.
-
-    TODO : use a TableSchema for the table_schema instead of just the name of the schema, like we do with source_schema.
     
     When given to an interface, this schema is treated as the location from which to retrieve data.
     When given to an outerface, this schema is treated as the location in which to store data.
@@ -25,6 +23,7 @@ class GameSourceSchema(Schema):
     - `TableName` : The neame of the specific table within the database holding the given game's data
     - `TableSchema` : A schema indicating the structure of the table containing the given game's data.
 
+    TODO : use a TableSchema for the table_schema instead of just the name of the schema, like we do with source_schema.
     TODO : Implement and use a smart Load(...) function of TableSchema to load schema from given name, rather than FromFile.
     """
 
