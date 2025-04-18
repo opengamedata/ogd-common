@@ -1,8 +1,7 @@
 # import libraries
-import datetime
 import logging
 import unittest
-from typing import Any, Dict, Optional
+from typing import Dict
 from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
@@ -20,7 +19,7 @@ class t_GameSourceSchema(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         # 1. Get testing config
-        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings, logger=None)
+        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
         _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
         Logger.std_logger.setLevel(_level)
 
@@ -34,7 +33,7 @@ class t_GameSourceSchema(TestCase):
             name="Game Source Schema",
             game_id="AQUALAB",
             source_name="AQUALAB_BQ",
-            source_schema=BigQueryConfig.FromDict(name="AQUALAB_BQ", unparsed_elements=source_elems, logger=None),
+            source_schema=BigQueryConfig.FromDict(name="AQUALAB_BQ", unparsed_elements=source_elems),
             db_name="aqualab",
             table_name="aqualab_daily",
             table_schema="OPENGAMEDATA_BIGQUERY",
@@ -73,6 +72,8 @@ class t_GameSourceSchema(TestCase):
         self.assertEqual(_str, "aqualab_daily")
 
     def test_TableSchema(self):
+        """Test the correctness of TableSchema property
+        """
         _str = self.test_schema.TableSchemaName
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "OPENGAMEDATA_BIGQUERY")
@@ -106,13 +107,13 @@ class t_GameSourceSchema(TestCase):
             "PROJECT_ID" : "aqualab-project",
             "PROJECT_KEY": "./key.txt"
         }
-        _sources : Dict[str, DataStoreConfig] = { "AQUALAB_BQ" : BigQueryConfig.FromDict(name="AQUALAB_BQ", unparsed_elements=source_elems, logger=None) }
-        _schema = GameSourceSchema.FromDict(name="AQUALAB", unparsed_elements=_dict, logger=None, data_sources=_sources)
+        _sources : Dict[str, DataStoreConfig] = { "AQUALAB_BQ" : BigQueryConfig.FromDict(name="AQUALAB_BQ", unparsed_elements=source_elems) }
+        _schema = GameSourceSchema.FromDict(name="AQUALAB", unparsed_elements=_dict, data_sources=_sources)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "AQUALAB")
         self.assertIsInstance(_schema.SourceName, str)
         self.assertEqual(_schema.SourceName, "AQUALAB_BQ")
-        # self.assertIsInstance(_schema.Source, DataStoreConfig)
+        self.assertIsInstance(_schema.Source, DataStoreConfig)
         # self.assertEqual(_schema.Source, "AQUALAB")
         self.assertIsInstance(_schema.DatabaseName, str)
         self.assertEqual(_schema.DatabaseName, "aqualab")
@@ -121,23 +122,66 @@ class t_GameSourceSchema(TestCase):
         self.assertIsInstance(_schema.TableSchemaName, str)
         self.assertEqual(_schema.TableSchemaName, "OPENGAMEDATA_BIGQUERY")
 
-    @unittest.skip("Not yet implemented")
     def test_parseSource(self):
-        pass
-        # _name = Schema._parseName("Foo")
-        # self.assertIsInstance(_name, str)
-        # self.assertEqual(_name, "Foo")
+        _map = {
+            "source":"Foo",
+            "fakekey" : "Bar"
+        }
+        _str = GameSourceSchema._parseSourceName(_map)
+        self.assertIsInstance(_str, str)
+        self.assertEqual(_str, "Foo")
+        # First parse should remove key, so second should return default from class
+        _str = GameSourceSchema._parseSourceName(_map)
+        self.assertIsInstance(_str, str)
+        self.assertEqual(_str, GameSourceSchema._DEFAULT_SOURCE_NAME)
+        # Check that source_name is also treated as valid
+        _map = {
+            "source_name":"Foo",
+            "fakekey" : "Bar"
+        }
+        _str = GameSourceSchema._parseSourceName(_map)
+        self.assertIsInstance(_str, str)
+        self.assertEqual(_str, "Foo")
 
-    @unittest.skip("Not yet implemented")
+    def test_parseGameID(self):
+        _map = {
+            "game":"Foo",
+            "fakekey" : "Bar",
+            "game_id" : "Baz"
+        }
+        _str = GameSourceSchema._parseGameID(_map)
+        self.assertIsInstance(_str, str)
+        self.assertEqual(_str, "Foo")
+        # first parse should remove "game" key, so second attempt should give "Baz"
+        _str = GameSourceSchema._parseGameID(_map)
+        self.assertIsInstance(_str, str)
+        self.assertEqual(_str, "Baz")
+
     def test_parseDBName(self):
-        pass
+        _map = {
+            "source":"Foo",
+            "fakekey" : "Bar"
+        }
+        _str = GameSourceSchema._parseDBName(_map)
+        self.assertIsInstance(_str, str)
+        self.assertEqual(_str, "Foo")
 
     @unittest.skip("Not yet implemented")
     def test_parseTableName(self):
-        pass
+        _map = {
+            "source":"Foo",
+            "fakekey" : "Bar"
+        }
+        _str = GameSourceSchema._parseDBName(_map)
+        self.assertIsInstance(_str, str)
+        self.assertEqual(_str, "Foo")
 
     @unittest.skip("Not yet implemented")
     def test_parseTableSchemaName(self):
+        _map = {
+            "source":"Foo",
+            "fakekey" : "Bar"
+        }
         pass
 
 
