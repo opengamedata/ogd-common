@@ -153,7 +153,7 @@ class GameSourceSchema(Schema):
         _table_name = cls._parseTableName(unparsed_elements=unparsed_elements)
         _table_schema = cls._parseTableSchemaName(unparsed_elements=unparsed_elements)
 
-        _used = {"source", "database", "table", "schema"}
+        _used = {"source", "source_name", "database", "table", "schema"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
         return GameSourceSchema(name=name, game_id=_game_id, source_name=_source_name, source_schema=_source_schema,
                                 db_name=_db_name, table_name=_table_name, table_schema=_table_schema,
@@ -169,7 +169,7 @@ class GameSourceSchema(Schema):
     def _parseSourceName(unparsed_elements:Map) -> str:
         return GameSourceSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["source"],
+            valid_keys=["source", "source_name"],
             to_type=str,
             default_value=GameSourceSchema._DEFAULT_SOURCE_NAME,
             remove_target=True
