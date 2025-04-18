@@ -134,6 +134,7 @@ class Schema(abc.ABC):
                 if remove_target:
                     del unparsed_elements[name]
                 ret_val = conversions.ConvertToType(value=value, to_type=to_type, name=f"{cls.__name__} element {name}")
+                break
         _msg = f"{cls.__name__} config does not have a '{valid_keys[0]}' element; defaulting to {valid_keys[0]}={default_value}"
         Logger.Log(_msg, logging.WARN)
 
