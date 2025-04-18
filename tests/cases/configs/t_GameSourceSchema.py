@@ -159,30 +159,30 @@ class t_GameSourceSchema(TestCase):
 
     def test_parseDBName(self):
         _map = {
-            "source":"Foo",
+            "database":"Foo",
             "fakekey" : "Bar"
         }
         _str = GameSourceSchema._parseDBName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
-    @unittest.skip("Not yet implemented")
     def test_parseTableName(self):
         _map = {
-            "source":"Foo",
+            "table":"Foo",
             "fakekey" : "Bar"
         }
-        _str = GameSourceSchema._parseDBName(_map)
+        _str = GameSourceSchema._parseTableName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
-    @unittest.skip("Not yet implemented")
     def test_parseTableSchemaName(self):
         _map = {
-            "source":"Foo",
+            "schema":"Foo",
             "fakekey" : "Bar"
         }
-        pass
+        _str = GameSourceSchema._parseTableSchemaName(_map)
+        self.assertIsInstance(_str, str)
+        self.assertEqual(_str, "Foo")
 
 
 if __name__ == '__main__':
