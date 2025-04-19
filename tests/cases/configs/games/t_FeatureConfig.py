@@ -39,7 +39,7 @@ class t_FeatureConfig(TestCase):
         }
         # cls.test_schema = FeatureConfig(
         #     name="ActiveTime Schema",
-        #     all_elements=_elems
+        #     unparsed_elements=_elems
         # )
 
     @staticmethod
@@ -128,7 +128,7 @@ class t_FeatureConfig(TestCase):
                 }
             }
         }
-        # _schema = DetectorConfig.FromDict(name="ActiveTime Schema", all_elements=_dict)
+        # _schema = DetectorConfig.FromDict(name="ActiveTime Schema", unparsed_elements=_dict)
         # self.assertIsInstance(_schema.Name, str)
         # self.assertEqual(_schema.Name, "ActiveTime Schema")
         # self.assertIsInstance(_schema.TypeName, str)

@@ -51,7 +51,7 @@ class t_CSVInterface(TestCase):
 
     def test_IDsFromDates(self):
         with self.zipped_file.open(self.zipped_file.namelist()[0]) as f:
-            _cfg = GameSourceSchema(name="FILE SOURCE", all_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
+            _cfg = GameSourceSchema.FromDict(name="FILE SOURCE", unparsed_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
             CSVI = CSVInterface(game_id='BACTERIA', config=_cfg, filepath=f, delim='\t', fail_fast=False)
             if CSVI.Open():
                 result_session_list = CSVI.IDsFromDates(self.TEST_MIN_DATE, self.TEST_MAX_DATE)
@@ -64,7 +64,7 @@ class t_CSVInterface(TestCase):
 
     def test_DatesFromIDs(self):
         with self.zipped_file.open(self.zipped_file.namelist()[0]) as f:
-            _cfg = GameSourceSchema(name="FILE SOURCE", other_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
+            _cfg = GameSourceSchema.FromDict(name="FILE SOURCE", unparsed_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
             CSVI = CSVInterface(game_id='BACTERIA', config=_cfg, filepath=f, delim='\t', fail_fast=False)
             if CSVI.Open():
                 dates = CSVI.DatesFromIDs(self.TEST_SESSION_LIST)

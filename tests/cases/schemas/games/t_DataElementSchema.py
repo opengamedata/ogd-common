@@ -85,7 +85,7 @@ class t_DataElementSchema(TestCase):
                },
                "description" : "The buildings available for the player to construct"
         }
-        _schema = DataElementSchema.FromDict(name="available_buildings Schema", all_elements=_dict)
+        _schema = DataElementSchema.FromDict(name="available_buildings Schema", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "available_buildings Schema")
         self.assertIsInstance(_schema.ElementType, str)
