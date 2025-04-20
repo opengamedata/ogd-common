@@ -26,6 +26,17 @@ class conversions:
     # *** PUBLIC STATICS ***
 
     @staticmethod
+    def Capitalize(value:Any) -> Any:
+        """Stupidly simple little function to convert any given strings to upper case, but allow non-strings to pass through unchanged.
+
+        :param value: A value to be converted to upper case, if it's a string.
+        :type value: Any
+        :return: A capitalized version of `value`, if it was a string, else the original `value`.
+        :rtype: Any
+        """
+        return value.upper() if isinstance(value, str) else value
+
+    @staticmethod
     def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed Element") -> Any:
         """Applies whatever parsing is appropriate based on what type the schema said a column contained.
 
@@ -46,9 +57,7 @@ class conversions:
         """
         ret_val : Any
 
-        if value is None:
-            ret_val = None
-        elif value == "None" or value == "null" or value == "nan":
+        if conversions.Capitalize(value) in [None, "NONE", "NULL", "NAN"]:
             ret_val = None
         # Handle case where there are multiple valid types accepted (i.e. got a list, and everything in list is a type/str)
         if isinstance(to_type, List) and all(type(x) in {type, str} for x in to_type):
