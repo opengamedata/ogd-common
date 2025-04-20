@@ -97,7 +97,7 @@ class conversions:
                     ret_val = conversions.ToTimedelta(value=value, name=name)
                 case 'TIMEZONE' | datetime.timezone:
                     ret_val = conversions.ToTimezone(value=value, name=name)
-                case 'JSON' | builtins.dict | typing.Dict:
+                case 'JSON' | 'DICT' | builtins.dict | typing.Dict:
                     ret_val = conversions.ToJSON(value=value, name=name)
                 case 'LIST' | builtins.list | typing.List:
                     ret_val = conversions.ToList(value=value, name=name)
