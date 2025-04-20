@@ -1,10 +1,11 @@
 ## import standard libraries
 import builtins
+import datetime
 import json
 import logging
 import pathlib
 import re
-import datetime
+import typing
 from json.decoder import JSONDecodeError
 from typing import Any, Dict, List, Optional, TypeAlias, Type
 ## import 3rd-party libraries
@@ -49,63 +50,8 @@ class conversions:
             ret_val = None
         elif value == "None" or value == "null" or value == "nan":
             ret_val = None
-        elif isinstance(to_type, str):
-            match (to_type.upper()):
-                case 'BOOL':
-                    ret_val = conversions.ToBool(name=name, value=value)
-                case 'STR':
-                    ret_val = conversions.ToString(value=value, name=name)
-                case 'INT':
-                    ret_val = conversions.ToInt(value=value, name=name)
-                case 'FLOAT':
-                    ret_val = conversions.ToFloat(value=value, name=name)
-                case 'PATH':
-                    ret_val = conversions.ToPath(value=value, name=name)
-                case 'DATETIME':
-                    ret_val = conversions.ToDatetime(value=value, name=name)
-                case 'TIMEDELTA':
-                    ret_val = conversions.ToTimedelta(value=value, name=name)
-                case 'TIMEZONE':
-                    ret_val = conversions.ToTimezone(value=value, name=name)
-                case 'JSON':
-                    ret_val = conversions.ToJSON(value=value, name=name)
-                case 'LIST':
-                    ret_val = conversions.ToList(value=value, name=name)
-                case _dummy if _dummy.startswith('ENUM'):
-                    # if the column is supposed to be an enum, for now we just stick with the string.
-                    ret_val = str(value)
-                case _:
-                    _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
-                    Logger.Log(_msg, logging.WARNING)
-                    ret_val = None
-        elif isinstance(to_type, Type):
-            match (to_type):
-                case builtins.bool:
-                    ret_val = conversions.ToBool(name=name, value=value)
-                case builtins.int:
-                    ret_val = conversions.ToInt(name=name, value=value)
-                case builtins.float:
-                    ret_val = conversions.ToFloat(name=name, value=value)
-                case builtins.str:
-                    ret_val = conversions.ToString(name=name, value=value)
-                case pathlib.Path:
-                    ret_val = conversions.ToPath(value=value, name=name)
-                case datetime.datetime | datetime.date:
-                    ret_val = conversions.ToDatetime(value=value, name=name)
-                case datetime.timedelta:
-                    ret_val = conversions.ToTimedelta(value=value, name=name)
-                case datetime.timezone:
-                    ret_val = conversions.ToTimezone(value=value, name=name)
-                case builtins.dict:
-                    ret_val = conversions.ToJSON(value=value, name=name)
-                case builtins.list:
-                    ret_val = conversions.ToList(value=value, name=name)
-                case _:
-                    _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
-                    Logger.Log(_msg, logging.WARN)
-                    ret_val = None
         # Handle case where there are multiple valid types accepted (i.e. got a list, and everything in list is a type/str)
-        elif isinstance(to_type, List) and all(type(x) in {type, str} for x in to_type):
+        if isinstance(to_type, List) and all(type(x) in {type, str} for x in to_type):
             found = False
             # for each candidate type, check if value already had that type
             for t in to_type:
@@ -123,8 +69,36 @@ class conversions:
             # force the issue by calling a "hard" conversion on first type in list of candidate types.
             if not found:
                 ret_val = conversions.ConvertToType(value, to_type=to_type[0], name=name)
+        # Otherwise, handle recognized single types
         else:
-            ret_val = None
+            match conversions.Capitalize(to_type):
+                case 'BOOL' | builtins.bool:
+                    ret_val = conversions.ToBool(name=name, value=value)
+                case 'STR' | builtins.str:
+                    ret_val = conversions.ToString(value=value, name=name)
+                case 'INT' | builtins.int:
+                    ret_val = conversions.ToInt(value=value, name=name)
+                case 'FLOAT' | builtins.float:
+                    ret_val = conversions.ToFloat(value=value, name=name)
+                case 'PATH' | pathlib.Path:
+                    ret_val = conversions.ToPath(value=value, name=name)
+                case 'DATETIME' | datetime.datetime | datetime.date:
+                    ret_val = conversions.ToDatetime(value=value, name=name)
+                case 'TIMEDELTA' | datetime.timedelta:
+                    ret_val = conversions.ToTimedelta(value=value, name=name)
+                case 'TIMEZONE' | datetime.timezone:
+                    ret_val = conversions.ToTimezone(value=value, name=name)
+                case 'JSON' | builtins.dict | typing.Dict:
+                    ret_val = conversions.ToJSON(value=value, name=name)
+                case 'LIST' | builtins.list | typing.List:
+                    ret_val = conversions.ToList(value=value, name=name)
+                case _dummy if isinstance(_dummy, str) and _dummy.startswith('ENUM'):
+                    # if the column is supposed to be an enum, for now we just stick with the string.
+                    ret_val = str(value)
+                case _:
+                    _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
+                    Logger.Log(_msg, logging.WARNING)
+                    ret_val = None
         return ret_val
 
     @staticmethod
