@@ -103,7 +103,7 @@ class EventSchema(Schema):
         event_data = EventSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["event_data"],
-            to_type=Dict,
+            to_type=dict,
             default_value=EventSchema._DEFAULT_EVENT_DATA,
             remove_target=True
         )

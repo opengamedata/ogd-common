@@ -245,7 +245,7 @@ class DatasetCollectionSchema(Schema):
         _config_elem = DatasetCollectionConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["CONFIG"],
-            to_type=Dict,
+            to_type=dict,
             default_value=DatasetCollectionConfig.Default(),
             remove_target=True
         )

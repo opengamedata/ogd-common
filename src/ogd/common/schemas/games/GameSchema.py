@@ -550,7 +550,7 @@ class GameSchema(Schema):
         enums_list = GameSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["enums"],
-            to_type=Dict,
+            to_type=dict,
             default_value=GameSchema._DEFAULT_ENUMS,
             remove_target=True
         )
@@ -568,7 +568,7 @@ class GameSchema(Schema):
         game_state = GameSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["game_state"],
-            to_type=Dict,
+            to_type=dict,
             default_value=GameSchema._DEFAULT_GAME_STATE,
             remove_target=True
         )
@@ -586,7 +586,7 @@ class GameSchema(Schema):
         user_data = GameSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["user_data"],
-            to_type=Dict,
+            to_type=dict,
             default_value=GameSchema._DEFAULT_USER_DATA,
             remove_target=True
         )
@@ -604,7 +604,7 @@ class GameSchema(Schema):
         events_list = GameSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["events"],
-            to_type=Dict,
+            to_type=dict,
             default_value=GameSchema._DEFAULT_EVENT_LIST,
             remove_target=True
         )
@@ -621,7 +621,7 @@ class GameSchema(Schema):
         detector_map = GameSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["detectors"],
-            to_type=Dict,
+            to_type=dict,
             default_value=GameSchema._DEFAULT_DETECTOR_MAP,
             remove_target=True
         )
@@ -636,7 +636,7 @@ class GameSchema(Schema):
         feature_map = GameSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["features"],
-            to_type=Dict,
+            to_type=dict,
             default_value=GameSchema._DEFAULT_FEATURE_MAP,
             remove_target=True
         )
@@ -650,7 +650,7 @@ class GameSchema(Schema):
         level_range = GameSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["level_range"],
-            to_type=Dict,
+            to_type=dict,
             default_value=None,
             remove_target=True
         )

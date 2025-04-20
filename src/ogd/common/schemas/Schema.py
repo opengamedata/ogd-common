@@ -110,7 +110,7 @@ class Schema(abc.ABC):
         return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     @classmethod
-    def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False) -> Any:
+    def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False, debug:bool=False) -> Any:
         """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 
         :param all_elements: A dictionary containing all elements to search through
@@ -123,6 +123,8 @@ class Schema(abc.ABC):
         :type default_value: Any
         :param remove_target: Whether to remove the target element, if found; defaults to False.
         :type remove_target: bool, optional
+        :param debug: Whether to elevate debug prints to INFO level; this allows specific calls to be debugged without normal, successful calls cluttering the output.
+        :type debug: bool, optional
         :return: The targeted value, with given type; otherwise the given default value.
         :rtype: Any
         """
@@ -130,12 +132,14 @@ class Schema(abc.ABC):
 
         for name in valid_keys:
             if name in unparsed_elements:
+                Logger.Log(f"ParseElement found key {name}, mapped to raw value:\n{unparsed_elements[name]}", level=logging.INFO if debug else logging.DEBUG)
                 value = unparsed_elements[name]
                 if remove_target:
                     del unparsed_elements[name]
                 ret_val = conversions.ConvertToType(value=value, to_type=to_type, name=f"{cls.__name__} element {name}")
                 break
-        _msg = f"{cls.__name__} config does not have a '{valid_keys[0]}' element; defaulting to {valid_keys[0]}={default_value}"
+        _debug_extra = f' in key set {unparsed_elements.keys()}'
+        _msg = f"{cls.__name__} config does not have a '{valid_keys[0]}' element{_debug_extra if debug else ''}; defaulting to {valid_keys[0]}={default_value}"
         Logger.Log(_msg, logging.WARN)
 
         # if we got empty value back from conversion, use default instead, that's more likely what we want.

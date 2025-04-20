@@ -120,7 +120,7 @@ class DataElementSchema(Schema):
         details = DataElementSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["details"],
-            to_type=Dict,
+            to_type=dict,
             default_value=DataElementSchema._DEFAULT_DETAILS,
             remove_target=True
         )

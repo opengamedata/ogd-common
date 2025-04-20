@@ -121,7 +121,7 @@ class TableSchema(Schema):
         _structure = TableSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["structure"],
-            to_type=Dict,
+            to_type=dict,
             default_value=TableSchema._DEFAULT_STRUCTURE,
             remove_target=True
         )
@@ -140,7 +140,7 @@ class TableSchema(Schema):
         _location = TableSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["location"],
-            to_type=Dict,
+            to_type=dict,
             default_value=TableSchema._DEFAULT_LOCATION,
             remove_target=True
         )
