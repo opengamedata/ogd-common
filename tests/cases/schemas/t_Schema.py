@@ -55,7 +55,7 @@ class t_Schema(TestCase):
 
     # *** Tests using Schema directly
 
-    def test_ElementFromDict_single(self):
+    def test_ParseElement_single(self):
         _elems = {
             "foo":1,
             "bar":2,
@@ -70,7 +70,7 @@ class t_Schema(TestCase):
         self.assertIsInstance(_elem, int)
         self.assertEqual(_elem, 2)
 
-    def test_ElementFromDict_double(self):
+    def test_ParseElement_double(self):
         _elems = {
             "foo":1,
             "bar":2,
@@ -86,7 +86,7 @@ class t_Schema(TestCase):
         self.assertIsInstance(_elem, int)
         self.assertEqual(_elem, 2)
 
-    def test_ElementFromDict_double_skip_first(self):
+    def test_ParseElement_double_skip_first(self):
         _elems = {
             "foo":1,
             "bar":2,
@@ -99,7 +99,7 @@ class t_Schema(TestCase):
         self.assertIsInstance(_elem, int)
         self.assertEqual(_elem, 1)
 
-    def test_ElementFromDict_nontrivial_parse(self):
+    def test_ParseElement_nontrivial_parse(self):
         _elems = {
             "foo":1,
             "bar":2,
@@ -112,7 +112,7 @@ class t_Schema(TestCase):
         self.assertIsInstance(_elem, str)
         self.assertEqual(_elem, "6")
 
-    def test_ElementFromDict_use_default(self):
+    def test_ParseElement_use_default(self):
         _elems = {
             "foo":1,
             "bar":2,
