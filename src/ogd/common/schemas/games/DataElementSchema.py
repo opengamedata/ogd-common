@@ -132,7 +132,7 @@ class DataElementSchema(Schema):
                 else:
                     _key = key
                 ret_val[_key] = DataElementSchema.ParseElement(
-                    unparsed_elements=unparsed_elements,
+                    unparsed_elements=details,
                     valid_keys=[_key],
                     to_type=str,
                     default_value="UNKNOWN TYPE",
