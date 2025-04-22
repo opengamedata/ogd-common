@@ -23,6 +23,16 @@ class test_conversions(TestCase):
     def RunAll():
         pass
 
+    def test_Capitalize(self):
+        with self.subTest(msg="Capitalize: normal string"):
+            _str = conversions.Capitalize(value="fOo")
+            self.assertIsInstance(_str, str)
+            self.assertEqual(_str, "FOO")
+        with self.subTest(msg="Capitalize: non-string"):
+            _str = conversions.Capitalize(value=100)
+            self.assertIsInstance(_str, int)
+            self.assertEqual(_str, int)
+
     def test_parseString(self):
         _str = conversions._parseString(name="ParseStringVal", value="Foo")
         self.assertIsInstance(_str, str)
