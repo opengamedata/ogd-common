@@ -68,12 +68,15 @@ class conversions:
                     ret_val = value
                     found = True
             # if we didn't find exact match between value and candidate type, make a "soft" parse attempt on each type
-            if not found:
-                for t in to_type:
-                    _parsed = conversions._parseToType(value=value, to_type=t, name=name)
-                    if _parsed is not None:
-                        ret_val = _parsed
-                        found = True
+            # Also good gracious me it's a mother****ing while loop in Python, oh my days...
+            i = 0
+            while not found and i < len(to_type):
+                _parsed = conversions._parseToType(value=value, to_type=to_type[i], name=name)
+                if _parsed is not None:
+                    ret_val = _parsed
+                    found = True
+                i += 1
+
             # If none of the parsers knew how to handle the type of value param,
             # force the issue by calling a "hard" conversion on first type in list of candidate types.
             if not found:
