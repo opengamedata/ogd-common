@@ -32,6 +32,13 @@ jobs:
     needs: build
     uses: ./.github/workflows/TEST_GameConfigs.yml
 
+  # Run testbeds in models module
+
+  testbed_semver:
+    name: SemanticVersion Testbed
+    needs: build
+    uses: ./.github/workflows/TEST_SemanticVersion.yml
+
   # Run testbeds in schemas module
 
   testbed_schema:
@@ -51,7 +58,7 @@ jobs:
     needs: build
     uses: ./.github/workflows/TEST_FileIO.yml
 
-  testbed_semver:
-    name: SemanticVersion Testbed
+  testbed_typing:
+    name: "`typing` Testbed"
     needs: build
-    uses: ./.github/workflows/TEST_SemanticVersion.yml
+    uses: ./.github/workflows/TEST_typing.yml
