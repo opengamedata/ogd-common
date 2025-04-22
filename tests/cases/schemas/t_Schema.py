@@ -30,7 +30,7 @@ class t_Schema(TestCase):
             return t_Schema.TestSchema(name="DefaultTestSchema", other_elements={})
 
         @classmethod
-        def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "t_Schema.TestSchema":
+        def FromDict(cls, name:str, all_elements:Dict[str, Any])-> "t_Schema.TestSchema":
             return t_Schema.TestSchema(name=name, other_elements=all_elements)
 
     @classmethod
