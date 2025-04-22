@@ -639,8 +639,8 @@ class conversions:
                 case _:
                     ret_val = None
         except JSONDecodeError as err:
-            Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to JSON, got the following error:\n{str(err)}\nDefaulting to empty dict", logging.WARN)
-            ret_val = {}
+            Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to JSON, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
+            ret_val = None
         return ret_val
 
     # *** PRIVATE METHODS ***
