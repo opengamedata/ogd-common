@@ -357,61 +357,34 @@ class conversions:
             ret_val = None
         elif value == "None" or value == "null" or value == "nan":
             ret_val = None
-        elif isinstance(to_type, str):
-            match (to_type.upper()):
-                case 'BOOL':
-                    ret_val = conversions._parseBool(name=name, value=value)
-                case 'STR':
-                    ret_val = conversions._parseString(name=name, value=value)
-                case 'INT':
-                    ret_val = conversions._parseInt(name=name, value=value)
-                case 'FLOAT':
-                    ret_val = conversions._parseFloat(name=name, value=value)
-                case 'PATH':
-                    ret_val = conversions._parsePath(name=name, value=value)
-                case 'DATETIME':
-                    ret_val = conversions._parseDatetime(name=name, value=value)
-                case 'TIMEDELTA':
-                    ret_val = conversions._parseTimedelta(name=name, value=value)
-                case 'TIMEZONE':
-                    ret_val = conversions._parseTimezone(name=name, value=value)
-                case 'JSON':
-                    ret_val = conversions._parseJSON(name=name, value=value)
-                case 'LIST':
-                    ret_val = conversions._parseList(name=name, value=value)
-                case _dummy if _dummy.startswith('ENUM'):
-                    # if the column is supposed to be an enum, for now we just stick with the string.
-                    ret_val = str(value)
-                case _:
-                    _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
-                    Logger.Log(_msg, logging.WARNING)
-                    ret_val = None
-        elif isinstance(to_type, Type):
-            match (to_type):
-                case builtins.bool:
-                    ret_val = conversions._parseBool(name=name, value=value)
-                case builtins.int:
-                    ret_val = conversions._parseInt(name=name, value=value)
-                case builtins.float:
-                    ret_val = conversions._parseFloat(name=name, value=value)
-                case builtins.str:
-                    ret_val = conversions._parseString(name=name, value=value)
-                case pathlib.Path:
-                    ret_val = conversions._parsePath(name=name, value=value)
-                case datetime.datetime:
-                    ret_val = conversions._parseDatetime(name=name, value=value)
-                case datetime.timedelta:
-                    ret_val = conversions._parseTimedelta(name=name, value=value)
-                case datetime.timezone:
-                    ret_val = conversions._parseTimezone(name=name, value=value)
-                case builtins.dict:
-                    ret_val = conversions._parseJSON(name=name, value=value)
-                case builtins.list:
-                    ret_val = conversions._parseList(name=name, value=value)
-                case _:
-                    _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
-                    Logger.Log(_msg, logging.WARN)
-                    ret_val = None
+        match (conversions.Capitalize(to_type)):
+            case 'BOOL' | builtins.bool:
+                ret_val = conversions._parseBool(name=name, value=value)
+            case 'STR' | builtins.str:
+                ret_val = conversions._parseString(name=name, value=value)
+            case 'INT' | builtins.int:
+                ret_val = conversions._parseInt(name=name, value=value)
+            case 'FLOAT' | builtins.float:
+                ret_val = conversions._parseFloat(name=name, value=value)
+            case 'PATH' | pathlib.Path:
+                ret_val = conversions._parsePath(name=name, value=value)
+            case 'DATETIME' | datetime.datetime:
+                ret_val = conversions._parseDatetime(name=name, value=value)
+            case 'TIMEDELTA' | datetime.timedelta:
+                ret_val = conversions._parseTimedelta(name=name, value=value)
+            case 'TIMEZONE' | datetime.timezone:
+                ret_val = conversions._parseTimezone(name=name, value=value)
+            case 'JSON' | builtins.dict:
+                ret_val = conversions._parseJSON(name=name, value=value)
+            case 'LIST' | builtins.list:
+                ret_val = conversions._parseList(name=name, value=value)
+            case _dummy if isinstance(_dummy, str) and _dummy.startswith('ENUM'):
+                # if the column is supposed to be an enum, for now we just stick with the string.
+                ret_val = str(value)
+            case _:
+                _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
+                Logger.Log(_msg, logging.WARNING)
+                ret_val = None
         return ret_val
 
     @staticmethod
