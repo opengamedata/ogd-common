@@ -374,9 +374,9 @@ class conversions:
                 ret_val = conversions._parseTimedelta(name=name, value=value)
             case 'TIMEZONE' | datetime.timezone:
                 ret_val = conversions._parseTimezone(name=name, value=value)
-            case 'JSON' | builtins.dict:
+            case 'JSON' | 'DICT' | builtins.dict | typing.Dict:
                 ret_val = conversions._parseJSON(name=name, value=value)
-            case 'LIST' | builtins.list:
+            case 'LIST' | builtins.list | typing.List:
                 ret_val = conversions._parseList(name=name, value=value)
             case _dummy if isinstance(_dummy, str) and _dummy.startswith('ENUM'):
                 # if the column is supposed to be an enum, for now we just stick with the string.
