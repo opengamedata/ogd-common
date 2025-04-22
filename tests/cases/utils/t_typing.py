@@ -36,6 +36,30 @@ class parseString(TestCase):
         self.assertIsInstance(_not_str, str)
         self.assertEqual(_not_str, "123")
 
+@unittest.skip(reason="Not implemented")
+class parseDatetime(TestCase):
+    def test_normal_timezone(self):
+        _val = datetime.datetime(2020, 1, 1)
+        _str = conversions._parseDatetime(name="parseDatetimeVal", value=_val)
+        self.assertIsInstance(_str, str)
+        self.assertEqual(_str, "Foo")
+
+@unittest.skip(reason="Not implemented")
+class parseTimedelta(TestCase):
+    def test_normal_timezone(self):
+        _val = datetime.timedelta(hours=1)
+        _str = conversions._parseTimedelta(name="parseTimedeltaVal", value=_val)
+        self.assertIsInstance(_str, str)
+        self.assertEqual(_str, "Foo")
+
+@unittest.skip(reason="Not implemented")
+class parseTimezone(TestCase):
+    def test_normal_timezone(self):
+        _val = datetime.timezone(datetime.timedelta(hours=1))
+        _str = conversions._parseTimezone(name="parseTimezoneVal", value=_val)
+        self.assertIsInstance(_str, str)
+        self.assertEqual(_str, "Foo")
+
 class parseList(TestCase):
     def test_normal_list(self):
         _elems = [1, 2.2, "3"]
