@@ -188,7 +188,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToTimedelta(value:Any, name:str) -> Optional[datetime.timedelta]:
+    def ToTimedelta(name:str, value:Any) -> Optional[datetime.timedelta]:
         ret_val : Optional[datetime.timedelta]
 
         _parsed = conversions._parseTimedelta(name=name, value=value)
@@ -200,7 +200,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToTimezone(value:Any, name:str) -> Optional[datetime.timezone]:
+    def ToTimezone(name:str, value:Any) -> Optional[datetime.timezone]:
         ret_val : Optional[datetime.timezone]
 
         _parsed = conversions._parseTimezone(name=name, value=value)
@@ -212,7 +212,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToList(value:Any, name:str) -> Optional[List]:
+    def ToList(name:str, value:Any) -> Optional[List]:
         ret_val : Optional[List]
 
         _parsed = conversions._parseList(name=name, value=value)
@@ -224,7 +224,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToJSON(value:Any, name:str) -> Optional[Dict]:
+    def ToJSON(name:str, value:Any) -> Optional[Dict]:
         ret_val : Optional[Dict]
 
         _parsed = conversions._parseJSON(name=name, value=value)
@@ -560,7 +560,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def _parseTimedelta(value:Any, name:str) -> Optional[datetime.timedelta]:
+    def _parseTimedelta(name:str, value:Any) -> Optional[datetime.timedelta]:
         """Attempt to turn a given value into a timedelta
 
         Returns None if the value type was not recognized.
@@ -586,7 +586,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def _parseTimezone(value:Any, name:str) -> Optional[datetime.timezone]:
+    def _parseTimezone(name:str, value:Any) -> Optional[datetime.timezone]:
         """Attempt to turn a given value into a timezone
 
         Returns None if the value type was not recognized.
@@ -609,7 +609,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def _parseList(value:Any, name:str) -> Optional[List]:
+    def _parseList(name:str, value:Any) -> Optional[List]:
         """Attempt to turn a given value into a list
 
         Returns None if the value type was not recognized.
@@ -640,7 +640,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def _parseJSON(value:Any, name:str) -> Optional[Dict]:
+    def _parseJSON(name:str, value:Any) -> Optional[Dict]:
         """Attempt to turn a given value into a JSON-style dictionary
 
         Returns None if the value type was not recognized.
