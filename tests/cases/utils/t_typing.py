@@ -36,6 +36,40 @@ class parseString(TestCase):
         self.assertIsInstance(_not_str, str)
         self.assertEqual(_not_str, "123")
 
+class parseList(TestCase):
+    def test_normal_list(self):
+        _elems = [1, 2.2, "3"]
+        _list = conversions._parseList(name="parseListVal", value=_elems)
+        self.assertIsInstance(_list, list)
+        self.assertEqual(_list, _elems)
+
+    def test_dictstring(self):
+        _elems = [1, 2.2, "3"]
+        _elems_str = '[1, 2.2, "3"]'
+        _list = conversions._parseList(name="parseListVal", value=_elems_str)
+        self.assertIsInstance(_list, list)
+        self.assertEqual(_list, _elems)
+
+    def test_nullstring(self):
+        with self.subTest(msg="_parseList: string = ''"):
+            _str = ""
+            _list = conversions._parseList(name="parseListVal", value=_str)
+            self.assertIsNone(_list)
+        with self.subTest(msg="_parseList: string = 'None'"):
+            _str = "None"
+            _list = conversions._parseList(name="parseListVal", value=_str)
+            self.assertIsNone(_list)
+
+    def test_nonlist(self):
+        _val = 42
+        _list = conversions._parseList(name="parseListVal", value=_val)
+        self.assertIsNone(_list)
+
+    def test_bad_liststring(self):
+        _elems = "['foo', bar]"
+        _list = conversions._parseList(name="parseListVal", value=_elems)
+        self.assertIsNone(_list)
+
 class parseJSON(TestCase):
     def test_normal_dict(self):
         _elems = {
