@@ -11,34 +11,27 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.utils.typing import conversions
 from tests.config.t_config import settings
 
-class test_conversions(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        # 1. Get testing config
-        _testing_cfg = TestConfig.FromDict(name="conversionsTestConfig", unparsed_elements=settings)
-        _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
-        Logger.std_logger.setLevel(_level)
+_testing_cfg = TestConfig.FromDict(name="conversionsTestConfig", unparsed_elements=settings)
+_level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
+Logger.std_logger.setLevel(_level)
 
-    @staticmethod
-    def RunAll():
-        pass
+class Capitalize(TestCase):
+    def test_normal_string(self):
+        _str = conversions.Capitalize(value="fOo")
+        self.assertIsInstance(_str, str)
+        self.assertEqual(_str, "FOO")
+    def test_nonstring(self):
+        _str = conversions.Capitalize(value=100)
+        self.assertIsInstance(_str, int)
+        self.assertEqual(_str, 100)
 
-    def test_Capitalize(self):
-        with self.subTest(msg="Capitalize: normal string"):
-            _str = conversions.Capitalize(value="fOo")
-            self.assertIsInstance(_str, str)
-            self.assertEqual(_str, "FOO")
-        with self.subTest(msg="Capitalize: non-string"):
-            _str = conversions.Capitalize(value=100)
-            self.assertIsInstance(_str, int)
-            self.assertEqual(_str, int)
-
-    def test_parseString(self):
+class parseString(TestCase):
+    def test_normal_string(self):
         _str = conversions._parseString(name="ParseStringVal", value="Foo")
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
-    def test_parseString_wrongtype(self):
+    def test_wrongtype(self):
         _not_str = conversions._parseString(name="ParseStringVal", value=123)
         self.assertIsInstance(_not_str, str)
         self.assertEqual(_not_str, "123")
