@@ -14,7 +14,7 @@ from ogd.common.utils.Logger import Logger
 
 AQUALAB_MIN_VERSION : Final[float] = 6.2
 
-class BigQueryInterface(EventInterface):
+class BigQueryInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
