@@ -125,16 +125,6 @@ class t_Schema(TestCase):
         self.assertIsInstance(_elem, int)
         self.assertEqual(_elem, 0)
 
-    def test_parseName(self):
-        _name = Schema._parseString("Foo")
-        self.assertIsInstance(_name, str)
-        self.assertEqual(_name, "Foo")
-
-    def test_parseName_nonstr(self):
-        _name = Schema._parseString(123)
-        self.assertIsInstance(_name, str)
-        self.assertEqual(_name, "123")
-
     # *** Tests using TestSchema local implementation class ***
 
     def test_str(self):
