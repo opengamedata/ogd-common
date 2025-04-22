@@ -8,7 +8,7 @@ on:
     paths:
     - '.github/workflows/TEST_SemanticVersion.yml'
     - '.github/actions/test_config/**'
-    - 'tests/cases/schemas/config/*.py'
+    - 'tests/cases/models/config/*.py'
     - 'tests/config/**'
     - 'requirements.txt'
 
@@ -44,7 +44,7 @@ jobs:
     - name: Execute SemanticVersion Testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/utils"
+        directory: "tests/cases/models"
         test_file: "t_SemanticVersion.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
