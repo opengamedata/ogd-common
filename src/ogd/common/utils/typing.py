@@ -601,7 +601,7 @@ class conversions:
                     # if input was a list already, then just give it back. Else, try to load it from string.
                     ret_val = value
                 case builtins.str:
-                    if value not in {'None', ''}: # watch out for nasty corner cases.
+                    if value not in {'None', 'null', ''}: # watch out for nasty corner cases.
                         ret_val = list(json.loads(value))
                     else:
                         ret_val = None

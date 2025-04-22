@@ -51,12 +51,16 @@ class parseList(TestCase):
         self.assertEqual(_list, _elems)
 
     def test_nullstring(self):
-        with self.subTest(msg="_parseList: string = ''"):
-            _str = ""
-            _list = conversions._parseList(name="parseListVal", value=_str)
-            self.assertIsNone(_list)
         with self.subTest(msg="_parseList: string = 'None'"):
             _str = "None"
+            _list = conversions._parseList(name="parseListVal", value=_str)
+            self.assertIsNone(_list)
+        with self.subTest(msg="_parseList: string = 'null'"):
+            _str = "null"
+            _list = conversions._parseList(name="parseListVal", value=_str)
+            self.assertIsNone(_list)
+        with self.subTest(msg="_parseList: string = ''"):
+            _str = ""
             _list = conversions._parseList(name="parseListVal", value=_str)
             self.assertIsNone(_list)
 
@@ -97,12 +101,16 @@ class parseJSON(TestCase):
         self.assertEqual(_dict, _elems)
 
     def test_nullstring(self):
-        with self.subTest(msg="_parseJSON: string = ''"):
-            _str = ""
-            _dict = conversions._parseJSON(name="parseJSONVal", value=_str)
-            self.assertIsNone(_dict)
         with self.subTest(msg="_parseJSON: string = 'None'"):
             _str = "None"
+            _dict = conversions._parseJSON(name="parseJSONVal", value=_str)
+            self.assertIsNone(_dict)
+        with self.subTest(msg="_parseJSON: string = 'null'"):
+            _str = "null"
+            _dict = conversions._parseJSON(name="parseJSONVal", value=_str)
+            self.assertIsNone(_dict)
+        with self.subTest(msg="_parseJSON: string = ''"):
+            _str = ""
             _dict = conversions._parseJSON(name="parseJSONVal", value=_str)
             self.assertIsNone(_dict)
 
