@@ -25,3 +25,6 @@ class test_conversions(TestCase):
         _not_str = conversions._parseString(name="ParseStringVal", value=123)
         self.assertIsInstance(_not_str, str)
         self.assertEqual(_not_str, "123")
+
+if __name__ == '__main__':
+    unittest.main()
