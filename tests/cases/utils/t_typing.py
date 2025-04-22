@@ -36,5 +36,51 @@ class parseString(TestCase):
         self.assertIsInstance(_not_str, str)
         self.assertEqual(_not_str, "123")
 
+class parseJSON(TestCase):
+    def test_normal_dict(self):
+        _elems = {
+            "foo":1,
+            "bar":2.2,
+            "baz":"3"
+        }
+        _dict = conversions._parseJSON(name="parseJSONVal", value=_elems)
+        self.assertIsInstance(_dict, dict)
+        self.assertEqual(_dict, _elems)
+
+    def test_dictstring(self):
+        _elems = {
+            "foo":1,
+            "bar":2.2,
+            "baz":"3"
+        }
+        _elems_str = '''{
+            "foo":1,
+            "bar":2.2,
+            "baz":"3"
+        }'''
+        _dict = conversions._parseJSON(name="parseJSONVal", value=_elems_str)
+        self.assertIsInstance(_dict, dict)
+        self.assertEqual(_dict, _elems)
+
+    def test_nullstring(self):
+        with self.subTest(msg="_parseJSON: string = ''"):
+            _str = ""
+            _dict = conversions._parseJSON(name="parseJSONVal", value=_str)
+            self.assertIsNone(_dict)
+        with self.subTest(msg="_parseJSON: string = 'None'"):
+            _str = "None"
+            _dict = conversions._parseJSON(name="parseJSONVal", value=_str)
+            self.assertIsNone(_dict)
+
+    def test_nondict(self):
+        _val = 42
+        _dict = conversions._parseJSON(name="parseJSONVal", value=_val)
+        self.assertIsNone(_dict)
+
+    def test_bad_dictstring(self):
+        _elems = "{ 'foo':bar }"
+        _dict = conversions._parseJSON(name="parseJSONVal", value=_elems)
+        self.assertIsNone(_dict)
+
 if __name__ == '__main__':
     unittest.main()
