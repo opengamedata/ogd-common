@@ -14,9 +14,11 @@ class ColumnSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, readable:str, value_type:str, description:str, other_elements:Optional[Map]=None):
-        self._readable    : str = readable
-        self._value_type  : str = value_type
-        self._description : str = description
+        unparsed_elements = other_elements or {}
+
+        self._readable    : str = readable    or self._parseReadable(unparsed_elements=unparsed_elements)
+        self._value_type  : str = value_type  or self._parseValueType(unparsed_elements=unparsed_elements)
+        self._description : str = description or self._parseDescription(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 

@@ -13,8 +13,10 @@ class TableLocationSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, table_name:str, other_elements:Optional[Map]):
-        self._table_name = table_name
+    def __init__(self, name:str, table_name:str, other_elements:Optional[Map]=None):
+        unparsed_elements = other_elements or {}
+
+        self._table_name = table_name or self._parseTableName(unparsed_elements=unparsed_elements)
         super().__init__(name=name, other_elements=other_elements)
 
     @property

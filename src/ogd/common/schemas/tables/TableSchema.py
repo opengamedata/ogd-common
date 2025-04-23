@@ -39,8 +39,10 @@ class TableSchema(Schema):
         :type is_legacy: bool, optional
         """
         # declare and initialize vars
-        self._structure : TableStructureSchema = structure
-        self._location  : TableLocationSchema  = location
+        unparsed_elements = other_elements or {}
+        _table_type = self._parseTableType(unparsed_elements=unparsed_elements)
+        self._structure : TableStructureSchema = structure or self._parseStructure(name=f"{name}Structure", table_type=_table_type, unparsed_elements=unparsed_elements)
+        self._location  : TableLocationSchema  = location  or self._parseLocation(name=f"{name}Location", unparsed_elements=unparsed_elements)
 
         # after loading the file, take the stuff we need and store.
         super().__init__(name=name, other_elements=other_elements)
