@@ -52,8 +52,10 @@ class Schema(abc.ABC):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    _DEFAULT_SCHEMA_NAME = "DefaultSchemaName"
+
     def __init__(self, name:str, other_elements:Optional[Map]=None):
-        self._name : str           = name or "DefaultSchemaName"
+        self._name : str           = name or Schema._DEFAULT_SCHEMA_NAME
         self._other_elements : Map = other_elements or {}
 
         if len(self._other_elements.keys()) > 0:
