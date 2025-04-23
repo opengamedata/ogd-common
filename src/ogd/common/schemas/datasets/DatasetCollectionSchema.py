@@ -118,7 +118,9 @@ class GameDatasetCollectionSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, game_datasets:Dict[str, DatasetSchema], other_elements:Dict[str, Any]):
-        self._game_datasets : Dict[str, DatasetSchema] = game_datasets
+        unparsed_elements = other_elements or {}
+
+        self._game_datasets : Dict[str, DatasetSchema] = game_datasets or self._parseGameDatasets(unparsed_elements=other_elements)
 
         super().__init__(name=name, other_elements={})
 
