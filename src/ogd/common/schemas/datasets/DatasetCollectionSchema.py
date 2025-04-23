@@ -24,8 +24,10 @@ class DatasetCollectionConfig(Schema):
     _DEFAULT_TEMPLATE_BASE = "https://github.com/opengamedata/opengamedata-samples"
 
     def __init__(self, name:str, file_base_path:Optional[str | Path], template_base_path:Optional[str | Path], other_elements:Optional[Map]=None):
-        self._files_base     : Optional[str | Path] = file_base_path
-        self._templates_base : Optional[str | Path] = template_base_path
+        unparsed_elements = other_elements or {}
+
+        self._files_base     : Optional[str | Path] = file_base_path     or self._parseFilesBase(unparsed_elements=unparsed_elements)
+        self._templates_base : Optional[str | Path] = template_base_path or self._parseTemplatesBase(unparsed_elements=unparsed_elements)
         super().__init__(name=name, other_elements=other_elements)
 
     def __str__(self) -> str:
