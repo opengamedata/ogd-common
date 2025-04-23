@@ -14,6 +14,7 @@ FileCredential : TypeAlias = PasswordCredential | EmptyCredential
 class FileStoreConfig(DataStoreConfig):
     _DEFAULT_FOLDER_PATH = Path('./data')
     _DEFAULT_FILE_NAME = "UNKNOWN.tsv"
+    _DEFAULT_CREDENTIAL = EmptyCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -97,7 +98,7 @@ class FileStoreConfig(DataStoreConfig):
             name="DefaultFileStoreConfig",
             folder_path=cls._DEFAULT_FOLDER_PATH,
             file_name=cls._DEFAULT_FILE_NAME,
-            file_credential=EmptyCredential.Default(),
+            file_credential=FileStoreConfig._DEFAULT_CREDENTIAL,
             other_elements={}
         )
 
@@ -138,7 +139,7 @@ class FileStoreConfig(DataStoreConfig):
         if _cred_elements:
             ret_val = PasswordCredential.FromDict(name="FileStoreCredential", unparsed_elements=_cred_elements)
         else:
-            ret_val = EmptyCredential.FromDict(name="FileStoreCredential", unparsed_elements={})
+            ret_val = FileStoreConfig._DEFAULT_CREDENTIAL
         return ret_val
 
     # *** PRIVATE METHODS ***
