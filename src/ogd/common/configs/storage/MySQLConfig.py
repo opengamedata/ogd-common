@@ -280,10 +280,13 @@ class MySQLConfig(DataStoreConfig):
             unparsed_elements=unparsed_elements,
             valid_keys=["DB_CREDENTIAL"],
             to_type=dict,
-            default_value={},
+            default_value=None,
             remove_target=True
         )
-        ret_val = PasswordCredential.FromDict(name="MySQLCredential", unparsed_elements=_cred_elements)
+        if _cred_elements:
+            ret_val = PasswordCredential.FromDict(name="MySQLCredential", unparsed_elements=_cred_elements)
+        else:
+            ret_val = MySQLConfig._DEFAULT_DB_CREDENTIAL
 
         return ret_val
 
