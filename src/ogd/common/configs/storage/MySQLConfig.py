@@ -13,6 +13,7 @@ from ogd.common.utils.typing import Map
 class SSHConfig(Schema):
     _DEFAULT_HOST = "127.0.0.1"
     _DEFAULT_PORT = 22
+    _DEFAULT_CREDENTIAL = {}
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -120,7 +121,7 @@ class SSHConfig(Schema):
             unparsed_elements=unparsed_elements,
             valid_keys=["SSH_CREDENTIAL"],
             to_type=dict,
-            default_value={},
+            default_value=SSHConfig._DEFAULT_CREDENTIAL,
             remove_target=True
         )
         ret_val = PasswordCredential.FromDict(name="SSHCredential", unparsed_elements=_cred_elements)
