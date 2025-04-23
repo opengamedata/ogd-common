@@ -13,7 +13,7 @@ from ogd.common.utils.typing import Map
 class SSHConfig(Schema):
     _DEFAULT_HOST = "127.0.0.1"
     _DEFAULT_PORT = 22
-    _DEFAULT_CREDENTIAL = {}
+    _DEFAULT_CREDENTIAL = PasswordCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -82,7 +82,7 @@ class SSHConfig(Schema):
         return SSHConfig(
             name="DefaultSSHConfig",
             ssh_host=cls._DEFAULT_HOST,
-            ssh_credential=PasswordCredential.Default(),
+            ssh_credential=SSHConfig._DEFAULT_CREDENTIAL,
             ssh_port=cls._DEFAULT_PORT,
             other_elements={}
         )
