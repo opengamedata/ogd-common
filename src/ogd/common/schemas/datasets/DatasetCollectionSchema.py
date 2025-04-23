@@ -55,6 +55,17 @@ class DatasetCollectionConfig(Schema):
 
     @classmethod
     def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetCollectionConfig":
+        """_summary_
+
+        TODO : Add example of what format unparsed_elements is expected to have.
+
+        :param name: _description_
+        :type name: str
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Dict[str, Any]
+        :return: _description_
+        :rtype: DatasetCollectionConfig
+        """
         _files_base     : Optional[str]
         _templates_base : Optional[str]
 
@@ -140,6 +151,17 @@ class GameDatasetCollectionSchema(Schema):
 
     @classmethod
     def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "GameDatasetCollectionSchema":
+        """_summary_
+
+        TODO : Add example of what format unparsed_elements is expected to have.
+
+        :param name: _description_
+        :type name: str
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Dict[str, Any]
+        :return: _description_
+        :rtype: GameDatasetCollectionSchema
+        """
         _game_datasets : Dict[str, DatasetSchema]
 
         if not isinstance(unparsed_elements, dict):

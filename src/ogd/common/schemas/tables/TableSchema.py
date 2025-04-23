@@ -77,6 +77,17 @@ class TableSchema(Schema):
 
     @classmethod
     def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "TableSchema":
+        """_summary_
+
+        TODO : Add example of what format unparsed_elements is expected to have.
+
+        :param name: _description_
+        :type name: str
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Dict[str, Any]
+        :return: _description_
+        :rtype: TableSchema
+        """
         _structure : TableStructureSchema
 
         if not isinstance(unparsed_elements, dict):

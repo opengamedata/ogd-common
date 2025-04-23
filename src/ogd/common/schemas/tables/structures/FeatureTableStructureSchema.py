@@ -171,6 +171,21 @@ class FeatureTableStructureSchema(TableStructureSchema):
 
     @classmethod
     def _fromDict(cls, name:str, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableStructureSchema":
+        """_summary_
+
+        TODO : Add example of what format unparsed_elements is expected to have.
+
+        :param name: _description_
+        :type name: str
+        :param raw_map: _description_
+        :type raw_map: Dict[str, ColumnMapElement]
+        :param column_schemas: _description_
+        :type column_schemas: List[ColumnSchema]
+        :param logger: _description_, defaults to None
+        :type logger: Optional[logging.Logger], optional
+        :return: _description_
+        :rtype: TableStructureSchema
+        """
         _column_map : Dict[str, ColumnMapIndex] = {
             "session_id"           : None,
             "app_id"               : None,

@@ -54,6 +54,17 @@ class ColumnSchema(Schema):
 
     @classmethod
     def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "ColumnSchema":
+        """_summary_
+
+        TODO : Add example of what format unparsed_elements is expected to have.
+
+        :param name: _description_
+        :type name: str
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Dict[str, Any]
+        :return: _description_
+        :rtype: ColumnSchema
+        """
         _readable    : str
         _value_type  : str
         _description : str

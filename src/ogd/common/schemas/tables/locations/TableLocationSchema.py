@@ -44,6 +44,8 @@ class TableLocationSchema(Schema):
     def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "TableLocationSchema":
         """Create a TableLocationSchema from a given dictionary
 
+        TODO : Add example of what format unparsed_elements is expected to have.
+
         :param name: _description_
         :type name: str
         :param all_elements: _description_

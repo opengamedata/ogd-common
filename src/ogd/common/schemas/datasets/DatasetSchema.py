@@ -10,6 +10,11 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
 
 class DatasetKey:
+    """
+    DatasetKey dumb struct.
+
+    TODO : Rework this to be more like other schemas.
+    """
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -82,6 +87,11 @@ class DatasetKey:
     # *** PRIVATE METHODS ***
 
 class DatasetSchema(Schema):
+    """DatasetSchema struct
+
+    TODO : Fill in description
+    TODO : Add a _parseKey function, rather than having logic for that part sit naked in FromDict
+    """
     _DEFAULT_DATE_MODIFIED = "UNKNOWN DATE"
     _DEFAULT_START_DATE = "UNKNOWN DATE"
     _DEFAULT_END_DATE = "UNKNOWN DATE"
@@ -246,6 +256,17 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
     @classmethod
     def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetSchema":
+        """_summary_
+
+        TODO : Add example of what format unparsed_elements is expected to have.
+
+        :param name: _description_
+        :type name: str
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Dict[str, Any]
+        :return: _description_
+        :rtype: DatasetSchema
+        """
         _key                 : DatasetKey
         _date_modified       : date | str
         _start_date          : date | str
