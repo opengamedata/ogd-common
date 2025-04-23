@@ -118,6 +118,7 @@ class GameSourceSchema(Schema):
     def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], data_sources:Dict[str, DataStoreConfig]) -> "GameSourceSchema":
         """Create a GameSourceSchema from a given dictionary
 
+        TODO : Add example of what format unparsed_elements is expected to have.
         TODO : data_sources shouldn't really be a param here. Better to have e.g. a way to register the list into GameSourceSchema class, or something.
 
         :param name: _description_

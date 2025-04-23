@@ -146,6 +146,15 @@ class FeatureMapConfig(Schema):
 
     @staticmethod
     def _parseLegacyMode(unparsed_elements:Map) -> bool:
+        """_summary_
+
+        TODO : Get the 'legacy' dict with the conversions function, to take advantage of debug prints.
+
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Map
+        :return: _description_
+        :rtype: bool
+        """
         ret_val : bool = False
 
         legacy_element = unparsed_elements.get("legacy", None)

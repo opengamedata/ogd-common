@@ -64,6 +64,17 @@ class SSHConfig(Schema):
 
     @classmethod
     def FromDict(cls, name:str, unparsed_elements:Map)-> "SSHConfig":
+        """_summary_
+
+        TODO : Add example of what format unparsed_elements is expected to have.
+
+        :param name: _description_
+        :type name: str
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Map
+        :return: _description_
+        :rtype: SSHConfig
+        """
         _host : str
         _port : int
 
@@ -219,6 +230,17 @@ class MySQLConfig(DataStoreConfig):
 
     @classmethod
     def FromDict(cls, name:str, unparsed_elements:Map)-> "MySQLConfig":
+        """_summary_
+
+        TODO : Add example of what format unparsed_elements is expected to have.
+
+        :param name: _description_
+        :type name: str
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Map
+        :return: _description_
+        :rtype: MySQLConfig
+        """
         _db_host  : str
         _db_port  : int
         _ssh_cfg  : SSHConfig
@@ -296,6 +318,7 @@ class MySQLConfig(DataStoreConfig):
 
         # Parse SSH info, if it exists. Don't notify, if it doesn't exist.
         # TODO : probably shouldn't have keys expected for SSH be hardcoded here, maybe need a way to get back what stuff it didn't use?
+        # TODO : In general, this should be updated to work similar to all the other parsers.
         _ssh_keys = {"SSH_HOST", "SSH_PORT", "SSH_CREDENTIAL"}
         _ssh_elems = { key : unparsed_elements.get(key) for key in _ssh_keys.intersection(unparsed_elements.keys()) }
         ret_val = SSHConfig.FromDict(name="MySQLSSHConfig", unparsed_elements=_ssh_elems)
