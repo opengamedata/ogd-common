@@ -10,6 +10,7 @@ from ogd.common.utils.typing import Map
 class GeneratorConfig(Schema):
 
     _DEFAULT_TYPE = "UNKNOWN TYPE"
+    _DEFAULT_ENABLED = True
     _DEFAULT_DESCRIPTION = "Default Generator schema object. Does not correspond to any actual data."
 
     def __init__(self, name:str, enabled:Optional[Set[ExtractionMode]], type_name:Optional[str], description:Optional[str], other_elements:Optional[Map]=None):
@@ -55,7 +56,7 @@ class GeneratorConfig(Schema):
             unparsed_elements=unparsed_elements,
             valid_keys=['enabled'],
             to_type=[bool, list],
-            default_value=None,
+            default_value=GeneratorConfig._DEFAULT_ENABLED,
             remove_target=True
         )
         if isinstance(enabled, bool):
