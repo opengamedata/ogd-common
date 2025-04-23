@@ -135,7 +135,6 @@ class Schema(abc.ABC):
         found = False
         for name in valid_keys:
             if name in unparsed_elements:
-                Logger.Log(f"ParseElement found key {name}, mapped to raw value:\n{unparsed_elements[name]}", level=logging.INFO if debug else logging.DEBUG)
                 value = unparsed_elements[name]
                 if remove_target:
                     del unparsed_elements[name]
