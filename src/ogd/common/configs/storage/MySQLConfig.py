@@ -121,10 +121,13 @@ class SSHConfig(Schema):
             unparsed_elements=unparsed_elements,
             valid_keys=["SSH_CREDENTIAL"],
             to_type=dict,
-            default_value=SSHConfig._DEFAULT_CREDENTIAL,
+            default_value=None,
             remove_target=True
         )
-        ret_val = PasswordCredential.FromDict(name="SSHCredential", unparsed_elements=_cred_elements)
+        if _cred_elements:
+            ret_val = PasswordCredential.FromDict(name="SSHCredential", unparsed_elements=_cred_elements)
+        else:
+            ret_val = SSHConfig._DEFAULT_CREDENTIAL
 
         return ret_val
 
@@ -135,6 +138,7 @@ class MySQLConfig(DataStoreConfig):
     _DEFAULT_PORT = 3306
     _DEFAULT_USER = "DEFAULT USER"
     _DEFAULT_PASS = None
+    _DEFAULT_DB_CREDENTIAL = PasswordCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -237,7 +241,7 @@ class MySQLConfig(DataStoreConfig):
             name="DefaultMySQLConfig",
             db_host=cls._DEFAULT_HOST,
             db_port=cls._DEFAULT_PORT,
-            db_credential=PasswordCredential.Default(),
+            db_credential=MySQLConfig._DEFAULT_DB_CREDENTIAL,
             ssh_cfg=SSHConfig.Default(),
             other_elements={}
         )
