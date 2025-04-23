@@ -497,7 +497,7 @@ class conversions:
         """
         ret_val : Optional[pathlib.Path]
         match type(value):
-            case pathlib.Path:
+            case dummy if issubclass(dummy, pathlib.Path):
                 ret_val = value
             case builtins.str:
                 ret_val = pathlib.Path(value)
