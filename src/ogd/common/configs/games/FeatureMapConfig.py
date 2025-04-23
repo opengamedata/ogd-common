@@ -23,10 +23,12 @@ class FeatureMapConfig(Schema):
     def __init__(self, name:str, legacy_mode: bool,        legacy_perlevel_feats:Dict[str, PerCountConfig],
                  percount_feats:Dict[str, PerCountConfig], aggregate_feats:Dict[str, AggregateConfig],
                  other_elements:Optional[Map]=None):
-        self._legacy_mode           : bool                       = legacy_mode
-        self._legacy_perlevel_feats : Dict[str, PerCountConfig]  = legacy_perlevel_feats
-        self._percount_feats        : Dict[str, PerCountConfig]  = percount_feats
-        self._aggregate_feats       : Dict[str, AggregateConfig] = aggregate_feats
+        unparsed_elements : Map = other_elements or {}
+
+        self._legacy_mode           : bool                       = legacy_mode           or self._parseLegacyMode(unparsed_elements=unparsed_elements)
+        self._legacy_perlevel_feats : Dict[str, PerCountConfig]  = legacy_perlevel_feats or self._parsePerLevelFeatures(unparsed_elements=unparsed_elements)
+        self._percount_feats        : Dict[str, PerCountConfig]  = percount_feats        or self._parsePerCountFeatures(unparsed_elements=unparsed_elements)
+        self._aggregate_feats       : Dict[str, AggregateConfig] = aggregate_feats       or self._parseAggregateFeatures(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 
