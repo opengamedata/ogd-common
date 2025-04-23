@@ -2,7 +2,7 @@
 import datetime
 import logging
 import unittest
-from typing import Any, Dict, Optional
+from pathlib import Path
 from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
@@ -25,16 +25,87 @@ class Capitalize(TestCase):
         self.assertIsInstance(_str, int)
         self.assertEqual(_str, 100)
 
+@unittest.skip("Not Implemented")
+class ConvertToType(TestCase):
+    def test_null_values(self):
+        pass
+
+class parseInt(TestCase):
+    def test_normal_int(self):
+        _int = conversions._parseInt(name="ParseIntVal", value=1)
+        self.assertIsInstance(_int, int)
+        self.assertEqual(_int, 1)
+
+    def test_float_to_int(self):
+        with self.subTest(msg="_parseInt: Round float up"):
+            _int = conversions._parseInt(name="ParseIntVal", value=1.75)
+            self.assertIsInstance(_int, int)
+            self.assertEqual(_int, 2)
+        with self.subTest(msg="_parseInt: Round float up at edge case"):
+            _int = conversions._parseInt(name="ParseIntVal", value=1.5)
+            self.assertIsInstance(_int, int)
+            self.assertEqual(_int, 2)
+        with self.subTest(msg="_parseInt: Round float down"):
+            _int = conversions._parseInt(name="ParseIntVal", value=1.25)
+            self.assertIsInstance(_int, int)
+            self.assertEqual(_int, 1)
+
+    def test_wrongtype(self):
+        _nan = {1:2}
+        _int = conversions._parseInt(name="ParseIntVal", value=_nan)
+        self.assertIsNone(_int)
+
+class parseFloat(TestCase):
+    def test_normal_float(self):
+        _float = conversions._parseFloat(name="ParseFloatVal", value=1.2)
+        self.assertIsInstance(_float, float)
+        self.assertEqual(_float, 1.2)
+
+    def test_int_to_float(self):
+        _float = conversions._parseFloat(name="ParseFloatVal", value=1)
+        self.assertIsInstance(_float, float)
+        self.assertEqual(_float, 1.)
+
+    def test_wrongtype(self):
+        _nan = {1:2}
+        _float = conversions._parseFloat(name="ParseFloatVal", value=_nan)
+        self.assertIsNone(_float)
+
 class parseString(TestCase):
     def test_normal_string(self):
         _str = conversions._parseString(name="ParseStringVal", value="Foo")
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
+    def test_int_to_str(self):
+        _str = conversions._parseString(name="ParseStringVal", value=123)
+        self.assertIsInstance(_str, str)
+        self.assertEqual(_str, "123")
+
+    def test_dict_to_str(self):
+        _elem = {1:2}
+        _elem_str = "{1: 2}"
+        _str = conversions._parseString(name="ParseStringVal", value=_elem)
+        self.assertIsInstance(_str, str)
+        self.assertEqual(_str, _elem_str)
+
+class parsePath(TestCase):
+    def test_normal_path(self):
+        _val = Path("./Foo")
+        _path = conversions._parsePath(name="ParsePathVal", value=_val)
+        self.assertIsInstance(_path, Path)
+        self.assertEqual(_path, _val)
+
+    def test_pathstring(self):
+        _elem = Path("./Foo")
+        _elem_str = "./Foo"
+        _path = conversions._parsePath(name="ParsePathVal", value=_elem_str)
+        self.assertIsInstance(_path, Path)
+        self.assertEqual(_path, _elem)
+
     def test_wrongtype(self):
-        _not_str = conversions._parseString(name="ParseStringVal", value=123)
-        self.assertIsInstance(_not_str, str)
-        self.assertEqual(_not_str, "123")
+        _not_path = conversions._parsePath(name="ParseStringVal", value=123)
+        self.assertIsNone(_not_path)
 
 @unittest.skip(reason="Not implemented")
 class parseDatetime(TestCase):
