@@ -109,22 +109,24 @@ class DatasetSchema(Schema):
                  players_file:Optional[Path],    players_template:Optional[Path],
                  population_file:Optional[Path], population_template:Optional[Path],
                  other_elements:Optional[Map]=None):
+        unparsed_elements = other_elements or {}
+
         self._key                 : DatasetKey     = key
-        self._date_modified       : date | str     = date_modified
-        self._start_date          : date | str     = start_date
-        self._end_date            : date | str     = end_date
-        self._ogd_revision        : str            = ogd_revision
-        self._session_ct          : Optional[int]  = session_ct
-        self._player_ct           : Optional[int]  = player_ct
-        self._raw_file            : Optional[Path] = raw_file
-        self._events_file         : Optional[Path] = events_file
-        self._events_template     : Optional[Path] = events_template
-        self._sessions_file       : Optional[Path] = sessions_file
-        self._sessions_template   : Optional[Path] = sessions_template
-        self._players_file        : Optional[Path] = players_file
-        self._players_template    : Optional[Path] = players_template
-        self._population_file     : Optional[Path] = population_file
-        self._population_template : Optional[Path] = population_template
+        self._date_modified       : date | str     = date_modified       or self._parseDateModified(unparsed_elements=unparsed_elements)
+        self._start_date          : date | str     = start_date          or self._parseStartDate(unparsed_elements=unparsed_elements)
+        self._end_date            : date | str     = end_date            or self._parseEndDate(unparsed_elements=unparsed_elements)
+        self._ogd_revision        : str            = ogd_revision        or self._parseOGDRevision(unparsed_elements=unparsed_elements)
+        self._session_ct          : Optional[int]  = session_ct          or self._parseSessionCount(unparsed_elements=unparsed_elements)
+        self._player_ct           : Optional[int]  = player_ct           or self._parsePlayerCount(unparsed_elements=unparsed_elements)
+        self._raw_file            : Optional[Path] = raw_file            or self._parseRawFile(unparsed_elements=unparsed_elements)
+        self._events_file         : Optional[Path] = events_file         or self._parseEventsFile(unparsed_elements=unparsed_elements)
+        self._events_template     : Optional[Path] = events_template     or self._parseEventsTemplate(unparsed_elements=unparsed_elements)
+        self._sessions_file       : Optional[Path] = sessions_file       or self._parseSessionsFile(unparsed_elements=unparsed_elements)
+        self._sessions_template   : Optional[Path] = sessions_template   or self._parseSessionsTemplate(unparsed_elements=unparsed_elements)
+        self._players_file        : Optional[Path] = players_file        or self._parsePlayersFile(unparsed_elements=unparsed_elements)
+        self._players_template    : Optional[Path] = players_template    or self._parsePlayersTemplate(unparsed_elements=unparsed_elements)
+        self._population_file     : Optional[Path] = population_file     or self._parsePopulationFile(unparsed_elements=unparsed_elements)
+        self._population_template : Optional[Path] = population_template or self._parsePopulationTemplate(unparsed_elements=unparsed_elements)
         super().__init__(name=name, other_elements=other_elements)
 
     def __str__(self) -> str:
