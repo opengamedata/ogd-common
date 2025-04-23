@@ -27,8 +27,8 @@ class FileStoreConfig(DataStoreConfig):
         ):
         unparsed_elements : Map = other_elements or {}
 
-        self._folder_path : Path             = folder_path
-        self._file_name   : str              = file_name
+        self._folder_path : Path           = folder_path     or self._parseFolder(unparsed_elements=other_elements)
+        self._file_name   : str            = file_name       or self._parseFilename(unparsed_elements=unparsed_elements)
         self._credential  : FileCredential = file_credential or self._parseCredential(unparsed_elements=unparsed_elements)
         super().__init__(name=name, store_type=store_type, other_elements=unparsed_elements)
 
