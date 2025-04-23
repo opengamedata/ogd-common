@@ -24,6 +24,11 @@ class GameSchema(Schema):
     for that game.
     The class includes several functions for easy access to the various parts of
     this schema data.
+
+    TODO : need to get game_state from schema file, and use a GameStateSchema instead of general Map.
+    TODO : Use DetectorMapConfig and FeatureMapConfig instead of just dicts... I think. Depending how these all work together.
+    TODO : make parser functions for config and versions, so we can do ElementFromDict for them as well.
+    TODO : In general, there's a metric fuckload of parsing functions and other things missing from standard way of doing this, class as a whole needs work.
     """
     _DEFAULT_ENUMS = {}
     _DEFAULT_GAME_STATE = {}
@@ -59,10 +64,6 @@ class GameSchema(Schema):
         Given a path and filename, it loads the data from a JSON schema,
         storing the full schema into a private variable, and compiling a list of
         all features to be extracted.
-
-        TODO: need to get game_state from schema file, and use a GameStateSchema instead of general Map.
-        TODO: Use DetectorMapConfig and FeatureMapConfig instead of just dicts... I think. Depending how these all work together.
-        TODO : make parser functions for config and versions, so we can do ElementFromDict for them as well.
 
         :param name: _description_
         :type name: str
@@ -101,12 +102,14 @@ class GameSchema(Schema):
         :return: The new instance of GameSchema
         :rtype: GameSchema
         """
+        unparsed_elements = other_elements or {}
+
     # 1. define instance vars
         self._game_id                : str                                  = game_id
-        self._enum_defs              : Dict[str, List[str]]                 = enum_defs
-        self._game_state             : Map                                  = game_state
-        self._user_data              : Map                                  = user_data
-        self._event_list             : List[EventSchema]                    = event_list
+        self._enum_defs              : Dict[str, List[str]]                 = enum_defs             or self._parseEnumDefs(unparsed_elements=unparsed_elements)
+        self._game_state             : Map                                  = game_state            or self._parseGameState(unparsed_elements=unparsed_elements)
+        self._user_data              : Map                                  = user_data             or self._parseUserData(unparsed_elements=unparsed_elements)
+        self._event_list             : List[EventSchema]                    = event_list            or self._parseEventList(unparsed_elements=unparsed_elements)
         self._detector_map           : Dict[str, Dict[str, DetectorConfig]] = detector_map
         self._aggregate_feats        : Dict[str, AggregateConfig]           = aggregate_feats
         self._percount_feats         : Dict[str, PerCountConfig]            = percount_feats

@@ -18,9 +18,11 @@ class DataElementSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, element_type:str, description:str, details:Optional[Dict[str, str]], other_elements:Optional[Map]=None):
-        self._type        : str                      = element_type
-        self._description : str                      = description
-        self._details     : Optional[Dict[str, str]] = details
+        unparsed_elements = other_elements or {}
+
+        self._type        : str                      = element_type or self._parseElementType(unparsed_elements=unparsed_elements)
+        self._description : str                      = description  or self._parseDescription(unparsed_elements=unparsed_elements)
+        self._details     : Optional[Dict[str, str]] = details      or self._parseDetails(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 

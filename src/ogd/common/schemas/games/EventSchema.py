@@ -19,8 +19,10 @@ class EventSchema(Schema):
     These essentially are just a description of the event, and a set of elements in the EventData attribute of the Event.
     """
     def __init__(self, name:str, description:str, event_data:Dict[str, DataElementSchema], other_elements:Optional[Map]=None):
-        self._description : str                          = description
-        self._event_data  : Dict[str, DataElementSchema] = event_data
+        unparsed_elements = other_elements or {}
+
+        self._description : str                          = description or self._parseDescription(unparsed_elements=unparsed_elements)
+        self._event_data  : Dict[str, DataElementSchema] = event_data  or self._parseEventDataElements(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 
