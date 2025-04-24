@@ -22,19 +22,19 @@ _config = TestConfig.FromDict(name="APIUtilsTestConfig", unparsed_elements=setti
 suite = TestSuite()
 if _config.EnabledTests.get('CONFIGS'):
     print("***\nAdding configs:")
-    suite.addTest(defaultTestLoader.discover('./tests/cases/configs/', pattern="t_*.py", top_level_dir="./"))
+    suite.addTest(defaultTestLoader.discover('./tests/cases/configs/', pattern="test_*.py", top_level_dir="./"))
     print("Done\n***")
 if _config.EnabledTests.get('INTERFACES'):
     print("***\nAdding interfaces:")
-    suite.addTest(defaultTestLoader.discover('./tests/cases/interfaces/', pattern="t_*.py", top_level_dir="./"))
+    suite.addTest(defaultTestLoader.discover('./tests/cases/interfaces/', pattern="test_*.py", top_level_dir="./"))
     print("Done\n***")
 if _config.EnabledTests.get('SCHEMAS'):
     print("***\nAdding schemas:")
-    suite.addTest(defaultTestLoader.discover('./tests/cases/schemas/', pattern="t_*.py", top_level_dir="./"))
+    suite.addTest(defaultTestLoader.discover('./tests/cases/schemas/', pattern="test_*.py", top_level_dir="./"))
     print("Done\n***")
 if _config.EnabledTests.get('UTILS'):
     print("***\nAdding Utils:")
-    suite.addTest(defaultTestLoader.discover('./tests/cases/utils/', pattern="t_*.py", top_level_dir="./"))
+    suite.addTest(defaultTestLoader.discover('./tests/cases/utils/', pattern="test_*.py", top_level_dir="./"))
     print("Done\n***")
 
 print(f"Tests are:")
