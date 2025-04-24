@@ -10,7 +10,7 @@ from src.ogd.common.schemas.games.GameSchema import GameSchema
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
-class t_GameSchema(TestCase):
+class test_GameSchema(TestCase):
     """Testbed for the GameSourceSchema class.
 
         TODO : Implement and enable tests.
