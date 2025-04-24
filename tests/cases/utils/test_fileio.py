@@ -13,7 +13,7 @@ class test_fileio(TestCase):
         print("Ran all t_fileio tests.")
 
     def test_loadJSONFile(self):
-        json_content = fileio.loadJSONFile(filename="t_fileio.json", path=Path("./tests/cases/utils/"))
+        json_content = fileio.loadJSONFile(filename="test_fileio.json", path=Path("./tests/cases/utils/"))
         self.assertEqual(json_content['first'], "the worst")
         self.assertEqual(json_content['second'], ["the best", "born, second place"])
         self.assertTrue("fourth" in json_content.keys())
