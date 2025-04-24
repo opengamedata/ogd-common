@@ -26,10 +26,10 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          t_DataElementSchema,
-          t_EventSchema,
-          t_GameSchema,
-          t_GameStateSchema
+          test_DataElementSchema,
+          test_EventSchema,
+          test_GameSchema,
+          test_GameStateSchema
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20

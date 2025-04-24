@@ -45,7 +45,7 @@ jobs:
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
         directory: "tests/cases/schemas"
-        test_file: "t_Schema.py"
+        test_file: "test_Schema.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete

@@ -26,13 +26,13 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          t_AggregateConfig,
-          t_DetectorMapConfig,
-          t_DetectorConfig,
-          t_FeatureMapConfig,
-          t_FeatureConfig,
-          t_GeneratorConfig,
-          t_PerCountConfig
+          test_AggregateConfig,
+          test_DetectorMapConfig,
+          test_DetectorConfig,
+          test_FeatureMapConfig,
+          test_FeatureConfig,
+          test_GeneratorConfig,
+          test_PerCountConfig
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20

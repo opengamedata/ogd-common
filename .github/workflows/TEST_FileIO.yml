@@ -45,7 +45,7 @@ jobs:
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
         directory: "tests/cases/utils"
-        test_file: "t_fileio.py"
+        test_file: "test_fileio.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete
