@@ -10,7 +10,7 @@ from src.ogd.common.configs.games.FeatureConfig import FeatureConfig
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
-class t_FeatureConfig(TestCase):
+class test_FeatureConfig(TestCase):
     """Testbed for the DetectorConfig class.
 
         TODO : Implement tests
