@@ -45,7 +45,7 @@ jobs:
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
         directory: "tests/cases/models"
-        test_file: "t_SemanticVersion.py"
+        test_file: "test_SemanticVersion.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete

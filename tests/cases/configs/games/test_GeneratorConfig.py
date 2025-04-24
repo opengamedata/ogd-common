@@ -10,7 +10,7 @@ from src.ogd.common.configs.games.GeneratorConfig import GeneratorConfig
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
-class t_GeneratorConfig(TestCase):
+class test_GeneratorConfig(TestCase):
     """Testbed for the DetectorConfig class.
 
         TODO : Implement tests

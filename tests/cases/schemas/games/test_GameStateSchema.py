@@ -6,13 +6,14 @@ from unittest import TestCase
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.schemas.games.DataElementSchema import DataElementSchema
+from src.ogd.common.schemas.games.GameStateSchema import GameStateSchema
 from tests.config.t_config import settings
 
-class t_DataElementSchema(TestCase):
+@unittest.skip("Not implemented")
+class test_GameStateSchema(TestCase):
     """Testbed for the GameSourceSchema class.
 
-        TODO : Test cases for empty details
+        TODO : Implement and enable tests.
     """
 
     @classmethod
@@ -23,14 +24,9 @@ class t_DataElementSchema(TestCase):
         Logger.std_logger.setLevel(_level)
 
         # 2. Set up local instance of testing class
-        cls.test_schema = DataElementSchema(
+        cls.test_schema = GameStateSchema(
             name="available_building Schema",
-            element_type="List[Dict]",
-            description="The buildings available for the player to construct",
-            details={
-                "name":"str",
-                "price":"int"
-            },
+            game_state={},
             other_elements={ "foo":"bar" }
         )
 
@@ -38,30 +34,27 @@ class t_DataElementSchema(TestCase):
     def RunAll():
         pass
 
+    @unittest.skip("Not implemented")
     def test_Name(self):
         _str = self.test_schema.Name
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "available_building Schema")
 
-    def test_ElementType(self):
-        _str = self.test_schema.ElementType
-        self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "List[Dict]")
-
+    @unittest.skip("Not implemented")
     def test_Description(self):
-        _str = self.test_schema.Description
-        self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "The buildings available for the player to construct")
+        pass
+        # _str = self.test_schema.ElementType
+        # self.assertIsInstance(_str, str)
+        # self.assertEqual(_str, "List[Dict]")
 
-    def test_Details(self):
-        _details = self.test_schema.Details
-        self.assertIsInstance(_details, dict)
-        _dict = {
-            "name":"str",
-            "price":"int"
-        }
-        self.assertEqual(_details, _dict)
+    @unittest.skip("Not implemented")
+    def test_EventData(self):
+        pass
+        # _str = self.test_schema.Description
+        # self.assertIsInstance(_str, str)
+        # self.assertEqual(_str, "The buildings available for the player to construct")
 
+    @unittest.skip("Not implemented")
     def test_NonStandardElements(self):
         _elems = {
             "foo":"bar"
@@ -69,11 +62,13 @@ class t_DataElementSchema(TestCase):
         self.assertIsInstance(self.test_schema.NonStandardElements, dict)
         self.assertEqual(self.test_schema.NonStandardElements, _elems)
 
+    @unittest.skip("Not implemented")
     def test_NonStandardElementNames(self):
         _elem_names = ["foo"]
         self.assertIsInstance(self.test_schema.NonStandardElementNames, list)
         self.assertEqual(self.test_schema.NonStandardElementNames, _elem_names)
 
+    @unittest.skip("Not implemented")
     def test_FromDict(self):
         """Test case for whether the FromDict function is working properly.
         """
@@ -85,15 +80,9 @@ class t_DataElementSchema(TestCase):
                },
                "description" : "The buildings available for the player to construct"
         }
-        _schema = DataElementSchema.FromDict(name="available_buildings Schema", unparsed_elements=_dict)
+        _schema = GameStateSchema.FromDict(name="available_buildings Schema", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "available_buildings Schema")
-        self.assertIsInstance(_schema.ElementType, str)
-        self.assertEqual(_schema.ElementType, "List[Dict]")
-        self.assertIsInstance(_schema.Description, str)
-        self.assertEqual(_schema.Description, "The buildings available for the player to construct")
-        self.assertIsInstance(_schema.Details, dict)
-        self.assertEqual(_schema.Details, { "name":"str", "price":"int" })
 
 if __name__ == '__main__':
     unittest.main()

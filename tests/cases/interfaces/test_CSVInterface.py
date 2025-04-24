@@ -8,7 +8,7 @@ from zipfile import ZipFile
 from ogd.common.connectors.interfaces.CSVInterface import CSVInterface
 from ogd.common.configs.GameSourceSchema import GameSourceSchema
 
-class t_CSVInterface(TestCase):
+class test_CSVInterface(TestCase):
     TEST_MIN_DATE     : Final[datetime]  = datetime(year=2021, month=2, day=1, hour= 0, minute=0, second=0)
     TEST_MAX_DATE     : Final[datetime]  = datetime(year=2021, month=2, day=1, hour=10, minute=0, second=0)
     ACTUAL_MIN_DATE   : Final[datetime]  = datetime(year=2021, month=2, day=1, hour=0, minute=10, second=43)
@@ -47,7 +47,7 @@ class t_CSVInterface(TestCase):
     def RunAll(self):
         self.test_IDsFromDates()
         self.test_DatesFromIDs()
-        print("Ran all t_CSVInterface tests.")
+        print("Ran all test_CSVInterface tests.")
 
     def test_IDsFromDates(self):
         with self.zipped_file.open(self.zipped_file.namelist()[0]) as f:

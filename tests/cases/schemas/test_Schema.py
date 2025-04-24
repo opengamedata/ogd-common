@@ -11,7 +11,7 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.schemas.Schema import Schema
 from tests.config.t_config import settings
 
-class t_Schema(TestCase):
+class test_Schema(TestCase):
     """Testbed for the Schema base class.
 
     Because this is a base class, there are a limited number of functions worth testing directly.
@@ -26,12 +26,12 @@ class t_Schema(TestCase):
             return self.Name
     
         @classmethod
-        def Default(cls) -> "t_Schema.TestSchema":
-            return t_Schema.TestSchema(name="DefaultTestSchema", other_elements={})
+        def Default(cls) -> "test_Schema.TestSchema":
+            return test_Schema.TestSchema(name="DefaultTestSchema", other_elements={})
 
         @classmethod
-        def FromDict(cls, name:str, all_elements:Dict[str, Any])-> "t_Schema.TestSchema":
-            return t_Schema.TestSchema(name=name, other_elements=all_elements)
+        def FromDict(cls, name:str, all_elements:Dict[str, Any])-> "test_Schema.TestSchema":
+            return test_Schema.TestSchema(name=name, other_elements=all_elements)
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -47,7 +47,7 @@ class t_Schema(TestCase):
             "bar":"baz",
             "fizz":datetime.datetime(year=2020, month=1, day=1, hour=3, minute=4, second=5)
         }
-        cls.test_schema = t_Schema.TestSchema(name="Test Schema", other_elements=_elems)
+        cls.test_schema = test_Schema.TestSchema(name="Test Schema", other_elements=_elems)
 
     @staticmethod
     def RunAll():

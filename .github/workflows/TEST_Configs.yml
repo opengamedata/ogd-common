@@ -26,9 +26,9 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          t_GameSourceSchema,
-          t_IndexingConfig,
-          t_TestConfig,
+          test_GameSourceSchema,
+          test_IndexingConfig,
+          test_TestConfig,
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20
