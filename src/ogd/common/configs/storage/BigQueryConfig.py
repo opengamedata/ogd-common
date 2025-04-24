@@ -1,5 +1,6 @@
 # import standard libraries
 import logging
+from pathlib import Path
 from typing import Optional
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
@@ -122,11 +123,14 @@ class BigQueryConfig(DataStoreConfig):
         raw_credential = BigQueryConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["PROJECT_KEY"],
-            to_type=dict,
+            to_type=[dict, str],
             default_value=BigQueryConfig._DEFAULT_CREDENTIAL,
             remove_target=True
         )
-        ret_val = KeyCredential.FromDict(name="KeyCredential", unparsed_elements=raw_credential)
+        if isinstance(raw_credential, dict):
+            ret_val = KeyCredential.FromDict(name="KeyCredential", unparsed_elements=raw_credential)
+        elif isinstance(raw_credential, str):
+            ret_val = KeyCredential(name="KeyCredential", filename=raw_credential, path=Path("./"), other_elements=None)
         return ret_val
 
     # *** PRIVATE METHODS ***
