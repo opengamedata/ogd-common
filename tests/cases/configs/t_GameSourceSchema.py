@@ -27,7 +27,10 @@ class t_GameSourceSchema(TestCase):
         source_elems = {
             "DB_TYPE"    : "FIREBASE",
             "PROJECT_ID" : "aqualab-project",
-            "PROJECT_KEY": "./key.txt"
+            "PROJECT_KEY": {
+                "FILE": "key.txt",
+                "PATH": "./"
+            }
         }
         cls.test_schema = GameSourceSchema(
             name="Game Source Schema",
