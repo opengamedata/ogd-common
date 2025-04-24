@@ -7,7 +7,7 @@ from unittest import TestCase
 # local import(s)
 from ogd.common.utils import fileio
 
-class t_fileio(TestCase):
+class test_fileio(TestCase):
     def RunAll(self):
         self.test_loadJSONFile()
         print("Ran all t_fileio tests.")

@@ -1,16 +1,15 @@
 # import libraries
 import logging
 import unittest
-from pathlib import Path
 from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.configs.IndexingConfig import FileIndexingConfig
+from src.ogd.common.configs.TestConfig import TestConfig as TestConfigLocal
 from tests.config.t_config import settings
 
-class t_IndexingConfig(TestCase):
+class test_TestConfig(TestCase):
     """Testbed for the GameSourceSchema class.
     """
 
@@ -22,11 +21,15 @@ class t_IndexingConfig(TestCase):
         Logger.std_logger.setLevel(_level)
 
         # 2. Set up local instance of testing class
-        cls.test_schema = FileIndexingConfig(
-            name="Indexing Schema",
-            local_dir=Path("./data/"),
-            remote_url="https://fieldday-web.ad.education.wisc.edu/opengamedata/",
-            templates_url="https://github.com/opengamedata/opengamedata-samples",
+        _enabled = {
+            "INTERFACES":False,
+            "SCHEMAS":True,
+            "UTILS":True
+        }
+        cls.test_schema = TestConfigLocal(
+            name="Local Test Config Schema",
+            verbose=True,
+            enabled_tests=_enabled,
             other_elements={ "foo":"bar" }
         )
 
@@ -37,22 +40,22 @@ class t_IndexingConfig(TestCase):
     def test_Name(self):
         _str = self.test_schema.Name
         self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "Indexing Schema")
+        self.assertEqual(_str, "Local Test Config Schema")
 
-    def test_LocalDirectory(self):
-        _dir = self.test_schema.LocalDirectory
-        self.assertIsInstance(_dir, Path)
-        self.assertEqual(_dir, Path("./data/"))
+    def test_Verbose(self):
+        _str = self.test_schema.Verbose
+        self.assertIsInstance(_str, bool)
+        self.assertEqual(_str, True)
 
-    def test_RemoteURL(self):
-        _str = self.test_schema.RemoteURL
-        self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "https://fieldday-web.ad.education.wisc.edu/opengamedata/")
-
-    def test_TemplatesURL(self):
-        _str = self.test_schema.TemplatesURL
-        self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "https://github.com/opengamedata/opengamedata-samples")
+    def test_EnabledTests(self):
+        _enabled = {
+            "INTERFACES":False,
+            "SCHEMAS":True,
+            "UTILS":True
+        }
+        _vals = self.test_schema.EnabledTests
+        self.assertIsInstance(_vals, dict)
+        self.assertEqual(_vals, _enabled)
 
     def test_NonStandardElements(self):
         _elems = {
@@ -70,19 +73,26 @@ class t_IndexingConfig(TestCase):
         """Test case for whether the FromDict function is working properly.
         """
         _dict = {
-            "LOCAL_DIR"     : "./data/",
-            "REMOTE_URL"    : "https://fieldday-web.ad.education.wisc.edu/opengamedata/",
-            "TEMPLATES_URL" : "https://github.com/opengamedata/opengamedata-samples"
+            "VERBOSE" : False,
+            "ENABLED" : {
+                "INTERFACES":False,
+                "SCHEMAS":True,
+                "UTILS":True
+            },
+            "REMOTE_ADDRESS" : "127.0.0.1:5000"
         }
-        _schema = FileIndexingConfig.FromDict(name="FILE_INDEXING", unparsed_elements=_dict)
+        _enabled = {
+            "INTERFACES":False,
+            "SCHEMAS":True,
+            "UTILS":True
+        }
+        _schema = TestConfigLocal.FromDict(name="Local Test Config Schema", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
-        self.assertEqual(_schema.Name, "FILE_INDEXING")
-        self.assertIsInstance(_schema.LocalDirectory, Path)
-        self.assertEqual(_schema.LocalDirectory, Path("./data"))
-        self.assertIsInstance(_schema.RemoteURL, str)
-        self.assertEqual(_schema.RemoteURL, "https://fieldday-web.ad.education.wisc.edu/opengamedata/")
-        self.assertIsInstance(_schema.TemplatesURL, str)
-        self.assertEqual(_schema.TemplatesURL, "https://github.com/opengamedata/opengamedata-samples")
+        self.assertEqual(_schema.Name, "Local Test Config Schema")
+        self.assertIsInstance(_schema.Verbose, bool)
+        self.assertEqual(_schema.Verbose, False)
+        self.assertIsInstance(_schema.EnabledTests, dict)
+        self.assertEqual(_schema.EnabledTests, _enabled)
 
     @unittest.skip("Not yet implemented")
     def test_parseLocalDir(self):

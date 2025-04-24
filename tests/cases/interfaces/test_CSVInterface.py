@@ -8,7 +8,7 @@ from zipfile import ZipFile
 from ogd.common.connectors.interfaces.CSVInterface import CSVInterface
 from ogd.common.configs.GameSourceSchema import GameSourceSchema
 
-class t_CSVInterface(TestCase):
+class test_CSVInterface(TestCase):
     TEST_MIN_DATE     : Final[datetime]  = datetime(year=2021, month=2, day=1, hour= 0, minute=0, second=0)
     TEST_MAX_DATE     : Final[datetime]  = datetime(year=2021, month=2, day=1, hour=10, minute=0, second=0)
     ACTUAL_MIN_DATE   : Final[datetime]  = datetime(year=2021, month=2, day=1, hour=0, minute=10, second=43)

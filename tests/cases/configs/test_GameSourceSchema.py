@@ -12,7 +12,7 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.configs.GameSourceSchema import GameSourceSchema
 from tests.config.t_config import settings
 
-class t_GameSourceSchema(TestCase):
+class test_GameSourceSchema(TestCase):
     """Testbed for the GameSourceSchema class.
     """
 
