@@ -1,11 +1,10 @@
 ## import standard libraries
 import logging
-from pathlib import Path
-from typing import Any, Dict, List, Tuple, Optional, TypeAlias
+from typing import Any, Dict, Optional
 ## import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map, conversions
+from ogd.common.utils.typing import Map
 
 ## @class TableStructureSchema
 class TableLocationSchema(Schema):
@@ -14,8 +13,10 @@ class TableLocationSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, table_name:str, other_elements:Optional[Map]):
-        self._table_name = table_name
+    def __init__(self, name:str, table_name:str, other_elements:Optional[Map]=None):
+        unparsed_elements = other_elements or {}
+
+        self._table_name = table_name or self._parseTableName(unparsed_elements=unparsed_elements)
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -40,8 +41,10 @@ class TableLocationSchema(Schema):
         )
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "TableLocationSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "TableLocationSchema":
         """Create a TableLocationSchema from a given dictionary
+
+        TODO : Add example of what format unparsed_elements is expected to have.
 
         :param name: _description_
         :type name: str
@@ -56,18 +59,10 @@ class TableLocationSchema(Schema):
         """
         _table_name    : str
 
-        if not isinstance(all_elements, dict):
+        if not isinstance(unparsed_elements, dict):
             all_elements = {}
-            _msg = f"For {name} Table Location schema, all_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
-        _table_name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["table"],
-            parser_function=cls._parseTableName,
-            default_value=TableLocationSchema._DEFAULT_TABLE_NAME
-        )
+            Logger.Log(f"For {name} Table Location schema, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
+        _table_name = cls._parseTableName(unparsed_elements=unparsed_elements)
 
         _used = {"table"}
         _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
@@ -80,11 +75,11 @@ class TableLocationSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseTableName(table) -> str:
-        ret_val : str
-        if isinstance(table, str):
-            ret_val = table
-        else:
-            ret_val = str(table)
-            Logger.Log(f"Game Source table name was unexpected type {type(table)}, defaulting to str(table)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseTableName(unparsed_elements:Map) -> str:
+        return TableLocationSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["table"],
+            to_type=str,
+            default_value=TableLocationSchema._DEFAULT_TABLE_NAME,
+            remove_target=True
+        )

@@ -1,10 +1,10 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 # import local files
 from ogd.common.configs.Config import Config
 from ogd.common.utils.Logger import Logger
-
+from ogd.common.utils.typing import Map
 
 class EmptyCredential(Config):
     """Dumb struct to contain data pertaining to credentials for accessing a data source.
@@ -25,17 +25,23 @@ class EmptyCredential(Config):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "EmptyCredential":
-        _user : str
+    def FromDict(cls, name:str, unparsed_elements:Map)-> "EmptyCredential":
+        """Function to generate an EmptyCredential from a dictionary mapping string keys to values.
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-            _msg = f"For {name} empty credential config, all_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
-        return EmptyCredential(name=name, other_elements=all_elements)
+        Technically,  it doesn't matter what goes in, because an EmptyCredential is always empty.
+
+        :param name: The name to be given to the credential configuration
+        :type name: str
+        :param unparsed_elements: A dictionary of all elements that are meant to be parsed by EmptyCredential and its superclasses.
+        :type unparsed_elements: Map
+        :return: A new EmptyCredential
+        :rtype: EmptyCredential
+        """
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements = {}
+            _msg = f"For {name} empty credential config, unparsed_elements was not a dict, defaulting to empty dict"
+            Logger.Log(_msg, logging.WARN)
+        return EmptyCredential(name=name, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "EmptyCredential":

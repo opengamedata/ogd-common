@@ -11,7 +11,7 @@ from ogd.common.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils.Logger import Logger
 
-class CSVInterface(EventInterface):
+class CSVInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 

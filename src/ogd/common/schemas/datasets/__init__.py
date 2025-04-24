@@ -1,7 +1,7 @@
 __all__ = [
     "DatasetSchema",
-    "FileListSchema"
+    "DatasetCollectionSchema"
 ]
 
 from . import DatasetSchema
-from . import FileListSchema
+from . import DatasetCollectionSchema

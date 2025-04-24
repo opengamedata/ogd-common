@@ -1,12 +1,11 @@
 # import standard libraries
 import logging
-import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Optional
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.utils.Logger import Logger
-
+from ogd.common.utils.typing import Map
 
 class KeyCredential(CredentialConfig):
     """Dumb struct to contain data pertaining to loading a key credential
@@ -14,15 +13,17 @@ class KeyCredential(CredentialConfig):
     _DEFAULT_PATH = "./"
     _DEFAULT_FILE = "key.txt"
 
-    def __init__(self, name:str, filename:str, path:Path | str, other_elements:Dict[str, Any] | Any):
-        super().__init__(name=name, other_elements=other_elements)
+    def __init__(self, name:str, filename:str, path:Path | str, other_elements:Optional[Map]):
+        unparsed_elements : Map = other_elements or {}
+
         if isinstance(path, str):
             path = Path(path)
-        self._path : Path = path
-        self._file : str = filename
+        self._path : Path = path     or self._parsePath(unparsed_elements=unparsed_elements)
+        self._file : str  = filename or self._parseFilename(unparsed_elements=unparsed_elements)
+        super().__init__(name=name, other_elements=unparsed_elements)
 
     @property
-    def File(self) -> str:
+    def Filename(self) -> str:
         return self._file
 
     @property
@@ -41,7 +42,29 @@ class KeyCredential(CredentialConfig):
         :return: The full path to the key credential file.
         :rtype: Path
         """
-        return self.Folder / self.File
+        return self.Folder / self.Filename
+
+    @property
+    def Key(self) -> Optional[str]:
+        """The actual key, loaded from the file
+
+        This property loads from the file whenever invoked,
+        just to minimize the degree to which keys stick around in the code.
+
+        :return: The full path to the key credential file.
+        :rtype: Path
+        """
+        ret_val  : Optional[str] = None
+        try:
+            with open(self.Filepath) as keyfile:
+                try:
+                    ret_val = keyfile.read()
+                except IOError:
+                    Logger.Log(f"Could not read key file at {self.Filepath}, an I/O error occurred!")
+        except FileNotFoundError:
+            Logger.Log(f"Could not open key file {self.Filepath}, the file does not exist!")
+        finally:
+            return ret_val
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -53,27 +76,33 @@ class KeyCredential(CredentialConfig):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "KeyCredential":
+    def FromDict(cls, name:str, unparsed_elements:Map)-> "KeyCredential":
+        """Create a Key Credential from a dict.
+
+        Expects dictionary to have the following form:
+        ```json
+        {
+           "FILE" : "key.txt",
+           "PATH" : "./"
+        }
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Map
+        :return: _description_
+        :rtype: KeyCredential
+        """
         _file : Optional[str]
         _path : Optional[Path]
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-            _msg = f"For {name} key credential config, all_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
-        _file = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["FILE", "KEY"],
-            parser_function=cls._parseFile,
-            default_value=cls._DEFAULT_FILE
-        )
-        _path = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["PATH"],
-            parser_function=cls._parsePath,
-            default_value=cls._DEFAULT_PATH
-        )
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements = {}
+            _msg = f"For {name} key credential config, unparsed_elements was not a dict, defaulting to empty dict"
+            Logger.Log(_msg, logging.WARN)
+        _file = cls._parseFilename(unparsed_elements=unparsed_elements)
+        _path = cls._parsePath(unparsed_elements=unparsed_elements)
         # if we didn't find a PATH, but the FILE has a '/' in it,
         # we should be able to get file separate from path.
         if _path is None and _file is not None and "/" in _file:
@@ -81,9 +110,7 @@ class KeyCredential(CredentialConfig):
             _path = _full_path.parent
             _file = _full_path.name
 
-        _used = {"FILE", "KEY", "PATH"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return KeyCredential(name=name, filename=_file, path=_path, other_elements=_leftovers)
+        return KeyCredential(name=name, filename=_file, path=_path, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "KeyCredential":
@@ -101,25 +128,23 @@ class KeyCredential(CredentialConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseFile(file) -> str:
-        ret_val : Optional[str]
-        if isinstance(file, str):
-            ret_val = file
-        else:
-            ret_val = str(file)
-            Logger.Log(f"Filename for key credential was unexpected type {type(file)}, defaulting to str(file)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseFilename(unparsed_elements:Map) -> str:
+        return KeyCredential.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["FILE", "KEY"],
+            to_type=str,
+            default_value=KeyCredential._DEFAULT_FILE,
+            remove_target=True
+        )
 
     @staticmethod
-    def _parsePath(folder) -> Path:
-        ret_val : Path
-        if isinstance(folder, Path):
-            ret_val = folder
-        if isinstance(folder, str):
-            ret_val = Path(folder)
-        else:
-            ret_val = Path(str(folder))
-            Logger.Log(f"Folder for key credential was unexpected type {type(folder)}, defaulting to Path(str(folder))={ret_val}.", logging.WARN)
-        return ret_val
+    def _parsePath(unparsed_elements:Map) -> Path:
+        return KeyCredential.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["PATH"],
+            to_type=Path,
+            default_value=KeyCredential._DEFAULT_PATH,
+            remove_target=True
+        )
 
     # *** PRIVATE METHODS ***

@@ -1,10 +1,13 @@
 ## import standard libraries
+import builtins
+import datetime
 import json
 import logging
+import pathlib
 import re
-from datetime import datetime, timedelta, timezone
+import typing
 from json.decoder import JSONDecodeError
-from typing import Any, Dict, List, Optional, TypeAlias
+from typing import Any, Dict, List, Optional, TypeAlias, Type
 ## import 3rd-party libraries
 from dateutil import parser
 ## import local files
@@ -14,59 +17,251 @@ Map       : TypeAlias = Dict[str, Any] # type alias: we'll call any dict using s
 ExportRow : TypeAlias = List[Any]
 
 class conversions:
+    """Utility class with simple, "common-sense" parsing and warning logs for converting between types.
+
+    In particular, this is intended for use by config/schema classes,
+    where incoming values may be strings that must be parsed into the proper type internally.
+    """
+
+    # *** PUBLIC STATICS ***
 
     @staticmethod
-    def ConvertToType(variable:Any, to_type:str) -> Any:
+    def Capitalize(value:Any) -> Any:
+        """Stupidly simple little function to convert any given strings to upper case, but allow non-strings to pass through unchanged.
+
+        :param value: A value to be converted to upper case, if it's a string.
+        :type value: Any
+        :return: A capitalized version of `value`, if it was a string, else the original `value`.
+        :rtype: Any
+        """
+        return value.upper() if isinstance(value, str) else value
+
+    @staticmethod
+    def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed Element") -> Any:
         """Applies whatever parsing is appropriate based on what type the schema said a column contained.
 
-        :param input: _description_
-        :type input: str
-        :param col_schema: _description_
-        :type col_schema: ColumnSchema
+        :param value: _description_
+        :type value: Any
+        :param to_type: The desired type of the element.
+            * If a string, the function will match against a set of recognized type names.
+            * If a type, the function will match against a set of recognized types.
+            * If a list of types, the function will attempt to match the raw value's type against all types in the list.  
+                If a match is found, where "match" means the raw value is an instance of the given type, the return value will be the same type as the raw value.  
+                If the raw value's type matches nothing in the list, the return value will be a parsed instance of the first type in the list.
+                The function naively assumes the first type in the list is a recognized type; if it is not, a value of None will be returned.
+        :type to_type: str | Type | List[Type]
+        :param name: _description_
+        :type name: str
         :return: _description_
         :rtype: Any
         """
-        if variable is None:
-            return None
-        if variable == "None" or variable == "null" or variable == "nan":
-            return None
-        match to_type.upper():
-            case 'STR':
-                return str(variable)
-            case 'INT':
-                return int(variable)
-            case 'FLOAT':
-                return float(variable)
-            case 'DATETIME':
-                return variable if isinstance(variable, datetime) else conversions.DatetimeFromString(str(variable))
-            case 'TIMEDELTA':
-                return variable if isinstance(variable, timedelta) else conversions.TimedeltaFromString(str(variable))
-            case 'TIMEZONE':
-                return variable if isinstance(variable, timezone) else conversions.TimezoneFromString(str(variable))
-            case 'JSON':
-                try:
-                    if isinstance(variable, dict):
-                        # if input was a dict already, then just give it back. Else, try to load it from string.
-                        return variable
-                    elif isinstance(variable, str):
-                        if variable != 'None' and variable != '': # watch out for nasty corner cases.
-                            return json.loads(variable)
-                        else:
-                            return None
-                    else:
-                        return json.loads(str(variable))
-                except JSONDecodeError as err:
-                    Logger.Log(f"Could not parse input '{variable}' of type {type(variable)} to type {to_type}, got the following error:\n{str(err)}", logging.WARN)
-                    return {}
-            case _dummy if _dummy.startswith('ENUM'):
-                # if the column is supposed to be an enum, for now we just stick with the string.
-                return str(variable)
-            case _:
-                Logger.Log(f"ConvertToType function got an unrecognized type {to_type}, could not complete conversion!", logging.WARNING)
+        ret_val : Any
+
+        if conversions.Capitalize(value) in [None, "NONE", "NULL", "NAN"]:
+            ret_val = None
+        # Handle case where there are multiple valid types accepted (i.e. got a list, and everything in list is a type/str)
+        if isinstance(to_type, List) and all(type(x) in {type, str} for x in to_type):
+            found = False
+            # for each candidate type, check if value already had that type
+            for t in to_type:
+                if isinstance(value, t):
+                    ret_val = value
+                    found = True
+            # if we didn't find exact match between value and candidate type, make a "soft" parse attempt on each type
+            # Also good gracious me it's a mother****ing while loop in Python, oh my days...
+            i = 0
+            while not found and i < len(to_type):
+                _parsed = conversions._parseToType(value=value, to_type=to_type[i], name=name)
+                if _parsed is not None:
+                    ret_val = _parsed
+                    found = True
+                i += 1
+
+            # If none of the parsers knew how to handle the type of value param,
+            # force the issue by calling a "hard" conversion on first type in list of candidate types.
+            if not found:
+                ret_val = conversions.ConvertToType(value, to_type=to_type[0], name=name)
+        # Otherwise, handle recognized single types
+        else:
+            match conversions.Capitalize(to_type):
+                case 'BOOL' | builtins.bool:
+                    ret_val = conversions.ToBool(name=name, value=value)
+                case 'STR' | builtins.str:
+                    ret_val = conversions.ToString(name=name, value=value)
+                case 'INT' | builtins.int:
+                    ret_val = conversions.ToInt(name=name, value=value)
+                case 'FLOAT' | builtins.float:
+                    ret_val = conversions.ToFloat(name=name, value=value)
+                case 'PATH' | pathlib.Path:
+                    ret_val = conversions.ToPath(name=name, value=value)
+                case 'DATETIME' | datetime.datetime | datetime.date:
+                    ret_val = conversions.ToDatetime(name=name, value=value)
+                case 'TIMEDELTA' | datetime.timedelta:
+                    ret_val = conversions.ToTimedelta(name=name, value=value)
+                case 'TIMEZONE' | datetime.timezone:
+                    ret_val = conversions.ToTimezone(name=name, value=value)
+                case 'JSON' | 'DICT' | builtins.dict | typing.Dict:
+                    ret_val = conversions.ToJSON(name=name, value=value)
+                case 'LIST' | builtins.list | typing.List:
+                    ret_val = conversions.ToList(name=name, value=value)
+                case _dummy if isinstance(_dummy, str) and _dummy.startswith('ENUM'):
+                    # if the column is supposed to be an enum, for now we just stick with the string.
+                    ret_val = str(value)
+                case _:
+                    _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
+                    Logger.Log(_msg, logging.WARNING)
+                    ret_val = None
+        return ret_val
 
     @staticmethod
-    def DatetimeFromString(time_str:str) -> datetime:
-        ret_val : datetime
+    def ToBool(name:str, value:Any) -> bool:
+        ret_val : bool
+
+        _parsed = conversions._parseBool(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = bool(value)
+            _msg = f"{name} was unexpected type {type(value)}, expected a bool! Defaulting to bool(value) == {ret_val}."
+            Logger.Log(_msg, logging.WARN)
+
+        return ret_val
+
+    @staticmethod
+    def ToInt(name:str, value:Any) -> int:
+        ret_val : int
+
+        _parsed = conversions._parseInt(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = int(value)
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected an int! Defaulting to int(value) == {ret_val}.", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToFloat(name:str, value:Any) -> float:
+        ret_val : float
+
+        _parsed = conversions._parseFloat(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = int(value)
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a float! Defaulting to float(value) == {ret_val}.", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToString(name:str, value:Any) -> str:
+        ret_val : str
+
+        _parsed = conversions._parseString(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = str(value)
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a string! Defaulting to str(value) == {ret_val}", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToPath(name:str, value:Any) -> pathlib.Path:
+        ret_val : pathlib.Path
+
+        _parsed = conversions._parsePath(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = pathlib.Path(str(value))
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a Path! Defaulting to Path(str(value)) == {ret_val}", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToDatetime(name:str, value:Any) -> datetime.datetime:
+        ret_val : datetime.datetime
+
+        _parsed = conversions._parseDatetime(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = conversions.DatetimeFromString(str(value))
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a datetime! Defaulting to datetime(str(value)) == {ret_val}", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToTimedelta(name:str, value:Any) -> Optional[datetime.timedelta]:
+        ret_val : Optional[datetime.timedelta]
+
+        _parsed = conversions._parseTimedelta(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = conversions.TimedeltaFromString(str(value))
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a timedelta! Defaulting to timedelta(str(value)) == {ret_val}", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToTimezone(name:str, value:Any) -> Optional[datetime.timezone]:
+        ret_val : Optional[datetime.timezone]
+
+        _parsed = conversions._parseTimezone(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = conversions.TimezoneFromString(str(value))
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a timezone! Defaulting to timezone(str(value)) == {ret_val}", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToList(name:str, value:Any) -> Optional[List]:
+        ret_val : Optional[List]
+
+        _parsed = conversions._parseList(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = list(json.loads(str(value)))
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a list! Defaulting to list(json.parse(str(value))) == {ret_val}", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToJSON(name:str, value:Any) -> Optional[Dict]:
+        ret_val : Optional[Dict]
+
+        _parsed = conversions._parseJSON(name=name, value=value)
+        if _parsed is not None:
+            ret_val = _parsed
+        else:
+            ret_val = json.loads(str(value))
+            Logger.Log(f"{name} was unexpected type {type(value)}, expected a dict! Defaulting to json.parse(str(value)) == {ret_val}", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def BoolFromString(bool_str:str) -> bool:
+        ret_val : bool
+
+        match bool_str.upper():
+            case 'TRUE' | 'YES':
+                ret_val = True
+            case 'FALSE' | 'NO':
+                ret_val = False
+            case _:
+                ret_val = bool(bool_str)
+        return ret_val
+
+    @staticmethod
+    def DatetimeFromString(time_str:str) -> datetime.datetime:
+        """_summary_
+
+        TODO : handle more date formats, or something. I dunno, copied this from another area where we were parsing dates.
+
+        :param time_str: _description_
+        :type time_str: str
+        :raises ValueError: _description_
+        :raises ValueError: _description_
+        :return: _description_
+        :rtype: datetime.datetime
+        """
+        ret_val : datetime.datetime
 
         if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
             raise ValueError(f"Got a non-timestamp value of {time_str} when converting a datetime column from data source!")
@@ -83,7 +278,7 @@ class conversions:
             return ret_val
         for fmt in formats:
             try:
-                ret_val = datetime.strptime(time_str, fmt)
+                ret_val = datetime.datetime.strptime(time_str, fmt)
             except ValueError:
                 pass
             else:
@@ -91,8 +286,8 @@ class conversions:
         raise ValueError(f"Could not parse timestamp {time_str}, it did not match any expected formats!")
 
     @staticmethod
-    def TimedeltaFromString(time_str:str) -> Optional[timedelta]:
-        ret_val : Optional[timedelta]
+    def TimedeltaFromString(time_str:str) -> Optional[datetime.timedelta]:
+        ret_val : Optional[datetime.timedelta]
 
         if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
             return None
@@ -100,37 +295,352 @@ class conversions:
             try:
                 pieces = time_str.split(':')
                 seconds_pieces = pieces[2].split('.')
-                ret_val = timedelta(hours=int(pieces[0]),
+                ret_val = datetime.timedelta(hours=int(pieces[0]),
                                     minutes=int(pieces[1]),
                                     seconds=int(seconds_pieces[0]),
                                     milliseconds=int(seconds_pieces[1]) if len(seconds_pieces) > 1 else 0)
-            except ValueError as err:
+            except ValueError:
                 pass
-            except IndexError as err:
+            except IndexError:
                 pass
             else:
                 return ret_val
         elif re.fullmatch(pattern=r"-?\d+", string=time_str):
             try:
-                ret_val = timedelta(seconds=int(time_str))
-            except ValueError as err:
+                ret_val = datetime.timedelta(seconds=int(time_str))
+            except ValueError:
                 pass
             else:
                 return ret_val
         raise ValueError(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats.")
 
     @staticmethod
-    def TimezoneFromString(time_str:str) -> Optional[timezone]:
-        ret_val : Optional[timezone]
+    def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
+        ret_val : Optional[datetime.timezone]
 
         if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
             return None
         elif re.fullmatch(pattern=r"UTC[+-]\d+:\d+", string=time_str):
             try:
                 pieces = time_str.removeprefix("UTC").split(":")
-                ret_val = timezone(timedelta(hours=int(pieces[0]), minutes=int(pieces[1])))
-            except ValueError as err:
+                ret_val = datetime.timezone(datetime.timedelta(hours=int(pieces[0]), minutes=int(pieces[1])))
+            except ValueError:
                 pass
             else:
                 return ret_val
         raise ValueError(f"Could not parse timezone {time_str} of type {type(time_str)}, it did not match any expected formats.")
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
+
+    @staticmethod
+    def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element") -> Any:
+        """Private function to attempt to parse a value to a specific type.
+
+        Unlike the main ConvertToType function, however,
+        this function will not attempt a conversion if the type of the "value" variable is not recognized.
+        Instead, it will simply return None
+
+        :param value: _description_
+        :type value: Any
+        :param to_type: _description_
+        :type to_type: str | Type | List[Type]
+        :param name: _description_
+        :type name: str
+        :return: _description_
+        :rtype: Any
+        """
+        ret_val : Any
+
+        if value is None:
+            ret_val = None
+        elif value == "None" or value == "null" or value == "nan":
+            ret_val = None
+        match (conversions.Capitalize(to_type)):
+            case 'BOOL' | builtins.bool:
+                ret_val = conversions._parseBool(name=name, value=value)
+            case 'STR' | builtins.str:
+                ret_val = conversions._parseString(name=name, value=value)
+            case 'INT' | builtins.int:
+                ret_val = conversions._parseInt(name=name, value=value)
+            case 'FLOAT' | builtins.float:
+                ret_val = conversions._parseFloat(name=name, value=value)
+            case 'PATH' | pathlib.Path:
+                ret_val = conversions._parsePath(name=name, value=value)
+            case 'DATETIME' | datetime.datetime:
+                ret_val = conversions._parseDatetime(name=name, value=value)
+            case 'TIMEDELTA' | datetime.timedelta:
+                ret_val = conversions._parseTimedelta(name=name, value=value)
+            case 'TIMEZONE' | datetime.timezone:
+                ret_val = conversions._parseTimezone(name=name, value=value)
+            case 'JSON' | 'DICT' | builtins.dict | typing.Dict:
+                ret_val = conversions._parseJSON(name=name, value=value)
+            case 'LIST' | builtins.list | typing.List:
+                ret_val = conversions._parseList(name=name, value=value)
+            case _dummy if isinstance(_dummy, str) and _dummy.startswith('ENUM'):
+                # if the column is supposed to be an enum, for now we just stick with the string.
+                ret_val = str(value)
+            case _:
+                _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
+                Logger.Log(_msg, logging.WARNING)
+                ret_val = None
+        return ret_val
+
+    @staticmethod
+    def _parseBool(name:str, value:Any) -> Optional[bool]:
+        """Attempt to turn a given value into a bool
+
+        Returns None if the value type was not recognized
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a bool representation
+        :type value: Any
+        :return: The bool representation of value, if type of value was recognized, else None
+        :rtype: Optional[bool]
+        """
+        ret_val : Optional[bool]
+        match type(value):
+            case builtins.bool:
+                ret_val = value
+            case builtins.int | builtins.float:
+                ret_val = bool(value)
+            case builtins.str:
+                ret_val = conversions.BoolFromString(bool_str=value)
+            case _:
+                ret_val = None
+        return ret_val
+
+    @staticmethod
+    def _parseInt(name:str, value:Any) -> Optional[int]:
+        """Attempt to turn a given value into an int
+
+        Returns None if the value type was not recognized
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to an int representation
+        :type value: Any
+        :return: The int representation of value, if type of value was recognized, else None
+        :rtype: Optional[int]
+        """
+        ret_val : Optional[int]
+        match type(value):
+            case builtins.int:
+                ret_val = value
+            case builtins.float:
+                ret_val = int(round(value))
+                Logger.Log(f"{name} was a float value, rounding to nearest int: {ret_val}.", logging.WARN)
+            case _:
+                ret_val = None
+        return ret_val
+
+    @staticmethod
+    def _parseFloat(name:str, value:Any) -> Optional[float]:
+        """Attempt to turn a given value into a float
+
+        Returns None if the value type was not recognized
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a float representation
+        :type value: Any
+        :return: The float representation of value, if type of value was recognized, else None
+        :rtype: Optional[float]
+        """
+        ret_val : Optional[float]
+        match type(value):
+            case builtins.float:
+                ret_val = value
+            case builtins.int:
+                ret_val = float(value)
+            case _:
+                ret_val = None
+        return ret_val
+
+    @staticmethod
+    def _parseString(name:str, value:Any) -> Optional[str]:
+        """Attempt to turn a given value into a str
+
+        Returns None if the value type was not recognized.
+        This is a cheat, relative to other _parse<Type> functions in the conversions class,
+        because anything that is not a string will be converted with str(value).
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a str representation
+        :type value: Any
+        :return: The str representation of value, if type of value was recognized, else None
+        :rtype: Optional[str]
+        """
+        ret_val : Optional[str]
+        match type(value):
+            case builtins.str:
+                ret_val = value
+            case _:
+                ret_val = str(value)
+        return ret_val
+
+    @staticmethod
+    def _parsePath(name:str, value:Any) -> Optional[pathlib.Path]:
+        """Attempt to turn a given value into a path
+
+        Returns None if the value type was not recognized.
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a path representation
+        :type value: Any
+        :return: The path representation of value, if type of value was recognized, else None
+        :rtype: Optional[path]
+        """
+        ret_val : Optional[pathlib.Path]
+        match type(value):
+            case dummy if issubclass(dummy, pathlib.Path):
+                ret_val = value
+            case builtins.str:
+                ret_val = pathlib.Path(value)
+            case _:
+                ret_val = None
+        return ret_val
+
+    @staticmethod
+    def _parseDatetime(name:str, value:Any) -> Optional[datetime.datetime]:
+        """Attempt to turn a given value into a datetime
+
+        Returns None if the value type was not recognized.
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a datetime representation
+        :type value: Any
+        :return: The datetime representation of value, if type of value was recognized, else None
+        :rtype: Optional[datetime]
+        """
+        ret_val : Optional[datetime.datetime]
+        match type(value):
+            case datetime.datetime:
+                ret_val = value
+            case datetime.date:
+                midnight = datetime.datetime.min.time()
+                ret_val = datetime.datetime.combine(date=value, time=midnight)
+                Logger.Log(f"{name} was a date value, defaulting to midnight of the given date: {ret_val}", logging.WARN)
+            case builtins.str:
+                ret_val = conversions.DatetimeFromString(time_str=value)
+            case _:
+                ret_val = None
+        return ret_val
+
+    @staticmethod
+    def _parseTimedelta(name:str, value:Any) -> Optional[datetime.timedelta]:
+        """Attempt to turn a given value into a timedelta
+
+        Returns None if the value type was not recognized.
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a timedelta representation
+        :type value: Any
+        :return: The timedelta representation of value, if type of value was recognized, else None
+        :rtype: Optional[timedelta]
+        """
+        ret_val : Optional[datetime.timedelta]
+        match type(value):
+            case datetime.timedelta:
+                ret_val = value
+            case datetime.time:
+                ret_val = value - datetime.datetime.min.time()
+                Logger.Log(f"{name} was a time value, treating the time is difference from 0: {ret_val}", logging.WARN)
+            case builtins.str:
+                ret_val = conversions.TimedeltaFromString(time_str=value)
+            case _:
+                ret_val = None
+        return ret_val
+
+    @staticmethod
+    def _parseTimezone(name:str, value:Any) -> Optional[datetime.timezone]:
+        """Attempt to turn a given value into a timezone
+
+        Returns None if the value type was not recognized.
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a timezone representation
+        :type value: Any
+        :return: The timezone representation of value, if type of value was recognized, else None
+        :rtype: Optional[timezone]
+        """
+        ret_val : Optional[datetime.timezone]
+        match type(value):
+            case datetime.timezone:
+                ret_val = value
+            case builtins.str:
+                ret_val = conversions.TimezoneFromString(time_str=value)
+            case _:
+                ret_val = None
+        return ret_val
+
+    @staticmethod
+    def _parseList(name:str, value:Any) -> Optional[List]:
+        """Attempt to turn a given value into a list
+
+        Returns None if the value type was not recognized.
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a list representation
+        :type value: Any
+        :return: The list representation of value, if type of value was recognized, else None
+        :rtype: Optional[List]
+        """
+        ret_val : Optional[List]
+        try:
+            match type(value):
+                case builtins.list:
+                    # if input was a list already, then just give it back. Else, try to load it from string.
+                    ret_val = value
+                case builtins.str:
+                    if value not in {'None', 'null', ''}: # watch out for nasty corner cases.
+                        ret_val = list(json.loads(value))
+                    else:
+                        ret_val = None
+                case _:
+                    ret_val = None
+        except JSONDecodeError as err:
+            Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to list, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
+            ret_val = None
+        return ret_val
+
+    @staticmethod
+    def _parseJSON(name:str, value:Any) -> Optional[Dict]:
+        """Attempt to turn a given value into a JSON-style dictionary
+
+        Returns None if the value type was not recognized.
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a JSON representation
+        :type value: Any
+        :return: The JSON representation of value, if type of value was recognized, else None
+        :rtype: Optional[Dict]
+        """
+        ret_val : Optional[Dict]
+        try:
+            match type(value):
+                case builtins.dict:
+                    # if input was a dict already, then just give it back. Else, try to load it from string.
+                    ret_val = value
+                case builtins.str:
+                    if value not in {'None', ''}: # watch out for nasty corner cases.
+                        ret_val = json.loads(value)
+                    else:
+                        ret_val = None
+                case _:
+                    ret_val = None
+        except JSONDecodeError as err:
+            Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to JSON, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
+            ret_val = None
+        return ret_val
+
+    # *** PRIVATE METHODS ***

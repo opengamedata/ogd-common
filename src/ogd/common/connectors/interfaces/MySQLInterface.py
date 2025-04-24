@@ -112,7 +112,7 @@ class SQL:
             if tries > 0:
                 Logger.Log("Re-attempting to connect to SSH.", logging.INFO)
             try:
-                Logger.Log(f"Connecting to SSH at {sql.SSHConfig.AsConnectionInfo}...", logging.DEBUG)
+                Logger.Log(f"Connecting to SSH at {sql.SSHConf.AsConnectionInfo}...", logging.DEBUG)
                 tunnel = sshtunnel.SSHTunnelForwarder(
                     (sql.SSH.Host, sql.SSH.Port), ssh_username=sql.SSH.User, ssh_password=sql.SSH.Pass,
                     remote_bind_address=(sql.DBHost, sql.DBPort), logger=Logger.std_logger

@@ -17,7 +17,7 @@ class t_IndexingConfig(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         # 1. Get testing config
-        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", all_elements=settings, logger=None)
+        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
         _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
         Logger.std_logger.setLevel(_level)
 
@@ -74,7 +74,7 @@ class t_IndexingConfig(TestCase):
             "REMOTE_URL"    : "https://fieldday-web.ad.education.wisc.edu/opengamedata/",
             "TEMPLATES_URL" : "https://github.com/opengamedata/opengamedata-samples"
         }
-        _schema = FileIndexingConfig.FromDict(name="FILE_INDEXING", all_elements=_dict, logger=None)
+        _schema = FileIndexingConfig.FromDict(name="FILE_INDEXING", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "FILE_INDEXING")
         self.assertIsInstance(_schema.LocalDirectory, Path)

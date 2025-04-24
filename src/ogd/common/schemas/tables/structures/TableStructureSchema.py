@@ -156,7 +156,7 @@ class TableStructureSchema(Schema):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "TableStructureSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "TableStructureSchema":
         """Function to generate a TableStructureSchema from a dictionary.
 
         The structure is assumed to be as follows:
@@ -181,23 +181,26 @@ class TableStructureSchema(Schema):
         """
         _column_schemas : List[ColumnSchema]
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-            _msg = f"For {name} Table Schema, all_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
-        _column_json_list = all_elements.get('columns', [])
-        _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), all_elements=column) for column in _column_json_list]
-        return cls._fromDict(name=name, raw_map=all_elements.get('column_map', {}), column_schemas=_column_schemas)
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements = {}
+            _msg = f"For {name} Table Schema, unparsed_elements was not a dict, defaulting to empty dict"
+            Logger.Log(_msg, logging.WARN)
+        _column_json_list = unparsed_elements.get('columns', [])
+        _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), unparsed_elements=column) for column in _column_json_list]
+        return cls._fromDict(name=name, raw_map=unparsed_elements.get('column_map', {}), column_schemas=_column_schemas)
 
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Optional[str | Path]) -> "TableStructureSchema":
+    def FromFile(cls, schema_name:str, schema_path:Optional[str | Path], search_templates:bool=False) -> "TableStructureSchema":
+        ret_val : Schema
+
         schema_path = schema_path or Path(schemas.__file__).parent / "table_schemas"
-        return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
+        ret_val = cls._fromFile(schema_name=schema_name, schema_path=Path(schema_path))
+        if isinstance(ret_val, TableStructureSchema):
+            return ret_val
+        else:
+            raise ValueError("TableStructureSchema's call to _fromFile yielded a Schema of different type!")
 
     # *** PUBLIC METHODS ***
 
@@ -231,10 +234,8 @@ class TableStructureSchema(Schema):
         return ret_val
     
     @staticmethod
-    def _parseElement(elem:Any, name:str) -> Optional[ColumnMapElement]:
+    def _retrieveElement(elem:Any, name:str) -> Optional[ColumnMapElement]:
         """_summary_
-
-        TODO : Pick a better name
 
         :param elem: _description_
         :type elem: Any
@@ -265,7 +266,7 @@ class TableStructureSchema(Schema):
             if isinstance(indices, int):
                 # if there's a single index, use parse to get the value it is stated to be
                 # print(f"About to parse value {row[indices]} as type {self.Columns[indices]},\nFull list from row is {row},\nFull list of columns is {self.Columns},\nwith names {self.ColumnNames}")
-                ret_val = conversions.ConvertToType(variable=row[indices], to_type=self.Columns[indices].ValueType)
+                ret_val = conversions.ConvertToType(value=row[indices], to_type=self.Columns[indices].ValueType)
             elif isinstance(indices, list):
                 ret_val = concatenator.join([str(row[index]) for index in indices])
             elif isinstance(indices, dict):
@@ -273,7 +274,7 @@ class TableStructureSchema(Schema):
                 for key,column_index in indices.items():
                     if column_index > len(row):
                         Logger.Log(f"Got column index of {column_index} for column {key}, but row only has {len(row)} columns!", logging.ERROR)
-                    _val = conversions.ConvertToType(variable=row[column_index], to_type=self._table_columns[column_index].ValueType)
+                    _val = conversions.ConvertToType(value=row[column_index], to_type=self._table_columns[column_index].ValueType)
                     ret_val.update(_val if isinstance(_val, dict) else {key:_val})
         else:
             ret_val = fallback

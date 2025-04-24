@@ -3,12 +3,11 @@ import abc
 import logging
 from pathlib import Path
 from shutil import copyfile
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, List, Optional, Type
 # import local files
-from ogd.common import schemas
+from ogd.common.utils.typing import conversions, Map
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
 
 class Schema(abc.ABC):
 
@@ -26,15 +25,13 @@ class Schema(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "Schema":
+    def FromDict(cls, name:str, unparsed_elements:Map)-> "Schema":
         """_summary_
-
-        TODO : Make classmethod, slightly simplifies how we access default values
 
         :param name: _description_
         :type name: str
         :param all_elements: _description_
-        :type all_elements: Dict[str, Any]
+        :type all_elements: Map
         :param logger: _description_, defaults to None
         :type logger: Optional[logging.Logger], optional
         :return: _description_
@@ -55,13 +52,12 @@ class Schema(abc.ABC):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    _DEFAULT_SCHEMA_NAME = "DefaultSchemaName"
+
     def __init__(self, name:str, other_elements:Optional[Map]=None):
-        self._name : str
-        self._other_elements : Map
+        self._name : str           = name or Schema._DEFAULT_SCHEMA_NAME
+        self._other_elements : Map = other_elements or {}
 
-        self._name = Schema._parseName(name)
-
-        self._other_elements = other_elements or {}
         if len(self._other_elements.keys()) > 0:
             Logger.Log(f"Schema for {self.Name} contained nonstandard elements {self.NonStandardElementNames}")
 
@@ -81,11 +77,11 @@ class Schema(abc.ABC):
         return self._name
 
     @property
-    def NonStandardElements(self) -> Dict[str, Any]:
+    def NonStandardElements(self) -> Map:
         """Gets a sub-dictionary of any non-standard schema elements found in the source dictionary for the given schema instance.
 
         :return: A dictionary of any non-standard schema elements found in the source dictionary for the given schema instance.
-        :rtype: Dict[str, Any]
+        :rtype: Map
         """
         return self._other_elements
 
@@ -102,33 +98,55 @@ class Schema(abc.ABC):
 
     @classmethod
     def FromFile(cls, schema_name:str, schema_path:Path, search_templates:bool=False):
+        """_summary_
+
+        :param schema_name: _description_
+        :type schema_name: str
+        :param schema_path: _description_
+        :type schema_path: Path
+        :param search_templates: _description_, defaults to False
+        :type search_templates: bool, optional
+        :return: _description_
+        :rtype: _type_
+        """
         return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     @classmethod
-    def ElementFromDict(cls, all_elements:Dict[str, Any], element_names:List[str], parser_function:Callable, default_value:Any, logger:Optional[logging.Logger]=None) -> Any:
-        """_summary_
+    def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False, optional_element:bool=False) -> Any:
+        """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 
-        TODO : Redo this concept in a way that we can still get type safety by directly calling parse functions in individual schema classes.
-
-        :param all_elements: _description_
-        :type all_elements: Dict[str, Any]
-        :param element_names: _description_
-        :type element_names: List[str]
-        :param parser_function: _description_
-        :type parser_function: Callable
-        :param default_value: _description_
+        :param all_elements: A dictionary containing all elements to search through
+        :type all_elements: Map
+        :param valid_keys: A list of which keys to search for to find the desired element. This function will choose they first key in the list that appears in the `all_elements` dictionary.
+        :type valid_keys: List[str]
+        :param value_type: The desired type of value to return, or list of valid types. If a list, the returned value will either be the first type in the list of which the raw value is an instance, or a parsed instance of the first item in the list.
+        :type value_type: Type | List[Type]
+        :param default_value: A default value to return, if a valid value could not be parsed.
         :type default_value: Any
-        :param logger: _description_, defaults to None
-        :type logger: Optional[logging.Logger], optional
-        :return: _description_
+        :param remove_target: Whether to remove the target element, if found; defaults to False.
+        :type remove_target: bool, optional
+        :param optional_element: Whether the element being parsed should be considered optional, if True then no warning will be given if the element is not found. Defaults to False
+        :type optional_element: bool, optional
+        :return: The targeted value, with given type; otherwise the given default value.
         :rtype: Any
         """
-        for name in element_names:
-            if name in all_elements:
-                return parser_function(all_elements[name])
-        _msg = f"{cls.__name__} config does not have a '{element_names[0]}' element; defaulting to {element_names[0]}={default_value}"
-        logger.warning(_msg) if logger else Logger.Log(_msg, logging.WARN)
-        return default_value
+        ret_val : Any = default_value
+
+        found = False
+        for name in valid_keys:
+            if name in unparsed_elements:
+                value = unparsed_elements[name]
+                if remove_target:
+                    del unparsed_elements[name]
+                ret_val = conversions.ConvertToType(value=value, to_type=to_type, name=f"{cls.__name__} element {name}")
+                found = True
+                break
+        if not found and not optional_element:
+            _msg = f"{cls.__name__} config does not have a '{valid_keys[0]}' element; defaulting to {valid_keys[0]}={default_value}"
+            Logger.Log(_msg, logging.WARN)
+
+        # if we got empty value back from conversion, use default instead, that's more likely what we want.
+        return ret_val or default_value
 
     # *** PUBLIC METHODS ***
 
@@ -163,7 +181,7 @@ class Schema(abc.ABC):
                 Logger.Log(f"Could not load schema at {schema_path / schema_name}, the file was empty! Using default schema instead", logging.ERROR, depth=1)
                 ret_val = cls.Default()
             else:
-                ret_val = cls.FromDict(name=schema_name, all_elements=schema_contents)
+                ret_val = cls.FromDict(name=schema_name, unparsed_elements=schema_contents)
 
         return ret_val
 
@@ -191,16 +209,5 @@ class Schema(abc.ABC):
                     print(f"(via print) {_msg}")
                 else:
                     Logger.Log(f"Successfully copied {schema_name} from template.", logging.DEBUG, depth=2)
-        return cls.FromDict(name=schema_name, all_elements=template_contents)
-    
-    @staticmethod
-    def _parseName(name):
-        ret_val : str
-        if isinstance(name, str):
-            ret_val = name
-        else:
-            ret_val = str(name)
-            Logger.Log(f"Schema name was not a string, defaulting to str(name) == {ret_val}", logging.WARN)
-        return ret_val
-
+        return cls.FromDict(name=schema_name, unparsed_elements=template_contents)
     # *** PRIVATE METHODS ***

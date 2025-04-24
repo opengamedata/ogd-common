@@ -1,22 +1,33 @@
 # import standard libraries
-import abc
 import logging
-from typing import Any, Dict, Optional, Type
+from pathlib import Path
+from typing import Optional
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
+from ogd.common.configs.storage.credentials.KeyCredentialConfig import KeyCredential
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class BigQueryConfig(DataStoreConfig):
     _DEFAULT_PROJECT_ID = "wcer-field-day-ogd-1798"
-    _DEFAULT_CREDENTIAL = "./config/ogd.json"
+    _DEFAULT_CREDENTIAL = KeyCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, project_id:str, credential:Optional[str], other_elements:Dict[str, Any]):
-        self._project_id : str           = project_id
-        self._credential : Optional[str] = credential
+    def __init__(self, name:str,
+                 # params for class
+                 project_id:str, credential:KeyCredential,
+                 # params for parent
+                 store_type:Optional[str]=None,
+                 # dict of leftovers
+                 other_elements:Optional[Map]=None
+        ):
+        unparsed_elements : Map = other_elements or {}
 
-        super().__init__(name=name, other_elements=other_elements)
+        self._project_id : str           = project_id or BigQueryConfig._parseProjectID(unparsed_elements=unparsed_elements)
+        self._credential : KeyCredential = credential or BigQueryConfig._parseCredential(unparsed_elements=unparsed_elements)
+
+        super().__init__(name=name, store_type=store_type, other_elements=unparsed_elements)
 
     @property
     def Location(self) -> str:
@@ -28,7 +39,7 @@ class BigQueryConfig(DataStoreConfig):
         return self._project_id
 
     @property
-    def Credential(self) -> Optional[str]:
+    def Credential(self) -> KeyCredential:
         return self._credential
 
     @property
@@ -50,31 +61,43 @@ class BigQueryConfig(DataStoreConfig):
         return BigQueryConfig(
             name="DefaultBigQueryConfig",
             project_id=cls._DEFAULT_PROJECT_ID,
-            credential=cls._DEFAULT_CREDENTIAL,
+            credential=KeyCredential.Default(),
             other_elements={}
         )
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]) -> "BigQueryConfig":
-        _project_id : str
-        _credential : Optional[str]
+    def FromDict(cls, name:str, unparsed_elements:Map) -> "BigQueryConfig":
+        """Create a BigQuery Configuration from a dict.
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-            Logger.Log(f"For {name} BigQuery Source config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _project_id = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["PROJECT_ID", "DATASET_ID"],
-            parser_function=cls._parseProjectID,
-            default_value=BigQueryConfig._DEFAULT_PROJECT_ID
-        )
-        _credential = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["PROJECT_KEY"],
-            parser_function=cls._parseCredential,
-            default_value=BigQueryConfig._DEFAULT_CREDENTIAL
-        )
+        Expects dictionary to have the following form:
+        ```json
+        {
+            "PROJECT_ID" : "someprojectid",
+            "PROJECT_KEY" : {
+                "FILE" : "key.txt",
+                "PATH" : "./"
+            }
+        }
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Map
+        :return: _description_
+        :rtype: BigQueryConfig
+        """
+        _project_id : str
+        _credential : Optional[KeyCredential]
+
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements = {}
+            Logger.Log(f"For {name} BigQuery Source config, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
+        _project_id = cls._parseProjectID(unparsed_elements=unparsed_elements)
+        _credential = cls._parseCredential(unparsed_elements=unparsed_elements)
 
         _used = {"PROJECT_ID", "DATASET_ID", "PROJECT_KEY"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
         return BigQueryConfig(name=name, project_id=_project_id, credential=_credential, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
@@ -84,23 +107,30 @@ class BigQueryConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseProjectID(project_id) -> str:
-        ret_val : str
-        if isinstance(project_id, str):
-            ret_val = project_id
-        else:
-            ret_val = str(project_id)
-            Logger.Log(f"Data Source project ID was unexpected type {type(project_id)}, defaulting to str(project_id)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseProjectID(unparsed_elements:Map) -> str:
+        return BigQueryConfig.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["PROJECT_ID", "DATASET_ID"],
+            to_type=str,
+            default_value=BigQueryConfig._DEFAULT_PROJECT_ID,
+            remove_target=True
+        )
 
     @staticmethod
-    def _parseCredential(credential) -> str:
-        ret_val : str
-        if isinstance(credential, str):
-            ret_val = credential
-        else:
-            ret_val = str(credential)
-            Logger.Log(f"Game Source credential type was unexpected type {type(credential)}, defaulting to str(credential)={ret_val}.", logging.WARN)
+    def _parseCredential(unparsed_elements:Map) -> KeyCredential:
+        ret_val : KeyCredential
+
+        raw_credential = BigQueryConfig.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["PROJECT_KEY"],
+            to_type=[dict, str],
+            default_value=BigQueryConfig._DEFAULT_CREDENTIAL,
+            remove_target=True
+        )
+        if isinstance(raw_credential, dict):
+            ret_val = KeyCredential.FromDict(name="KeyCredential", unparsed_elements=raw_credential)
+        elif isinstance(raw_credential, str):
+            ret_val = KeyCredential(name="KeyCredential", filename=raw_credential, path=Path("./"), other_elements=None)
         return ret_val
 
     # *** PRIVATE METHODS ***

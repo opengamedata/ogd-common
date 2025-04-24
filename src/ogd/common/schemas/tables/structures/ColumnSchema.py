@@ -14,9 +14,11 @@ class ColumnSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, readable:str, value_type:str, description:str, other_elements:Optional[Map]=None):
-        self._readable    : str = readable
-        self._value_type  : str = value_type
-        self._description : str = description
+        unparsed_elements = other_elements or {}
+
+        self._readable    : str = readable    or self._parseReadable(unparsed_elements=unparsed_elements)
+        self._value_type  : str = value_type  or self._parseValueType(unparsed_elements=unparsed_elements)
+        self._description : str = description or self._parseDescription(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -51,45 +53,38 @@ class ColumnSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "ColumnSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "ColumnSchema":
+        """_summary_
+
+        TODO : Add example of what format unparsed_elements is expected to have.
+
+        :param name: _description_
+        :type name: str
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Dict[str, Any]
+        :return: _description_
+        :rtype: ColumnSchema
+        """
         _readable    : str
         _value_type  : str
         _description : str
 
-        if not isinstance(all_elements, dict):
+        if not isinstance(unparsed_elements, dict):
             # _name        = "No Name"
             # _readable    = "No Readable Name"
             # _description = "No Description"
             # _value_type  = "No Type"
-            all_elements = {}
-            _msg = f"For {name} Extractor config, all_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
+            unparsed_elements = {}
+            _msg = f"For {name} Extractor config, unparsed_elements was not a dict, defaulting to empty dict"
+            Logger.Log(_msg, logging.WARN)
 
-        _readable = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["readable"],
-            parser_function=cls._parseReadable,
-            default_value=name
-        )
-        _description = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["description"],
-            parser_function=cls._parseDescription,
-            default_value="NO DESCRIPTION GIVEN"
-        )
-        _value_type = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["type"],
-            parser_function=cls._parseValueType,
-            default_value="TYPE NOT GIVEN"
-        )
-        _name = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["name"],
-            parser_function=cls._parseName,
-            default_value=name
-        )
+        _readable = cls._parseReadable(unparsed_elements=unparsed_elements)
+        _description = cls._parseDescription(unparsed_elements=unparsed_elements)
+        _value_type = cls._parseValueType(unparsed_elements=unparsed_elements)
+        _name = cls._parseName(name=name, unparsed_elements=unparsed_elements)
+
         _used = {"name", "readable", "description", "type"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
 
         return ColumnSchema(name=_name, readable=_readable, value_type=_value_type, description=_description, other_elements=_leftovers)
 
@@ -110,43 +105,43 @@ class ColumnSchema(Schema):
     # *** PRIVATE STATICS ***
     
     @staticmethod
-    def _parseName(name):
-        ret_val : str
-        if isinstance(name, str):
-            ret_val = name
-        else:
-            ret_val = str(name)
-            Logger.Log(f"Column name was not a string, defaulting to str(name) == {ret_val}", logging.WARN)
-        return ret_val
+    def _parseName(name:str, unparsed_elements:Map):
+        return ColumnSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["name"],
+            to_type=str,
+            default_value=name,
+            remove_target=True
+        )
     
     @staticmethod
-    def _parseReadable(name):
-        ret_val : str
-        if isinstance(name, str):
-            ret_val = name
-        else:
-            ret_val = str(name)
-            Logger.Log(f"Column readable name was not a string, defaulting to str(readable) == {ret_val}", logging.WARN)
-        return ret_val
+    def _parseReadable(unparsed_elements:Map):
+        return ColumnSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["readable", "human_readable"],
+            to_type=str,
+            default_value=ColumnSchema._DEFAULT_READABLE,
+            remove_target=True
+        )
     
     @staticmethod
-    def _parseDescription(description):
-        ret_val : str
-        if isinstance(description, str):
-            ret_val = description
-        else:
-            ret_val = str(description)
-            Logger.Log(f"Column description was not a string, defaulting to str(description) == {ret_val}", logging.WARN)
-        return ret_val
+    def _parseDescription(unparsed_elements:Map):
+        return ColumnSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["description"],
+            to_type=str,
+            default_value=ColumnSchema._DEFAULT_DESCRIPTION,
+            remove_target=True
+        )
     
     @staticmethod
-    def _parseValueType(extractor_type):
-        ret_val : str
-        if isinstance(extractor_type, str):
-            ret_val = extractor_type
-        else:
-            ret_val = str(extractor_type)
-            Logger.Log(f"Column type was not a string, defaulting to str(type) == {ret_val}", logging.WARN)
-        return ret_val
+    def _parseValueType(unparsed_elements:Map):
+        return ColumnSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["type"],
+            to_type=str,
+            default_value=ColumnSchema._DEFAULT_VALUE_TYPE,
+            remove_target=True
+        )
 
     # *** PRIVATE METHODS ***

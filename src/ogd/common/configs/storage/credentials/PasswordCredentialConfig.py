@@ -1,9 +1,10 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, Optional
+from typing import Optional
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 
 class PasswordCredential(CredentialConfig):
@@ -14,10 +15,11 @@ class PasswordCredential(CredentialConfig):
     _DEFAULT_USER = "DEFAULT USER"
     _DEFAULT_PASS = None
 
-    def __init__(self, name:str, username:str, password:Optional[str], other_elements:Dict[str, Any] | Any):
-        super().__init__(name=name, other_elements=other_elements)
-        self._user = username
-        self._pass = password
+    def __init__(self, name:str, username:str, password:Optional[str], other_elements:Optional[Map]=None):
+        unparsed_elements : Map = other_elements or {}
+        self._user = username or self._parseUser(unparsed_elements=unparsed_elements)
+        self._pass = password or self._parsePass(unparsed_elements=unparsed_elements)
+        super().__init__(name=name, other_elements=unparsed_elements)
 
     @property
     def User(self) -> str:
@@ -33,35 +35,33 @@ class PasswordCredential(CredentialConfig):
     def AsMarkdown(self) -> str:
         ret_val : str
 
-        ret_val = f"User : `{self.User}`\nPass: `****`"
+        ret_val = f"User : `{self.User}`\nPass: `*** HIDDEN ***`"
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, all_elements:Dict[str, Any], logger:Optional[logging.Logger]=None)-> "PasswordCredential":
+    def FromDict(cls, name:str, unparsed_elements:Map)-> "PasswordCredential":
+        """_summary_
+
+        TODO : Add example of what format unparsed_elements is expected to have.
+
+        :param name: _description_
+        :type name: str
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Map
+        :return: _description_
+        :rtype: PasswordCredential
+        """
         _user : str
         _pass : Optional[str]
 
-        if not isinstance(all_elements, dict):
-            all_elements = {}
-            _msg = f"For {name} password credential config, all_elements was not a dict, defaulting to empty dict"
-            if logger:
-                logger.warning(_msg)
-            else:
-                Logger.Log(_msg, logging.WARN)
-        _user = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["USER"],
-            parser_function=cls._parseUser,
-            default_value=cls._DEFAULT_USER
-        )
-        _pass = cls.ElementFromDict(all_elements=all_elements, logger=logger,
-            element_names=["PASS"],
-            parser_function=cls._parsePass,
-            default_value=cls._DEFAULT_PASS
-        )
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements = {}
+            _msg = f"For {name} password credential config, unparsed_elements was not a dict, defaulting to empty dict"
+            Logger.Log(_msg, logging.WARN)
+        _user = cls._parseUser(unparsed_elements=unparsed_elements)
+        _pass = cls._parsePass(unparsed_elements=unparsed_elements)
 
-        _used = {"USER", "PASS"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
-        return PasswordCredential(name=name, username=_user, password=_pass, other_elements=_leftovers)
+        return PasswordCredential(name=name, username=_user, password=_pass, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "PasswordCredential":
@@ -79,23 +79,23 @@ class PasswordCredential(CredentialConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseUser(user) -> Optional[str]:
-        ret_val : Optional[str]
-        if isinstance(user, str):
-            ret_val = user
-        else:
-            ret_val = str(user)
-            Logger.Log(f"User for password credential was unexpected type {type(user)}, defaulting to str(user)={ret_val}.", logging.WARN)
-        return ret_val
+    def _parseUser(unparsed_elements:Map) -> str:
+        return PasswordCredential.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["USER"],
+            to_type=str,
+            default_value=PasswordCredential._DEFAULT_USER,
+            remove_target=True
+        )
 
     @staticmethod
-    def _parsePass(pw) -> Optional[str]:
-        ret_val : Optional[str]
-        if isinstance(pw, str):
-            ret_val = pw
-        else:
-            ret_val = str(pw)
-            Logger.Log(f"Password for password credential was unexpected type {type(pw)}, defaulting to str(pw)=***.", logging.WARN)
-        return ret_val
+    def _parsePass(unparsed_elements:Map) -> str:
+        return PasswordCredential.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["PASS", "PASSWORD", "PW"],
+            to_type=str,
+            default_value=PasswordCredential._DEFAULT_PASS,
+            remove_target=True
+        )
 
     # *** PRIVATE METHODS ***

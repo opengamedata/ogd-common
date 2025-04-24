@@ -19,7 +19,7 @@ class t_GameSchema(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         # 1. Get testing config
-        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", all_elements=settings, logger=None)
+        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
         _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
         Logger.std_logger.setLevel(_level)
 
@@ -195,7 +195,7 @@ class t_GameSchema(TestCase):
                },
                "description" : "The buildings available for the player to construct"
         }
-        _schema = GameSchema.FromDict(name="available_buildings Schema", all_elements=_dict, logger=None)
+        _schema = GameSchema.FromDict(name="available_buildings Schema", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "available_buildings Schema")
 

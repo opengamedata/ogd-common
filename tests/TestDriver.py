@@ -15,7 +15,7 @@ from ogd.common.configs.TestConfig import TestConfig
 
 from config.t_config import settings
 
-_config = TestConfig.FromDict(name="APIUtilsTestConfig", all_elements=settings, logger=None)
+_config = TestConfig.FromDict(name="APIUtilsTestConfig", unparsed_elements=settings)
 
 # loader = TestLoader()
 # TODO : At the moment, this is just module-level, should eventually go to class-level selection.
