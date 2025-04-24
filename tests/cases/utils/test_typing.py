@@ -30,29 +30,34 @@ class ConvertToType(TestCase):
     def test_null_values(self):
         pass
 
-class parseInt(TestCase):
+@unittest.skip("Not Implemented")
+class ToBool(TestCase):
+    def test_normal_bool(self):
+        pass
+
+class ToInt(TestCase):
     def test_normal_int(self):
-        _int = conversions._parseInt(name="ParseIntVal", value=1)
+        _int = conversions.ToInt(name="ParseIntVal", value=1)
         self.assertIsInstance(_int, int)
         self.assertEqual(_int, 1)
 
     def test_float_to_int(self):
         with self.subTest(msg="_parseInt: Round float up"):
-            _int = conversions._parseInt(name="ParseIntVal", value=1.75)
+            _int = conversions.ToInt(name="ParseIntVal", value=1.75)
             self.assertIsInstance(_int, int)
             self.assertEqual(_int, 2)
         with self.subTest(msg="_parseInt: Round float up at edge case"):
-            _int = conversions._parseInt(name="ParseIntVal", value=1.5)
+            _int = conversions.ToInt(name="ParseIntVal", value=1.5)
             self.assertIsInstance(_int, int)
             self.assertEqual(_int, 2)
         with self.subTest(msg="_parseInt: Round float down"):
-            _int = conversions._parseInt(name="ParseIntVal", value=1.25)
+            _int = conversions.ToInt(name="ParseIntVal", value=1.25)
             self.assertIsInstance(_int, int)
             self.assertEqual(_int, 1)
 
     def test_wrongtype(self):
         _nan = {1:2}
-        _int = conversions._parseInt(name="ParseIntVal", value=_nan)
+        _int = conversions.ToInt(name="ParseIntVal", value=_nan)
         self.assertIsNone(_int)
 
 class parseFloat(TestCase):

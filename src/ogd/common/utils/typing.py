@@ -114,29 +114,62 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToBool(name:str, value:Any) -> bool:
-        ret_val : bool
+    def ToBool(name:str, value:Any) -> Optional[bool]:
+        """Attempt to turn a given value into a bool
 
-        _parsed = conversions._parseBool(name=name, value=value)
-        if _parsed is not None:
-            ret_val = _parsed
-        else:
-            ret_val = bool(value)
-            _msg = f"{name} was unexpected type {type(value)}, expected a bool! Defaulting to bool(value) == {ret_val}."
-            Logger.Log(_msg, logging.WARN)
+        Returns None if the value type was not recognized
 
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a bool representation
+        :type value: Any
+        :return: The bool representation of value, if type of value was recognized, else None
+        :rtype: Optional[bool]
+        """
+        ret_val : Optional[bool]
+
+        match type(value):
+            case builtins.bool:
+                ret_val = value
+            case builtins.int | builtins.float:
+                ret_val = bool(value)
+            case builtins.str:
+                ret_val = conversions.BoolFromString(bool_str=value)
+            case _:
+                ret_val = None
+                Logger.Log(f"{name} was unexpected type {type(value)}, expected a bool! Defaulting to None.", logging.WARN)
         return ret_val
 
     @staticmethod
-    def ToInt(name:str, value:Any) -> int:
-        ret_val : int
+    def ToInt(name:str, value:Any) -> Optional[int]:
+        """Attempt to turn a given value into an int
 
-        _parsed = conversions._parseInt(name=name, value=value)
-        if _parsed is not None:
-            ret_val = _parsed
-        else:
-            ret_val = int(value)
-            Logger.Log(f"{name} was unexpected type {type(value)}, expected an int! Defaulting to int(value) == {ret_val}.", logging.WARN)
+        Returns None if the value type was not recognized
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to an int representation
+        :type value: Any
+        :return: The int representation of value, if type of value was recognized, else None
+        :rtype: Optional[int]
+        """
+        ret_val : Optional[int]
+
+        match type(value):
+            case builtins.int:
+                ret_val = value
+            case builtins.float:
+                ret_val = int(round(value))
+                Logger.Log(f"{name} was a float value, rounding to nearest int: {ret_val}.", logging.WARN)
+            case builtins.str:
+                try:
+                    ret_val = int(value)
+                except ValueError:
+                    ret_val = None
+                    Logger.Log(f"{name} value of {value} was not an integer! Defaulting to None.", logging.WARN)
+            case _:
+                ret_val = None
+                Logger.Log(f"{name} was unexpected type {type(value)}, expected an int! Defaulting to None.", logging.WARN)
         return ret_val
 
     @staticmethod
@@ -359,11 +392,11 @@ class conversions:
             ret_val = None
         match (conversions.Capitalize(to_type)):
             case 'BOOL' | builtins.bool:
-                ret_val = conversions._parseBool(name=name, value=value)
+                ret_val = conversions.ToBool(name=name, value=value)
             case 'STR' | builtins.str:
                 ret_val = conversions._parseString(name=name, value=value)
             case 'INT' | builtins.int:
-                ret_val = conversions._parseInt(name=name, value=value)
+                ret_val = conversions.ToInt(name=name, value=value)
             case 'FLOAT' | builtins.float:
                 ret_val = conversions._parseFloat(name=name, value=value)
             case 'PATH' | pathlib.Path:
@@ -384,55 +417,6 @@ class conversions:
             case _:
                 _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
                 Logger.Log(_msg, logging.WARNING)
-                ret_val = None
-        return ret_val
-
-    @staticmethod
-    def _parseBool(name:str, value:Any) -> Optional[bool]:
-        """Attempt to turn a given value into a bool
-
-        Returns None if the value type was not recognized
-
-        :param name: An identifier for the value, used for debug outputs.
-        :type name: str
-        :param value: The value to parse to a bool representation
-        :type value: Any
-        :return: The bool representation of value, if type of value was recognized, else None
-        :rtype: Optional[bool]
-        """
-        ret_val : Optional[bool]
-        match type(value):
-            case builtins.bool:
-                ret_val = value
-            case builtins.int | builtins.float:
-                ret_val = bool(value)
-            case builtins.str:
-                ret_val = conversions.BoolFromString(bool_str=value)
-            case _:
-                ret_val = None
-        return ret_val
-
-    @staticmethod
-    def _parseInt(name:str, value:Any) -> Optional[int]:
-        """Attempt to turn a given value into an int
-
-        Returns None if the value type was not recognized
-
-        :param name: An identifier for the value, used for debug outputs.
-        :type name: str
-        :param value: The value to parse to an int representation
-        :type value: Any
-        :return: The int representation of value, if type of value was recognized, else None
-        :rtype: Optional[int]
-        """
-        ret_val : Optional[int]
-        match type(value):
-            case builtins.int:
-                ret_val = value
-            case builtins.float:
-                ret_val = int(round(value))
-                Logger.Log(f"{name} was a float value, rounding to nearest int: {ret_val}.", logging.WARN)
-            case _:
                 ret_val = None
         return ret_val
 
