@@ -24,7 +24,7 @@ class test_SemanticVersion_eq(TestCase):
         self.test_UnequalInvalids()
         self.test_LeftInvalid()
         self.test_RightInvalid()
-        print("Ran all t_SemanticVersion_eq tests.")
+        print("Ran all test_SemanticVersion_eq tests.")
 
     def test_EqualInvalids(self):
         a = SemanticVersion.FromString("Invalid")
@@ -103,11 +103,11 @@ class test_SemanticVersion_eq(TestCase):
         b = SemanticVersion.FromString("1.10.101-bar")
         self.assertFalse(a == b)
 
-class t_SemanticVersion_gt(TestCase):
+class test_SemanticVersion_gt(TestCase):
     def RunAll(self):
         self.test_EqualInvalids()
         self.test_UnequalInvalids()
-        print("Ran all t_SemanticVersion_eq tests.")
+        print("Ran all test_SemanticVersion_eq tests.")
 
     def test_EqualInvalids(self):
         a = SemanticVersion.FromString("Invalid")
@@ -222,11 +222,11 @@ class t_SemanticVersion_gt(TestCase):
         b = SemanticVersion.FromString("1.10.101-bar")
         self.assertFalse(a > b)
 
-class t_SemanticVersion_ge(TestCase):
+class test_SemanticVersion_ge(TestCase):
     def RunAll(self):
         self.test_EqualInvalids()
         self.test_UnequalInvalids()
-        print("Ran all t_SemanticVersion_eq tests.")
+        print("Ran all test_SemanticVersion_eq tests.")
 
     def test_EqualInvalids(self):
         a = SemanticVersion.FromString("Invalid")
@@ -341,11 +341,11 @@ class t_SemanticVersion_ge(TestCase):
         b = SemanticVersion.FromString("1.10.101-bar")
         self.assertFalse(a >= b)
 
-class t_SemanticVersion_lt(TestCase):
+class test_SemanticVersion_lt(TestCase):
     def RunAll(self):
         self.test_EqualInvalids()
         self.test_UnequalInvalids()
-        print("Ran all t_SemanticVersion_eq tests.")
+        print("Ran all test_SemanticVersion_eq tests.")
 
     def test_EqualInvalids(self):
         a = SemanticVersion.FromString("Invalid")
@@ -460,11 +460,11 @@ class t_SemanticVersion_lt(TestCase):
         b = SemanticVersion.FromString("1.10.101-bar")
         self.assertFalse(a < b)
 
-class t_SemanticVersion_le(TestCase):
+class test_SemanticVersion_le(TestCase):
     def RunAll(self):
         self.test_EqualInvalids()
         self.test_UnequalInvalids()
-        print("Ran all t_SemanticVersion_eq tests.")
+        print("Ran all test_SemanticVersion_eq tests.")
 
     def test_EqualInvalids(self):
         a = SemanticVersion.FromString("Invalid")

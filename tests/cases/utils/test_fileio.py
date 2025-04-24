@@ -10,7 +10,7 @@ from ogd.common.utils import fileio
 class test_fileio(TestCase):
     def RunAll(self):
         self.test_loadJSONFile()
-        print("Ran all t_fileio tests.")
+        print("Ran all test_fileio tests.")
 
     def test_loadJSONFile(self):
         json_content = fileio.loadJSONFile(filename="test_fileio.json", path=Path("./tests/cases/utils/"))

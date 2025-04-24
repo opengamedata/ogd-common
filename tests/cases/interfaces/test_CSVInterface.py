@@ -47,7 +47,7 @@ class test_CSVInterface(TestCase):
     def RunAll(self):
         self.test_IDsFromDates()
         self.test_DatesFromIDs()
-        print("Ran all t_CSVInterface tests.")
+        print("Ran all test_CSVInterface tests.")
 
     def test_IDsFromDates(self):
         with self.zipped_file.open(self.zipped_file.namelist()[0]) as f:
