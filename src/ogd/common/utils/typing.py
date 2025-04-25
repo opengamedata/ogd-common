@@ -173,27 +173,59 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToFloat(name:str, value:Any) -> float:
-        ret_val : float
+    def ToFloat(name:str, value:Any) -> Optional[float]:
+        """Attempt to turn a given value into a float
 
-        _parsed = conversions._parseFloat(name=name, value=value)
-        if _parsed is not None:
-            ret_val = _parsed
-        else:
-            ret_val = int(value)
-            Logger.Log(f"{name} was unexpected type {type(value)}, expected a float! Defaulting to float(value) == {ret_val}.", logging.WARN)
+        Returns None if the value type was not recognized
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a float representation
+        :type value: Any
+        :return: The float representation of value, if type of value was recognized, else None
+        :rtype: Optional[float]
+        """
+        ret_val : Optional[float]
+
+        match type(value):
+            case builtins.float:
+                ret_val = value
+            case builtins.int:
+                ret_val = float(value)
+            case builtins.str:
+                try:
+                    ret_val = float(value)
+                except ValueError:
+                    ret_val = None
+                    Logger.Log(f"{name} value of {value} was not a float! Defaulting to None.", logging.WARN)
+            case _:
+                ret_val = None
+                Logger.Log(f"{name} was unexpected type {type(value)}, expected a float! Defaulting to None.", logging.WARN)
         return ret_val
 
     @staticmethod
     def ToString(name:str, value:Any) -> str:
+        """Attempt to turn a given value into a str
+
+        Returns None if the value type was not recognized.
+        This is a cheat, relative to other `To<Type>` functions in the conversions class,
+        because anything that is not a string will be converted with str(value).
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a str representation
+        :type value: Any
+        :return: The str representation of value, if type of value was recognized, else None
+        :rtype: Optional[str]
+        """
         ret_val : str
 
-        _parsed = conversions._parseString(name=name, value=value)
-        if _parsed is not None:
-            ret_val = _parsed
-        else:
-            ret_val = str(value)
-            Logger.Log(f"{name} was unexpected type {type(value)}, expected a string! Defaulting to str(value) == {ret_val}", logging.WARN)
+        match type(value):
+            case builtins.str:
+                ret_val = value
+            case _:
+                ret_val = str(value)
+                # Logger.Log(f"{name} was unexpected type {type(value)}, expected a string! Defaulting to str(value) == {ret_val}", logging.WARN)
         return ret_val
 
     @staticmethod
@@ -394,11 +426,11 @@ class conversions:
             case 'BOOL' | builtins.bool:
                 ret_val = conversions.ToBool(name=name, value=value)
             case 'STR' | builtins.str:
-                ret_val = conversions._parseString(name=name, value=value)
+                ret_val = conversions.ToString(name=name, value=value)
             case 'INT' | builtins.int:
                 ret_val = conversions.ToInt(name=name, value=value)
             case 'FLOAT' | builtins.float:
-                ret_val = conversions._parseFloat(name=name, value=value)
+                ret_val = conversions.ToFloat(name=name, value=value)
             case 'PATH' | pathlib.Path:
                 ret_val = conversions._parsePath(name=name, value=value)
             case 'DATETIME' | datetime.datetime:
@@ -418,52 +450,6 @@ class conversions:
                 _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
                 Logger.Log(_msg, logging.WARNING)
                 ret_val = None
-        return ret_val
-
-    @staticmethod
-    def _parseFloat(name:str, value:Any) -> Optional[float]:
-        """Attempt to turn a given value into a float
-
-        Returns None if the value type was not recognized
-
-        :param name: An identifier for the value, used for debug outputs.
-        :type name: str
-        :param value: The value to parse to a float representation
-        :type value: Any
-        :return: The float representation of value, if type of value was recognized, else None
-        :rtype: Optional[float]
-        """
-        ret_val : Optional[float]
-        match type(value):
-            case builtins.float:
-                ret_val = value
-            case builtins.int:
-                ret_val = float(value)
-            case _:
-                ret_val = None
-        return ret_val
-
-    @staticmethod
-    def _parseString(name:str, value:Any) -> Optional[str]:
-        """Attempt to turn a given value into a str
-
-        Returns None if the value type was not recognized.
-        This is a cheat, relative to other _parse<Type> functions in the conversions class,
-        because anything that is not a string will be converted with str(value).
-
-        :param name: An identifier for the value, used for debug outputs.
-        :type name: str
-        :param value: The value to parse to a str representation
-        :type value: Any
-        :return: The str representation of value, if type of value was recognized, else None
-        :rtype: Optional[str]
-        """
-        ret_val : Optional[str]
-        match type(value):
-            case builtins.str:
-                ret_val = value
-            case _:
-                ret_val = str(value)
         return ret_val
 
     @staticmethod
