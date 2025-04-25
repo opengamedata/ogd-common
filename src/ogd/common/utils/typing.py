@@ -178,11 +178,7 @@ class conversions:
                     ret_val = int(round(value))
                     Logger.Log(f"{name} was a float value, rounding to nearest int: {ret_val}.", logging.DEBUG)
                 case builtins.str:
-                    try:
-                        ret_val = int(value)
-                    except ValueError:
-                        ret_val = None
-                        Logger.Log(f"{name} string value of {value} was not an integer! Defaulting to None.", logging.WARN)
+                    ret_val = int(value)
                 case _:
                     base_msg : str = f"{name} was unexpected type {type(value)}, expected a float, int, or string!"
                     if force:
