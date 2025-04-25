@@ -209,14 +209,20 @@ class conversions:
                     ret_val = float(value)
                 except ValueError:
                     ret_val = None
-                    Logger.Log(f"{name} value of {value} was not a float! Defaulting to None.", logging.WARN)
+                    Logger.Log(f"{name} string with value of '{value}' was not a float! Defaulting to None.", logging.WARN)
             case _:
-                ret_val = None
-                Logger.Log(f"{name} was unexpected type {type(value)}, expected a float! Defaulting to None.", logging.WARN)
+                msg : str
+                if force:
+                    ret_val = float(value)
+                    msg = f"{name} was unexpected type {type(value)}, expected a float! Defaulting to float(value) = {ret_val}."
+                else:
+                    ret_val = None
+                    msg = f"{name} was unexpected type {type(value)}, expected a float! Defaulting to None."
+                Logger.Log(msg, logging.WARN)
         return ret_val
 
     @staticmethod
-    def ToString(name:str, value:Any, force:bool=False) -> str:
+    def ToString(name:str, value:Any) -> str:
         """Attempt to turn a given value into a str
 
         Returns None if the value type was not recognized.
@@ -227,10 +233,6 @@ class conversions:
         :type name: str
         :param value: The value to parse to a str representation
         :type value: Any
-        :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
-            If False, return None when such cases arise. If True, attempt to use `str` constructor on the `value`.
-            Defaults to False.
-        :type force: bool
         :return: The str representation of value, if type of value was recognized, else None
         :rtype: Optional[str]
         """
