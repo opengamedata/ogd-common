@@ -220,11 +220,7 @@ class conversions:
                 case builtins.int:
                     ret_val = float(value)
                 case builtins.str:
-                    try:
-                        ret_val = float(value)
-                    except ValueError:
-                        ret_val = None
-                        Logger.Log(f"{name} string with value of '{value}' was not a float! Defaulting to None.", logging.WARN)
+                    ret_val = float(value)
                 case _:
                     base_msg : str = f"{name} was unexpected type {type(value)}, expected a float, int, or string!"
                     if force:
