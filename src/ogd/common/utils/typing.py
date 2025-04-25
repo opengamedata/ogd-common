@@ -114,7 +114,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToBool(name:str, value:Any) -> Optional[bool]:
+    def ToBool(name:str, value:Any, force:bool=False) -> Optional[bool]:
         """Attempt to turn a given value into a bool
 
         Returns None if the value type was not recognized
@@ -123,6 +123,10 @@ class conversions:
         :type name: str
         :param value: The value to parse to a bool representation
         :type value: Any
+        :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
+            If False, return None when such cases arise. If True, attempt to use `bool` constructor on the `value`.
+            Defaults to False.
+        :type force: bool
         :return: The bool representation of value, if type of value was recognized, else None
         :rtype: Optional[bool]
         """
@@ -141,7 +145,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToInt(name:str, value:Any) -> Optional[int]:
+    def ToInt(name:str, value:Any, force:bool=False) -> Optional[int]:
         """Attempt to turn a given value into an int
 
         Returns None if the value type was not recognized
@@ -150,6 +154,10 @@ class conversions:
         :type name: str
         :param value: The value to parse to an int representation
         :type value: Any
+        :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
+            If False, return None when such cases arise. If True, attempt to use `int` constructor on the `value`.
+            Defaults to False.
+        :type force: bool
         :return: The int representation of value, if type of value was recognized, else None
         :rtype: Optional[int]
         """
@@ -173,7 +181,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToFloat(name:str, value:Any) -> Optional[float]:
+    def ToFloat(name:str, value:Any, force:bool=False) -> Optional[float]:
         """Attempt to turn a given value into a float
 
         Returns None if the value type was not recognized
@@ -182,6 +190,10 @@ class conversions:
         :type name: str
         :param value: The value to parse to a float representation
         :type value: Any
+        :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
+            If False, return None when such cases arise. If True, attempt to use `float` constructor on the `value`.
+            Defaults to False.
+        :type force: bool
         :return: The float representation of value, if type of value was recognized, else None
         :rtype: Optional[float]
         """
@@ -204,7 +216,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToString(name:str, value:Any) -> str:
+    def ToString(name:str, value:Any, force:bool=False) -> str:
         """Attempt to turn a given value into a str
 
         Returns None if the value type was not recognized.
@@ -215,6 +227,10 @@ class conversions:
         :type name: str
         :param value: The value to parse to a str representation
         :type value: Any
+        :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
+            If False, return None when such cases arise. If True, attempt to use `str` constructor on the `value`.
+            Defaults to False.
+        :type force: bool
         :return: The str representation of value, if type of value was recognized, else None
         :rtype: Optional[str]
         """
@@ -229,7 +245,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToPath(name:str, value:Any) -> Optional[pathlib.Path]:
+    def ToPath(name:str, value:Any, force:bool=False) -> Optional[pathlib.Path]:
         """Attempt to turn a given value into a path
 
         Returns None if the value type was not recognized.
@@ -238,6 +254,10 @@ class conversions:
         :type name: str
         :param value: The value to parse to a path representation
         :type value: Any
+        :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
+            If False, return None when such cases arise. If True, attempt to use `Path` constructor on the `value`.
+            Defaults to False.
+        :type force: bool
         :return: The path representation of value, if type of value was recognized, else None
         :rtype: Optional[path]
         """
@@ -255,7 +275,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToDatetime(name:str, value:Any) -> Optional[datetime.datetime]:
+    def ToDatetime(name:str, value:Any, force:bool=False) -> Optional[datetime.datetime]:
         """Attempt to turn a given value into a datetime
 
         Returns None if the value type was not recognized.
@@ -264,6 +284,10 @@ class conversions:
         :type name: str
         :param value: The value to parse to a datetime representation
         :type value: Any
+        :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
+            If False, return None when such cases arise. If True, attempt to use `datetime` constructor on the `value`.
+            Defaults to False.
+        :type force: bool
         :return: The datetime representation of value, if type of value was recognized, else None
         :rtype: Optional[datetime]
         """
@@ -285,7 +309,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToTimedelta(name:str, value:Any) -> Optional[datetime.timedelta]:
+    def ToTimedelta(name:str, value:Any, force:bool=False) -> Optional[datetime.timedelta]:
         """Attempt to turn a given value into a timedelta
 
         Returns None if the value type was not recognized.
@@ -294,6 +318,10 @@ class conversions:
         :type name: str
         :param value: The value to parse to a timedelta representation
         :type value: Any
+        :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
+            If False, return None when such cases arise. If True, attempt to use `timedelta` constructor on the `value`.
+            Defaults to False.
+        :type force: bool
         :return: The timedelta representation of value, if type of value was recognized, else None
         :rtype: Optional[timedelta]
         """
@@ -313,7 +341,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToTimezone(name:str, value:Any) -> Optional[datetime.timezone]:
+    def ToTimezone(name:str, value:Any, force:bool=False) -> Optional[datetime.timezone]:
         """Attempt to turn a given value into a timezone
 
         Returns None if the value type was not recognized.
@@ -322,6 +350,10 @@ class conversions:
         :type name: str
         :param value: The value to parse to a timezone representation
         :type value: Any
+        :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
+            If False, return None when such cases arise. If True, attempt to use `timezone` constructor on the `value`.
+            Defaults to False.
+        :type force: bool
         :return: The timezone representation of value, if type of value was recognized, else None
         :rtype: Optional[timezone]
         """
@@ -338,7 +370,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToList(name:str, value:Any) -> Optional[List]:
+    def ToList(name:str, value:Any, force:bool=False) -> Optional[List]:
         """Attempt to turn a given value into a list
 
         Returns None if the value type was not recognized.
@@ -347,6 +379,10 @@ class conversions:
         :type name: str
         :param value: The value to parse to a list representation
         :type value: Any
+        :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
+            If False, return None when such cases arise. If True, attempt to use `List` constructor on the `value`.
+            Defaults to False.
+        :type force: bool
         :return: The list representation of value, if type of value was recognized, else None
         :rtype: Optional[List]
         """
@@ -371,7 +407,7 @@ class conversions:
         return ret_val
 
     @staticmethod
-    def ToJSON(name:str, value:Any) -> Optional[Dict]:
+    def ToJSON(name:str, value:Any, force:bool=False) -> Optional[Dict]:
         """Attempt to turn a given value into a JSON-style dictionary
 
         Returns None if the value type was not recognized.
@@ -380,6 +416,10 @@ class conversions:
         :type name: str
         :param value: The value to parse to a JSON representation
         :type value: Any
+        :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
+            If False, return None when such cases arise. If True, attempt to use `Dict` constructor on the `value`.
+            Defaults to False.
+        :type force: bool
         :return: The JSON representation of value, if type of value was recognized, else None
         :rtype: Optional[Dict]
         """
