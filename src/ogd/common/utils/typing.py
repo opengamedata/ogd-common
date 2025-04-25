@@ -142,8 +142,8 @@ class conversions:
             case _:
                 base_msg : str = f"{name} was unexpected type {type(value)}, expected a bool, float, int, or string!"
                 if force:
-                    ret_val = bool(value)
-                    msg = f"{base_msg} Defaulting to bool(value) == {ret_val}."
+                    ret_val = conversions.BoolFromString(value)
+                    msg = f"{base_msg} Defaulting to BoolFromString(value) == {ret_val}."
                 else:
                     ret_val = None
                     msg = f"{base_msg} Defaulting to None."
