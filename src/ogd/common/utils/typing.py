@@ -140,8 +140,14 @@ class conversions:
             case builtins.str:
                 ret_val = conversions.BoolFromString(bool_str=value)
             case _:
-                ret_val = None
-                Logger.Log(f"{name} was unexpected type {type(value)}, expected a bool! Defaulting to None.", logging.WARN)
+                base_msg : str = f"{name} was unexpected type {type(value)}, expected a bool, float, int, or string!"
+                if force:
+                    ret_val = bool(value)
+                    msg = f"{base_msg} Defaulting to bool(value) == {ret_val}."
+                else:
+                    ret_val = None
+                    msg = f"{base_msg} Defaulting to None."
+                Logger.Log(msg, logging.WARN)
         return ret_val
 
     @staticmethod
@@ -155,7 +161,8 @@ class conversions:
         :param value: The value to parse to an int representation
         :type value: Any
         :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
-            If False, return None when such cases arise. If True, attempt to use `int` constructor on the `value`.
+            If False, return None when such cases arise. If True, attempt to use `int` constructor on the `value`, which may raise error.
+            If the constructor errors, None will be returned anyway.
             Defaults to False.
         :type force: bool
         :return: The int representation of value, if type of value was recognized, else None
@@ -163,21 +170,31 @@ class conversions:
         """
         ret_val : Optional[int]
 
-        match type(value):
-            case builtins.int:
-                ret_val = value
-            case builtins.float:
-                ret_val = int(round(value))
-                Logger.Log(f"{name} was a float value, rounding to nearest int: {ret_val}.", logging.WARN)
-            case builtins.str:
-                try:
-                    ret_val = int(value)
-                except ValueError:
-                    ret_val = None
-                    Logger.Log(f"{name} value of {value} was not an integer! Defaulting to None.", logging.WARN)
-            case _:
-                ret_val = None
-                Logger.Log(f"{name} was unexpected type {type(value)}, expected an int! Defaulting to None.", logging.WARN)
+        try:
+            match type(value):
+                case builtins.int:
+                    ret_val = value
+                case builtins.float:
+                    ret_val = int(round(value))
+                    Logger.Log(f"{name} was a float value, rounding to nearest int: {ret_val}.", logging.DEBUG)
+                case builtins.str:
+                    try:
+                        ret_val = int(value)
+                    except ValueError:
+                        ret_val = None
+                        Logger.Log(f"{name} string value of {value} was not an integer! Defaulting to None.", logging.WARN)
+                case _:
+                    base_msg : str = f"{name} was unexpected type {type(value)}, expected a float, int, or string!"
+                    if force:
+                        ret_val = int(value)
+                        msg = f"{base_msg} Defaulting to int(value) == {ret_val}."
+                    else:
+                        ret_val = None
+                        msg = f"{base_msg} Defaulting to None."
+                    Logger.Log(msg, logging.WARN)
+        except ValueError as err:
+            Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to int, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
+            ret_val = None
         return ret_val
 
     @staticmethod
@@ -192,6 +209,7 @@ class conversions:
         :type value: Any
         :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
             If False, return None when such cases arise. If True, attempt to use `float` constructor on the `value`.
+            If the constructor errors, None will be returned anyway.
             Defaults to False.
         :type force: bool
         :return: The float representation of value, if type of value was recognized, else None
@@ -199,26 +217,30 @@ class conversions:
         """
         ret_val : Optional[float]
 
-        match type(value):
-            case builtins.float:
-                ret_val = value
-            case builtins.int:
-                ret_val = float(value)
-            case builtins.str:
-                try:
+        try:
+            match type(value):
+                case builtins.float:
+                    ret_val = value
+                case builtins.int:
                     ret_val = float(value)
-                except ValueError:
-                    ret_val = None
-                    Logger.Log(f"{name} string with value of '{value}' was not a float! Defaulting to None.", logging.WARN)
-            case _:
-                msg : str
-                if force:
-                    ret_val = float(value)
-                    msg = f"{name} was unexpected type {type(value)}, expected a float! Defaulting to float(value) = {ret_val}."
-                else:
-                    ret_val = None
-                    msg = f"{name} was unexpected type {type(value)}, expected a float! Defaulting to None."
-                Logger.Log(msg, logging.WARN)
+                case builtins.str:
+                    try:
+                        ret_val = float(value)
+                    except ValueError:
+                        ret_val = None
+                        Logger.Log(f"{name} string with value of '{value}' was not a float! Defaulting to None.", logging.WARN)
+                case _:
+                    base_msg : str = f"{name} was unexpected type {type(value)}, expected a float, int, or string!"
+                    if force:
+                        ret_val = float(value)
+                        msg = f"{base_msg} Defaulting to float(value) == {ret_val}."
+                    else:
+                        ret_val = None
+                        msg = f"{base_msg} Defaulting to None."
+                    Logger.Log(msg, logging.WARN)
+        except ValueError as err:
+            Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to float, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
+            ret_val = None
         return ret_val
 
     @staticmethod
@@ -258,6 +280,7 @@ class conversions:
         :type value: Any
         :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
             If False, return None when such cases arise. If True, attempt to use `Path` constructor on the `value`.
+            If the constructor errors, None will be returned anyway.
             Defaults to False.
         :type force: bool
         :return: The path representation of value, if type of value was recognized, else None
@@ -265,15 +288,24 @@ class conversions:
         """
         ret_val : Optional[pathlib.Path]
 
-        match type(value):
-            case dummy if issubclass(dummy, pathlib.Path):
-                ret_val = value
-            case builtins.str:
-                ret_val = pathlib.Path(value)
-            case _:
-                ret_val = None
-                Logger.Log(f"{name} was unexpected type {type(value)}, expected a Path! Defaulting to Path(str(value)) == {ret_val}", logging.WARN)
-                # ret_val = pathlib.Path(str(value))
+        try:
+            match type(value):
+                case dummy if issubclass(dummy, pathlib.Path):
+                    ret_val = value
+                case builtins.str:
+                    ret_val = pathlib.Path(value)
+                case _:
+                    base_msg : str = f"{name} was unexpected type {type(value)}, expected a Path or string!"
+                    if force:
+                        ret_val = pathlib.Path(str(value))
+                        msg = f"{base_msg} Defaulting to Path(str(value)) == {ret_val}."
+                    else:
+                        ret_val = None
+                        msg = f"{base_msg} Defaulting to None."
+                    Logger.Log(msg, logging.WARN)
+        except TypeError as err:
+            Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to Path, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
+            ret_val = None
         return ret_val
 
     @staticmethod
@@ -287,7 +319,7 @@ class conversions:
         :param value: The value to parse to a datetime representation
         :type value: Any
         :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
-            If False, return None when such cases arise. If True, attempt to use `datetime` constructor on the `value`.
+            If False, return None when such cases arise. If True, attempt to use `DatetimeFromString` converter on the string of `value`.
             Defaults to False.
         :type force: bool
         :return: The datetime representation of value, if type of value was recognized, else None
@@ -305,9 +337,14 @@ class conversions:
             case builtins.str:
                 ret_val = conversions.DatetimeFromString(time_str=value)
             case _:
-                ret_val = None
-                # ret_val = conversions.DatetimeFromString(str(value))
-                Logger.Log(f"{name} was unexpected type {type(value)}, expected a datetime! Defaulting to datetime(str(value)) == {ret_val}", logging.WARN)
+                base_msg : str = f"{name} was unexpected type {type(value)}, expected a datetime or string!"
+                if force:
+                    ret_val = conversions.DatetimeFromString(str(value))
+                    msg = f"{base_msg} Defaulting to DatetimeFromString(str(value)) == {ret_val}."
+                else:
+                    ret_val = None
+                    msg = f"{base_msg} Defaulting to None."
+                Logger.Log(msg, logging.WARN)
         return ret_val
 
     @staticmethod
@@ -321,7 +358,7 @@ class conversions:
         :param value: The value to parse to a timedelta representation
         :type value: Any
         :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
-            If False, return None when such cases arise. If True, attempt to use `timedelta` constructor on the `value`.
+            If False, return None when such cases arise. If True, attempt to use `TimedeltaFromString` converter on the string of `value`.
             Defaults to False.
         :type force: bool
         :return: The timedelta representation of value, if type of value was recognized, else None
@@ -337,9 +374,14 @@ class conversions:
             case builtins.str:
                 ret_val = conversions.TimedeltaFromString(time_str=value)
             case _:
-                ret_val = None
-                # ret_val = conversions.TimedeltaFromString(str(value))
-                Logger.Log(f"{name} was unexpected type {type(value)}, expected a timedelta! Defaulting to timedelta(str(value)) == {ret_val}", logging.WARN)
+                base_msg : str = f"{name} was unexpected type {type(value)}, expected a timedelta, time, or string!"
+                if force:
+                    ret_val = conversions.TimedeltaFromString(str(value))
+                    msg = f"{base_msg} Defaulting to TimedeltaFromString(str(value)) == {ret_val}."
+                else:
+                    ret_val = None
+                    msg = f"{base_msg} Defaulting to None."
+                Logger.Log(msg, logging.WARN)
         return ret_val
 
     @staticmethod
@@ -353,7 +395,7 @@ class conversions:
         :param value: The value to parse to a timezone representation
         :type value: Any
         :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
-            If False, return None when such cases arise. If True, attempt to use `timezone` constructor on the `value`.
+            If False, return None when such cases arise. If True, attempt to use `TimezoneFromString` convertor on the string of `value`.
             Defaults to False.
         :type force: bool
         :return: The timezone representation of value, if type of value was recognized, else None
@@ -366,9 +408,14 @@ class conversions:
             case builtins.str:
                 ret_val = conversions.TimezoneFromString(time_str=value)
             case _:
-                ret_val = None
-                # ret_val = conversions.TimezoneFromString(str(value))
-                Logger.Log(f"{name} was unexpected type {type(value)}, expected a timezone! Defaulting to timezone(str(value)) == {ret_val}", logging.WARN)
+                base_msg : str = f"{name} was unexpected type {type(value)}, expected a float, int, or string!"
+                if force:
+                    ret_val = conversions.TimezoneFromString(str(value))
+                    msg = f"{base_msg} Defaulting to TimezoneFromString(str(value)) == {ret_val}."
+                else:
+                    ret_val = None
+                    msg = f"{base_msg} Defaulting to None."
+                Logger.Log(msg, logging.WARN)
         return ret_val
 
     @staticmethod
@@ -383,6 +430,7 @@ class conversions:
         :type value: Any
         :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
             If False, return None when such cases arise. If True, attempt to use `List` constructor on the `value`.
+            If the constructor errors, None will be returned anyway.
             Defaults to False.
         :type force: bool
         :return: The list representation of value, if type of value was recognized, else None
@@ -400,9 +448,14 @@ class conversions:
                     else:
                         ret_val = None
                 case _:
-                    ret_val = None
-                    # ret_val = list(json.loads(str(value)))
-                    Logger.Log(f"{name} was unexpected type {type(value)}, expected a list! Defaulting to list(json.parse(str(value))) == {ret_val}", logging.WARN)
+                    base_msg : str = f"{name} was unexpected type {type(value)}, expected a list or string!"
+                    if force:
+                        ret_val = list(json.loads(str(value)))
+                        msg = f"{base_msg} Defaulting to list(json.loads(str(value))) == {ret_val}."
+                    else:
+                        ret_val = None
+                        msg = f"{base_msg} Defaulting to None."
+                    Logger.Log(msg, logging.WARN)
         except JSONDecodeError as err:
             Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to list, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
             ret_val = None
@@ -420,6 +473,7 @@ class conversions:
         :type value: Any
         :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
             If False, return None when such cases arise. If True, attempt to use `Dict` constructor on the `value`.
+            If the constructor errors, None will be returned anyway.
             Defaults to False.
         :type force: bool
         :return: The JSON representation of value, if type of value was recognized, else None
@@ -437,9 +491,14 @@ class conversions:
                     else:
                         ret_val = None
                 case _:
-                    ret_val = None
-                    # ret_val = json.loads(str(value))
-                    Logger.Log(f"{name} was unexpected type {type(value)}, expected a dict! Defaulting to json.parse(str(value)) == {ret_val}", logging.WARN)
+                    base_msg : str = f"{name} was unexpected type {type(value)}, expected a dict or string!"
+                    if force:
+                        ret_val = json.loads(str(value))
+                        msg = f"{base_msg} Defaulting to json.loads(str(value)) == {ret_val}."
+                    else:
+                        ret_val = None
+                        msg = f"{base_msg} Defaulting to None."
+                    Logger.Log(msg, logging.WARN)
         except JSONDecodeError as err:
             Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to JSON, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
             ret_val = None
