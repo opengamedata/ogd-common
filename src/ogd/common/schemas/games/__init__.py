@@ -1,7 +1,7 @@
 __all__ = [
     "EventSchema",
-    "GameSchema"
+    "GameEventsSchema"
 ]
 
 from . import EventSchema
-from . import GameSchema
+from . import GameEventsSchema
