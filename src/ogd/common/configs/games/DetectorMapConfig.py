@@ -2,12 +2,12 @@
 import logging
 from typing import Dict, Optional
 # import local files
+from ogd.common.configs.Config import Config
 from ogd.common.configs.games.DetectorConfig import DetectorConfig
-from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
-class DetectorMapConfig(Schema):
+class DetectorMapConfig(Config):
     _DEFAULT_PERLEVEL_DETECTORS  = {}
     _DEFAULT_PERCOUNT_DETECTORS  = {}
     _DEFAULT_AGGREGATE_DETECTORS = {}
@@ -16,6 +16,8 @@ class DetectorMapConfig(Schema):
 
     """
     Dumb struct to contain the specification and config of a set of features for a game.
+
+    TODO : Remove per-level detectors, we'll never use it.
     """
     def __init__(self, name:str,
                  perlevel_detectors:Dict[str, DetectorConfig], percount_detectors:Dict[str, DetectorConfig], aggregate_detectors:Dict[str, DetectorConfig],
