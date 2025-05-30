@@ -2,13 +2,13 @@
 import logging
 from typing import Any, Dict, Optional, Set
 # import local files
+from ogd.common.configs.Config import Config
 from ogd.common.configs.games.GeneratorConfig import GeneratorConfig
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
-from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
-class SubfeatureConfig(Schema):
+class SubfeatureConfig(Config):
     _DEFAULT_RETURN_TYPE = "str"
     _DEFAULT_DESCRIPTION = "Default Subfeature schema object. Does not correspond to any actual data."
 
