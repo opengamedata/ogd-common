@@ -3,37 +3,30 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 # import local files
-from ogd.common.schemas.Schema import Schema
+from ogd.common.configs.Config import Config
+from ogd.common.configs.games.DetectorMapConfig import DetectorMapConfig
+from ogd.common.configs.games.FeatureMapConfig import FeatureMapConfig
 from ogd.common.configs.games.AggregateConfig import AggregateConfig
 from ogd.common.configs.games.DetectorConfig import DetectorConfig
 from ogd.common.configs.games.DetectorMapConfig import DetectorMapConfig
-from ogd.common.schemas.games.DataElementSchema import DataElementSchema
-from ogd.common.schemas.games.EventSchema import EventSchema
 from ogd.common.configs.games.PerCountConfig import PerCountConfig
 from ogd.common.configs.games.FeatureConfig import FeatureConfig
-from ogd.common.configs.games.FeatureMapConfig import FeatureMapConfig
 from ogd.common.models.enums.IterationMode import IterationMode
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 ## @class GameSchema
-class GameGeneratorsConfig(Schema):
-    """A fairly simple class that reads a JSON schema with information on how a given
-    game's data is structured in the database, and the features we want to extract
-    for that game.
+class GameGeneratorsConfig(Config):
+    """A fairly simple class that reads a JSON config with information on the features we want to extract
+    for a given game.
     The class includes several functions for easy access to the various parts of
     this schema data.
 
-    TODO : need to get game_state from schema file, and use a GameStateSchema instead of general Map.
     TODO : Use DetectorMapConfig and FeatureMapConfig instead of just dicts... I think. Depending how these all work together.
     TODO : make parser functions for config and versions, so we can do ElementFromDict for them as well.
     TODO : In general, there's a metric fuckload of parsing functions and other things missing from standard way of doing this, class as a whole needs work.
     """
-    _DEFAULT_ENUMS = {}
-    _DEFAULT_GAME_STATE = {}
-    _DEFAULT_USER_DATA = {}
-    _DEFAULT_EVENT_LIST = []
     _DEFAULT_DETECTOR_MAP = {'perlevel':{}, 'per_count':{}, 'aggregate':{}}
     _DEFAULT_AGGREGATES = {}
     _DEFAULT_PERCOUNTS = {}
@@ -53,13 +46,11 @@ class GameGeneratorsConfig(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, game_id:str, enum_defs:Dict[str, List[str]],
-                 game_state:Map, user_data:Map, event_list:List[EventSchema],
-                 detector_map:Dict[str, Dict[str, DetectorConfig]],
-                 aggregate_feats: Dict[str, AggregateConfig], percount_feats:Dict[str, PerCountConfig],
-                 legacy_perlevel_feats: Dict[str, PerCountConfig], use_legacy_mode:bool,
+    def __init__(self, name:str, game_id:str, 
+                 detector_map:DetectorMapConfig,
+                 extractor_map:FeatureMapConfig,
                  config:Map, min_level:Optional[int], max_level:Optional[int], other_ranges:Dict[str, range],
-                 supported_vers:Optional[List[int]], other_elements:Optional[Map]=None):
+                 other_elements:Optional[Map]=None):
         """Constructor for the GameSchema class.
         Given a path and filename, it loads the data from a JSON schema,
         storing the full schema into a private variable, and compiling a list of
@@ -69,24 +60,10 @@ class GameGeneratorsConfig(Schema):
         :type name: str
         :param game_id: _description_
         :type game_id: str
-        :param enum_defs: _description_
-        :type enum_defs: Dict[str, List[str]]
-        :param game_state: _description_
-        :type game_state: Map
-        :param user_data: _description_
-        :type user_data: Map
-        :param event_list: _description_
-        :type event_list: List[EventSchema]
         :param detector_map: _description_
-        :type detector_map: Dict[str, Dict[str, DetectorConfig]]
-        :param aggregate_feats: _description_
-        :type aggregate_feats: Dict[str, AggregateConfig]
-        :param percount_feats: _description_
-        :type percount_feats: Dict[str, PerCountFeatures]
-        :param legacy_perlevel_feats: _description_
-        :type legacy_perlevel_feats: Dict[str, PerCountConfig]
-        :param use_legacy_mode: _description_
-        :type use_legacy_mode: bool
+        :type detector_map: DetectorMapConfig
+        :param extractor_map: _description_
+        :type extractor_map: FeatureMapConfig
         :param config: _description_
         :type config: Map
         :param min_level: _description_
@@ -95,8 +72,6 @@ class GameGeneratorsConfig(Schema):
         :type max_level: Optional[int]
         :param other_ranges: _description_
         :type other_ranges: Dict[str, range]
-        :param supported_vers: _description_
-        :type supported_vers: Optional[List[int]]
         :param other_elements: _description_
         :type other_elements: Dict[str, Any]
         :return: The new instance of GameSchema
@@ -105,21 +80,14 @@ class GameGeneratorsConfig(Schema):
         unparsed_elements = other_elements or {}
 
     # 1. define instance vars
-        self._game_id                : str                                  = game_id
-        self._enum_defs              : Dict[str, List[str]]                 = enum_defs             or self._parseEnumDefs(unparsed_elements=unparsed_elements)
-        self._game_state             : Map                                  = game_state            or self._parseGameState(unparsed_elements=unparsed_elements)
-        self._user_data              : Map                                  = user_data             or self._parseUserData(unparsed_elements=unparsed_elements)
-        self._event_list             : List[EventSchema]                    = event_list            or self._parseEventList(unparsed_elements=unparsed_elements)
-        self._detector_map           : Dict[str, Dict[str, DetectorConfig]] = detector_map
-        self._aggregate_feats        : Dict[str, AggregateConfig]           = aggregate_feats
-        self._percount_feats         : Dict[str, PerCountConfig]            = percount_feats
-        self._legacy_perlevel_feats  : Dict[str, PerCountConfig]            = legacy_perlevel_feats
-        self._legacy_mode            : bool                                 = use_legacy_mode
-        self._config                 : Map                                  = config
-        self._min_level              : Optional[int]                        = min_level
-        self._max_level              : Optional[int]                        = max_level
-        self._other_ranges           : Dict[str, range]                     = other_ranges
-        self._supported_vers         : Optional[List[int]]                  = supported_vers
+        self._game_id                : str               = game_id
+        self._detector_map           : DetectorMapConfig = detector_map
+        self._extractor_map          : FeatureMapConfig  = extractor_map
+        self._config                 : Map               = config
+        self._level_range            : Optional[range]   = range(min_level, max_level+1) if min_level is not None and max_level is not None else None
+        # self._min_level              : Optional[int]   = min_level
+        # self._max_level              : Optional[int]   = max_level
+        self._other_ranges           : Dict[str, range]  = other_ranges
 
         super().__init__(name=self._game_id, other_elements=other_elements)
 
@@ -133,37 +101,7 @@ class GameGeneratorsConfig(Schema):
         return self._game_id
 
     @property
-    def EnumDefs(self) -> Dict[str, List[str]]:
-        """Property for the dict of all enums defined for sub-elements in the given game's schema.
-        """
-        return self._enum_defs
-
-    @property
-    def GameState(self) -> Dict[str, Any]:
-        """Property for the dictionary describing the structure of the GameState column for the given game.
-        """
-        return self._game_state
-
-    @property
-    def UserData(self) -> Dict[str, Any]:
-        """Property for the dictionary describing the structure of the UserData column for the given game.
-        """
-        return self._user_data
-
-    @property
-    def Events(self) -> List[EventSchema]:
-        """Property for the list of events the game logs.
-        """
-        return self._event_list
-
-    @property
-    def EventTypes(self) -> List[str]:
-        """Property for the names of all event types for the game.
-        """
-        return [event.Name for event in self.Events]
-
-    @property
-    def Detectors(self) -> Dict[str, Dict[str, DetectorConfig]]:
+    def Detectors(self) -> DetectorMapConfig:
         """Property for the dictionary of categorized detectors to extract.
         """
         return self._detector_map
@@ -181,19 +119,27 @@ class GameGeneratorsConfig(Schema):
     def PerCountDetectors(self) -> Dict[str, DetectorConfig]:
         """Property for the dictionary of per-custom-count detectors.
         """
-        return self.Detectors.get("per_count", {})
+        return self.Detectors.PerCountDetectors
 
     @property
     def AggregateDetectors(self) -> Dict[str, DetectorConfig]:
         """Property for the dictionary of aggregate detectors.
         """
-        return self.Detectors.get("aggregate", {})
+        return self.Detectors.AggregateDetectors
 
     @property
-    def Features(self) -> Dict[str, Union[Dict[str, AggregateConfig], Dict[str, PerCountConfig]]]:
+    def Extractors(self) -> FeatureMapConfig:
         """Property for the dictionary of categorized features to extract.
         """
-        return { 'aggregate' : self._aggregate_feats, 'per_count' : self._percount_feats, 'perlevel' : self._legacy_perlevel_feats }
+        return self._extractor_map
+    @property
+    def Features(self) -> FeatureMapConfig:
+        """Alias for Extractors property
+
+        :return: _description_
+        :rtype: FeatureMapConfig
+        """
+        return self.Extractors
 
     @property
     def FeatureNames(self) -> List[str]:
@@ -208,19 +154,19 @@ class GameGeneratorsConfig(Schema):
     def LegacyPerLevelFeatures(self) -> Dict[str,PerCountConfig]:
         """Property for the dictionary of legacy per-level features
         """
-        return self._legacy_perlevel_feats
+        return self.Extractors.LegacyPerLevelFeatures
 
     @property
     def PerCountFeatures(self) -> Dict[str,PerCountConfig]:
         """Property for the dictionary of per-custom-count features.
         """
-        return self._percount_feats
+        return self.Extractors.PerCountFeatures
 
     @property
     def AggregateFeatures(self) -> Dict[str,AggregateConfig]:
         """Property for the dictionary of aggregate features.
         """
-        return self._aggregate_feats
+        return self.Extractors.AggregateFeatures
 
     @property
     def LevelRange(self) -> range:
