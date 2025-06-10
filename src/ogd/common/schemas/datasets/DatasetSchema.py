@@ -33,16 +33,10 @@ class DatasetKey:
         _date_range_parts = _date_range.split("_")
         # If this _dataset_key matches the expected format,
         # i.e. spit is: ["", "YYYYMMDD", "to", "YYYYMMDD"]
-        if len(_date_range_parts) == 4:
-            self._from_year  = int(_date_range_parts[1][0:4])
-            self._from_month = int(_date_range_parts[1][4:6])
-            self._to_year    = int(_date_range_parts[3][0:4])
-            self._to_month   = int(_date_range_parts[3][4:6])
-        else:
-            self._from_year  = None
-            self._from_month = None
-            self._to_year    = None
-            self._to_month   = None
+        self._from_year  = int(_date_range_parts[-3][0:4]) if len(_date_range_parts[-3]) == 8 else None
+        self._from_month = int(_date_range_parts[-3][4:6]) if len(_date_range_parts[-3]) == 8 else None
+        self._to_year    = int(_date_range_parts[-1][0:4]) if len(_date_range_parts[-1]) == 8 else None
+        self._to_month   = int(_date_range_parts[-1][4:6]) if len(_date_range_parts[-1]) == 8 else None
         self._original_key = key
 
     def __str__(self):
