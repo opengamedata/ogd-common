@@ -298,10 +298,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     @staticmethod
     def _parseGameID(dataset_name) -> str:
         ret_val : str
+        # Since format is SOME_GAME_ID_########_to_########, we should be joining on '_' for everything before index -3.
         if isinstance(dataset_name, str):
-            ret_val = dataset_name.split('_')[0]
+            ret_val = '_'.join(dataset_name.split('_')[:-3])
         else:
-            ret_val = str(dataset_name).split('_')[0]
+            ret_val = '_'.join(str(dataset_name).split('_')[:-3])
             Logger.Log(f"Dataset name was unexpected type {type(dataset_name)}, defaulting to str(dataset_name).split('_')[0]={ret_val}.", logging.WARN)
         return ret_val
 
