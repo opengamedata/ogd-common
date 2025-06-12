@@ -303,7 +303,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             ret_val = '_'.join(dataset_name.split('_')[:-3])
         else:
             ret_val = '_'.join(str(dataset_name).split('_')[:-3])
-            Logger.Log(f"Dataset name was unexpected type {type(dataset_name)}, defaulting to str(dataset_name).split('_')[0]={ret_val}.", logging.WARN)
+            Logger.Log(f"Dataset name was unexpected type {type(dataset_name)}, defaulting to '_'.join(str(dataset_name).split('_')[:-3])={ret_val}.", logging.WARN)
         return ret_val
 
     @staticmethod
