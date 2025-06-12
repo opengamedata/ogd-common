@@ -1,10 +1,11 @@
 # import standard libraries
 import logging
-from typing import Dict
+from typing import Any, Dict, Optional
 # import local files
 from ogd.common.schemas.games.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class GameStateSchema(Schema):
     """
@@ -12,18 +13,25 @@ class GameStateSchema(Schema):
 
     These essentially are just a set of elements in the GameState attribute of the game's Events.
     """
-    def __init__(self, name:str, all_elements:Dict[str, Dict]):
-        self._game_state  : Dict[str, DataElementSchema]
 
-        if not isinstance(all_elements, dict):
-            all_elements   = {}
-            Logger.Log(f"For {name} Event config, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        self._game_state = GameStateSchema._parseGameStateElements(event_data=all_elements)
-        super().__init__(name=name, other_elements=None)
+    _DEFAULT_GAME_STATE = {}
+
+    # *** BUILT-INS & PROPERTIES ***
+
+    def __init__(self, name:str, game_state:Dict[str, DataElementSchema], other_elements:Optional[Map]=None):
+        unparsed_elements = other_elements or {}
+
+        self._game_state  : Dict[str, DataElementSchema] = game_state or self._parseGameStateElements(unparsed_elements=unparsed_elements)
+
+        super().__init__(name=name, other_elements=other_elements)
 
     @property
     def GameStateElements(self) -> Dict[str, DataElementSchema]:
         return self._game_state
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
+    # *** PUBLIC STATICS ***
 
     @property
     def AsMarkdown(self) -> str:
@@ -55,12 +63,52 @@ class GameStateSchema(Schema):
             )
         return "\n\n".join(ret_val)
 
+    @classmethod
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "GameStateSchema":
+        """_summary_
+
+        TODO : Add example of what format unparsed_elements is expected to have.
+
+        :param name: _description_
+        :type name: str
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Dict[str, Any]
+        :return: _description_
+        :rtype: GameStateSchema
+        """
+        _game_state  : Dict[str, DataElementSchema]
+
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements   = {}
+            Logger.Log(f"For {name} Event config, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
+        _game_state = cls._parseGameStateElements(unparsed_elements=unparsed_elements)
+
+        _leftovers = {}
+        return GameStateSchema(name=name, game_state=_game_state, other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "GameStateSchema":
+        return GameStateSchema(
+            name="DefaultGameStateSchema",
+            game_state=cls._DEFAULT_GAME_STATE,
+            other_elements={}
+        )
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
+
     @staticmethod
-    def _parseGameStateElements(event_data):
+    def _parseGameStateElements(unparsed_elements:Map):
         ret_val : Dict[str, DataElementSchema]
-        if isinstance(event_data, dict):
-            ret_val = {name:DataElementSchema(name=name, all_elements=elems) for name,elems in event_data.items()}
+        if isinstance(unparsed_elements, dict):
+            ret_val = {
+                name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
+                for name,elems in unparsed_elements.items()
+            }
         else:
             ret_val = {}
-            Logger.Log(f"event_data was unexpected type {type(event_data)}, defaulting to empty dict.", logging.WARN)
+            Logger.Log(f"unparsed_elements was unexpected type {type(unparsed_elements)}, defaulting to {ret_val}.", logging.WARN)
         return ret_val
+
+    # *** PRIVATE METHODS ***

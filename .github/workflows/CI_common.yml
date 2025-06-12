@@ -19,3 +19,46 @@ jobs:
     uses: ./.github/workflows/BUILD_common.yml
     with:
       with_caching: false
+
+  # Run testbeds in configs module
+
+  testbed_configs:
+    name: Config Testbeds
+    needs: build
+    uses: ./.github/workflows/TEST_Configs.yml
+
+  testbed_game_configs:
+    name: Game Config Testbeds
+    needs: build
+    uses: ./.github/workflows/TEST_GameConfigs.yml
+
+  # Run testbeds in models module
+
+  testbed_semver:
+    name: SemanticVersion Testbed
+    needs: build
+    uses: ./.github/workflows/TEST_SemanticVersion.yml
+
+  # Run testbeds in schemas module
+
+  testbed_schema:
+    name: Schema base class Testbed
+    needs: build
+    uses: ./.github/workflows/TEST_Schema.yml
+
+  testbed_game_schemas:
+    name: Game Schema Testbeds
+    needs: build
+    uses: ./.github/workflows/TEST_GameSchemas.yml
+
+  # Run testbeds in utils module
+
+  testbed_fileio:
+    name: FileIO Testbed
+    needs: build
+    uses: ./.github/workflows/TEST_FileIO.yml
+
+  testbed_typing:
+    name: "`typing` Testbed"
+    needs: build
+    uses: ./.github/workflows/TEST_typing.yml

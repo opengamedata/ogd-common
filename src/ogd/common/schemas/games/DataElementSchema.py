@@ -1,42 +1,44 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map
 
 class DataElementSchema(Schema):
     """
     Dumb struct to contain a specification of a data element from the EventData, GameState, or UserData attributes of an Event.
     """
-    def __init__(self, name:str, all_elements:Dict[str, Any]):
-        self._type        : str
-        self._description : str
-        self._details     : Optional[Dict[str, str]]
 
-        if not isinstance(all_elements, dict):
-            if isinstance(all_elements, str):
-                all_elements = { 'description' : all_elements }
-                Logger.Log(f"For EventDataElement config of `{name}`, all_elements was a str, probably in legacy format. Defaulting to all_elements = {'{'} description : {all_elements['description']} {'}'}", logging.WARN)
-            else:
-                all_elements = {}
-                Logger.Log(f"For EventDataElement config of `{name}`, all_elements was not a dict, defaulting to empty dict", logging.WARN)
-        if "type" in all_elements.keys():
-            self._type = DataElementSchema._parseElementType(all_elements['type'])
-        else:
-            self._type = "Unknown"
-            Logger.Log(f"{name} EventDataElement config does not have a 'type' element; defaulting to type='{self._type}", logging.WARN)
-        if "description" in all_elements.keys():
-            self._description = DataElementSchema._parseDescription(all_elements['description'])
-        else:
-            self._description = "Unknown"
-            Logger.Log(f"{name} EventDataElement config does not have a 'description' element; defaulting to description='{self._description}", logging.WARN)
-        if "details" in all_elements.keys():
-            self._details = DataElementSchema._parseDetails(details=all_elements['details'])
-        else:
-            self._details = None
-        _leftovers = { key : val for key,val in all_elements.items() if key not in {"type", "description", "details"} }
-        super().__init__(name=name, other_elements=_leftovers)
+    _DEFAULT_TYPE = "str"
+    _DEFAULT_DESCRIPTION = "Default data element generated the DataElementSchema class. Does not represent actual data."
+    _DEFAULT_DETAILS = None
+
+    # *** BUILT-INS & PROPERTIES ***
+
+    def __init__(self, name:str, element_type:str, description:str, details:Optional[Dict[str, str]], other_elements:Optional[Map]=None):
+        unparsed_elements = other_elements or {}
+
+        self._type        : str                      = element_type or self._parseElementType(unparsed_elements=unparsed_elements)
+        self._description : str                      = description  or self._parseDescription(unparsed_elements=unparsed_elements)
+        self._details     : Optional[Dict[str, str]] = details      or self._parseDetails(unparsed_elements=unparsed_elements)
+
+        super().__init__(name=name, other_elements=other_elements)
+
+    @property
+    def ElementType(self) -> str:
+        return self._type
+
+    @property
+    def Description(self) -> str:
+        return self._description
+
+    @property
+    def Details(self) -> Optional[Dict[str, str]]:
+        return self._details
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
     def AsMarkdown(self) -> str:
@@ -56,58 +58,102 @@ class DataElementSchema(Schema):
         ret_val += " |"
         return ret_val
 
-    @property
-    def ElementType(self) -> str:
-        return self._type
+    @classmethod
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DataElementSchema":
+        """_summary_
 
-    @property
-    def Description(self) -> str:
-        return self._description
+        TODO : Add example of what format unparsed_elements is expected to have.
 
-    @property
-    def Details(self) -> Optional[Dict[str, str]]:
-        return self._details
+        :param name: _description_
+        :type name: str
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Dict[str, Any]
+        :return: _description_
+        :rtype: DataElementSchema
+        """
+        _type        : str
+        _description : str
+        _details     : Optional[Dict[str, str]]
+
+        if not isinstance(unparsed_elements, dict):
+            if isinstance(unparsed_elements, str):
+                unparsed_elements = { 'description' : unparsed_elements }
+                Logger.Log(f"For EventDataElement config of `{name}`, unparsed_elements was a str, probably in legacy format. Defaulting to all_elements = {'{'} description : {unparsed_elements['description']} {'}'}", logging.WARN)
+            else:
+                unparsed_elements = {}
+                Logger.Log(f"For EventDataElement config of `{name}`, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
+        _type = cls._parseElementType(unparsed_elements=unparsed_elements)
+        _description = cls._parseDescription(unparsed_elements=unparsed_elements)
+        _details = cls._parseDetails(unparsed_elements=unparsed_elements)
+
+        _used = {"type", "description", "details"}
+        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
+        return DataElementSchema(name=name, element_type=_type, description=_description, details=_details, other_elements=_leftovers)
+
+    @classmethod
+    def Default(cls) -> "DataElementSchema":
+        return DataElementSchema(
+            name="DefaultDataElementSchema",
+            element_type=cls._DEFAULT_TYPE,
+            description=cls._DEFAULT_DESCRIPTION,
+            details=cls._DEFAULT_DETAILS,
+            other_elements={}
+        )
+
+    # *** PUBLIC STATICS ***
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
     
     @staticmethod
-    def _parseElementType(event_type):
-        ret_val : str
-        if isinstance(event_type, str):
-            ret_val = event_type
-        else:
-            ret_val = str(event_type)
-            Logger.Log(f"EventDataElement type was not a string, defaulting to str(type) == {ret_val}", logging.WARN)
-        return ret_val
+    def _parseElementType(unparsed_elements:Map) -> str:
+        return DataElementSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["type"],
+            to_type=str,
+            default_value=DataElementSchema._DEFAULT_TYPE,
+            remove_target=True
+        )
     
     @staticmethod
-    def _parseDescription(description):
-        ret_val : str
-        if isinstance(description, str):
-            ret_val = description
-        else:
-            ret_val = str(description)
-            Logger.Log(f"EventDataElement description was not a string, defaulting to str(description) == {ret_val}", logging.WARN)
-        return ret_val
-    
+    def _parseDescription(unparsed_elements:Map) -> str:
+        return DataElementSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["description"],
+            to_type=str,
+            default_value=DataElementSchema._DEFAULT_DESCRIPTION,
+            remove_target=True
+        )
+
     @staticmethod
-    def _parseDetails(details):
+    def _parseDetails(unparsed_elements:Map):
         ret_val : Dict[str, str] = {}
+
+        details = DataElementSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["details"],
+            to_type=dict,
+            default_value=DataElementSchema._DEFAULT_DETAILS,
+            remove_target=True
+        )
         if isinstance(details, dict):
-            for key,val in details.items():
-                if isinstance(key, str):
-                    if isinstance(val, str):
-                        ret_val[key] = val
-                    else:
-                        ret_val[key] = str(val)
-                        Logger.Log(f"EventDataElement detail value for key {key} was unexpected type {type(val)}, defaulting to str(val) == {ret_val[key]}", logging.WARN)
-                else:
+            for key in details.keys():
+                if not isinstance(key, str):
                     _key = str(key)
                     Logger.Log(f"EventDataElement detail key was unexpected type {type(key)}, defaulting to str(key) == {_key}", logging.WARN)
-                    if isinstance(val, str):
-                        ret_val[_key] = val
-                    else:
-                        ret_val[_key] = str(val)
-                        Logger.Log(f"EventDataElement detail value for key {_key} was unexpected type {type(val)}, defaulting to str(val) == {ret_val[_key]}", logging.WARN)
+                else:
+                    _key = key
+                ret_val[_key] = DataElementSchema.ParseElement(
+                    unparsed_elements=details,
+                    valid_keys=[_key],
+                    to_type=str,
+                    default_value="UNKNOWN TYPE",
+                    remove_target=False
+                )
         else:
-            ret_val = {}
-            Logger.Log(f"EventDataElement details was not a dict, defaulting to empty dict.", logging.WARN)
+            ret_val = details
         return ret_val
+
+    # *** PRIVATE METHODS ***
+

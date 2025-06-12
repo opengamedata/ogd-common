@@ -1,7 +1,9 @@
 settings = {
     "VERBOSE" : False,
     "ENABLED" : {
+        "CONFIGS":True,
         "INTERFACES":True,
+        "SCHEMAS":True,
         "UTILS":True
     },
     "REMOTE_ADDRESS" : "address_placeholder"
