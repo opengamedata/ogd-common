@@ -381,7 +381,10 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         :return: The name of the game whose data is contained in the dataset
         :rtype: str
         """
-        return conversions.ToString(name="Game ID", value=game_id)
+        ret_val : str = conversions.ToString(name="Game ID", value=game_id)
+        ret_val = '_'.join(dataset_name.split('_')[:-3])
+        
+        return ret_val
 
     @staticmethod
     def _parseDateModified(unparsed_elements:Map) -> date | str:
