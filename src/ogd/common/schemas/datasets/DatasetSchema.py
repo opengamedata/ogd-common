@@ -6,6 +6,7 @@ from typing import Any, Dict, Optional, Self
 
 # ogd imports
 from ogd.common.schemas.Schema import Schema
+from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
 
