@@ -3,7 +3,8 @@
 # import standard libraries
 from typing import Any, Dict, Optional, Set
 # import local files
-from ogd.common.configs.games.FeatureConfig import FeatureConfig, SubfeatureConfig
+from ogd.common.configs.games.FeatureConfig import FeatureConfig
+from ogd.common.configs.games.SubfeatureConfig import SubfeatureConfig
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.utils.typing import Map
 
