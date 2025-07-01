@@ -1,5 +1,5 @@
 # Workflow to test the schemas from the `config` subfolder
-name: Testbed - Game Configs
+name: Testbed - Event Schemas
 run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
 on:
   workflow_dispatch:
@@ -11,28 +11,25 @@ on:
     - 'tests/config/**'
     - 'requirements.txt'
     # specific dependencies
-    - '.github/workflows/TEST_GameConfigs.yml'
-    - 'tests/cases/configs/games/**'
+    - '.github/workflows/TEST_EventSchemas.yml'
+    - 'tests/cases/schemas/events/**'
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-GameConfigs
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-EventSchemas
   cancel-in-progress: true
 
 jobs:
 
   run_testbed_schema:
-    name: Run Game Config Testbeds
+    name: Run Event Schema Testbeds
     runs-on: ubuntu-22.04
     strategy:
       matrix:
         testbed: [
-          test_AggregateConfig,
-          test_DetectorMapConfig,
-          test_DetectorConfig,
-          test_FeatureMapConfig,
-          test_FeatureConfig,
-          test_GeneratorConfig,
-          test_PerCountConfig
+          test_DataElementSchema,
+          test_EventSchema,
+          test_GameSchema,
+          test_GameStateSchema
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20
@@ -51,7 +48,7 @@ jobs:
       uses: ./.github/actions/test_config
       with:
           verbose_output: "True"
-          with_configs: "True"
+          with_schemas: "True"
 
   # 2. Build & configure remote environments
 
@@ -59,7 +56,7 @@ jobs:
     - name: Execute ${{ matrix.testbed }} testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/configs/games"
+        directory: "tests/cases/schemas/events"
         test_file: "${{ matrix.testbed }}.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
