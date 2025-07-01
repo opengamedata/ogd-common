@@ -151,16 +151,10 @@ class EventCollectionSchema(Schema):
     def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "EventCollectionSchema":
         """_summary_
 
-        TODO : Need to have parse functions for all the variables, currently only have about half of them.
-        In particular, we have all features theoretically under one parsed 'map' below, which is weird,
-        since we clearly have vars for each kind of feature separately here.
-
         :param name: _description_
         :type name: str
         :param unparsed_elements: _description_
         :type unparsed_elements: Dict[str, Any]
-        :param logger: _description_, defaults to None
-        :type logger: Optional[logging.Logger], optional
         :raises ValueError: _description_
         :raises ValueError: _description_
         :return: _description_
