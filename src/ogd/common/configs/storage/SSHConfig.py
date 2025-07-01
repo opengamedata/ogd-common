@@ -104,7 +104,7 @@ class SSHConfig(Schema):
 
     @staticmethod
     def _parseHost(unparsed_elements:Map) -> str:
-        return MySQLConfig.ParseElement(
+        return SSHConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["SSH_HOST"],
             to_type=str,
