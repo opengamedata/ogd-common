@@ -6,7 +6,7 @@ from unittest import TestCase
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.configs.games.FeatureMapConfig import FeatureMapConfig
+from src.ogd.common.configs.generators.FeatureMapConfig import FeatureMapConfig
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")

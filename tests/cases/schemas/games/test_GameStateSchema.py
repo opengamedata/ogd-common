@@ -6,7 +6,7 @@ from unittest import TestCase
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.schemas.games.GameStateSchema import GameStateSchema
+from src.ogd.common.schemas.events.GameStateSchema import GameStateSchema
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")

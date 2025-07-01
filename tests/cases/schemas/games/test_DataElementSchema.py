@@ -6,7 +6,7 @@ from unittest import TestCase
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.schemas.games.DataElementSchema import DataElementSchema
+from src.ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from tests.config.t_config import settings
 
 class test_DataElementSchema(TestCase):
