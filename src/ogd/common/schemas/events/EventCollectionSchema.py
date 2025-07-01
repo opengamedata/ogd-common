@@ -1,19 +1,11 @@
 # import standard libraries
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional
 # import local files
 from ogd.common.schemas.Schema import Schema
-from ogd.common.configs.generators.AggregateConfig import AggregateConfig
-from ogd.common.configs.generators.DetectorConfig import DetectorConfig
-from ogd.common.configs.generators.DetectorMapConfig import DetectorMapConfig
 from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.events.EventSchema import EventSchema
-from ogd.common.configs.generators.PerCountConfig import PerCountConfig
-from ogd.common.configs.generators.FeatureConfig import FeatureConfig
-from ogd.common.configs.generators.FeatureMapConfig import FeatureMapConfig
-from ogd.common.models.enums.IterationMode import IterationMode
-from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
