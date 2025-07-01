@@ -19,7 +19,7 @@ from ogd.common.interfaces.outerfaces.DataOuterface import DataOuterface
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.configs.GameSourceSchema import GameSourceSchema
-from ogd.common.schemas.games.GameSchema import GameSchema
+from ogd.common.schemas.events.GameSchema import GameSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.configs.IndexingConfig import FileIndexingConfig
 from ogd.common.utils import fileio

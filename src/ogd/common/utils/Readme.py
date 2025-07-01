@@ -4,7 +4,7 @@ import traceback
 from pathlib import Path
 
 # import local files
-from ogd.common.schemas.games.GameSchema import GameSchema
+from ogd.common.schemas.events.GameSchema import GameSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils.Logger import Logger
 
