@@ -17,8 +17,8 @@ from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
-## @class GameEventsSchema
-class GameEventsSchema(Schema):
+## @class EventCollectionSchema
+class EventCollectionSchema(Schema):
     """A fairly simple class that reads a JSON schema with information on how a given
     game's data is structured in the database, and the features we want to extract
     for that game.
@@ -60,7 +60,7 @@ class GameEventsSchema(Schema):
                  legacy_perlevel_feats: Dict[str, PerCountConfig], use_legacy_mode:bool,
                  config:Map, min_level:Optional[int], max_level:Optional[int], other_ranges:Dict[str, range],
                  supported_vers:Optional[List[int]], other_elements:Optional[Map]=None):
-        """Constructor for the GameEventsSchema class.
+        """Constructor for the EventCollectionSchema class.
         Given a path and filename, it loads the data from a JSON schema,
         storing the full schema into a private variable, and compiling a list of
         all features to be extracted.
@@ -99,8 +99,8 @@ class GameEventsSchema(Schema):
         :type supported_vers: Optional[List[int]]
         :param other_elements: _description_
         :type other_elements: Dict[str, Any]
-        :return: The new instance of GameEventsSchema
-        :rtype: GameEventsSchema
+        :return: The new instance of EventCollectionSchema
+        :rtype: EventCollectionSchema
         """
         unparsed_elements = other_elements or {}
 
@@ -304,7 +304,7 @@ class GameEventsSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "GameEventsSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "EventCollectionSchema":
         """_summary_
 
         TODO : Need to have parse functions for all the variables, currently only have about half of them.
@@ -320,7 +320,7 @@ class GameEventsSchema(Schema):
         :raises ValueError: _description_
         :raises ValueError: _description_
         :return: _description_
-        :rtype: GameEventsSchema
+        :rtype: EventCollectionSchema
         """
     # 1. define local vars
         _game_id                : str                                  = name
@@ -341,7 +341,7 @@ class GameEventsSchema(Schema):
 
         if not isinstance(unparsed_elements, dict):
             unparsed_elements   = {}
-            Logger.Log(f"For {_game_id} GameEventsSchema, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log(f"For {_game_id} EventCollectionSchema, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
 
     # 2. set instance vars, starting with event data
 
@@ -381,7 +381,7 @@ class GameEventsSchema(Schema):
     # 7. Collect any other, unexpected elements
         _used = {'enums', 'game_state', 'user_data', 'events', 'detectors', 'features', 'level_range', 'config'}.union(_other_ranges.keys())
         _leftovers = { key:val for key,val in unparsed_elements.items() if key not in _used }
-        return GameEventsSchema(name=name, game_id=_game_id, enum_defs=_enum_defs,
+        return EventCollectionSchema(name=name, game_id=_game_id, enum_defs=_enum_defs,
                           game_state=_game_state, user_data=_user_data,
                           event_list=_event_list, detector_map=_detector_map,
                           aggregate_feats=_aggregate_feats, percount_feats=_percount_feats,
@@ -391,9 +391,9 @@ class GameEventsSchema(Schema):
                           other_elements=_leftovers)
 
     @classmethod
-    def Default(cls) -> "GameEventsSchema":
-        return GameEventsSchema(
-            name="DefaultGameEventsSchema",
+    def Default(cls) -> "EventCollectionSchema":
+        return EventCollectionSchema(
+            name="DefaultEventCollectionSchema",
             game_id="DEFAULT_GAME",
             enum_defs=cls._DEFAULT_ENUMS,
             game_state=cls._DEFAULT_GAME_STATE,
@@ -415,8 +415,8 @@ class GameEventsSchema(Schema):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, game_id:str, schema_path:Optional[Path] = None, search_templates:bool=True) -> "GameEventsSchema":
-        """Function to get a GameEventsSchema from a file
+    def FromFile(cls, game_id:str, schema_path:Optional[Path] = None, search_templates:bool=True) -> "EventCollectionSchema":
+        """Function to get a EventCollectionSchema from a file
 
         :param game_id: _description_
         :type game_id: str
@@ -426,16 +426,16 @@ class GameEventsSchema(Schema):
         :type search_templates: bool, optional
         :raises ValueError: _description_
         :return: _description_
-        :rtype: GameEventsSchema
+        :rtype: EventCollectionSchema
         """
         ret_val : Schema
         # Give schema_path a default, don't think we can use game_id to construct it directly in the function header (so do it here if None)
         schema_path = schema_path or cls._DEFAULT_GAME_FOLDER / game_id / "schemas"
         ret_val = cls._fromFile(schema_name=game_id, schema_path=schema_path, search_templates=search_templates)
-        if isinstance(ret_val, GameEventsSchema):
+        if isinstance(ret_val, EventCollectionSchema):
             return ret_val
         else:
-            raise ValueError("The result of the class _fromFile function was not a GameEventsSchema!")
+            raise ValueError("The result of the class _fromFile function was not a EventCollectionSchema!")
 
     # *** PUBLIC METHODS ***
 
@@ -485,7 +485,7 @@ class GameEventsSchema(Schema):
             case IterationMode.PERCOUNT:
                 _detector_schema = self.Detectors['per_count'].get(detector_name, self.Detectors['perlevel'].get(detector_name))
             case _:
-                raise ValueError(f"In GameEventsSchema, DetectorEnabled was given an unrecognized iteration mode of {iter_mode.name}")
+                raise ValueError(f"In EventCollectionSchema, DetectorEnabled was given an unrecognized iteration mode of {iter_mode.name}")
         if _detector_schema is not None:
             ret_val = extract_mode in _detector_schema.Enabled
         else:
@@ -505,7 +505,7 @@ class GameEventsSchema(Schema):
             case IterationMode.PERCOUNT:
                 _feature_schema = self.PerCountFeatures.get(feature_name)
             case _:
-                raise ValueError(f"In GameEventsSchema, FeatureEnabled was given an unrecognized iteration mode of {iter_mode.name}")
+                raise ValueError(f"In EventCollectionSchema, FeatureEnabled was given an unrecognized iteration mode of {iter_mode.name}")
         if _feature_schema is not None:
             ret_val = extract_mode in _feature_schema.Enabled
         else:
@@ -550,17 +550,17 @@ class GameEventsSchema(Schema):
         """
         ret_val : Dict[str, List[str]]
 
-        enums_list = GameEventsSchema.ParseElement(
+        enums_list = EventCollectionSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["enums"],
             to_type=dict,
-            default_value=GameEventsSchema._DEFAULT_ENUMS,
+            default_value=EventCollectionSchema._DEFAULT_ENUMS,
             remove_target=True
         )
         if isinstance(enums_list, dict):
             ret_val = enums_list
         else:
-            ret_val = GameEventsSchema._DEFAULT_ENUMS
+            ret_val = EventCollectionSchema._DEFAULT_ENUMS
             Logger.Log(f"enums_list was unexpected type {type(enums_list)}, defaulting to {ret_val}.", logging.WARN)
         return ret_val
 
@@ -568,11 +568,11 @@ class GameEventsSchema(Schema):
     def _parseGameState(unparsed_elements:Map) -> Dict[str, DataElementSchema]:
         ret_val : Dict[str, DataElementSchema]
 
-        game_state = GameEventsSchema.ParseElement(
+        game_state = EventCollectionSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["game_state"],
             to_type=dict,
-            default_value=GameEventsSchema._DEFAULT_GAME_STATE,
+            default_value=EventCollectionSchema._DEFAULT_GAME_STATE,
             remove_target=True
         )
         ret_val = {
@@ -586,11 +586,11 @@ class GameEventsSchema(Schema):
     def _parseUserData(unparsed_elements:Map) -> Dict[str, DataElementSchema]:
         ret_val : Dict[str, DataElementSchema]
 
-        user_data = GameEventsSchema.ParseElement(
+        user_data = EventCollectionSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["user_data"],
             to_type=dict,
-            default_value=GameEventsSchema._DEFAULT_USER_DATA,
+            default_value=EventCollectionSchema._DEFAULT_USER_DATA,
             remove_target=True
         )
         ret_val = {
@@ -604,11 +604,11 @@ class GameEventsSchema(Schema):
     def _parseEventList(unparsed_elements:Map) -> List[EventSchema]:
         ret_val : List[EventSchema]
 
-        events_list = GameEventsSchema.ParseElement(
+        events_list = EventCollectionSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["events"],
             to_type=dict,
-            default_value=GameEventsSchema._DEFAULT_EVENT_LIST,
+            default_value=EventCollectionSchema._DEFAULT_EVENT_LIST,
             remove_target=True
         )
         ret_val = [
@@ -621,11 +621,11 @@ class GameEventsSchema(Schema):
     def _parseDetectorMap(unparsed_elements:Map) -> DetectorMapConfig:
         ret_val : DetectorMapConfig
 
-        detector_map = GameEventsSchema.ParseElement(
+        detector_map = EventCollectionSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["detectors"],
             to_type=dict,
-            default_value=GameEventsSchema._DEFAULT_DETECTOR_MAP,
+            default_value=EventCollectionSchema._DEFAULT_DETECTOR_MAP,
             remove_target=True
         )
         ret_val = DetectorMapConfig.FromDict(name="DetectorMap", unparsed_elements=detector_map)
@@ -636,11 +636,11 @@ class GameEventsSchema(Schema):
     def _parseFeatureMap(unparsed_elements:Map) -> FeatureMapConfig:
         ret_val : FeatureMapConfig
 
-        feature_map = GameEventsSchema.ParseElement(
+        feature_map = EventCollectionSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["features"],
             to_type=dict,
-            default_value=GameEventsSchema._DEFAULT_FEATURE_MAP,
+            default_value=EventCollectionSchema._DEFAULT_FEATURE_MAP,
             remove_target=True
         )
         ret_val = FeatureMapConfig.FromDict(name="FeatureMap", unparsed_elements=feature_map)
@@ -650,7 +650,7 @@ class GameEventsSchema(Schema):
     def _parseLevelRange(unparsed_elements:Map) -> Tuple[Optional[int], Optional[int]]:
         ret_val : Tuple[Optional[int], Optional[int]]
 
-        level_range = GameEventsSchema.ParseElement(
+        level_range = EventCollectionSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["level_range"],
             to_type=dict,
@@ -661,9 +661,9 @@ class GameEventsSchema(Schema):
         if isinstance(level_range, dict):
             ret_val = (level_range.get("min", None), level_range.get("max", None))
         elif level_range == None:
-            ret_val = (GameEventsSchema._DEFAULT_MIN_LEVEL, GameEventsSchema._DEFAULT_MAX_LEVEL)
+            ret_val = (EventCollectionSchema._DEFAULT_MIN_LEVEL, EventCollectionSchema._DEFAULT_MAX_LEVEL)
         else:
-            ret_val = (GameEventsSchema._DEFAULT_MIN_LEVEL, GameEventsSchema._DEFAULT_MAX_LEVEL)
+            ret_val = (EventCollectionSchema._DEFAULT_MIN_LEVEL, EventCollectionSchema._DEFAULT_MAX_LEVEL)
             Logger.Log(f"level_range was unexpected type {type(level_range)}, defaulting to {ret_val}.", logging.WARN)
         return ret_val
 

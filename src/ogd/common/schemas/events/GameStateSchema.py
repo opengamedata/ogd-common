@@ -9,7 +9,7 @@ from ogd.common.utils.typing import Map
 
 class GameStateSchema(Schema):
     """
-    Dumb struct to contain a specification of a game's GameState in a GameEventsSchema file.
+    Dumb struct to contain a specification of a game's GameState in a EventCollectionSchema file.
 
     These essentially are just a set of elements in the GameState attribute of the game's Events.
     """

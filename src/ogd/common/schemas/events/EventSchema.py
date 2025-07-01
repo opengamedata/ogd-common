@@ -14,7 +14,7 @@ class EventSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     """
-    Dumb struct to contain a specification of an Event in a GameEventsSchema file.
+    Dumb struct to contain a specification of an Event in a EventCollectionSchema file.
 
     These essentially are just a description of the event, and a set of elements in the EventData attribute of the Event.
     """
