@@ -16,9 +16,6 @@ class EventCollectionSchema(Schema):
     for that game.
     The class includes several functions for easy access to the various parts of
     this schema data.
-
-    TODO : make parser functions for config and versions, so we can do ElementFromDict for them as well.
-    TODO : In general, there's a metric fuckload of parsing functions and other things missing from standard way of doing this, class as a whole needs work.
     """
     _DEFAULT_ENUMS = {}
     _DEFAULT_GAME_STATE = {}
