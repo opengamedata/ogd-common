@@ -3,7 +3,7 @@ import abc
 import logging
 from pathlib import Path
 from shutil import copyfile
-from typing import Any, List, Optional, Type
+from typing import Any, List, Optional, Self, Type
 # import local files
 from ogd.common.utils.typing import conversions, Map
 from ogd.common.utils import fileio
@@ -112,7 +112,7 @@ class Schema(abc.ABC):
         return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Map)-> "Schema":
+    def FromDict(cls, name:str, unparsed_elements:Map)-> Self:
         """Function to create an instance of the given Schema subclass, from data in a Map (Dict[str, Any])
 
         :param name: The name of the instance.
