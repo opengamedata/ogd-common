@@ -127,6 +127,8 @@ class Schema(abc.ABC):
             _msg = f"For {name} {cls.__name__}, unparsed_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
 
+        unparsed_elements = {key.upper() : val for key, val in unparsed_elements.items()}
+
         return cls._fromDict(name=name, unparsed_elements=unparsed_elements)
 
     @classmethod
@@ -151,7 +153,8 @@ class Schema(abc.ABC):
         ret_val : Any = default_value
 
         found = False
-        for name in valid_keys:
+        for _name in valid_keys:
+            name = _name.upper()
             if name in unparsed_elements:
                 value = unparsed_elements[name]
                 if remove_target:
