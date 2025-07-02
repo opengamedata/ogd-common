@@ -11,8 +11,8 @@ class TableStructureFactory:
         # _table_type       = TableType.FromString(_table_type_str) if _table_type_str is not None else TableType.EVENT
         match (table_type.upper()):
             case "EVENT":
-                return EventTableStructureSchema.FromDict(name=name, unparsed_elements=all_elements)
+                return EventTableStructureSchema._fromDict(name=name, unparsed_elements=all_elements)
             case "FEATURE":
-                return FeatureTableStructureSchema.FromDict(name=name, unparsed_elements=all_elements)
+                return FeatureTableStructureSchema._fromDict(name=name, unparsed_elements=all_elements)
             case _:
                 raise ValueError(f"Could not generate TableStructureSchema from dictionary, table_type had invalid value {table_type}")

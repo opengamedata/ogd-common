@@ -76,7 +76,7 @@ class FileStoreConfig(DataStoreConfig):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "FileStoreConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "FileStoreConfig":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -148,7 +148,7 @@ class FileStoreConfig(DataStoreConfig):
             remove_target=True
         )
         if _cred_elements:
-            ret_val = PasswordCredential.FromDict(name="FileStoreCredential", unparsed_elements=_cred_elements)
+            ret_val = PasswordCredential._fromDict(name="FileStoreCredential", unparsed_elements=_cred_elements)
         else:
             ret_val = FileStoreConfig._DEFAULT_CREDENTIAL
         return ret_val

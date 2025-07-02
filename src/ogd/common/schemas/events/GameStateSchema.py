@@ -64,7 +64,7 @@ class GameStateSchema(Schema):
         return "\n\n".join(ret_val)
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "GameStateSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "GameStateSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -103,7 +103,7 @@ class GameStateSchema(Schema):
         ret_val : Dict[str, DataElementSchema]
         if isinstance(unparsed_elements, dict):
             ret_val = {
-                name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
+                name : DataElementSchema._fromDict(name=name, unparsed_elements=elems)
                 for name,elems in unparsed_elements.items()
             }
         else:

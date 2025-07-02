@@ -115,7 +115,7 @@ class GameSourceSchema(Schema):
         )
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], data_sources:Dict[str, DataStoreConfig]) -> "GameSourceSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any], data_sources:Dict[str, DataStoreConfig]) -> "GameSourceSchema":
         """Create a GameSourceSchema from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.

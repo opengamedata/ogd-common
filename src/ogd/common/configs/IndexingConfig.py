@@ -47,7 +47,7 @@ class FileIndexingConfig(Config):
         )
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "FileIndexingConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "FileIndexingConfig":
         """Create a file indexing Configuration from a dict.
 
         Expects dictionary to have the following form:

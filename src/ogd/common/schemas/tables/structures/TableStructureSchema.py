@@ -156,7 +156,7 @@ class TableStructureSchema(Schema):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "TableStructureSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "TableStructureSchema":
         """Function to generate a TableStructureSchema from a dictionary.
 
         The structure is assumed to be as follows:
@@ -186,7 +186,7 @@ class TableStructureSchema(Schema):
             _msg = f"For {name} Table Schema, unparsed_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
         _column_json_list = unparsed_elements.get('columns', [])
-        _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), unparsed_elements=column) for column in _column_json_list]
+        _column_schemas   = [ColumnSchema._fromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), unparsed_elements=column) for column in _column_json_list]
         return cls._subparseDict(name=name, raw_map=unparsed_elements.get('column_map', {}), column_schemas=_column_schemas)
 
     # *** PUBLIC STATICS ***

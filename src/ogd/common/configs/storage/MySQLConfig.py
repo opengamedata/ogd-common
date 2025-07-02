@@ -95,7 +95,7 @@ class MySQLConfig(DataStoreConfig):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Map)-> "MySQLConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map)-> "MySQLConfig":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -172,7 +172,7 @@ class MySQLConfig(DataStoreConfig):
             remove_target=True
         )
         if _cred_elements:
-            ret_val = PasswordCredential.FromDict(name="MySQLCredential", unparsed_elements=_cred_elements)
+            ret_val = PasswordCredential._fromDict(name="MySQLCredential", unparsed_elements=_cred_elements)
         else:
             ret_val = MySQLConfig._DEFAULT_DB_CREDENTIAL
 
@@ -187,7 +187,7 @@ class MySQLConfig(DataStoreConfig):
         # TODO : In general, this should be updated to work similar to all the other parsers.
         _ssh_keys = {"SSH_HOST", "SSH_PORT", "SSH_CREDENTIAL"}
         _ssh_elems = { key : unparsed_elements.get(key) for key in _ssh_keys.intersection(unparsed_elements.keys()) }
-        ret_val = SSHConfig.FromDict(name="MySQLSSHConfig", unparsed_elements=_ssh_elems)
+        ret_val = SSHConfig._fromDict(name="MySQLSSHConfig", unparsed_elements=_ssh_elems)
 
         return ret_val
 

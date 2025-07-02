@@ -61,7 +61,7 @@ class SSHConfig(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Map)-> "SSHConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map)-> "SSHConfig":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -134,7 +134,7 @@ class SSHConfig(Schema):
             remove_target=True
         )
         if _cred_elements:
-            ret_val = PasswordCredential.FromDict(name="SSHCredential", unparsed_elements=_cred_elements)
+            ret_val = PasswordCredential._fromDict(name="SSHCredential", unparsed_elements=_cred_elements)
         else:
             ret_val = SSHConfig._DEFAULT_CREDENTIAL
 

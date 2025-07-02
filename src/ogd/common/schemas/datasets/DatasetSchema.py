@@ -179,7 +179,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.

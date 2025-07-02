@@ -76,7 +76,7 @@ class KeyCredential(CredentialConfig):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Map)-> "KeyCredential":
+    def _fromDict(cls, name:str, unparsed_elements:Map)-> "KeyCredential":
         """Create a Key Credential from a dict.
 
         Expects dictionary to have the following form:

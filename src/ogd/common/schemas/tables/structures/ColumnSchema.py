@@ -53,7 +53,7 @@ class ColumnSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "ColumnSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "ColumnSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.

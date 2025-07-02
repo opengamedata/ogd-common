@@ -60,7 +60,7 @@ class TestConfig(Config):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "TestConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "TestConfig":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.

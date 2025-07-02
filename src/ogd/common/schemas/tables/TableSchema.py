@@ -76,7 +76,7 @@ class TableSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "TableSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "TableSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -140,9 +140,9 @@ class TableSchema(Schema):
         )
         match table_type.upper():
             case "EVENT":
-                ret_val = EventTableStructureSchema.FromDict(name=f"{name}EventStructure", unparsed_elements=_structure)
+                ret_val = EventTableStructureSchema._fromDict(name=f"{name}EventStructure", unparsed_elements=_structure)
             case "FEATURE":
-                ret_val = FeatureTableStructureSchema.FromDict(name=f"{name}EventStructure", unparsed_elements=_structure)
+                ret_val = FeatureTableStructureSchema._fromDict(name=f"{name}EventStructure", unparsed_elements=_structure)
         
         return ret_val
 
@@ -157,7 +157,7 @@ class TableSchema(Schema):
             default_value=TableSchema._DEFAULT_LOCATION,
             remove_target=True
         )
-        ret_val = TableLocationSchema.FromDict(name=f"{name}Location", unparsed_elements=_location)
+        ret_val = TableLocationSchema._fromDict(name=f"{name}Location", unparsed_elements=_location)
 
         return ret_val
 
