@@ -98,7 +98,7 @@ class GameStateSchema(Schema):
         ret_val : Dict[str, DataElementSchema]
         if isinstance(unparsed_elements, dict):
             ret_val = {
-                name : DataElementSchema._fromDict(name=name, unparsed_elements=elems)
+                name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
                 for name,elems in unparsed_elements.items()
             }
         else:

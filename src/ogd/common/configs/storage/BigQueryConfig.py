@@ -122,7 +122,7 @@ class BigQueryConfig(DataStoreConfig):
             remove_target=True
         )
         if isinstance(raw_credential, dict):
-            ret_val = KeyCredential._fromDict(name="KeyCredential", unparsed_elements=raw_credential)
+            ret_val = KeyCredential.FromDict(name="KeyCredential", unparsed_elements=raw_credential)
         elif isinstance(raw_credential, str):
             ret_val = KeyCredential(name="KeyCredential", filename=raw_credential, path=Path("./"), other_elements=None)
         return ret_val

@@ -179,7 +179,7 @@ class GameDatasetCollectionSchema(Schema):
         ret_val : Dict[str, DatasetSchema]
 
         ret_val = {
-            key : DatasetSchema._fromDict(name=key, unparsed_elements=val)
+            key : DatasetSchema.FromDict(name=key, unparsed_elements=val)
             for key,val in unparsed_elements.items()
         }
 
@@ -260,7 +260,7 @@ class DatasetCollectionSchema(Schema):
         # If parse gave us back a dict, then we pass it into the FromDict for config,
         # else assume it was the default value we can return directly.
         if isinstance(_config_elem, dict):
-            ret_val = DatasetCollectionConfig._fromDict(name=name, unparsed_elements=_config_elem)
+            ret_val = DatasetCollectionConfig.FromDict(name=name, unparsed_elements=_config_elem)
         else:
             ret_val = _config_elem
 
@@ -270,7 +270,7 @@ class DatasetCollectionSchema(Schema):
     def _parseGamesFileLists(unparsed_elements:Map) -> Dict[str, GameDatasetCollectionSchema]:
         ret_val : Dict[str, GameDatasetCollectionSchema]
         ret_val = {
-            key : GameDatasetCollectionSchema._fromDict(key, datasets if isinstance(datasets, dict) else {})
+            key : GameDatasetCollectionSchema.FromDict(key, datasets if isinstance(datasets, dict) else {})
             for key, datasets in unparsed_elements.items()
         }
         return ret_val

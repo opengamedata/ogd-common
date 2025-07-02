@@ -255,7 +255,7 @@ class EventCollectionSchema(Schema):
             remove_target=True
         )
         ret_val = {
-            name : DataElementSchema._fromDict(name=name, unparsed_elements=elems)
+            name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
             for name,elems in game_state.items()
         }
 
@@ -273,7 +273,7 @@ class EventCollectionSchema(Schema):
             remove_target=True
         )
         ret_val = {
-            name : DataElementSchema._fromDict(name=name, unparsed_elements=elems)
+            name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
             for name,elems in user_data.items()
         }
 
@@ -291,7 +291,7 @@ class EventCollectionSchema(Schema):
             remove_target=True
         )
         ret_val = [
-            EventSchema._fromDict(name=key, unparsed_elements=val) for key,val in events_list.items()
+            EventSchema.FromDict(name=key, unparsed_elements=val) for key,val in events_list.items()
         ]
 
         return ret_val

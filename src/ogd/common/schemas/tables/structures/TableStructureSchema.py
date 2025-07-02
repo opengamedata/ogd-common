@@ -180,7 +180,7 @@ class TableStructureSchema(Schema):
         :rtype: TableStructureSchema
         """
         _column_json_list : List               = unparsed_elements.get('columns', [])
-        _column_schemas   : List[ColumnSchema] = [ColumnSchema._fromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), unparsed_elements=column) for column in _column_json_list]
+        _column_schemas   : List[ColumnSchema] = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), unparsed_elements=column) for column in _column_json_list]
         return cls._subparseDict(name=name, raw_map=unparsed_elements.get('column_map', {}), column_schemas=_column_schemas)
 
     # *** PUBLIC STATICS ***

@@ -127,7 +127,7 @@ class SSHConfig(Schema):
             remove_target=True
         )
         if _cred_elements:
-            ret_val = PasswordCredential._fromDict(name="SSHCredential", unparsed_elements=_cred_elements)
+            ret_val = PasswordCredential.FromDict(name="SSHCredential", unparsed_elements=_cred_elements)
         else:
             ret_val = SSHConfig._DEFAULT_CREDENTIAL
 

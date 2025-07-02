@@ -116,7 +116,7 @@ class EventSchema(Schema):
         )
         if isinstance(event_data, dict):
             ret_val = {
-                name : DataElementSchema._fromDict(name=name, unparsed_elements=elems)
+                name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
                 for name,elems in event_data.items()
             }
         else:
