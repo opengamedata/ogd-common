@@ -39,7 +39,7 @@ class PasswordCredential(CredentialConfig):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Map)-> "PasswordCredential":
+    def _fromDict(cls, name:str, unparsed_elements:Map)-> "PasswordCredential":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -51,15 +51,8 @@ class PasswordCredential(CredentialConfig):
         :return: _description_
         :rtype: PasswordCredential
         """
-        _user : str
-        _pass : Optional[str]
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} password credential config, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-        _user = cls._parseUser(unparsed_elements=unparsed_elements)
-        _pass = cls._parsePass(unparsed_elements=unparsed_elements)
+        _user : str           = cls._parseUser(unparsed_elements=unparsed_elements)
+        _pass : Optional[str] = cls._parsePass(unparsed_elements=unparsed_elements)
 
         return PasswordCredential(name=name, username=_user, password=_pass, other_elements=unparsed_elements)
 

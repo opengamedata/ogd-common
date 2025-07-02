@@ -39,7 +39,7 @@ class TableSchema(Schema):
         :type is_legacy: bool, optional
         """
         # declare and initialize vars
-        unparsed_elements = other_elements or {}
+        unparsed_elements : Map = other_elements or {}
         _table_type = self._parseTableType(unparsed_elements=unparsed_elements)
         self._structure : TableStructureSchema = structure or self._parseStructure(name=f"{name}Structure", table_type=_table_type, unparsed_elements=unparsed_elements)
         self._location  : TableLocationSchema  = location  or self._parseLocation(name=f"{name}Location", unparsed_elements=unparsed_elements)
@@ -76,7 +76,7 @@ class TableSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "TableSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "TableSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -88,15 +88,9 @@ class TableSchema(Schema):
         :return: _description_
         :rtype: TableSchema
         """
-        _structure : TableStructureSchema
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} Table Schema, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-        _table_type_str  = cls._parseTableType(unparsed_elements=unparsed_elements)
-        _structure       = cls._parseStructure(name=name, table_type=_table_type_str, unparsed_elements=unparsed_elements)
-        _location        = cls._parseLocation(name=name, unparsed_elements=unparsed_elements)
+        _table_type_str : str                  = cls._parseTableType(unparsed_elements=unparsed_elements)
+        _structure      : TableStructureSchema = cls._parseStructure(name=name, table_type=_table_type_str, unparsed_elements=unparsed_elements)
+        _location       : TableLocationSchema  = cls._parseLocation(name=name, unparsed_elements=unparsed_elements)
 
         _used = {"table_type", "structure", "location"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }

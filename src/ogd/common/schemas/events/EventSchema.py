@@ -19,7 +19,7 @@ class EventSchema(Schema):
     These essentially are just a description of the event, and a set of elements in the EventData attribute of the Event.
     """
     def __init__(self, name:str, description:str, event_data:Dict[str, DataElementSchema], other_elements:Optional[Map]=None):
-        unparsed_elements = other_elements or {}
+        unparsed_elements : Map = other_elements or {}
 
         self._description : str                          = description or self._parseDescription(unparsed_elements=unparsed_elements)
         self._event_data  : Dict[str, DataElementSchema] = event_data  or self._parseEventDataElements(unparsed_elements=unparsed_elements)
@@ -70,7 +70,7 @@ class EventSchema(Schema):
         return "\n\n".join(ret_val)
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "EventSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "EventSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -82,14 +82,8 @@ class EventSchema(Schema):
         :return: _description_
         :rtype: EventSchema
         """
-        _description : str
-        _event_data  : Dict[str, DataElementSchema]
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            Logger.Log(f"For {name} Event config, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _description = cls._parseDescription(unparsed_elements=unparsed_elements)
-        _event_data = cls._parseEventDataElements(unparsed_elements=unparsed_elements)
+        _description : str                          = cls._parseDescription(unparsed_elements=unparsed_elements)
+        _event_data  : Dict[str, DataElementSchema] = cls._parseEventDataElements(unparsed_elements=unparsed_elements)
 
         _used = {"description", "event_data"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }

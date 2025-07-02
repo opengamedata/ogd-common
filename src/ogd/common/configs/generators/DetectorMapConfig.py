@@ -52,7 +52,7 @@ class DetectorMapConfig(Config):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Map)-> "DetectorMapConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map)-> "DetectorMapConfig":
         """Function to generate a DetectorMapConfig from a JSON-formatted dictionary.
 
         Expected structure is:
@@ -80,14 +80,8 @@ class DetectorMapConfig(Config):
         :return: A DetectorMapConfig based on the given collection of elements.
         :rtype: DetectorMapConfig
         """
-        _percount_detectors  : Dict[str, DetectorConfig]
-        _aggregate_detectors : Dict[str, DetectorConfig]
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            Logger.Log(f"For DetectorMap config of `{name}`, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _percount_detectors  = cls._parsePerCountDetectors(unparsed_elements=unparsed_elements)
-        _aggregate_detectors = cls._parseAggregateDetectors(unparsed_elements=unparsed_elements)
+        _percount_detectors  : Dict[str, DetectorConfig] = cls._parsePerCountDetectors(unparsed_elements=unparsed_elements)
+        _aggregate_detectors : Dict[str, DetectorConfig] = cls._parseAggregateDetectors(unparsed_elements=unparsed_elements)
 
         _used = {"per_count", "percount", "aggregate"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }

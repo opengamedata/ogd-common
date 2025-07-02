@@ -76,7 +76,7 @@ class KeyCredential(CredentialConfig):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Map)-> "KeyCredential":
+    def _fromDict(cls, name:str, unparsed_elements:Map)-> "KeyCredential":
         """Create a Key Credential from a dict.
 
         Expects dictionary to have the following form:
@@ -94,15 +94,9 @@ class KeyCredential(CredentialConfig):
         :return: _description_
         :rtype: KeyCredential
         """
-        _file : Optional[str]
-        _path : Optional[Path]
+        _file : Optional[str]  = cls._parseFilename(unparsed_elements=unparsed_elements)
+        _path : Optional[Path] = cls._parsePath(unparsed_elements=unparsed_elements)
 
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} key credential config, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-        _file = cls._parseFilename(unparsed_elements=unparsed_elements)
-        _path = cls._parsePath(unparsed_elements=unparsed_elements)
         # if we didn't find a PATH, but the FILE has a '/' in it,
         # we should be able to get file separate from path.
         if _path is None and _file is not None and "/" in _file:

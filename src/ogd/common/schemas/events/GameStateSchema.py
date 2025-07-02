@@ -19,7 +19,7 @@ class GameStateSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, game_state:Dict[str, DataElementSchema], other_elements:Optional[Map]=None):
-        unparsed_elements = other_elements or {}
+        unparsed_elements : Map = other_elements or {}
 
         self._game_state  : Dict[str, DataElementSchema] = game_state or self._parseGameStateElements(unparsed_elements=unparsed_elements)
 
@@ -64,7 +64,7 @@ class GameStateSchema(Schema):
         return "\n\n".join(ret_val)
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "GameStateSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "GameStateSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -76,12 +76,7 @@ class GameStateSchema(Schema):
         :return: _description_
         :rtype: GameStateSchema
         """
-        _game_state  : Dict[str, DataElementSchema]
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements   = {}
-            Logger.Log(f"For {name} Event config, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _game_state = cls._parseGameStateElements(unparsed_elements=unparsed_elements)
+        _game_state  : Dict[str, DataElementSchema] = cls._parseGameStateElements(unparsed_elements=unparsed_elements)
 
         _leftovers = {}
         return GameStateSchema(name=name, game_state=_game_state, other_elements=_leftovers)

@@ -15,7 +15,7 @@ class DatabaseTableLocationSchema(TableLocationSchema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, table_name:str, database_name:str, other_elements:Optional[Map]):
-        unparsed_elements = other_elements or {}
+        unparsed_elements : Map = other_elements or {}
 
         self._db_name = database_name or self._parseDatabaseName(unparsed_elements=unparsed_elements)
         super().__init__(name=name, table_name=table_name, other_elements=other_elements)
@@ -48,7 +48,7 @@ class DatabaseTableLocationSchema(TableLocationSchema):
         )
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatabaseTableLocationSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatabaseTableLocationSchema":
         """Create a TableLocationSchema from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -64,15 +64,11 @@ class DatabaseTableLocationSchema(TableLocationSchema):
         :return: _description_
         :rtype: GameSourceSchema
         """
-        _table_name    : str
+        _table_name : str = cls._parseTableName(unparsed_elements=unparsed_elements)
+        _db_name    : str = cls._parseDatabaseName(unparsed_elements=unparsed_elements)
 
-        if not isinstance(unparsed_elements, dict):
-            all_elements = {}
-            Logger.Log(f"For {name} Table Location schema, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _table_name = cls._parseTableName(unparsed_elements=unparsed_elements)
-        _db_name = cls._parseDatabaseName(unparsed_elements=unparsed_elements)
         _used = {"table", "database"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
         return DatabaseTableLocationSchema(name=name, table_name=_table_name, database_name=_db_name, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***

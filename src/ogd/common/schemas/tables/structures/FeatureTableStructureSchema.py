@@ -170,7 +170,7 @@ class FeatureTableStructureSchema(TableStructureSchema):
         )
 
     @classmethod
-    def _fromDict(cls, name:str, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableStructureSchema":
+    def _subparseDict(cls, name:str, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableStructureSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.

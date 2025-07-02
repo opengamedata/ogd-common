@@ -58,7 +58,7 @@ class PerCountConfig(FeatureConfig):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "PerCountConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "PerCountConfig":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -70,14 +70,8 @@ class PerCountConfig(FeatureConfig):
         :return: _description_
         :rtype: PerCountConfig
         """
-        _count  : int | str
-        _prefix : str
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            Logger.Log(f"For {name} Per-count Feature config, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _count = cls._parseCount(unparsed_elements=unparsed_elements)
-        _prefix = cls._parsePrefix(unparsed_elements=unparsed_elements)
+        _count  : int | str = cls._parseCount(unparsed_elements=unparsed_elements)
+        _prefix : str       = cls._parsePrefix(unparsed_elements=unparsed_elements)
 
         _used = {"count", "prefix"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }

@@ -62,7 +62,7 @@ class GeneratorCollectionConfig(Config):
         :param other_elements: _description_, defaults to None
         :type other_elements: Optional[Map], optional
         """
-        unparsed_elements = other_elements or {}
+        unparsed_elements : Map = other_elements or {}
 
     # 1. define instance vars
         self._game_id            : str               = game_id
@@ -219,7 +219,7 @@ class GeneratorCollectionConfig(Config):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "GeneratorCollectionConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "GeneratorCollectionConfig":
         """_summary_
 
         TODO : Need to have parse functions for all the variables, currently only have about half of them.
@@ -238,29 +238,12 @@ class GeneratorCollectionConfig(Config):
         :rtype: GeneratorCollectionConfig
         """
     # 1. define local vars
-        _game_id        : str                  = name
-        _detector_map   : DetectorMapConfig
-        _feature_map    : FeatureMapConfig
-        _level_range    : Optional[range]
-        _other_ranges   : Dict[str, range]
+        _game_id        : str               = name
+        _detector_map   : DetectorMapConfig = cls._parseDetectorMap(unparsed_elements=unparsed_elements)
+        _feature_map    : FeatureMapConfig  = cls._parseFeatureMap(unparsed_elements=unparsed_elements)
+        _level_range    : Optional[range]   = cls._parseLevelRange(unparsed_elements=unparsed_elements)
+        _other_ranges   : Dict[str, range]  = {key : range(val.get('min', 0), val.get('max', 1)) for key,val in unparsed_elements.items() if key.endswith("_range")}
 
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements   = {}
-            Logger.Log(f"For {_game_id} GeneratorCollectionConfig, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
-
-    # 2. set instance vars, starting with  detector information
-        # TODO : investigate weird Dict[str, Dict[str, DetectorConfig]] type inference
-        _detector_map = cls._parseDetectorMap(unparsed_elements=unparsed_elements)
-
-    # 3. Get feature information
-        _feature_map = cls._parseFeatureMap(unparsed_elements=unparsed_elements)
-
-    # 4. Get level range and other ranges, if any
-        _level_range = cls._parseLevelRange(unparsed_elements=unparsed_elements)
-
-        _other_ranges = {key : range(val.get('min', 0), val.get('max', 1)) for key,val in unparsed_elements.items() if key.endswith("_range")}
-
-    # 5. Collect any other, unexpected elements
         _used = {'enums', 'game_state', 'user_data', 'events', 'detectors', 'features', 'level_range', 'config'}.union(_other_ranges.keys())
         _leftovers = { key:val for key,val in unparsed_elements.items() if key not in _used }
         return GeneratorCollectionConfig(name=name, game_id=_game_id,

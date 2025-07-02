@@ -43,7 +43,7 @@ class DatasetSchema(Schema):
                  players_file:Optional[Path],    players_template:Optional[Path],
                  population_file:Optional[Path], population_template:Optional[Path],
                  other_elements:Optional[Map]=None):
-        unparsed_elements = other_elements or {}
+        unparsed_elements : Map = other_elements or {}
 
         self._key                 : DatasetKey     = key
         self._date_modified       : date | str     = date_modified       or self._parseDateModified(unparsed_elements=unparsed_elements)
@@ -179,7 +179,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -191,47 +191,26 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         :return: _description_
         :rtype: DatasetSchema
         """
-        _key                 : DatasetKey
-        _date_modified       : date | str
-        _start_date          : date | str
-        _end_date            : date | str
-        _ogd_revision        : str
-        _session_ct          : Optional[int]
-        _player_ct           : Optional[int]
-        _raw_file            : Optional[Path]
-        _events_file         : Optional[Path]
-        _events_template     : Optional[Path]
-        _sessions_file       : Optional[Path]
-        _sessions_template   : Optional[Path]
-        _players_file        : Optional[Path]
-        _players_template    : Optional[Path]
-        _population_file     : Optional[Path]
-        _population_template : Optional[Path]
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} dataset schema, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-        _game_id = cls._parseGameID(name)
-        _key = DatasetKey(key=name, game_id=_game_id)
+        _game_id             : str            = cls._parseGameID(name)
+        _key                 : DatasetKey     = DatasetKey(key=name, game_id=_game_id)
     # 1. Parse dates
-        _date_modified = cls._parseDateModified(unparsed_elements=unparsed_elements)
-        _start_date = cls._parseStartDate(unparsed_elements=unparsed_elements)
-        _end_date = cls._parseEndDate(unparsed_elements=unparsed_elements)
+        _date_modified       : date | str     = cls._parseDateModified(unparsed_elements=unparsed_elements)
+        _start_date          : date | str     = cls._parseStartDate(unparsed_elements=unparsed_elements)
+        _end_date            : date | str     = cls._parseEndDate(unparsed_elements=unparsed_elements)
     # 2. Parse metadata
-        _ogd_revision = cls._parseOGDRevision(unparsed_elements=unparsed_elements)
-        _session_ct = cls._parseSessionCount(unparsed_elements=unparsed_elements)
-        _player_ct = cls._parsePlayerCount(unparsed_elements=unparsed_elements)
+        _ogd_revision        : str            = cls._parseOGDRevision(unparsed_elements=unparsed_elements)
+        _session_ct          : Optional[int]  = cls._parseSessionCount(unparsed_elements=unparsed_elements)
+        _player_ct           : Optional[int]  = cls._parsePlayerCount(unparsed_elements=unparsed_elements)
     # 3. Parse file/template paths
-        _raw_file = cls._parseRawFile(unparsed_elements=unparsed_elements)
-        _events_file = cls._parseEventsFile(unparsed_elements=unparsed_elements)
-        _events_template = cls._parseEventsTemplate(unparsed_elements=unparsed_elements)
-        _sessions_file = cls._parseSessionsFile(unparsed_elements=unparsed_elements)
-        _sessions_template = cls._parseSessionsTemplate(unparsed_elements=unparsed_elements)
-        _players_file = cls._parsePlayersFile(unparsed_elements=unparsed_elements)
-        _players_template = cls._parsePlayersTemplate(unparsed_elements=unparsed_elements)
-        _population_file = cls._parsePopulationFile(unparsed_elements=unparsed_elements)
-        _population_template = cls._parsePopulationTemplate(unparsed_elements=unparsed_elements)
+        _raw_file            : Optional[Path] = cls._parseRawFile(unparsed_elements=unparsed_elements)
+        _events_file         : Optional[Path] = cls._parseEventsFile(unparsed_elements=unparsed_elements)
+        _events_template     : Optional[Path] = cls._parseEventsTemplate(unparsed_elements=unparsed_elements)
+        _sessions_file       : Optional[Path] = cls._parseSessionsFile(unparsed_elements=unparsed_elements)
+        _sessions_template   : Optional[Path] = cls._parseSessionsTemplate(unparsed_elements=unparsed_elements)
+        _players_file        : Optional[Path] = cls._parsePlayersFile(unparsed_elements=unparsed_elements)
+        _players_template    : Optional[Path] = cls._parsePlayersTemplate(unparsed_elements=unparsed_elements)
+        _population_file     : Optional[Path] = cls._parsePopulationFile(unparsed_elements=unparsed_elements)
+        _population_template : Optional[Path] = cls._parsePopulationTemplate(unparsed_elements=unparsed_elements)
 
         _used = {"date_modified", "start_date", "end_date", "ogd_revision", "sessions", "players",
                  "raw_file", "events_file", "events_template",

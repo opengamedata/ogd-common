@@ -14,7 +14,7 @@ class ColumnSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, readable:str, value_type:str, description:str, other_elements:Optional[Map]=None):
-        unparsed_elements = other_elements or {}
+        unparsed_elements : Map = other_elements or {}
 
         self._readable    : str = readable    or self._parseReadable(unparsed_elements=unparsed_elements)
         self._value_type  : str = value_type  or self._parseValueType(unparsed_elements=unparsed_elements)
@@ -53,7 +53,7 @@ class ColumnSchema(Schema):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "ColumnSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "ColumnSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -65,23 +65,10 @@ class ColumnSchema(Schema):
         :return: _description_
         :rtype: ColumnSchema
         """
-        _readable    : str
-        _value_type  : str
-        _description : str
-
-        if not isinstance(unparsed_elements, dict):
-            # _name        = "No Name"
-            # _readable    = "No Readable Name"
-            # _description = "No Description"
-            # _value_type  = "No Type"
-            unparsed_elements = {}
-            _msg = f"For {name} Extractor config, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-
-        _readable = cls._parseReadable(unparsed_elements=unparsed_elements)
-        _description = cls._parseDescription(unparsed_elements=unparsed_elements)
-        _value_type = cls._parseValueType(unparsed_elements=unparsed_elements)
-        _name = cls._parseName(name=name, unparsed_elements=unparsed_elements)
+        _readable    : str = cls._parseReadable(unparsed_elements=unparsed_elements)
+        _description : str = cls._parseDescription(unparsed_elements=unparsed_elements)
+        _value_type  : str = cls._parseValueType(unparsed_elements=unparsed_elements)
+        _name        : str = cls._parseName(name=name, unparsed_elements=unparsed_elements)
 
         _used = {"name", "readable", "description", "type"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }

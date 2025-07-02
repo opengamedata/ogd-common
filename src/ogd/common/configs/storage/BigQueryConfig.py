@@ -66,7 +66,7 @@ class BigQueryConfig(DataStoreConfig):
         )
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Map) -> "BigQueryConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map) -> "BigQueryConfig":
         """Create a BigQuery Configuration from a dict.
 
         Expects dictionary to have the following form:
@@ -87,14 +87,8 @@ class BigQueryConfig(DataStoreConfig):
         :return: _description_
         :rtype: BigQueryConfig
         """
-        _project_id : str
-        _credential : Optional[KeyCredential]
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            Logger.Log(f"For {name} BigQuery Source config, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _project_id = cls._parseProjectID(unparsed_elements=unparsed_elements)
-        _credential = cls._parseCredential(unparsed_elements=unparsed_elements)
+        _project_id : str                     = cls._parseProjectID(unparsed_elements=unparsed_elements)
+        _credential : Optional[KeyCredential] = cls._parseCredential(unparsed_elements=unparsed_elements)
 
         _used = {"PROJECT_ID", "DATASET_ID", "PROJECT_KEY"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }

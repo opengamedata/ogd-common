@@ -25,7 +25,7 @@ class EmptyCredential(Config):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Map)-> "EmptyCredential":
+    def _fromDict(cls, name:str, unparsed_elements:Map)-> "EmptyCredential":
         """Function to generate an EmptyCredential from a dictionary mapping string keys to values.
 
         Technically,  it doesn't matter what goes in, because an EmptyCredential is always empty.
@@ -37,10 +37,6 @@ class EmptyCredential(Config):
         :return: A new EmptyCredential
         :rtype: EmptyCredential
         """
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} empty credential config, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
         return EmptyCredential(name=name, other_elements=unparsed_elements)
 
     @classmethod

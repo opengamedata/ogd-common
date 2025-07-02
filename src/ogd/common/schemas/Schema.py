@@ -3,7 +3,7 @@ import abc
 import logging
 from pathlib import Path
 from shutil import copyfile
-from typing import Any, List, Optional, Type
+from typing import Any, List, Optional, Self, Type
 # import local files
 from ogd.common.utils.typing import conversions, Map
 from ogd.common.utils import fileio
@@ -25,7 +25,7 @@ class Schema(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def FromDict(cls, name:str, unparsed_elements:Map)-> "Schema":
+    def _fromDict(cls, name:str, unparsed_elements:Map)-> Self:
         """_summary_
 
         :param name: _description_
@@ -112,6 +112,24 @@ class Schema(abc.ABC):
         return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     @classmethod
+    def FromDict(cls, name:str, unparsed_elements:Map)-> Self:
+        """Function to create an instance of the given Schema subclass, from data in a Map (Dict[str, Any])
+
+        :param name: The name of the instance.
+        :type name: str
+        :param unparsed_elements: The raw dictionary-formatted data that will make up the content of the instance.
+        :type unparsed_elements: Map
+        :return: _description_
+        :rtype: Schema
+        """
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements   = {}
+            _msg = f"For {name} {cls.__name__}, unparsed_elements was not a dict, defaulting to empty dict"
+            Logger.Log(_msg, logging.WARN)
+
+        return cls._fromDict(name=name, unparsed_elements=unparsed_elements)
+
+    @classmethod
     def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False, optional_element:bool=False) -> Any:
         """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 
@@ -131,9 +149,11 @@ class Schema(abc.ABC):
         :rtype: Any
         """
         ret_val : Any = default_value
+        unparsed_elements = {key.upper() : val for key,val in unparsed_elements.items()}
 
         found = False
-        for name in valid_keys:
+        for _name in valid_keys:
+            name = _name.upper()
             if name in unparsed_elements:
                 value = unparsed_elements[name]
                 if remove_target:
@@ -181,7 +201,7 @@ class Schema(abc.ABC):
                 Logger.Log(f"Could not load schema at {schema_path / schema_name}, the file was empty! Using default schema instead", logging.ERROR, depth=1)
                 ret_val = cls.Default()
             else:
-                ret_val = cls.FromDict(name=schema_name, unparsed_elements=schema_contents)
+                ret_val = cls._fromDict(name=schema_name, unparsed_elements=schema_contents)
 
         return ret_val
 
@@ -209,5 +229,5 @@ class Schema(abc.ABC):
                     print(f"(via print) {_msg}")
                 else:
                     Logger.Log(f"Successfully copied {schema_name} from template.", logging.DEBUG, depth=2)
-        return cls.FromDict(name=schema_name, unparsed_elements=template_contents)
+        return cls._fromDict(name=schema_name, unparsed_elements=template_contents)
     # *** PRIVATE METHODS ***

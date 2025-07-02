@@ -39,7 +39,7 @@ class GameSourceSchema(Schema):
     def __init__(self, name:str,  game_id:Optional[str],
                  source_name:str, source_schema:Optional[DataStoreConfig],
                  db_name:str,     table_name:str,  table_schema:str,
-                 other_elements:Dict[str, Any]):
+                 other_elements:Optional[Map]):
         unparsed_elements : Map = other_elements or {}
 
         self._game_id           : str                       = game_id       or self._parseGameID(unparsed_elements=unparsed_elements, name=name)
@@ -115,7 +115,7 @@ class GameSourceSchema(Schema):
         )
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], data_sources:Dict[str, DataStoreConfig]) -> "GameSourceSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any], data_sources:Dict[str, DataStoreConfig]) -> "GameSourceSchema":
         """Create a GameSourceSchema from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -132,27 +132,19 @@ class GameSourceSchema(Schema):
         :return: _description_
         :rtype: GameSourceSchema
         """
-        _source_name   : str
-        _source_schema : Optional[DataStoreConfig]
-        _db_name       : str
-        _table_schema  : str
-        _table_name    : str
+        _game_id       : str                       = cls._parseGameID(unparsed_elements=unparsed_elements)
+        _db_name       : str                       = cls._parseDBName(unparsed_elements=unparsed_elements)
+        _table_schema  : str                       = cls._parseTableSchemaName(unparsed_elements=unparsed_elements)
+        _table_name    : str                       = cls._parseTableName(unparsed_elements=unparsed_elements)
 
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} Game Source config, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-        _game_id = cls._parseGameID(unparsed_elements=unparsed_elements)
-        _source_name = cls._parseSourceName(unparsed_elements=unparsed_elements)
+        _source_name   : str                       = cls._parseSourceName(unparsed_elements=unparsed_elements)
+        _source_schema : Optional[DataStoreConfig] = None
+
         if _source_name in data_sources.keys():
             _source_schema = data_sources[_source_name]
         else:
-            _source_schema = None
             _msg = f"{name} config's 'source' name ({_source_name}) was not found in available source schemas; defaulting to source_schema={_source_schema}"
             Logger.Log(_msg, logging.WARN)
-        _db_name = cls._parseDBName(unparsed_elements=unparsed_elements)
-        _table_name = cls._parseTableName(unparsed_elements=unparsed_elements)
-        _table_schema = cls._parseTableSchemaName(unparsed_elements=unparsed_elements)
 
         _used = {"source", "source_name", "database", "table", "schema"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
@@ -163,6 +155,15 @@ class GameSourceSchema(Schema):
     # *** PUBLIC STATICS ***
 
     # *** PUBLIC METHODS ***
+
+    @classmethod
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], data_sources:Dict[str, DataStoreConfig]) -> "GameSourceSchema":
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements   = {}
+            _msg = f"For {name} {cls.__name__}, unparsed_elements was not a dict, defaulting to empty dict"
+            Logger.Log(_msg, logging.WARN)
+
+        return cls._fromDict(name=name, unparsed_elements=unparsed_elements, data_sources=data_sources)
 
     # *** PRIVATE STATICS ***
 

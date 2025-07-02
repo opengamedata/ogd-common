@@ -76,7 +76,7 @@ class FileStoreConfig(DataStoreConfig):
         return ret_val
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "FileStoreConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "FileStoreConfig":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -88,16 +88,9 @@ class FileStoreConfig(DataStoreConfig):
         :return: _description_
         :rtype: FileStoreConfig
         """
-        _folder_path : Path
-        _file_name   : str
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} File source config, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-        _folder_path = cls._parseFolder(unparsed_elements=unparsed_elements)
-        _file_name = cls._parseFilename(unparsed_elements=unparsed_elements)
-        _credential = cls._parseCredential(unparsed_elements=unparsed_elements)
+        _folder_path : Path           = cls._parseFolder(unparsed_elements=unparsed_elements)
+        _file_name   : str            = cls._parseFilename(unparsed_elements=unparsed_elements)
+        _credential  : FileCredential = cls._parseCredential(unparsed_elements=unparsed_elements)
 
         return FileStoreConfig(name=name, folder_path=_folder_path, file_name=_file_name, file_credential=_credential, other_elements=unparsed_elements)
 
