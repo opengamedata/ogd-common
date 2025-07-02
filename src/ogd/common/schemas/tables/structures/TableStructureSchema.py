@@ -22,7 +22,7 @@ class TableStructureSchema(Schema):
 
     @classmethod
     @abc.abstractmethod
-    def _fromDict(cls, name:str, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableStructureSchema":
+    def _subparseDict(cls, name:str, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableStructureSchema":
         pass
 
     # *** BUILT-INS & PROPERTIES ***
@@ -187,7 +187,7 @@ class TableStructureSchema(Schema):
             Logger.Log(_msg, logging.WARN)
         _column_json_list = unparsed_elements.get('columns', [])
         _column_schemas   = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), unparsed_elements=column) for column in _column_json_list]
-        return cls._fromDict(name=name, raw_map=unparsed_elements.get('column_map', {}), column_schemas=_column_schemas)
+        return cls._subparseDict(name=name, raw_map=unparsed_elements.get('column_map', {}), column_schemas=_column_schemas)
 
     # *** PUBLIC STATICS ***
 
