@@ -19,7 +19,7 @@ class GameStateSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, game_state:Dict[str, DataElementSchema], other_elements:Optional[Map]=None):
-        unparsed_elements = other_elements or {}
+        unparsed_elements : Map = {key.upper() : val for key, val in other_elements.items()} if other_elements else {}
 
         self._game_state  : Dict[str, DataElementSchema] = game_state or self._parseGameStateElements(unparsed_elements=unparsed_elements)
 

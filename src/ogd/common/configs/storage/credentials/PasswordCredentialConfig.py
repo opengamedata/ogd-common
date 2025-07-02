@@ -16,7 +16,7 @@ class PasswordCredential(CredentialConfig):
     _DEFAULT_PASS = None
 
     def __init__(self, name:str, username:str, password:Optional[str], other_elements:Optional[Map]=None):
-        unparsed_elements : Map = other_elements or {}
+        unparsed_elements : Map = {key.upper() : val for key, val in other_elements.items()} if other_elements else {}
         self._user = username or self._parseUser(unparsed_elements=unparsed_elements)
         self._pass = password or self._parsePass(unparsed_elements=unparsed_elements)
         super().__init__(name=name, other_elements=unparsed_elements)

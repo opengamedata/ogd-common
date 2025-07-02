@@ -39,8 +39,8 @@ class GameSourceSchema(Schema):
     def __init__(self, name:str,  game_id:Optional[str],
                  source_name:str, source_schema:Optional[DataStoreConfig],
                  db_name:str,     table_name:str,  table_schema:str,
-                 other_elements:Dict[str, Any]):
-        unparsed_elements : Map = other_elements or {}
+                 other_elements:Optional[Map]):
+        unparsed_elements : Map = {key.upper() : val for key, val in other_elements.items()} if other_elements else {}
 
         self._game_id           : str                       = game_id       or self._parseGameID(unparsed_elements=unparsed_elements, name=name)
         self._source_name       : str                       = source_name   or self._parseSourceName(unparsed_elements=unparsed_elements)

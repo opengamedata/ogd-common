@@ -14,7 +14,7 @@ class ColumnSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, readable:str, value_type:str, description:str, other_elements:Optional[Map]=None):
-        unparsed_elements = other_elements or {}
+        unparsed_elements : Map = {key.upper() : val for key, val in other_elements.items()} if other_elements else {}
 
         self._readable    : str = readable    or self._parseReadable(unparsed_elements=unparsed_elements)
         self._value_type  : str = value_type  or self._parseValueType(unparsed_elements=unparsed_elements)

@@ -27,7 +27,7 @@ class MySQLConfig(DataStoreConfig):
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
-        unparsed_elements : Map = other_elements or {}
+        unparsed_elements : Map = {key.upper() : val for key, val in other_elements.items()} if other_elements else {}
 
         self._db_host    : str                = db_host       or self._parseDBHost(unparsed_elements=unparsed_elements)
         self._db_port    : int                = db_port       or self._parseDBPort(unparsed_elements=unparsed_elements)

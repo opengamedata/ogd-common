@@ -21,7 +21,7 @@ class SSHConfig(Schema):
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
-        unparsed_elements : Map = other_elements or {}
+        unparsed_elements : Map = {key.upper() : val for key, val in other_elements.items()} if other_elements else {}
 
         self._host       : Optional[str]      = ssh_host       or self._parseHost(unparsed_elements=unparsed_elements)
         self._port       : int                = ssh_port       or self._parsePort(unparsed_elements=unparsed_elements)

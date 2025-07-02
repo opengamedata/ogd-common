@@ -15,7 +15,7 @@ class DatabaseTableLocationSchema(TableLocationSchema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, table_name:str, database_name:str, other_elements:Optional[Map]):
-        unparsed_elements = other_elements or {}
+        unparsed_elements : Map = {key.upper() : val for key, val in other_elements.items()} if other_elements else {}
 
         self._db_name = database_name or self._parseDatabaseName(unparsed_elements=unparsed_elements)
         super().__init__(name=name, table_name=table_name, other_elements=other_elements)
