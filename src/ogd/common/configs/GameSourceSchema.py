@@ -132,27 +132,19 @@ class GameSourceSchema(Schema):
         :return: _description_
         :rtype: GameSourceSchema
         """
-        _source_name   : str
-        _source_schema : Optional[DataStoreConfig]
-        _db_name       : str
-        _table_schema  : str
-        _table_name    : str
+        _game_id       : str                       = cls._parseGameID(unparsed_elements=unparsed_elements)
+        _db_name       : str                       = cls._parseDBName(unparsed_elements=unparsed_elements)
+        _table_schema  : str                       = cls._parseTableSchemaName(unparsed_elements=unparsed_elements)
+        _table_name    : str                       = cls._parseTableName(unparsed_elements=unparsed_elements)
 
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} Game Source config, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-        _game_id = cls._parseGameID(unparsed_elements=unparsed_elements)
-        _source_name = cls._parseSourceName(unparsed_elements=unparsed_elements)
+        _source_name   : str                       = cls._parseSourceName(unparsed_elements=unparsed_elements)
+        _source_schema : Optional[DataStoreConfig] = None
+
         if _source_name in data_sources.keys():
             _source_schema = data_sources[_source_name]
         else:
-            _source_schema = None
             _msg = f"{name} config's 'source' name ({_source_name}) was not found in available source schemas; defaulting to source_schema={_source_schema}"
             Logger.Log(_msg, logging.WARN)
-        _db_name = cls._parseDBName(unparsed_elements=unparsed_elements)
-        _table_name = cls._parseTableName(unparsed_elements=unparsed_elements)
-        _table_schema = cls._parseTableSchemaName(unparsed_elements=unparsed_elements)
 
         _used = {"source", "source_name", "database", "table", "schema"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }

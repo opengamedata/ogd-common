@@ -160,27 +160,13 @@ class EventCollectionSchema(Schema):
         :return: _description_
         :rtype: EventCollectionSchema
         """
-    # 1. define local vars
         _game_id     : str                  = name
-        _enum_defs   : Dict[str, List[str]]
-        _game_state  : Dict[str, Any]
-        _user_data   : Dict[str, Any]
-        _event_list  : List[EventSchema]
-        _log_version : int
+        _enum_defs   : Dict[str, List[str]] = cls._parseEnumDefs(unparsed_elements=unparsed_elements)
+        _game_state  : Dict[str, Any]       = cls._parseGameState(unparsed_elements=unparsed_elements)
+        _user_data   : Dict[str, Any]       = cls._parseUserData(unparsed_elements=unparsed_elements)
+        _event_list  : List[EventSchema]    = cls._parseEventList(unparsed_elements=unparsed_elements)
+        _log_version : int                  = cls._parseLogVersion(unparsed_elements=unparsed_elements)
 
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements   = {}
-            Logger.Log(f"For {_game_id} EventCollectionSchema, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
-
-    # 2. set instance vars
-
-        _enum_defs = cls._parseEnumDefs(unparsed_elements=unparsed_elements)
-        _game_state = cls._parseGameState(unparsed_elements=unparsed_elements)
-        _user_data = cls._parseUserData(unparsed_elements=unparsed_elements)
-        _event_list = cls._parseEventList(unparsed_elements=unparsed_elements)
-        _log_version = cls._parseLogVersion(unparsed_elements=unparsed_elements)
-
-    # 3. Collect any other, unexpected elements
         _used = {'enums', 'game_state', 'user_data', 'events', 'logging_version', 'log_version'}
         _leftovers = { key:val for key,val in unparsed_elements.items() if key not in _used }
         return EventCollectionSchema(name=name, game_id=_game_id, enum_defs=_enum_defs,

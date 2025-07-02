@@ -73,16 +73,9 @@ class SSHConfig(Schema):
         :return: _description_
         :rtype: SSHConfig
         """
-        _host : str
-        _port : int
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} MySQL Source config, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-        _host = cls._parseHost(unparsed_elements=unparsed_elements)
-        _port = cls._parsePort(unparsed_elements=unparsed_elements)
-        _credential = cls._parseCredential(unparsed_elements=unparsed_elements)
+        _host       : str                = cls._parseHost(unparsed_elements=unparsed_elements)
+        _port       : int                = cls._parsePort(unparsed_elements=unparsed_elements)
+        _credential : PasswordCredential = cls._parseCredential(unparsed_elements=unparsed_elements)
 
         return SSHConfig(name=name, ssh_host=_host, ssh_credential=_credential, ssh_port=_port, other_elements=unparsed_elements)
 

@@ -37,10 +37,6 @@ class EmptyCredential(Config):
         :return: A new EmptyCredential
         :rtype: EmptyCredential
         """
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} empty credential config, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
         return EmptyCredential(name=name, other_elements=unparsed_elements)
 
     @classmethod

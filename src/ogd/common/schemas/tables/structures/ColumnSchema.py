@@ -65,23 +65,10 @@ class ColumnSchema(Schema):
         :return: _description_
         :rtype: ColumnSchema
         """
-        _readable    : str
-        _value_type  : str
-        _description : str
-
-        if not isinstance(unparsed_elements, dict):
-            # _name        = "No Name"
-            # _readable    = "No Readable Name"
-            # _description = "No Description"
-            # _value_type  = "No Type"
-            unparsed_elements = {}
-            _msg = f"For {name} Extractor config, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-
-        _readable = cls._parseReadable(unparsed_elements=unparsed_elements)
-        _description = cls._parseDescription(unparsed_elements=unparsed_elements)
-        _value_type = cls._parseValueType(unparsed_elements=unparsed_elements)
-        _name = cls._parseName(name=name, unparsed_elements=unparsed_elements)
+        _readable    : str = cls._parseReadable(unparsed_elements=unparsed_elements)
+        _description : str = cls._parseDescription(unparsed_elements=unparsed_elements)
+        _value_type  : str = cls._parseValueType(unparsed_elements=unparsed_elements)
+        _name        : str = cls._parseName(name=name, unparsed_elements=unparsed_elements)
 
         _used = {"name", "readable", "description", "type"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }

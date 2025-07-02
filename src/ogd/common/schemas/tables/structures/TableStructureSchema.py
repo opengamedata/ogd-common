@@ -179,14 +179,8 @@ class TableStructureSchema(Schema):
         :return: An instance of the TableStructureSchema subclass on which the function is called
         :rtype: TableStructureSchema
         """
-        _column_schemas : List[ColumnSchema]
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} Table Schema, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-        _column_json_list = unparsed_elements.get('columns', [])
-        _column_schemas   = [ColumnSchema._fromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), unparsed_elements=column) for column in _column_json_list]
+        _column_json_list : List               = unparsed_elements.get('columns', [])
+        _column_schemas   : List[ColumnSchema] = [ColumnSchema._fromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), unparsed_elements=column) for column in _column_json_list]
         return cls._subparseDict(name=name, raw_map=unparsed_elements.get('column_map', {}), column_schemas=_column_schemas)
 
     # *** PUBLIC STATICS ***

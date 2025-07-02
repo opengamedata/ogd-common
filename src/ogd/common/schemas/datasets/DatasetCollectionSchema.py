@@ -66,15 +66,9 @@ class DatasetCollectionConfig(Schema):
         :return: _description_
         :rtype: DatasetCollectionConfig
         """
-        _files_base     : Optional[str]
-        _templates_base : Optional[str]
+        _files_base     : Optional[str] = cls._parseFilesBase(unparsed_elements=unparsed_elements)
+        _templates_base : Optional[str] = cls._parseTemplatesBase(unparsed_elements=unparsed_elements)
 
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} indexing config, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-        _files_base = cls._parseFilesBase(unparsed_elements=unparsed_elements)
-        _templates_base = cls._parseTemplatesBase(unparsed_elements=unparsed_elements)
         _used = {"files_base", "templates_base"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
         return DatasetCollectionConfig(name=name, file_base_path=_files_base, template_base_path=_templates_base, other_elements=_leftovers)
@@ -162,13 +156,8 @@ class GameDatasetCollectionSchema(Schema):
         :return: _description_
         :rtype: GameDatasetCollectionSchema
         """
-        _game_datasets : Dict[str, DatasetSchema]
+        _game_datasets : Dict[str, DatasetSchema] = cls._parseGameDatasets(unparsed_elements=unparsed_elements)
 
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} game dataset collection, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-        _game_datasets = cls._parseGameDatasets(unparsed_elements=unparsed_elements)
         return GameDatasetCollectionSchema(name=name, game_datasets=_game_datasets, other_elements={})
 
     # *** PUBLIC STATICS ***
@@ -237,15 +226,8 @@ class DatasetCollectionSchema(Schema):
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetCollectionSchema":
-        _games_file_lists : Dict[str, GameDatasetCollectionSchema]
-        _config           : DatasetCollectionConfig
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} dataset collection schema, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-        _config = DatasetCollectionSchema._parseConfig(name=f"{name}Config", unparsed_elements=unparsed_elements)
-        _games_file_lists = cls._parseGamesFileLists(unparsed_elements=unparsed_elements)
+        _config           : DatasetCollectionConfig                = cls._parseConfig(name=f"{name}Config", unparsed_elements=unparsed_elements)
+        _games_file_lists : Dict[str, GameDatasetCollectionSchema] = cls._parseGamesFileLists(unparsed_elements=unparsed_elements)
 
         return DatasetCollectionSchema(name=name, game_file_lists=_games_file_lists, file_list_config=_config, other_elements={})
 

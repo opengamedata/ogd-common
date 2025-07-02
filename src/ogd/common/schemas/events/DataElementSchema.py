@@ -71,20 +71,9 @@ class DataElementSchema(Schema):
         :return: _description_
         :rtype: DataElementSchema
         """
-        _type        : str
-        _description : str
-        _details     : Optional[Dict[str, str]]
-
-        if not isinstance(unparsed_elements, dict):
-            if isinstance(unparsed_elements, str):
-                unparsed_elements = { 'description' : unparsed_elements }
-                Logger.Log(f"For EventDataElement config of `{name}`, unparsed_elements was a str, probably in legacy format. Defaulting to all_elements = {'{'} description : {unparsed_elements['description']} {'}'}", logging.WARN)
-            else:
-                unparsed_elements = {}
-                Logger.Log(f"For EventDataElement config of `{name}`, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _type = cls._parseElementType(unparsed_elements=unparsed_elements)
-        _description = cls._parseDescription(unparsed_elements=unparsed_elements)
-        _details = cls._parseDetails(unparsed_elements=unparsed_elements)
+        _type        : str                      = cls._parseElementType(unparsed_elements=unparsed_elements)
+        _description : str                      = cls._parseDescription(unparsed_elements=unparsed_elements)
+        _details     : Optional[Dict[str, str]] = cls._parseDetails(unparsed_elements=unparsed_elements)
 
         _used = {"type", "description", "details"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
@@ -103,6 +92,27 @@ class DataElementSchema(Schema):
     # *** PUBLIC STATICS ***
 
     # *** PUBLIC METHODS ***
+
+    @classmethod
+    def FromDict(cls, name:str, unparsed_elements:Map)-> "Schema":
+        """Override of base class function to create an instance of DataElementSchema, from data in a Map (Dict[str, Any])
+
+        :param name: The name of the instance.
+        :type name: str
+        :param unparsed_elements: The raw dictionary-formatted data that will make up the content of the instance.
+        :type unparsed_elements: Map
+        :return: _description_
+        :rtype: Schema
+        """
+        if not isinstance(unparsed_elements, dict):
+            if isinstance(unparsed_elements, str):
+                unparsed_elements = { 'description' : unparsed_elements }
+                Logger.Log(f"For EventDataElement config of `{name}`, unparsed_elements was a str, probably in legacy format. Defaulting to all_elements = {'{'} description : {unparsed_elements['description']} {'}'}", logging.WARN)
+            else:
+                unparsed_elements = {}
+                Logger.Log(f"For EventDataElement config of `{name}`, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
+
+        return cls._fromDict(name=name, unparsed_elements=unparsed_elements)
 
     # *** PRIVATE STATICS ***
     

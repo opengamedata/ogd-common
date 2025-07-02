@@ -76,12 +76,7 @@ class GameStateSchema(Schema):
         :return: _description_
         :rtype: GameStateSchema
         """
-        _game_state  : Dict[str, DataElementSchema]
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements   = {}
-            Logger.Log(f"For {name} Event config, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _game_state = cls._parseGameStateElements(unparsed_elements=unparsed_elements)
+        _game_state  : Dict[str, DataElementSchema] = cls._parseGameStateElements(unparsed_elements=unparsed_elements)
 
         _leftovers = {}
         return GameStateSchema(name=name, game_state=_game_state, other_elements=_leftovers)

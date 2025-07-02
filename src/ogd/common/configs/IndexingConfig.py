@@ -66,17 +66,9 @@ class FileIndexingConfig(Config):
         :return: _description_
         :rtype: FileIndexingConfig
         """
-        _local_dir     : Path
-        _remote_url    : Optional[str]
-        _templates_url : str
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} indexing config, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-        _local_dir     = cls._parseLocalDir(unparsed_elements=unparsed_elements)
-        _remote_url    = cls._parseRemoteURL(unparsed_elements=unparsed_elements)
-        _templates_url = cls._parseTemplatesURL(unparsed_elements=unparsed_elements)
+        _local_dir     : Path          = cls._parseLocalDir(unparsed_elements=unparsed_elements)
+        _remote_url    : Optional[str] = cls._parseRemoteURL(unparsed_elements=unparsed_elements)
+        _templates_url : str           = cls._parseTemplatesURL(unparsed_elements=unparsed_elements)
 
         _used = {"LOCAL_DIR", "REMOTE_URL", "TEMPLATES_URL"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }

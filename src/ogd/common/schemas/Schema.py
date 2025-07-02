@@ -112,6 +112,24 @@ class Schema(abc.ABC):
         return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     @classmethod
+    def FromDict(cls, name:str, unparsed_elements:Map)-> "Schema":
+        """Function to create an instance of the given Schema subclass, from data in a Map (Dict[str, Any])
+
+        :param name: The name of the instance.
+        :type name: str
+        :param unparsed_elements: The raw dictionary-formatted data that will make up the content of the instance.
+        :type unparsed_elements: Map
+        :return: _description_
+        :rtype: Schema
+        """
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements   = {}
+            _msg = f"For {name} {cls.__name__}, unparsed_elements was not a dict, defaulting to empty dict"
+            Logger.Log(_msg, logging.WARN)
+
+        return cls._fromDict(name=name, unparsed_elements=unparsed_elements)
+
+    @classmethod
     def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False, optional_element:bool=False) -> Any:
         """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 

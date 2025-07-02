@@ -107,19 +107,10 @@ class MySQLConfig(DataStoreConfig):
         :return: _description_
         :rtype: MySQLConfig
         """
-        _db_host  : str
-        _db_port  : int
-        _ssh_cfg  : SSHConfig
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} MySQL Data Source config, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-        # Parse DB info
-        _db_host = cls._parseDBHost(unparsed_elements=unparsed_elements)
-        _db_port = cls._parseDBPort(unparsed_elements=unparsed_elements)
-        _credential = cls._parseCredential(unparsed_elements=unparsed_elements)
-        _ssh_cfg = cls._parseSSHConfig(unparsed_elements=unparsed_elements)
+        _db_host    : str                = cls._parseDBHost(unparsed_elements=unparsed_elements)
+        _db_port    : int                = cls._parseDBPort(unparsed_elements=unparsed_elements)
+        _credential : PasswordCredential = cls._parseCredential(unparsed_elements=unparsed_elements)
+        _ssh_cfg    : SSHConfig          = cls._parseSSHConfig(unparsed_elements=unparsed_elements)
 
         return MySQLConfig(name=name, db_host=_db_host, db_port=_db_port, db_credential=_credential, ssh_cfg=_ssh_cfg, other_elements=unparsed_elements)
 

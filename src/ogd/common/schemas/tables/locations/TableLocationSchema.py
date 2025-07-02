@@ -57,15 +57,10 @@ class TableLocationSchema(Schema):
         :return: _description_
         :rtype: GameSourceSchema
         """
-        _table_name    : str
-
-        if not isinstance(unparsed_elements, dict):
-            all_elements = {}
-            Logger.Log(f"For {name} Table Location schema, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _table_name = cls._parseTableName(unparsed_elements=unparsed_elements)
+        _table_name    : str = cls._parseTableName(unparsed_elements=unparsed_elements)
 
         _used = {"table"}
-        _leftovers = { key : val for key,val in all_elements.items() if key not in _used }
+        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
         return TableLocationSchema(name=name, table_name=_table_name, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***

@@ -82,14 +82,8 @@ class EventSchema(Schema):
         :return: _description_
         :rtype: EventSchema
         """
-        _description : str
-        _event_data  : Dict[str, DataElementSchema]
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            Logger.Log(f"For {name} Event config, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
-        _description = cls._parseDescription(unparsed_elements=unparsed_elements)
-        _event_data = cls._parseEventDataElements(unparsed_elements=unparsed_elements)
+        _description : str                          = cls._parseDescription(unparsed_elements=unparsed_elements)
+        _event_data  : Dict[str, DataElementSchema] = cls._parseEventDataElements(unparsed_elements=unparsed_elements)
 
         _used = {"description", "event_data"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }

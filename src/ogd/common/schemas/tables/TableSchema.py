@@ -88,15 +88,9 @@ class TableSchema(Schema):
         :return: _description_
         :rtype: TableSchema
         """
-        _structure : TableStructureSchema
-
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements = {}
-            _msg = f"For {name} Table Schema, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-        _table_type_str  = cls._parseTableType(unparsed_elements=unparsed_elements)
-        _structure       = cls._parseStructure(name=name, table_type=_table_type_str, unparsed_elements=unparsed_elements)
-        _location        = cls._parseLocation(name=name, unparsed_elements=unparsed_elements)
+        _table_type_str : str                  = cls._parseTableType(unparsed_elements=unparsed_elements)
+        _structure      : TableStructureSchema = cls._parseStructure(name=name, table_type=_table_type_str, unparsed_elements=unparsed_elements)
+        _location       : TableLocationSchema  = cls._parseLocation(name=name, unparsed_elements=unparsed_elements)
 
         _used = {"table_type", "structure", "location"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
