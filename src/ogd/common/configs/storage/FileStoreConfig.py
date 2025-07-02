@@ -26,7 +26,7 @@ class FileStoreConfig(DataStoreConfig):
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
-        unparsed_elements : Map = {key.upper() : val for key, val in other_elements.items()} if other_elements else {}
+        unparsed_elements : Map = other_elements or {}
 
         self._folder_path : Path           = folder_path     or self._parseFolder(unparsed_elements=unparsed_elements)
         self._file_name   : str            = file_name       or self._parseFilename(unparsed_elements=unparsed_elements)

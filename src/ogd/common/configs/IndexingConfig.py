@@ -15,7 +15,7 @@ class FileIndexingConfig(Config):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, local_dir:Path, remote_url:Optional[str], templates_url:str, other_elements:Optional[Map]=None):
-        unparsed_elements : Map = {key.upper() : val for key, val in other_elements.items()} if other_elements else {}
+        unparsed_elements : Map = other_elements or {}
 
         self._local_dir     : Path          = local_dir     or self._parseLocalDir(unparsed_elements=unparsed_elements)
         self._remote_url    : Optional[str] = remote_url    or self._parseRemoteURL(unparsed_elements=unparsed_elements)

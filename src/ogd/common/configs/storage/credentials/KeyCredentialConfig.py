@@ -14,7 +14,7 @@ class KeyCredential(CredentialConfig):
     _DEFAULT_FILE = "key.txt"
 
     def __init__(self, name:str, filename:str, path:Path | str, other_elements:Optional[Map]):
-        unparsed_elements : Map = {key.upper() : val for key, val in other_elements.items()} if other_elements else {}
+        unparsed_elements : Map = other_elements or {}
 
         if isinstance(path, str):
             path = Path(path)

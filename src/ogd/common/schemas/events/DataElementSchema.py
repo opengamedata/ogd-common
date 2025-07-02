@@ -18,7 +18,7 @@ class DataElementSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, element_type:str, description:str, details:Optional[Dict[str, str]], other_elements:Optional[Map]=None):
-        unparsed_elements : Map = {key.upper() : val for key, val in other_elements.items()} if other_elements else {}
+        unparsed_elements : Map = other_elements or {}
 
         self._type        : str                      = element_type or self._parseElementType(unparsed_elements=unparsed_elements)
         self._description : str                      = description  or self._parseDescription(unparsed_elements=unparsed_elements)

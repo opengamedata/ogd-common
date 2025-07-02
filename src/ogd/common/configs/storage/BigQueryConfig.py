@@ -22,7 +22,7 @@ class BigQueryConfig(DataStoreConfig):
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
-        unparsed_elements : Map = {key.upper() : val for key, val in other_elements.items()} if other_elements else {}
+        unparsed_elements : Map = other_elements or {}
 
         self._project_id : str           = project_id or BigQueryConfig._parseProjectID(unparsed_elements=unparsed_elements)
         self._credential : KeyCredential = credential or BigQueryConfig._parseCredential(unparsed_elements=unparsed_elements)

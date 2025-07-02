@@ -26,7 +26,7 @@ class TestConfig(Config):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, verbose:bool, enabled_tests:Dict[str, bool], other_elements:Optional[Map]=None):
-        unparsed_elements : Map = {key.upper() : val for key, val in other_elements.items()} if other_elements else {}
+        unparsed_elements : Map = other_elements or {}
 
         self._verbose       : bool            = verbose       or self._parseVerbose(unparsed_elements=unparsed_elements)
         self._enabled_tests : Dict[str, bool] = enabled_tests or self._parseEnabledTests(unparsed_elements=unparsed_elements)

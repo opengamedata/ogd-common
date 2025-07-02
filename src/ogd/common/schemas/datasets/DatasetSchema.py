@@ -43,7 +43,7 @@ class DatasetSchema(Schema):
                  players_file:Optional[Path],    players_template:Optional[Path],
                  population_file:Optional[Path], population_template:Optional[Path],
                  other_elements:Optional[Map]=None):
-        unparsed_elements : Map = {key.upper() : val for key, val in other_elements.items()} if other_elements else {}
+        unparsed_elements : Map = other_elements or {}
 
         self._key                 : DatasetKey     = key
         self._date_modified       : date | str     = date_modified       or self._parseDateModified(unparsed_elements=unparsed_elements)
