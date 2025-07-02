@@ -127,8 +127,8 @@ class test_GameSourceSchema(TestCase):
 
     def test_parseSource(self):
         _map = {
-            "source":"Foo",
-            "fakekey" : "Bar"
+            "SOURCE":"Foo",
+            "FAKEKEY" : "Bar"
         }
         _str = GameSourceSchema._parseSourceName(_map)
         self.assertIsInstance(_str, str)
@@ -139,8 +139,8 @@ class test_GameSourceSchema(TestCase):
         self.assertEqual(_str, GameSourceSchema._DEFAULT_SOURCE_NAME)
         # Check that source_name is also treated as valid
         _map = {
-            "source_name":"Foo",
-            "fakekey" : "Bar"
+            "SOURCE_NAME":"Foo",
+            "FAKEKEY" : "Bar"
         }
         _str = GameSourceSchema._parseSourceName(_map)
         self.assertIsInstance(_str, str)
@@ -148,9 +148,9 @@ class test_GameSourceSchema(TestCase):
 
     def test_parseGameID(self):
         _map = {
-            "game":"Foo",
-            "fakekey" : "Bar",
-            "game_id" : "Baz"
+            "GAME":"Foo",
+            "FAKEKEY" : "Bar",
+            "GAME_ID" : "Baz"
         }
         _str = GameSourceSchema._parseGameID(_map)
         self.assertIsInstance(_str, str)
@@ -162,8 +162,8 @@ class test_GameSourceSchema(TestCase):
 
     def test_parseDBName(self):
         _map = {
-            "database":"Foo",
-            "fakekey" : "Bar"
+            "DATABASE":"Foo",
+            "FAKEKEY" : "Bar"
         }
         _str = GameSourceSchema._parseDBName(_map)
         self.assertIsInstance(_str, str)
@@ -171,8 +171,8 @@ class test_GameSourceSchema(TestCase):
 
     def test_parseTableName(self):
         _map = {
-            "table":"Foo",
-            "fakekey" : "Bar"
+            "TABLE":"Foo",
+            "FAKEKEY" : "Bar"
         }
         _str = GameSourceSchema._parseTableName(_map)
         self.assertIsInstance(_str, str)
@@ -180,8 +180,8 @@ class test_GameSourceSchema(TestCase):
 
     def test_parseTableSchemaName(self):
         _map = {
-            "schema":"Foo",
-            "fakekey" : "Bar"
+            "SCHEMA":"Foo",
+            "FAKEKEY" : "Bar"
         }
         _str = GameSourceSchema._parseTableSchemaName(_map)
         self.assertIsInstance(_str, str)
