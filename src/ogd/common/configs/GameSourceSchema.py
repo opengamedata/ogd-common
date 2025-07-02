@@ -156,6 +156,15 @@ class GameSourceSchema(Schema):
 
     # *** PUBLIC METHODS ***
 
+    @classmethod
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], data_sources:Dict[str, DataStoreConfig]) -> "GameSourceSchema":
+        if not isinstance(unparsed_elements, dict):
+            unparsed_elements   = {}
+            _msg = f"For {name} {cls.__name__}, unparsed_elements was not a dict, defaulting to empty dict"
+            Logger.Log(_msg, logging.WARN)
+
+        return cls._fromDict(name=name, unparsed_elements=unparsed_elements, data_sources=data_sources)
+
     # *** PRIVATE STATICS ***
 
     @staticmethod
