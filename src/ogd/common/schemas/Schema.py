@@ -25,7 +25,7 @@ class Schema(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map)-> "Schema":
+    def _fromDict(cls, name:str, unparsed_elements:Map)-> Self:
         """_summary_
 
         :param name: _description_
@@ -127,8 +127,6 @@ class Schema(abc.ABC):
             _msg = f"For {name} {cls.__name__}, unparsed_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
 
-        unparsed_elements = {key.upper() : val for key, val in unparsed_elements.items()}
-
         return cls._fromDict(name=name, unparsed_elements=unparsed_elements)
 
     @classmethod
@@ -151,6 +149,7 @@ class Schema(abc.ABC):
         :rtype: Any
         """
         ret_val : Any = default_value
+        unparsed_elements = {key.upper() : val for key,val in unparsed_elements.items()}
 
         found = False
         for _name in valid_keys:
