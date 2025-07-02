@@ -58,7 +58,7 @@ class EventCollectionSchema(Schema):
         self._event_list  : List[EventSchema]    = event_list     or self._parseEventList(unparsed_elements=unparsed_elements)
         self._log_version : int                  = logging_version
 
-        super().__init__(name=self._game_id, other_elements=other_elements)
+        super().__init__(name=name, other_elements=other_elements)
 
     # def __getitem__(self, key) -> Any:
     #     return _schema[key] if _schema is not None else None
