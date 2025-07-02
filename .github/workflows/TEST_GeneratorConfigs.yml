@@ -1,5 +1,5 @@
 # Workflow to test the schemas from the `config` subfolder
-name: Testbed - Game Configs
+name: Testbed - Generator Configs
 run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
 on:
   workflow_dispatch:
@@ -11,17 +11,17 @@ on:
     - 'tests/config/**'
     - 'requirements.txt'
     # specific dependencies
-    - '.github/workflows/TEST_GameConfigs.yml'
-    - 'tests/cases/configs/games/**'
+    - '.github/workflows/TEST_GeneratorConfigs.yml'
+    - 'tests/cases/configs/generators/**'
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-GameConfigs
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-GeneratorConfigs
   cancel-in-progress: true
 
 jobs:
 
   run_testbed_schema:
-    name: Run Game Config Testbeds
+    name: Run Generator Config Testbeds
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -31,8 +31,10 @@ jobs:
           test_DetectorConfig,
           test_FeatureMapConfig,
           test_FeatureConfig,
+          test_GeneratorCollectionConfig,
           test_GeneratorConfig,
-          test_PerCountConfig
+          test_PerCountConfig,
+          test_SubfeatureConfig
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20
@@ -59,7 +61,7 @@ jobs:
     - name: Execute ${{ matrix.testbed }} testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/configs/games"
+        directory: "tests/cases/configs/generators"
         test_file: "${{ matrix.testbed }}.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 

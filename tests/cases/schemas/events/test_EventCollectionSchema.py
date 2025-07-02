@@ -6,12 +6,12 @@ from unittest import TestCase
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.schemas.games.GameSchema import GameSchema
+from src.ogd.common.schemas.events.EventCollectionSchema import EventCollectionSchema
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
-class test_GameSchema(TestCase):
-    """Testbed for the GameSourceSchema class.
+class test_EventCollectionSchema(TestCase):
+    """Testbed for the EventCollectionSchema class.
 
         TODO : Implement and enable tests.
     """
@@ -24,7 +24,7 @@ class test_GameSchema(TestCase):
         Logger.std_logger.setLevel(_level)
 
         # 2. Set up local instance of testing class
-        cls.test_schema = GameSchema(
+        cls.test_schema = EventCollectionSchema(
             name="available_building Schema", game_id="", enum_defs={},
             game_state={}, user_data={}, event_list=[],
             detector_map={}, aggregate_feats={}, percount_feats={},
@@ -195,7 +195,7 @@ class test_GameSchema(TestCase):
                },
                "description" : "The buildings available for the player to construct"
         }
-        _schema = GameSchema.FromDict(name="available_buildings Schema", unparsed_elements=_dict)
+        _schema = EventCollectionSchema.FromDict(name="available_buildings Schema", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "available_buildings Schema")
 

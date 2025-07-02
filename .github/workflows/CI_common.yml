@@ -30,7 +30,7 @@ jobs:
   testbed_game_configs:
     name: Game Config Testbeds
     needs: build
-    uses: ./.github/workflows/TEST_GameConfigs.yml
+    uses: ./.github/workflows/TEST_GeneratorConfigs.yml
 
   # Run testbeds in models module
 
@@ -49,7 +49,7 @@ jobs:
   testbed_game_schemas:
     name: Game Schema Testbeds
     needs: build
-    uses: ./.github/workflows/TEST_GameSchemas.yml
+    uses: ./.github/workflows/TEST_EventSchemas.yml
 
   # Run testbeds in utils module
 

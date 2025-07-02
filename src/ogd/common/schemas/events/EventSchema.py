@@ -2,7 +2,7 @@
 import logging
 from typing import Any, Dict, Optional
 # import local files
-from ogd.common.schemas.games.DataElementSchema import DataElementSchema
+from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
@@ -14,7 +14,7 @@ class EventSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     """
-    Dumb struct to contain a specification of an Event in a GameSchema file.
+    Dumb struct to contain a specification of an Event in a EventCollectionSchema file.
 
     These essentially are just a description of the event, and a set of elements in the EventData attribute of the Event.
     """

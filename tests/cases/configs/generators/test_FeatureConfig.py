@@ -6,15 +6,14 @@ from unittest import TestCase
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.configs.games.GeneratorConfig import GeneratorConfig
+from src.ogd.common.configs.generators.FeatureConfig import FeatureConfig
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
-class test_GeneratorConfig(TestCase):
+class test_FeatureConfig(TestCase):
     """Testbed for the DetectorConfig class.
 
         TODO : Implement tests
-        TODO : Create a basic testing implementation
     """
 
     @classmethod
@@ -38,7 +37,7 @@ class test_GeneratorConfig(TestCase):
                 }
             }
         }
-        # cls.test_schema = GeneratorConfig(
+        # cls.test_schema = FeatureConfig(
         #     name="ActiveTime Schema",
         #     unparsed_elements=_elems
         # )
@@ -76,6 +75,27 @@ class test_GeneratorConfig(TestCase):
         pass
 
     @unittest.skip("Not implemented")
+    def test_ReturnType(self):
+        # _str = self.test_schema.ReturnType
+        # self.assertIsInstance(_str, str)
+        # self.assertEqual(_str, "timedelta")
+        pass
+
+    @unittest.skip("Not implemented")
+    def test_Subfeatures(self):
+        # _feats = self.test_schema.Subfeatures
+        # seconds = _feats.get("Seconds")
+        # _ret  = "int"
+        # _desc = "The number of seconds of active time."
+        # self.assertIsInstance(_feats, dict)
+        # self.assertIsNotNone(seconds)
+        # if seconds is not None:
+        #     self.assertEqual(seconds.Name, "Seconds")
+        #     self.assertEqual(seconds.ReturnType, _ret)
+        #     self.assertEqual(seconds.Description, _desc)
+        pass
+
+    @unittest.skip("Not implemented")
     def test_NonStandardElements(self):
         # _elems = {
         #     "threshold":30
@@ -108,7 +128,7 @@ class test_GeneratorConfig(TestCase):
                 }
             }
         }
-        # _schema = GeneratorConfig.FromDict(name="ActiveTime Schema", unparsed_elements=_dict)
+        # _schema = DetectorConfig.FromDict(name="ActiveTime Schema", unparsed_elements=_dict)
         # self.assertIsInstance(_schema.Name, str)
         # self.assertEqual(_schema.Name, "ActiveTime Schema")
         # self.assertIsInstance(_schema.TypeName, str)

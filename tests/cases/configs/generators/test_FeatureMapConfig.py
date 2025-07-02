@@ -6,11 +6,11 @@ from unittest import TestCase
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.configs.games.DetectorMapConfig import DetectorMapConfig
+from src.ogd.common.configs.generators.FeatureMapConfig import FeatureMapConfig
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
-class test_DetectorMapConfig(TestCase):
+class test_FeatureMapConfig(TestCase):
     """Testbed for the GameSourceSchema class.
 
         TODO : Implement and enable tests.
@@ -24,11 +24,12 @@ class test_DetectorMapConfig(TestCase):
         Logger.std_logger.setLevel(_level)
 
         # 2. Set up local instance of testing class
-        cls.test_schema = DetectorMapConfig(
+        cls.test_schema = FeatureMapConfig(
             name="available_building Schema",
-            perlevel_detectors={},
-            percount_detectors={},
-            aggregate_detectors={},
+            legacy_mode=True,
+            legacy_perlevel_feats={},
+            percount_feats={},
+            aggregate_feats={},
             other_elements={ "foo":"bar" }
         )
 
@@ -43,21 +44,28 @@ class test_DetectorMapConfig(TestCase):
         self.assertEqual(_str, "available_building Schema")
 
     @unittest.skip("Not implemented")
-    def test_PerLevelDetectors(self):
+    def test_LegacyMode(self):
         pass
         # _str = self.test_schema.ElementType
         # self.assertIsInstance(_str, str)
         # self.assertEqual(_str, "List[Dict]")
 
     @unittest.skip("Not implemented")
-    def test_PerCountDetectors(self):
+    def test_LegacyPerLevelFeatures(self):
+        pass
+        # _str = self.test_schema.ElementType
+        # self.assertIsInstance(_str, str)
+        # self.assertEqual(_str, "List[Dict]")
+
+    @unittest.skip("Not implemented")
+    def test_PerCountFeatures(self):
         pass
         # _str = self.test_schema.Description
         # self.assertIsInstance(_str, str)
         # self.assertEqual(_str, "The buildings available for the player to construct")
 
     @unittest.skip("Not implemented")
-    def test_AggregateDetectors(self):
+    def test_AggregateFeatures(self):
         pass
         # _details = self.test_schema.Details
         # self.assertIsInstance(_details, dict)
@@ -93,7 +101,7 @@ class test_DetectorMapConfig(TestCase):
                },
                "description" : "The buildings available for the player to construct"
         }
-        _schema = DetectorMapConfig.FromDict(name="available_buildings Schema", unparsed_elements=_dict)
+        _schema = FeatureMapConfig.FromDict(name="available_buildings Schema", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "available_buildings Schema")
 

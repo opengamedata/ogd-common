@@ -2,12 +2,12 @@
 import logging
 from typing import Optional, Set
 # import local files
+from ogd.common.configs.Config import Config
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
-from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
-class GeneratorConfig(Schema):
+class GeneratorConfig(Config):
 
     _DEFAULT_TYPE = "UNKNOWN TYPE"
     _DEFAULT_ENABLED = True

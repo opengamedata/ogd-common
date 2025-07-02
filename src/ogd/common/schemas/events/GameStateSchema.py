@@ -2,14 +2,14 @@
 import logging
 from typing import Any, Dict, Optional
 # import local files
-from ogd.common.schemas.games.DataElementSchema import DataElementSchema
+from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 class GameStateSchema(Schema):
     """
-    Dumb struct to contain a specification of a game's GameState in a GameSchema file.
+    Dumb struct to contain a specification of a game's GameState in a EventCollectionSchema file.
 
     These essentially are just a set of elements in the GameState attribute of the game's Events.
     """

@@ -2,8 +2,8 @@
 import logging
 from typing import Dict, Optional, Set
 # import local files
-from ogd.common.configs.games.GeneratorConfig import GeneratorConfig
-from ogd.common.configs.games.SubfeatureConfig import SubfeatureConfig
+from ogd.common.configs.generators.GeneratorConfig import GeneratorConfig
+from ogd.common.configs.generators.SubfeatureConfig import SubfeatureConfig
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map

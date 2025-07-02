@@ -6,11 +6,11 @@ from unittest import TestCase
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.configs.games.FeatureMapConfig import FeatureMapConfig
+from src.ogd.common.schemas.events.EventSchema import EventSchema
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
-class test_FeatureMapConfig(TestCase):
+class test_EventSchema(TestCase):
     """Testbed for the GameSourceSchema class.
 
         TODO : Implement and enable tests.
@@ -24,12 +24,10 @@ class test_FeatureMapConfig(TestCase):
         Logger.std_logger.setLevel(_level)
 
         # 2. Set up local instance of testing class
-        cls.test_schema = FeatureMapConfig(
+        cls.test_schema = EventSchema(
             name="available_building Schema",
-            legacy_mode=True,
-            legacy_perlevel_feats={},
-            percount_feats={},
-            aggregate_feats={},
+            description="",
+            event_data={},
             other_elements={ "foo":"bar" }
         )
 
@@ -44,36 +42,18 @@ class test_FeatureMapConfig(TestCase):
         self.assertEqual(_str, "available_building Schema")
 
     @unittest.skip("Not implemented")
-    def test_LegacyMode(self):
+    def test_Description(self):
         pass
         # _str = self.test_schema.ElementType
         # self.assertIsInstance(_str, str)
         # self.assertEqual(_str, "List[Dict]")
 
     @unittest.skip("Not implemented")
-    def test_LegacyPerLevelFeatures(self):
-        pass
-        # _str = self.test_schema.ElementType
-        # self.assertIsInstance(_str, str)
-        # self.assertEqual(_str, "List[Dict]")
-
-    @unittest.skip("Not implemented")
-    def test_PerCountFeatures(self):
+    def test_EventData(self):
         pass
         # _str = self.test_schema.Description
         # self.assertIsInstance(_str, str)
         # self.assertEqual(_str, "The buildings available for the player to construct")
-
-    @unittest.skip("Not implemented")
-    def test_AggregateFeatures(self):
-        pass
-        # _details = self.test_schema.Details
-        # self.assertIsInstance(_details, dict)
-        # _dict = {
-        #     "name":"str",
-        #     "price":"int"
-        # }
-        # self.assertEqual(_details, _dict)
 
     @unittest.skip("Not implemented")
     def test_NonStandardElements(self):
@@ -101,7 +81,7 @@ class test_FeatureMapConfig(TestCase):
                },
                "description" : "The buildings available for the player to construct"
         }
-        _schema = FeatureMapConfig.FromDict(name="available_buildings Schema", unparsed_elements=_dict)
+        _schema = EventSchema.FromDict(name="available_buildings Schema", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "available_buildings Schema")
 

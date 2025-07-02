@@ -6,11 +6,11 @@ from unittest import TestCase
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.schemas.games.GameStateSchema import GameStateSchema
+from src.ogd.common.configs.generators.DetectorMapConfig import DetectorMapConfig
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
-class test_GameStateSchema(TestCase):
+class test_DetectorMapConfig(TestCase):
     """Testbed for the GameSourceSchema class.
 
         TODO : Implement and enable tests.
@@ -24,9 +24,11 @@ class test_GameStateSchema(TestCase):
         Logger.std_logger.setLevel(_level)
 
         # 2. Set up local instance of testing class
-        cls.test_schema = GameStateSchema(
+        cls.test_schema = DetectorMapConfig(
             name="available_building Schema",
-            game_state={},
+            perlevel_detectors={},
+            percount_detectors={},
+            aggregate_detectors={},
             other_elements={ "foo":"bar" }
         )
 
@@ -41,18 +43,29 @@ class test_GameStateSchema(TestCase):
         self.assertEqual(_str, "available_building Schema")
 
     @unittest.skip("Not implemented")
-    def test_Description(self):
+    def test_PerLevelDetectors(self):
         pass
         # _str = self.test_schema.ElementType
         # self.assertIsInstance(_str, str)
         # self.assertEqual(_str, "List[Dict]")
 
     @unittest.skip("Not implemented")
-    def test_EventData(self):
+    def test_PerCountDetectors(self):
         pass
         # _str = self.test_schema.Description
         # self.assertIsInstance(_str, str)
         # self.assertEqual(_str, "The buildings available for the player to construct")
+
+    @unittest.skip("Not implemented")
+    def test_AggregateDetectors(self):
+        pass
+        # _details = self.test_schema.Details
+        # self.assertIsInstance(_details, dict)
+        # _dict = {
+        #     "name":"str",
+        #     "price":"int"
+        # }
+        # self.assertEqual(_details, _dict)
 
     @unittest.skip("Not implemented")
     def test_NonStandardElements(self):
@@ -80,7 +93,7 @@ class test_GameStateSchema(TestCase):
                },
                "description" : "The buildings available for the player to construct"
         }
-        _schema = GameStateSchema.FromDict(name="available_buildings Schema", unparsed_elements=_dict)
+        _schema = DetectorMapConfig.FromDict(name="available_buildings Schema", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "available_buildings Schema")
 

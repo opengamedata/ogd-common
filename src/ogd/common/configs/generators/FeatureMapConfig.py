@@ -2,15 +2,17 @@
 import logging
 from typing import Any, Dict, Optional
 # import local files
-from ogd.common.configs.games.AggregateConfig import AggregateConfig
-from ogd.common.configs.games.PerCountConfig import PerCountConfig
-from ogd.common.schemas.Schema import Schema
+from ogd.common.configs.Config import Config
+from ogd.common.configs.generators.AggregateConfig import AggregateConfig
+from ogd.common.configs.generators.PerCountConfig import PerCountConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import conversions, Map
 
-class FeatureMapConfig(Schema):
+class FeatureMapConfig(Config):
     """
     Dumb struct to contain the specification and config of a set of features for a game.
+
+    TODO : Rename to DetectorMapConfig
     """
 
     _DEFAULT_LEGACY_MODE = False

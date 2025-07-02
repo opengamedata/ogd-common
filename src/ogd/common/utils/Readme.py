@@ -4,21 +4,25 @@ import traceback
 from pathlib import Path
 
 # import local files
-from ogd.common.schemas.games.GameSchema import GameSchema
+from ogd.common.configs.generators.GeneratorCollectionConfig import GeneratorCollectionConfig
+from ogd.common.schemas.events.EventCollectionSchema import EventCollectionSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils.Logger import Logger
 
 class Readme:
-    def __init__(self, game_schema:GameSchema, table_schema:TableSchema):
-        self._game_schema  : GameSchema  = game_schema
-        self._table_schema : TableSchema = table_schema
-        self._custom_src   : str   = self._getCustomSrc()
-        self._dataset_meta : str   = self._getDatasetMetadata()
-        self._changelog    : str   = self._getDatabaseChangelog()
+    def __init__(self, event_collection:EventCollectionSchema,
+                 generator_collection:GeneratorCollectionConfig,
+                 table_schema:TableSchema):
+        self._event_collection     : EventCollectionSchema     = event_collection
+        self._generator_collection : GeneratorCollectionConfig = generator_collection
+        self._table_schema         : TableSchema               = table_schema
+        self._custom_src           : str                       = self._getCustomSrc()
+        self._dataset_meta         : str                       = self._getDatasetMetadata()
+        self._changelog            : str                       = self._getDatabaseChangelog()
 
     @property
     def GameName(self):
-        return self._game_schema.GameName
+        return self._event_collection.GameName
 
     @property
     def CustomReadmeSource(self) -> str:
@@ -43,7 +47,8 @@ class Readme:
                     self.CustomReadmeSource,
                     self.DatasetMetadata,
                     self._table_schema.AsMarkdown,
-                    self._game_schema.AsMarkdown,
+                    self._event_collection.AsMarkdown,
+                    self._generator_collection.AsMarkdown,
                     self.DatasetChangelog,
                     ""
                 ]))
@@ -62,7 +67,7 @@ class Readme:
             with open(game_schema_dir / f"{self.GameName}_readme_src.md", "r") as readme_src:
                 ret_val = readme_src.read()
         except FileNotFoundError:
-            Logger.Log(f"Could not find {self._game_schema.GameName}_readme_src", logging.WARNING)
+            Logger.Log(f"Could not find {self._event_collection.GameName}_readme_src", logging.WARNING)
         finally:
             return ret_val
 
