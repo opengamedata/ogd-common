@@ -2,7 +2,7 @@
 import logging
 from typing import Any, Dict, Optional
 ## import local files
-from ogd.common.schemas.tables.locations.TableLocationSchema import TableLocationSchema
+from ogd.common.schemas.locations.TableLocationSchema import TableLocationSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 

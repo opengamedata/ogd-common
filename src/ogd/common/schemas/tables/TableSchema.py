@@ -7,7 +7,7 @@ from ogd.common.schemas.tables.structures.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.structures.TableStructureSchema import TableStructureSchema
 from ogd.common.schemas.tables.structures.EventTableStructureSchema import EventTableStructureSchema
 from ogd.common.schemas.tables.structures.FeatureTableStructureSchema import FeatureTableStructureSchema
-from ogd.common.schemas.tables.locations.TableLocationSchema import TableLocationSchema
+from ogd.common.schemas.locations.TableLocationSchema import TableLocationSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
