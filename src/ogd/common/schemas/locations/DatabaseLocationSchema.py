@@ -12,11 +12,6 @@ class DatabaseLocationSchema(LocationSchema):
 
     Generally, the location of a database system would be a URLLocation,
     while DatabaseLocation refers to the location of a specific database or table within such a system.
-
-    :param TableLocationSchema: _description_
-    :type TableLocationSchema: _type_
-    :return: _description_
-    :rtype: _type_
     """
 
     _DEFAULT_DB_NAME = "DEFAULT_DB"
@@ -68,7 +63,7 @@ class DatabaseLocationSchema(LocationSchema):
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatabaseLocationSchema":
-        """Create a TableLocationSchema from a given dictionary
+        """Create a DatabaseLocationSchema from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
 
