@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Tuple, Optional, TypeAlias
 ## import local files
 from ogd.common import schemas
 from ogd.common.schemas.Schema import Schema
-from ogd.common.schemas.tables.structures.ColumnSchema import ColumnSchema
+from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
 

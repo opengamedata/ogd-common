@@ -1,8 +1,8 @@
 from typing import Any, Dict
 
-from ogd.common.schemas.tables.structures.TableStructureSchema import TableStructureSchema
-from ogd.common.schemas.tables.structures.EventTableStructureSchema import EventTableStructureSchema
-from ogd.common.schemas.tables.structures.FeatureTableStructureSchema import FeatureTableStructureSchema
+from ogd.common.schemas.tables.TableStructureSchema import TableStructureSchema
+from ogd.common.schemas.tables.EventTableStructureSchema import EventTableStructureSchema
+from ogd.common.schemas.tables.FeatureTableStructureSchema import FeatureTableStructureSchema
 
 class TableStructureFactory:
     @staticmethod
