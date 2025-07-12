@@ -147,7 +147,7 @@ class MySQLConfig(DataStoreConfig):
             unparsed_elements=unparsed_elements,
             valid_keys=["DB_PORT"],
             to_type=int,
-            default_value=MySQLConfig._DEFAULT_HOST,
+            default_value=MySQLConfig._DEFAULT_PORT,
             remove_target=True
         )
 
