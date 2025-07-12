@@ -7,7 +7,7 @@ from ogd.common.schemas.tables.structures.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.structures.TableStructureSchema import TableStructureSchema
 from ogd.common.schemas.tables.structures.EventTableStructureSchema import EventTableStructureSchema
 from ogd.common.schemas.tables.structures.FeatureTableStructureSchema import FeatureTableStructureSchema
-from ogd.common.schemas.locations.TableLocationSchema import TableLocationSchema
+from ogd.common.schemas.locations.TableLocationSchema import URLLocationSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
@@ -25,7 +25,7 @@ class TableSchema(Schema):
     _DEFAULT_STRUCTURE = {}
     _DEFAULT_LOCATION = {}
 
-    def __init__(self, name, structure:TableStructureSchema, location:TableLocationSchema, other_elements:Optional[Map]):
+    def __init__(self, name, structure:TableStructureSchema, location:URLLocationSchema, other_elements:Optional[Map]):
         """Constructor for the TableStructureSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
@@ -42,7 +42,7 @@ class TableSchema(Schema):
         unparsed_elements : Map = other_elements or {}
         _table_type = self._parseTableType(unparsed_elements=unparsed_elements)
         self._structure : TableStructureSchema = structure or self._parseStructure(name=f"{name}Structure", table_type=_table_type, unparsed_elements=unparsed_elements)
-        self._location  : TableLocationSchema  = location  or self._parseLocation(name=f"{name}Location", unparsed_elements=unparsed_elements)
+        self._location  : URLLocationSchema  = location  or self._parseLocation(name=f"{name}Location", unparsed_elements=unparsed_elements)
 
         # after loading the file, take the stuff we need and store.
         super().__init__(name=name, other_elements=other_elements)
@@ -61,7 +61,7 @@ class TableSchema(Schema):
         return self._structure.Columns
 
     @property
-    def Location(self) -> TableLocationSchema:
+    def Location(self) -> URLLocationSchema:
         return self._location
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -90,7 +90,7 @@ class TableSchema(Schema):
         """
         _table_type_str : str                  = cls._parseTableType(unparsed_elements=unparsed_elements)
         _structure      : TableStructureSchema = cls._parseStructure(name=name, table_type=_table_type_str, unparsed_elements=unparsed_elements)
-        _location       : TableLocationSchema  = cls._parseLocation(name=name, unparsed_elements=unparsed_elements)
+        _location       : URLLocationSchema  = cls._parseLocation(name=name, unparsed_elements=unparsed_elements)
 
         _used = {"table_type", "structure", "location"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
@@ -101,7 +101,7 @@ class TableSchema(Schema):
         return TableSchema(
             name="DefaultTableSchema",
             structure=EventTableStructureSchema.Default(),
-            location=TableLocationSchema.Default(),
+            location=URLLocationSchema.Default(),
             other_elements={}
         )
 
@@ -141,8 +141,8 @@ class TableSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseLocation(name:str, unparsed_elements:Map) -> TableLocationSchema:
-        ret_val : TableLocationSchema
+    def _parseLocation(name:str, unparsed_elements:Map) -> URLLocationSchema:
+        ret_val : URLLocationSchema
 
         _location = TableSchema.ParseElement(
             unparsed_elements=unparsed_elements,
@@ -151,7 +151,7 @@ class TableSchema(Schema):
             default_value=TableSchema._DEFAULT_LOCATION,
             remove_target=True
         )
-        ret_val = TableLocationSchema.FromDict(name=f"{name}Location", unparsed_elements=_location)
+        ret_val = URLLocationSchema.FromDict(name=f"{name}Location", unparsed_elements=_location)
 
         return ret_val
 
