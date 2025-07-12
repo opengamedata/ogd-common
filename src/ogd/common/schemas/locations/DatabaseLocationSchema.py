@@ -2,23 +2,34 @@
 import logging
 from typing import Any, Dict, Optional
 ## import local files
-from ogd.common.schemas.locations.TableLocationSchema import TableLocationSchema
+from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 ## @class TableStructureSchema
-class DatabaseTableLocationSchema(TableLocationSchema):
+class DatabaseLocationSchema(LocationSchema):
+    """Class to encode the location of data within a database resource.
+
+    Generally, the location of a database system would be a URLLocation,
+    while DatabaseLocation refers to the location of a specific database or table within such a system.
+
+    :param TableLocationSchema: _description_
+    :type TableLocationSchema: _type_
+    :return: _description_
+    :rtype: _type_
+    """
 
     _DEFAULT_DB_NAME = "DEFAULT_DB"
-    _DEFAULT_TABLE_NAME = "DEFAULT_TABLE"
+    _DEFAULT_TABLE_NAME = None
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, table_name:str, database_name:str, other_elements:Optional[Map]):
+    def __init__(self, name:str, database_name:str, table_name:Optional[str], other_elements:Optional[Map]):
         unparsed_elements : Map = other_elements or {}
 
-        self._db_name = database_name or self._parseDatabaseName(unparsed_elements=unparsed_elements)
-        super().__init__(name=name, table_name=table_name, other_elements=other_elements)
+        self._db_name    : str           = database_name or self._parseDatabaseName(unparsed_elements=unparsed_elements)
+        self._table_name : Optional[str] = table_name    or self._parseTableName(unparsed_elements=unparsed_elements)
+        super().__init__(name=name, other_elements=other_elements)
 
     @property
     def DatabaseName(self) -> str:
@@ -29,7 +40,15 @@ class DatabaseTableLocationSchema(TableLocationSchema):
         """
         return self._db_name
 
+    @property
+    def TableName(self) -> Optional[str]:
+        return self._table_name
+
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
+    @property
+    def Location(self) -> str:
+        return f"{self._db_name}.{self._table_name or ''}"
 
     @property
     def AsMarkdown(self) -> str:
@@ -39,16 +58,16 @@ class DatabaseTableLocationSchema(TableLocationSchema):
         return ret_val
 
     @classmethod
-    def Default(cls) -> "TableLocationSchema":
-        return DatabaseTableLocationSchema(
-            name="DefaultDatabaseTableLocation",
-            table_name=cls._DEFAULT_TABLE_NAME,
+    def Default(cls) -> "DatabaseLocationSchema":
+        return DatabaseLocationSchema(
+            name="DefaultDatabaseLocation",
             database_name=cls._DEFAULT_DB_NAME,
+            table_name=cls._DEFAULT_TABLE_NAME,
             other_elements={}
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatabaseTableLocationSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatabaseLocationSchema":
         """Create a TableLocationSchema from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -64,12 +83,12 @@ class DatabaseTableLocationSchema(TableLocationSchema):
         :return: _description_
         :rtype: GameSourceSchema
         """
-        _table_name : str = cls._parseTableName(unparsed_elements=unparsed_elements)
+        _table_name : Optional[str] = cls._parseTableName(unparsed_elements=unparsed_elements)
         _db_name    : str = cls._parseDatabaseName(unparsed_elements=unparsed_elements)
 
         _used = {"table", "database"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return DatabaseTableLocationSchema(name=name, table_name=_table_name, database_name=_db_name, other_elements=_leftovers)
+        return DatabaseLocationSchema(name=name, table_name=_table_name, database_name=_db_name, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
 
@@ -78,21 +97,21 @@ class DatabaseTableLocationSchema(TableLocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseTableName(unparsed_elements:Map) -> str:
-        return DatabaseTableLocationSchema.ParseElement(
+    def _parseTableName(unparsed_elements:Map) -> Optional[str]:
+        return DatabaseLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["table"],
             to_type=str,
-            default_value=DatabaseTableLocationSchema._DEFAULT_TABLE_NAME,
+            default_value=DatabaseLocationSchema._DEFAULT_TABLE_NAME,
             remove_target=True
         )
 
     @staticmethod
     def _parseDatabaseName(unparsed_elements:Map) -> str:
-        return DatabaseTableLocationSchema.ParseElement(
+        return DatabaseLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["database"],
             to_type=str,
-            default_value=DatabaseTableLocationSchema._DEFAULT_DB_NAME,
+            default_value=DatabaseLocationSchema._DEFAULT_DB_NAME,
             remove_target=True
         )
