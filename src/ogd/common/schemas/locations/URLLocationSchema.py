@@ -28,7 +28,7 @@ class URLLocationSchema(LocationSchema):
             self._host = host_name
             self._port = port      or self._parsePort(unparsed_elements=unparsed_elements)
             self._path = path      or self._parsePath(unparsed_elements=unparsed_elements)
-        # 2. Otherwise, we try to get as a URL from dict as first try. If it returns something, then we've got it.
+        # 2. Otherwise, we try to get as a URL from dict as first try. If it returns something, then we've got what we need.
         else:
             url = self._parseURL(unparsed_elements=unparsed_elements)
             if url:
@@ -79,7 +79,7 @@ class URLLocationSchema(LocationSchema):
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "URLLocationSchema":
-        """Create a TableLocationSchema from a given dictionary
+        """Create a URLLocationSchema from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
 
@@ -110,7 +110,7 @@ class URLLocationSchema(LocationSchema):
             _host = cls._parseHost(unparsed_elements=unparsed_elements)
             _port = cls._parsePort(unparsed_elements=unparsed_elements)
             _path = cls._parsePath(unparsed_elements=unparsed_elements)
-            _used = _used.union({"host", "path"})
+            _used = _used.union({"URL", "url", "host", "path"})
 
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
         return URLLocationSchema(name=name, host_name=_host, port=_port, path=_path, other_elements=_leftovers)
@@ -134,9 +134,9 @@ class URLLocationSchema(LocationSchema):
 
         raw_url = URLLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["url"],
+            valid_keys=["URL", "url"],
             to_type=str,
-            default_value=None,
+            default_value=None, # default to None, if it doesn't exist we return None
             remove_target=True
         )
         if raw_url:
