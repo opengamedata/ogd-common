@@ -1,7 +1,7 @@
 ## import standard libraries
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.Logger import Logger
@@ -119,10 +119,8 @@ class FileLocationSchema(LocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parsePath(unparsed_elements:Map) -> Optional[Tuple[Path, str]]:
+    def _parsePath(unparsed_elements:Map, keys:List[str]=["path"]) -> Optional[Tuple[Path, str]]:
         """Function to parse a full path into a folder and filename
-
-        Keys: path
 
         :param unparsed_elements: _description_
         :type unparsed_elements: Map
@@ -133,7 +131,7 @@ class FileLocationSchema(LocationSchema):
 
         raw_path = FileLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["path"],
+            valid_keys=keys,
             to_type=Path,
             default_value=None,
             remove_target=True
@@ -148,20 +146,20 @@ class FileLocationSchema(LocationSchema):
         return ret_val
 
     @staticmethod
-    def _parseFolderPath(unparsed_elements:Map) -> Path:
+    def _parseFolderPath(unparsed_elements:Map, keys:List[str]=["folder"]) -> Path:
         return FileLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["folder"],
+            valid_keys=keys,
             to_type=Path,
             default_value=FileLocationSchema._DEFAULT_PATH,
             remove_target=True
         )
 
     @staticmethod
-    def _parseFilename(unparsed_elements:Map) -> str:
+    def _parseFilename(unparsed_elements:Map, keys:List[str]=["filename", "file"]) -> str:
         return FileLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["filename", "file"],
+            valid_keys=keys,
             to_type=str,
             default_value=FileLocationSchema._DEFAULT_FILENAME,
             remove_target=True
