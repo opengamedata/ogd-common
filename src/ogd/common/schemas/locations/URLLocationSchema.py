@@ -100,7 +100,7 @@ class URLLocationSchema(LocationSchema):
 
         # 1. First, we try to get as a URL from dict as first try. If it returns something, then we've got it.
         url = cls._parseURL(unparsed_elements=unparsed_elements)
-        _used = {"url"}
+        _used = {"URL", "url"}
         if url:
             _host = url[0]
             _port = url[1]
@@ -110,7 +110,7 @@ class URLLocationSchema(LocationSchema):
             _host = cls._parseHost(unparsed_elements=unparsed_elements)
             _port = cls._parsePort(unparsed_elements=unparsed_elements)
             _path = cls._parsePath(unparsed_elements=unparsed_elements)
-            _used = _used.union({"URL", "url", "host", "path"})
+            _used = _used.union({"host", "port", "path"})
 
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
         return URLLocationSchema(name=name, host_name=_host, port=_port, path=_path, other_elements=_leftovers)
