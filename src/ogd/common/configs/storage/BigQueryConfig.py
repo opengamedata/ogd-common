@@ -1,16 +1,19 @@
 # import standard libraries
-import logging
 from pathlib import Path
 from typing import Optional
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.KeyCredentialConfig import KeyCredential
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 class BigQueryConfig(DataStoreConfig):
-    _DEFAULT_LOCATION = DatabaseLocationSchema(name="DefaultBQLocation", database_name="wcer-field-day-ogd-1798", table_name=None, other_elements=None)
+    _DEFAULT_LOCATION = DatabaseLocationSchema(
+        name="DefaultBQLocation",
+        database_name="wcer-field-day-ogd-1798",
+        table_name=None,
+        other_elements=None
+    )
     _DEFAULT_CREDENTIAL = KeyCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
