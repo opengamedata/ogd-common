@@ -1,5 +1,4 @@
 # import standard libraries
-import logging
 from pathlib import Path
 from typing import Optional
 # import local files
@@ -7,12 +6,18 @@ from ogd.common.configs.storage.SSHConfig import SSHConfig
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
-from ogd.common.utils.Logger import Logger
+from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.utils.typing import Map
 
 class MySQLConfig(DataStoreConfig):
     _DEFAULT_HOST = "127.0.0.1"
     _DEFAULT_PORT = 3306
+    _DEFAULT_LOCATION = URLLocationSchema(
+        name="DefaultMySQLLocation",
+        host_name=_DEFAULT_HOST,
+        port=_DEFAULT_PORT,
+        path=""
+    )
     _DEFAULT_USER = "DEFAULT USER"
     _DEFAULT_PASS = None
     _DEFAULT_DB_CREDENTIAL = PasswordCredential.Default()
@@ -21,7 +26,7 @@ class MySQLConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 db_host:str, db_port:int, db_credential:PasswordCredential, ssh_cfg:"SSHConfig",
+                 db_location:URLLocationSchema, db_credential:PasswordCredential, ssh_cfg:"SSHConfig",
                  # params for parent
                  store_type:Optional[str]=None,
                  # dict of leftovers
@@ -29,19 +34,18 @@ class MySQLConfig(DataStoreConfig):
         ):
         unparsed_elements : Map = other_elements or {}
 
-        self._db_host    : str                = db_host       or self._parseDBHost(unparsed_elements=unparsed_elements)
-        self._db_port    : int                = db_port       or self._parseDBPort(unparsed_elements=unparsed_elements)
-        self._credential : PasswordCredential = db_credential or self._parseCredential(unparsed_elements=unparsed_elements)
-        self._ssh_cfg    : SSHConfig          = ssh_cfg       or self._parseSSHConfig(unparsed_elements=unparsed_elements)
+        self._db_location : URLLocationSchema  = db_location   or self._parseLocation(unparsed_elements=unparsed_elements)
+        self._credential  : PasswordCredential = db_credential or self._parseCredential(unparsed_elements=unparsed_elements)
+        self._ssh_cfg     : SSHConfig          = ssh_cfg       or self._parseSSHConfig(unparsed_elements=unparsed_elements)
         super().__init__(name=name, store_type=store_type, other_elements=other_elements)
 
     @property
     def DBHost(self) -> str:
-        return self._db_host
+        return self._db_location.Host
 
     @property
     def DBPort(self) -> int:
-        return self._db_port
+        return self._db_location.Port
 
     @property
     def DBUser(self) -> str:
@@ -107,20 +111,18 @@ class MySQLConfig(DataStoreConfig):
         :return: _description_
         :rtype: MySQLConfig
         """
-        _db_host    : str                = cls._parseDBHost(unparsed_elements=unparsed_elements)
-        _db_port    : int                = cls._parseDBPort(unparsed_elements=unparsed_elements)
-        _credential : PasswordCredential = cls._parseCredential(unparsed_elements=unparsed_elements)
-        _ssh_cfg    : SSHConfig          = cls._parseSSHConfig(unparsed_elements=unparsed_elements)
+        _db_location : URLLocationSchema  = cls._parseLocation(unparsed_elements=unparsed_elements)
+        _credential  : PasswordCredential = cls._parseCredential(unparsed_elements=unparsed_elements)
+        _ssh_cfg     : SSHConfig          = cls._parseSSHConfig(unparsed_elements=unparsed_elements)
 
-        return MySQLConfig(name=name, db_host=_db_host, db_port=_db_port, db_credential=_credential, ssh_cfg=_ssh_cfg, other_elements=unparsed_elements)
+        return MySQLConfig(name=name, db_location=_db_location, db_credential=_credential, ssh_cfg=_ssh_cfg, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "MySQLConfig":
         return MySQLConfig(
             name="DefaultMySQLConfig",
-            db_host=cls._DEFAULT_HOST,
-            db_port=cls._DEFAULT_PORT,
-            db_credential=MySQLConfig._DEFAULT_DB_CREDENTIAL,
+            db_location=cls._DEFAULT_LOCATION,
+            db_credential=cls._DEFAULT_DB_CREDENTIAL,
             ssh_cfg=SSHConfig.Default(),
             other_elements={}
         )
@@ -132,24 +134,34 @@ class MySQLConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseDBHost(unparsed_elements:Map) -> str:
-        return MySQLConfig.ParseElement(
+    def _parseLocation(unparsed_elements:Map) -> URLLocationSchema:
+        ret_val : URLLocationSchema
+
+        raw_host = MySQLConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["DB_HOST"],
             to_type=str,
             default_value=MySQLConfig._DEFAULT_HOST,
             remove_target=True
         )
-
-    @staticmethod
-    def _parseDBPort(unparsed_elements:Map) -> int:
-        return MySQLConfig.ParseElement(
+        raw_port = MySQLConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["DB_PORT"],
             to_type=int,
             default_value=MySQLConfig._DEFAULT_PORT,
             remove_target=True
         )
+        if raw_host and raw_port:
+            ret_val = URLLocationSchema(
+                name      = "DBHostLocation",
+                host_name = raw_host or URLLocationSchema._DEFAULT_HOST_NAME,
+                port      = raw_port or URLLocationSchema._DEFAULT_PORT,
+                path      = ""
+            )
+        else:
+            ret_val = URLLocationSchema.FromDict(name="DBHostLocation", unparsed_elements=unparsed_elements)
+        
+        return ret_val
 
     @staticmethod
     def _parseCredential(unparsed_elements:Map) -> PasswordCredential:

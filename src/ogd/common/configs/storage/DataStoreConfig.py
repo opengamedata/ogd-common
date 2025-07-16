@@ -1,10 +1,10 @@
 # import standard libraries
 import abc
-from pathlib import Path
 from typing import Optional
 # import local files
 from ogd.common.configs.Config import Config
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
+from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import Map
 
 
@@ -23,7 +23,7 @@ class DataStoreConfig(Config):
 
     @property
     @abc.abstractmethod
-    def Location(self) -> str | Path:
+    def Location(self) -> LocationSchema:
         pass
 
     @property
