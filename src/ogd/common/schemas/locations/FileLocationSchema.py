@@ -55,6 +55,10 @@ class FileLocationSchema(LocationSchema):
     def Filename(self) -> str:
         return self._filename
 
+    @property
+    def Filepath(self) -> str:
+        return self.Location
+
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
@@ -146,7 +150,7 @@ class FileLocationSchema(LocationSchema):
         return ret_val
 
     @staticmethod
-    def _parseFolderPath(unparsed_elements:Map, keys:List[str]=["folder"]) -> Path:
+    def _parseFolderPath(unparsed_elements:Map, keys:List[str]=["folder", "path", "PATH"]) -> Path:
         return FileLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=keys,
@@ -156,7 +160,7 @@ class FileLocationSchema(LocationSchema):
         )
 
     @staticmethod
-    def _parseFilename(unparsed_elements:Map, keys:List[str]=["filename", "file"]) -> str:
+    def _parseFilename(unparsed_elements:Map, keys:List[str]=["filename", "FILENAME", "file", "FILE"]) -> str:
         return FileLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=keys,
