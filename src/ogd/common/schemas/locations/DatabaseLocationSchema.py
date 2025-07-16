@@ -43,7 +43,7 @@ class DatabaseLocationSchema(LocationSchema):
 
     @property
     def Location(self) -> str:
-        return f"{self._db_name}.{self._table_name or ''}"
+        return self.DatabaseName + ( f".{self._table_name}" if self.TableName else "" )
 
     @property
     def AsMarkdown(self) -> str:
