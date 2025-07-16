@@ -1,22 +1,26 @@
 # import standard libraries
-import logging
 from pathlib import Path
 from typing import Optional
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.KeyCredentialConfig import KeyCredential
-from ogd.common.utils.Logger import Logger
+from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
 from ogd.common.utils.typing import Map
 
 class BigQueryConfig(DataStoreConfig):
-    _DEFAULT_PROJECT_ID = "wcer-field-day-ogd-1798"
+    _DEFAULT_LOCATION = DatabaseLocationSchema(
+        name="DefaultBQLocation",
+        database_name="wcer-field-day-ogd-1798",
+        table_name=None,
+        other_elements=None
+    )
     _DEFAULT_CREDENTIAL = KeyCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,
                  # params for class
-                 project_id:str, credential:KeyCredential,
+                 location:DatabaseLocationSchema, credential:KeyCredential,
                  # params for parent
                  store_type:Optional[str]=None,
                  # dict of leftovers
@@ -24,19 +28,19 @@ class BigQueryConfig(DataStoreConfig):
         ):
         unparsed_elements : Map = other_elements or {}
 
-        self._project_id : str           = project_id or BigQueryConfig._parseProjectID(unparsed_elements=unparsed_elements)
-        self._credential : KeyCredential = credential or BigQueryConfig._parseCredential(unparsed_elements=unparsed_elements)
+        self._location   : DatabaseLocationSchema  = location if location else BigQueryConfig._parseLocation(unparsed_elements=unparsed_elements)
+        self._credential : KeyCredential           = credential or BigQueryConfig._parseCredential(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, store_type=store_type, other_elements=unparsed_elements)
 
     @property
-    def Location(self) -> str:
+    def Location(self) -> DatabaseLocationSchema:
         """The Project ID for the BigQuery source
 
         :return: _description_
         :rtype: str
         """
-        return self._project_id
+        return self._location
 
     @property
     def Credential(self) -> KeyCredential:
@@ -44,7 +48,7 @@ class BigQueryConfig(DataStoreConfig):
 
     @property
     def AsConnectionInfo(self) -> str:
-        ret_val : str = f"{self.Location}"
+        ret_val : str = f"{self.Location.Location}"
         return ret_val
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -60,7 +64,7 @@ class BigQueryConfig(DataStoreConfig):
     def Default(cls) -> "BigQueryConfig":
         return BigQueryConfig(
             name="DefaultBigQueryConfig",
-            project_id=cls._DEFAULT_PROJECT_ID,
+            location=cls._DEFAULT_LOCATION,
             credential=KeyCredential.Default(),
             other_elements={}
         )
@@ -80,6 +84,8 @@ class BigQueryConfig(DataStoreConfig):
         }
         ```
 
+        Optionally, use "DATASET_ID" or "database" in place of "PROJECT_ID" key.
+
         :param name: _description_
         :type name: str
         :param unparsed_elements: _description_
@@ -87,12 +93,12 @@ class BigQueryConfig(DataStoreConfig):
         :return: _description_
         :rtype: BigQueryConfig
         """
-        _project_id : str                     = cls._parseProjectID(unparsed_elements=unparsed_elements)
+        _project_id : DatabaseLocationSchema  = cls._parseLocation(unparsed_elements=unparsed_elements)
         _credential : Optional[KeyCredential] = cls._parseCredential(unparsed_elements=unparsed_elements)
 
         _used = {"PROJECT_ID", "DATASET_ID", "PROJECT_KEY"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return BigQueryConfig(name=name, project_id=_project_id, credential=_credential, other_elements=_leftovers)
+        return BigQueryConfig(name=name, location=_project_id, credential=_credential, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
 
@@ -101,14 +107,25 @@ class BigQueryConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseProjectID(unparsed_elements:Map) -> str:
-        return BigQueryConfig.ParseElement(
+    def _parseLocation(unparsed_elements:Map) -> DatabaseLocationSchema:
+        ret_val : DatabaseLocationSchema
+
+        # First check for project ID or dataset ID given directly
+        project_id = BigQueryConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["PROJECT_ID", "DATASET_ID"],
             to_type=str,
-            default_value=BigQueryConfig._DEFAULT_PROJECT_ID,
+            default_value=None,
             remove_target=True
         )
+        # If we found it, use to construct
+        if project_id:
+            ret_val = DatabaseLocationSchema(name="BigQueryLocation", database_name=project_id, table_name=None, other_elements={})
+        # Else, have the class look for whatever key it's expecting.
+        else:
+            ret_val = DatabaseLocationSchema.FromDict(name="BigQueryLocation", unparsed_elements=unparsed_elements)
+        
+        return ret_val
 
     @staticmethod
     def _parseCredential(unparsed_elements:Map) -> KeyCredential:

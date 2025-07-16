@@ -6,21 +6,26 @@ from pathlib import Path
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
+from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 FileCredential : TypeAlias = PasswordCredential | EmptyCredential
 
 class FileStoreConfig(DataStoreConfig):
-    _DEFAULT_FOLDER_PATH = Path('./data')
-    _DEFAULT_FILE_NAME = "UNKNOWN.tsv"
+    _DEFAULT_LOCATION = FileLocationSchema(
+        name="DefaultFileStoreLocation",
+        folder_path=Path('./data'),
+        filename="UNKNOWN.tsv",
+        other_elements=None
+    )
     _DEFAULT_CREDENTIAL = EmptyCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,
                  # params for class
-                 folder_path:Path, file_name:str, file_credential:FileCredential,
+                 location:FileLocationSchema, file_credential:FileCredential,
                  # params for parent
                  store_type:Optional[str]=None,
                  # dict of leftovers
@@ -28,14 +33,13 @@ class FileStoreConfig(DataStoreConfig):
         ):
         unparsed_elements : Map = other_elements or {}
 
-        self._folder_path : Path           = folder_path     or self._parseFolder(unparsed_elements=unparsed_elements)
-        self._file_name   : str            = file_name       or self._parseFilename(unparsed_elements=unparsed_elements)
+        self._location    : FileLocationSchema = location or self._parseLocation(unparsed_elements=unparsed_elements)
         self._credential  : FileCredential = file_credential or self._parseCredential(unparsed_elements=unparsed_elements)
         super().__init__(name=name, store_type=store_type, other_elements=unparsed_elements)
 
     @property
     def Filename(self) -> str:
-        return self._file_name
+        return self._location.Filename
 
     @property
     def Folder(self) -> Path:
@@ -44,19 +48,19 @@ class FileStoreConfig(DataStoreConfig):
         :return: The path to the folder containing the data store file.
         :rtype: Path
         """
-        return self._folder_path
+        return self._location.FolderPath
 
     @property
     def FileExtension(self) -> str:
-        return self._file_name.split(".")[-1]
+        return self.Filename.split(".")[-1]
 
     @property
     def Filepath(self) -> str | Path:
-        return self._folder_path / self.Filename
+        return self.Location.Filepath
 
     @property
-    def Location(self) -> str | Path:
-        return self.Filepath
+    def Location(self) -> FileLocationSchema:
+        return self._location
 
     @property
     def Credential(self) -> PasswordCredential | EmptyCredential:
@@ -88,11 +92,10 @@ class FileStoreConfig(DataStoreConfig):
         :return: _description_
         :rtype: FileStoreConfig
         """
-        _folder_path : Path           = cls._parseFolder(unparsed_elements=unparsed_elements)
-        _file_name   : str            = cls._parseFilename(unparsed_elements=unparsed_elements)
-        _credential  : FileCredential = cls._parseCredential(unparsed_elements=unparsed_elements)
+        _file_loc   : FileLocationSchema = cls._parseLocation(unparsed_elements=unparsed_elements)
+        _credential : FileCredential     = cls._parseCredential(unparsed_elements=unparsed_elements)
 
-        return FileStoreConfig(name=name, folder_path=_folder_path, file_name=_file_name, file_credential=_credential, other_elements=unparsed_elements)
+        return FileStoreConfig(name=name, location=_file_loc, file_credential=_credential, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 
@@ -100,8 +103,7 @@ class FileStoreConfig(DataStoreConfig):
     def Default(cls) -> "FileStoreConfig":
         return FileStoreConfig(
             name="DefaultFileStoreConfig",
-            folder_path=cls._DEFAULT_FOLDER_PATH,
-            file_name=cls._DEFAULT_FILE_NAME,
+            location=cls._DEFAULT_LOCATION,
             file_credential=FileStoreConfig._DEFAULT_CREDENTIAL,
             other_elements={}
         )
@@ -111,24 +113,8 @@ class FileStoreConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseFolder(unparsed_elements:Map) -> Path:
-        return FileStoreConfig.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["PATH"],
-            to_type=Path,
-            default_value=FileStoreConfig._DEFAULT_FOLDER_PATH,
-            remove_target=True
-        )
-
-    @staticmethod
-    def _parseFilename(unparsed_elements:Map) -> str:
-        return FileStoreConfig.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["FILENAME"],
-            to_type=str,
-            default_value=FileStoreConfig._DEFAULT_FILE_NAME,
-            remove_target=True
-        )
+    def _parseLocation(unparsed_elements:Map) -> FileLocationSchema:
+        return FileLocationSchema.FromDict(name="FileStoreLocation", unparsed_elements=unparsed_elements)
 
     @staticmethod
     def _parseCredential(unparsed_elements:Map) -> FileCredential:

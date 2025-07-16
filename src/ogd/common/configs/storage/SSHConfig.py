@@ -1,36 +1,39 @@
 # import standard libraries
-import logging
-from pathlib import Path
 from typing import Optional
 # import local files
-from ogd.common.schemas.Schema import Schema
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
-from ogd.common.utils.Logger import Logger
+from ogd.common.schemas.Schema import Schema
+from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.utils.typing import Map
 
 class SSHConfig(Schema):
     _DEFAULT_HOST = "127.0.0.1"
     _DEFAULT_PORT = 22
+    _DEFAULT_LOCATION = URLLocationSchema(
+        name="DefaultSSHLocation",
+        host_name=_DEFAULT_HOST,
+        port=_DEFAULT_PORT,
+        path=""
+    )
     _DEFAULT_CREDENTIAL = PasswordCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,
                  # params for class
-                 ssh_host:Optional[str], ssh_port:int, ssh_credential:PasswordCredential,
+                 location:URLLocationSchema, ssh_credential:PasswordCredential,
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
         unparsed_elements : Map = other_elements or {}
 
-        self._host       : Optional[str]      = ssh_host       or self._parseHost(unparsed_elements=unparsed_elements)
-        self._port       : int                = ssh_port       or self._parsePort(unparsed_elements=unparsed_elements)
+        self._location   : URLLocationSchema  = location       or self._parseLocation(unparsed_elements=unparsed_elements)
         self._credential : PasswordCredential = ssh_credential or self._parseCredential(unparsed_elements=unparsed_elements)
         super().__init__(name=name, other_elements=other_elements)
 
     @property
     def Host(self) -> Optional[str]:
-        return self._host
+        return self._location.Host
 
     @property
     def User(self) -> str:
@@ -42,7 +45,7 @@ class SSHConfig(Schema):
 
     @property
     def Port(self) -> int:
-        return self._port
+        return self._location.Port
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -73,19 +76,17 @@ class SSHConfig(Schema):
         :return: _description_
         :rtype: SSHConfig
         """
-        _host       : str                = cls._parseHost(unparsed_elements=unparsed_elements)
-        _port       : int                = cls._parsePort(unparsed_elements=unparsed_elements)
+        _location   : URLLocationSchema  = cls._parseLocation(unparsed_elements=unparsed_elements)
         _credential : PasswordCredential = cls._parseCredential(unparsed_elements=unparsed_elements)
 
-        return SSHConfig(name=name, ssh_host=_host, ssh_credential=_credential, ssh_port=_port, other_elements=unparsed_elements)
+        return SSHConfig(name=name, location=_location, ssh_credential=_credential, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "SSHConfig":
         return SSHConfig(
             name="DefaultSSHConfig",
-            ssh_host=cls._DEFAULT_HOST,
+            location=SSHConfig._DEFAULT_LOCATION,
             ssh_credential=SSHConfig._DEFAULT_CREDENTIAL,
-            ssh_port=cls._DEFAULT_PORT,
             other_elements={}
         )
 
@@ -96,24 +97,34 @@ class SSHConfig(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseHost(unparsed_elements:Map) -> str:
-        return SSHConfig.ParseElement(
+    def _parseLocation(unparsed_elements:Map) -> URLLocationSchema:
+        ret_val : URLLocationSchema
+
+        raw_host = SSHConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["SSH_HOST"],
             to_type=str,
             default_value=SSHConfig._DEFAULT_HOST,
             remove_target=True
         )
-
-    @staticmethod
-    def _parsePort(unparsed_elements:Map) -> int:
-        return SSHConfig.ParseElement(
+        raw_port = SSHConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["SSH_PORT"],
             to_type=int,
-            default_value=SSHConfig._DEFAULT_HOST,
+            default_value=SSHConfig._DEFAULT_PORT,
             remove_target=True
         )
+        if raw_host and raw_port:
+            ret_val = URLLocationSchema(
+                name      = "SSHHostLocation",
+                host_name = raw_host or URLLocationSchema._DEFAULT_HOST_NAME,
+                port      = raw_port or URLLocationSchema._DEFAULT_PORT,
+                path      = ""
+            )
+        else:
+            ret_val = URLLocationSchema.FromDict(name="SSHHostLocation", unparsed_elements=unparsed_elements)
+        
+        return ret_val
 
     @staticmethod
     def _parseCredential(unparsed_elements:Map) -> PasswordCredential:
