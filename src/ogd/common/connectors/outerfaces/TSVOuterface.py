@@ -21,7 +21,7 @@ from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.configs.generators.GeneratorCollectionConfig import GeneratorCollectionConfig
 from ogd.common.configs.IndexingConfig import FileIndexingConfig
-from ogd.common.schemas.events.EventCollectionSchema import EventCollectionSchema
+from ogd.common.schemas.events.LoggingSpecificationSchema import LoggingSpecificationSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
@@ -110,7 +110,7 @@ class TSVOuterface(DataOuterface):
             # if not in place, generate the readme
             Logger.Log(f"Missing readme for {self._game_id}, generating new readme...", logging.WARNING, depth=1)
             _games_path  = Path(games.__file__) if Path(games.__file__).is_dir() else Path(games.__file__).parent
-            event_collection     : EventCollectionSchema     = EventCollectionSchema.FromFile(game_id=self._game_id, schema_path=_games_path / self._game_id / "schemas")
+            event_collection     : LoggingSpecificationSchema     = LoggingSpecificationSchema.FromFile(game_id=self._game_id, schema_path=_games_path / self._game_id / "schemas")
             generator_collection : GeneratorCollectionConfig = GeneratorCollectionConfig.FromFile(game_id=self._game_id, schema_path=_games_path / self._game_id / "schemas")
             table_schema = TableSchema(schema_name=self._config.TableSchema)
             readme = Readme(event_collection=event_collection, generator_collection=generator_collection, table_schema=table_schema)

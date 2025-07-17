@@ -1,7 +1,7 @@
 __all__ = [
     "EventSchema",
-    "EventCollectionSchema"
+    "LoggingSpecificationSchema"
 ]
 
 from . import EventSchema
-from . import EventCollectionSchema
+from . import LoggingSpecificationSchema

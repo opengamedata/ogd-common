@@ -28,7 +28,7 @@ jobs:
         testbed: [
           test_DataElementSchema,
           test_EventSchema,
-          test_EventCollectionSchema,
+          test_LoggingSpecificationSchema,
           test_GameStateSchema
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
