@@ -149,15 +149,15 @@ class Schema(abc.ABC):
         :rtype: Any
         """
         ret_val : Any = default_value
-        decased_elements = {key.upper() : (val, key) for key,val in unparsed_elements.items()}
+        decased_elements = {key.upper() : (key, val) for key,val in unparsed_elements.items()}
 
         found = False
         for _name in valid_keys:
             name = _name.upper()
             if name in decased_elements:
-                value = decased_elements[name][0]
+                value = decased_elements[name][1]
                 if remove_target:
-                    original_key = decased_elements[name][1]
+                    original_key = decased_elements[name][0]
                     del unparsed_elements[original_key]
                 ret_val = conversions.ConvertToType(value=value, to_type=to_type, name=f"{cls.__name__} element {name}")
                 found = True
