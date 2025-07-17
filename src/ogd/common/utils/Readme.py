@@ -5,15 +5,15 @@ from pathlib import Path
 
 # import local files
 from ogd.common.configs.generators.GeneratorCollectionConfig import GeneratorCollectionConfig
-from ogd.common.schemas.events.EventCollectionSchema import EventCollectionSchema
+from ogd.common.schemas.events.EventCollectionSchema import LoggingSpecificationSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils.Logger import Logger
 
 class Readme:
-    def __init__(self, event_collection:EventCollectionSchema,
+    def __init__(self, event_collection:LoggingSpecificationSchema,
                  generator_collection:GeneratorCollectionConfig,
                  table_schema:TableSchema):
-        self._event_collection     : EventCollectionSchema     = event_collection
+        self._event_collection     : LoggingSpecificationSchema     = event_collection
         self._generator_collection : GeneratorCollectionConfig = generator_collection
         self._table_schema         : TableSchema               = table_schema
         self._custom_src           : str                       = self._getCustomSrc()

@@ -10,12 +10,14 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 ## @class EventCollectionSchema
-class EventCollectionSchema(Schema):
-    """A fairly simple class that reads a JSON schema with information on how a given
-    game's data is structured in the database, and the features we want to extract
-    for that game.
-    The class includes several functions for easy access to the various parts of
-    this schema data.
+class LoggingSpecificationSchema(Schema):
+    """Class for loading a game's logging specification file.
+
+    These contain information on the structure of the `game_state` and `user_data` elements logged with every event from the game,
+    as well as descriptions of each type of event the game logs.
+    Further, there is information on any de facto enums that are defined for portions of the log data
+    (i.e. sets of valid string values for a particular key in `game_state`, `user_data`, or `event_data`)
+    And finally, it specifies which logging version of the game is so documented, as well as the folder where the particular game's schema folder resides.
     """
     _DEFAULT_ENUMS = {}
     _DEFAULT_GAME_STATE = {}
@@ -148,7 +150,7 @@ class EventCollectionSchema(Schema):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "EventCollectionSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "LoggingSpecificationSchema":
         """_summary_
 
         :param name: _description_
@@ -169,14 +171,14 @@ class EventCollectionSchema(Schema):
 
         _used = {'enums', 'game_state', 'user_data', 'events', 'logging_version', 'log_version'}
         _leftovers = { key:val for key,val in unparsed_elements.items() if key not in _used }
-        return EventCollectionSchema(name=name, game_id=_game_id, enum_defs=_enum_defs,
+        return LoggingSpecificationSchema(name=name, game_id=_game_id, enum_defs=_enum_defs,
                           game_state=_game_state, user_data=_user_data,
                           event_list=_event_list, logging_version=_log_version,
                           other_elements=_leftovers)
 
     @classmethod
-    def Default(cls) -> "EventCollectionSchema":
-        return EventCollectionSchema(
+    def Default(cls) -> "LoggingSpecificationSchema":
+        return LoggingSpecificationSchema(
             name="DefaultEventCollectionSchema",
             game_id="DEFAULT_GAME",
             enum_defs=cls._DEFAULT_ENUMS,
@@ -190,7 +192,7 @@ class EventCollectionSchema(Schema):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, game_id:str, schema_path:Optional[Path] = None, search_templates:bool=True) -> "EventCollectionSchema":
+    def FromFile(cls, game_id:str, schema_path:Optional[Path] = None, search_templates:bool=True) -> "LoggingSpecificationSchema":
         """Function to get a EventCollectionSchema from a file
 
         :param game_id: _description_
@@ -207,7 +209,7 @@ class EventCollectionSchema(Schema):
         # Give schema_path a default, don't think we can use game_id to construct it directly in the function header (so do it here if None)
         schema_path = schema_path or cls._DEFAULT_GAME_FOLDER / game_id / "schemas"
         ret_val = cls._fromFile(schema_name=game_id, schema_path=schema_path, search_templates=search_templates)
-        if isinstance(ret_val, EventCollectionSchema):
+        if isinstance(ret_val, LoggingSpecificationSchema):
             return ret_val
         else:
             raise ValueError("The result of the class _fromFile function was not a EventCollectionSchema!")
@@ -229,17 +231,17 @@ class EventCollectionSchema(Schema):
         """
         ret_val : Dict[str, List[str]]
 
-        enums_list = EventCollectionSchema.ParseElement(
+        enums_list = LoggingSpecificationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["enums"],
             to_type=dict,
-            default_value=EventCollectionSchema._DEFAULT_ENUMS,
+            default_value=LoggingSpecificationSchema._DEFAULT_ENUMS,
             remove_target=True
         )
         if isinstance(enums_list, dict):
             ret_val = enums_list
         else:
-            ret_val = EventCollectionSchema._DEFAULT_ENUMS
+            ret_val = LoggingSpecificationSchema._DEFAULT_ENUMS
             Logger.Log(f"enums_list was unexpected type {type(enums_list)}, defaulting to {ret_val}.", logging.WARN)
         return ret_val
 
@@ -247,11 +249,11 @@ class EventCollectionSchema(Schema):
     def _parseGameState(unparsed_elements:Map) -> Dict[str, DataElementSchema]:
         ret_val : Dict[str, DataElementSchema]
 
-        game_state = EventCollectionSchema.ParseElement(
+        game_state = LoggingSpecificationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["game_state"],
             to_type=dict,
-            default_value=EventCollectionSchema._DEFAULT_GAME_STATE,
+            default_value=LoggingSpecificationSchema._DEFAULT_GAME_STATE,
             remove_target=True
         )
         ret_val = {
@@ -265,11 +267,11 @@ class EventCollectionSchema(Schema):
     def _parseUserData(unparsed_elements:Map) -> Dict[str, DataElementSchema]:
         ret_val : Dict[str, DataElementSchema]
 
-        user_data = EventCollectionSchema.ParseElement(
+        user_data = LoggingSpecificationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["user_data"],
             to_type=dict,
-            default_value=EventCollectionSchema._DEFAULT_USER_DATA,
+            default_value=LoggingSpecificationSchema._DEFAULT_USER_DATA,
             remove_target=True
         )
         ret_val = {
@@ -283,11 +285,11 @@ class EventCollectionSchema(Schema):
     def _parseEventList(unparsed_elements:Map) -> List[EventSchema]:
         ret_val : List[EventSchema]
 
-        events_list = EventCollectionSchema.ParseElement(
+        events_list = LoggingSpecificationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["events"],
             to_type=dict,
-            default_value=EventCollectionSchema._DEFAULT_EVENT_LIST,
+            default_value=LoggingSpecificationSchema._DEFAULT_EVENT_LIST,
             remove_target=True
         )
         ret_val = [
@@ -298,11 +300,11 @@ class EventCollectionSchema(Schema):
 
     @staticmethod
     def _parseLogVersion(unparsed_elements:Map) -> int:
-        return EventCollectionSchema.ParseElement(
+        return LoggingSpecificationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["logging_version", "log_version"],
             to_type=int,
-            default_value=EventCollectionSchema._DEFAULT_LOG_VERSION,
+            default_value=LoggingSpecificationSchema._DEFAULT_LOG_VERSION,
             remove_target=True
         )
 
