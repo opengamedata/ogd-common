@@ -13,12 +13,12 @@ class Readme:
     def __init__(self, event_collection:LoggingSpecificationSchema,
                  generator_collection:GeneratorCollectionConfig,
                  table_schema:TableSchema):
-        self._event_collection     : LoggingSpecificationSchema     = event_collection
-        self._generator_collection : GeneratorCollectionConfig = generator_collection
-        self._table_schema         : TableSchema               = table_schema
-        self._custom_src           : str                       = self._getCustomSrc()
-        self._dataset_meta         : str                       = self._getDatasetMetadata()
-        self._changelog            : str                       = self._getDatabaseChangelog()
+        self._event_collection     : LoggingSpecificationSchema = event_collection
+        self._generator_collection : GeneratorCollectionConfig  = generator_collection
+        self._table_schema         : TableSchema                = table_schema
+        self._custom_src           : str                        = self._getCustomSrc()
+        self._dataset_meta         : str                        = self._getDatasetMetadata()
+        self._changelog            : str                        = self._getDatabaseChangelog()
 
     @property
     def GameName(self):
