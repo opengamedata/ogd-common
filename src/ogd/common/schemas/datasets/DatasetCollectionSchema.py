@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 # ogd imports
-from ogd.common.configs.datasets.DatasetCollectionConfig import DatasetCollectionConfig
+from ogd.common.configs.datasets.DatasetCollectionConfig import DatasetRepositoryConfig
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.datasets.GameDatasetCollectionSchema import GameDatasetCollectionSchema
 from ogd.common.utils.Logger import Logger
@@ -24,9 +24,9 @@ class DatasetCollectionSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, game_file_lists:Dict[str, GameDatasetCollectionSchema], file_list_config:DatasetCollectionConfig, other_elements:Dict[str, Any]):
+    def __init__(self, name:str, game_file_lists:Dict[str, GameDatasetCollectionSchema], file_list_config:DatasetRepositoryConfig, other_elements:Dict[str, Any]):
         self._games_file_lists : Dict[str, GameDatasetCollectionSchema] = game_file_lists
-        self._config           : DatasetCollectionConfig                = file_list_config
+        self._config           : DatasetRepositoryConfig                = file_list_config
 
         super().__init__(name=name, other_elements={})
 
@@ -37,7 +37,7 @@ class DatasetCollectionSchema(Schema):
     def Games(self) -> Dict[str, GameDatasetCollectionSchema]:
         return self._games_file_lists
     @property
-    def Config(self) -> DatasetCollectionConfig:
+    def Config(self) -> DatasetRepositoryConfig:
         return self._config
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -49,7 +49,7 @@ class DatasetCollectionSchema(Schema):
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetCollectionSchema":
-        _config           : DatasetCollectionConfig                = cls._parseConfig(name=f"{name}Config", unparsed_elements=unparsed_elements)
+        _config           : DatasetRepositoryConfig                = cls._parseConfig(name=f"{name}Config", unparsed_elements=unparsed_elements)
         _games_file_lists : Dict[str, GameDatasetCollectionSchema] = cls._parseGamesFileLists(unparsed_elements=unparsed_elements)
 
         return DatasetCollectionSchema(name=name, game_file_lists=_games_file_lists, file_list_config=_config, other_elements={})
@@ -59,7 +59,7 @@ class DatasetCollectionSchema(Schema):
         return DatasetCollectionSchema(
             name="DefaultDatasetCollectionSchema",
             game_file_lists=cls._DEFAULT_GAME_FILE_LISTS,
-            file_list_config=DatasetCollectionConfig.Default(),
+            file_list_config=DatasetRepositoryConfig.Default(),
             other_elements={}
         )
 
@@ -70,20 +70,20 @@ class DatasetCollectionSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseConfig(name:str, unparsed_elements:Map) -> DatasetCollectionConfig:
-        ret_val : DatasetCollectionConfig
+    def _parseConfig(name:str, unparsed_elements:Map) -> DatasetRepositoryConfig:
+        ret_val : DatasetRepositoryConfig
 
-        _config_elem = DatasetCollectionConfig.ParseElement(
+        _config_elem = DatasetRepositoryConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["CONFIG"],
             to_type=dict,
-            default_value=DatasetCollectionConfig.Default(),
+            default_value=DatasetRepositoryConfig.Default(),
             remove_target=True
         )
         # If parse gave us back a dict, then we pass it into the FromDict for config,
         # else assume it was the default value we can return directly.
         if isinstance(_config_elem, dict):
-            ret_val = DatasetCollectionConfig.FromDict(name=name, unparsed_elements=_config_elem)
+            ret_val = DatasetRepositoryConfig.FromDict(name=name, unparsed_elements=_config_elem)
         else:
             ret_val = _config_elem
 

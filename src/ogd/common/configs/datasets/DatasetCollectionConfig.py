@@ -9,7 +9,7 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 # Simple Config-y class to track the base URLs/paths for a list of files and/or file templates.
-class DatasetCollectionConfig(Config):
+class DatasetRepositoryConfig(Config):
     """Simple Config-y class to track the base URLs/paths for a list of files and/or file templates.
 
     This is a separate class from DatasetCollectionSchema because this config exists as its own sub-element of a `file_list.json` file.
@@ -51,7 +51,7 @@ class DatasetCollectionConfig(Config):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetCollectionConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetRepositoryConfig":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -61,20 +61,20 @@ class DatasetCollectionConfig(Config):
         :param unparsed_elements: _description_
         :type unparsed_elements: Dict[str, Any]
         :return: _description_
-        :rtype: DatasetCollectionConfig
+        :rtype: DatasetRepositoryConfig
         """
         _files_base     : Optional[str] = cls._parseFilesBase(unparsed_elements=unparsed_elements)
         _templates_base : Optional[str] = cls._parseTemplatesBase(unparsed_elements=unparsed_elements)
 
         _used = {"files_base", "templates_base"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return DatasetCollectionConfig(name=name, file_base_path=_files_base, template_base_path=_templates_base, other_elements=_leftovers)
+        return DatasetRepositoryConfig(name=name, file_base_path=_files_base, template_base_path=_templates_base, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def Default(cls) -> "DatasetCollectionConfig":
-        return DatasetCollectionConfig(
+    def Default(cls) -> "DatasetRepositoryConfig":
+        return DatasetRepositoryConfig(
             name="CONFIG NOT FOUND",
             file_base_path=cls._DEFAULT_FILE_BASE,
             template_base_path=cls._DEFAULT_TEMPLATE_BASE,
@@ -87,21 +87,21 @@ class DatasetCollectionConfig(Config):
 
     @staticmethod
     def _parseFilesBase(unparsed_elements:Map) -> str:
-        return DatasetCollectionConfig.ParseElement(
+        return DatasetRepositoryConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["files_base"],
             to_type=str,
-            default_value=DatasetCollectionConfig._DEFAULT_FILE_BASE,
+            default_value=DatasetRepositoryConfig._DEFAULT_FILE_BASE,
             remove_target=True
         )
 
     @staticmethod
     def _parseTemplatesBase(unparsed_elements:Map) -> str:
-        return DatasetCollectionConfig.ParseElement(
+        return DatasetRepositoryConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["templates_base"],
             to_type=str,
-            default_value=DatasetCollectionConfig._DEFAULT_TEMPLATE_BASE,
+            default_value=DatasetRepositoryConfig._DEFAULT_TEMPLATE_BASE,
             remove_target=True
         )
 
