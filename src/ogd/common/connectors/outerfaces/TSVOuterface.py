@@ -21,7 +21,7 @@ from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.configs.GameSourceSchema import GameSourceSchema
 from ogd.common.configs.generators.GeneratorCollectionConfig import GeneratorCollectionConfig
 from ogd.common.configs.IndexingConfig import FileIndexingConfig
-from ogd.common.schemas.events.EventCollectionSchema import LoggingSpecificationSchema
+from ogd.common.schemas.events.LoggingSpecificationSchema import LoggingSpecificationSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger

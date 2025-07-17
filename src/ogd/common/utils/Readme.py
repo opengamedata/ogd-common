@@ -5,7 +5,7 @@ from pathlib import Path
 
 # import local files
 from ogd.common.configs.generators.GeneratorCollectionConfig import GeneratorCollectionConfig
-from ogd.common.schemas.events.EventCollectionSchema import LoggingSpecificationSchema
+from ogd.common.schemas.events.LoggingSpecificationSchema import LoggingSpecificationSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils.Logger import Logger
 

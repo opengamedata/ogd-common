@@ -9,7 +9,7 @@ from ogd.common.schemas.events.EventSchema import EventSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
-## @class EventCollectionSchema
+## @class LoggingSpecificationSchema
 class LoggingSpecificationSchema(Schema):
     """Class for loading a game's logging specification file.
 
@@ -31,7 +31,7 @@ class LoggingSpecificationSchema(Schema):
     def __init__(self, name:str, game_id:str, enum_defs:Dict[str, List[str]],
                  game_state:Map, user_data:Map, event_list:List[EventSchema],
                  logging_version:int, other_elements:Optional[Map]=None):
-        """Constructor for the EventCollectionSchema class.
+        """Constructor for the LoggingSpecificationSchema class.
 
         :param name: _description_
         :type name: str
@@ -160,7 +160,7 @@ class LoggingSpecificationSchema(Schema):
         :raises ValueError: _description_
         :raises ValueError: _description_
         :return: _description_
-        :rtype: EventCollectionSchema
+        :rtype: LoggingSpecificationSchema
         """
         _game_id     : str                  = name
         _enum_defs   : Dict[str, List[str]] = cls._parseEnumDefs(unparsed_elements=unparsed_elements)
@@ -179,7 +179,7 @@ class LoggingSpecificationSchema(Schema):
     @classmethod
     def Default(cls) -> "LoggingSpecificationSchema":
         return LoggingSpecificationSchema(
-            name="DefaultEventCollectionSchema",
+            name="DefaultLoggingSpecificationSchema",
             game_id="DEFAULT_GAME",
             enum_defs=cls._DEFAULT_ENUMS,
             game_state=cls._DEFAULT_GAME_STATE,
@@ -193,7 +193,7 @@ class LoggingSpecificationSchema(Schema):
 
     @classmethod
     def FromFile(cls, game_id:str, schema_path:Optional[Path] = None, search_templates:bool=True) -> "LoggingSpecificationSchema":
-        """Function to get a EventCollectionSchema from a file
+        """Function to get a LoggingSpecificationSchema from a file
 
         :param game_id: _description_
         :type game_id: str
@@ -203,7 +203,7 @@ class LoggingSpecificationSchema(Schema):
         :type search_templates: bool, optional
         :raises ValueError: _description_
         :return: _description_
-        :rtype: EventCollectionSchema
+        :rtype: LoggingSpecificationSchema
         """
         ret_val : Schema
         # Give schema_path a default, don't think we can use game_id to construct it directly in the function header (so do it here if None)
@@ -212,7 +212,7 @@ class LoggingSpecificationSchema(Schema):
         if isinstance(ret_val, LoggingSpecificationSchema):
             return ret_val
         else:
-            raise ValueError("The result of the class _fromFile function was not a EventCollectionSchema!")
+            raise ValueError("The result of the class _fromFile function was not a LoggingSpecificationSchema!")
 
     # *** PUBLIC METHODS ***
 

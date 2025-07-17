@@ -6,12 +6,12 @@ from unittest import TestCase
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.schemas.events.EventCollectionSchema import LoggingSpecificationSchema
+from src.ogd.common.schemas.events.LoggingSpecificationSchema import LoggingSpecificationSchema
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
-class test_EventCollectionSchema(TestCase):
-    """Testbed for the EventCollectionSchema class.
+class test_LoggingSpecificationSchema(TestCase):
+    """Testbed for the LoggingSpecificationSchema class.
 
         TODO : Implement and enable tests.
     """
