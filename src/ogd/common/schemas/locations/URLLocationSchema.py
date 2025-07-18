@@ -1,10 +1,8 @@
 ## import standard libraries
-import logging
-from urllib.parse import urlparse, urlunparse
-from typing import Any, Dict, Optional, Tuple
+from urllib.parse import urlparse
+from typing import Dict, List, Optional, Tuple
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 ## @class TableStructureSchema
@@ -99,7 +97,7 @@ class URLLocationSchema(LocationSchema):
         _path : Optional[str]
 
         # 1. First, we try to get as a URL from dict as first try. If it returns something, then we've got it.
-        url = cls._parseURL(unparsed_elements=unparsed_elements)
+        url = cls._parseURL(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
         _used = {"URL", "url"}
         if url:
             _host = url[0]
@@ -107,9 +105,9 @@ class URLLocationSchema(LocationSchema):
             _path = url[2]
         # 2. If there wasn't a URL element, then we move on to just parse host and path from dict directly.
         else:
-            _host = cls._parseHost(unparsed_elements=unparsed_elements)
-            _port = cls._parsePort(unparsed_elements=unparsed_elements)
-            _path = cls._parsePath(unparsed_elements=unparsed_elements)
+            _host = cls._parseHost(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+            _port = cls._parsePort(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+            _path = cls._parsePath(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
             _used = _used.union({"host", "port", "path"})
 
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
@@ -122,7 +120,7 @@ class URLLocationSchema(LocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseURL(unparsed_elements:Map) -> Optional[Tuple[str, int, str]]:
+    def _parseURL(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> Optional[Tuple[str, int, str]]:
         """Attempt to parse from a straight-up URL element.
 
         :param unparsed_elements: _description_
@@ -132,9 +130,11 @@ class URLLocationSchema(LocationSchema):
         """
         ret_val : Optional[Tuple[str, int, str]] = None
 
+        default_keys : List[str] = ["url"]
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
         raw_url = URLLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["URL", "url"],
+            valid_keys=search_keys,
             to_type=str,
             default_value=None, # default to None, if it doesn't exist we return None
             remove_target=True
@@ -146,30 +146,36 @@ class URLLocationSchema(LocationSchema):
         return ret_val
 
     @staticmethod
-    def _parseHost(unparsed_elements:Map) -> str:
+    def _parseHost(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> str:
+        default_keys : List[str] = ["host"]
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
         return URLLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["host"],
+            valid_keys=search_keys,
             to_type=str,
             default_value=URLLocationSchema._DEFAULT_HOST_NAME,
             remove_target=True
         )
 
     @staticmethod
-    def _parsePort(unparsed_elements:Map) -> int:
+    def _parsePort(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> int:
+        default_keys : List[str] = ["port"]
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
         return URLLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["port"],
+            valid_keys=search_keys,
             to_type=int,
             default_value=URLLocationSchema._DEFAULT_PORT,
             remove_target=True
         )
 
     @staticmethod
-    def _parsePath(unparsed_elements:Map) -> str:
+    def _parsePath(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> str:
+        default_keys : List[str] = ["path"]
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
         return URLLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["path"],
+            valid_keys=search_keys,
             to_type=str,
             default_value=URLLocationSchema._DEFAULT_PATH,
             remove_target=True

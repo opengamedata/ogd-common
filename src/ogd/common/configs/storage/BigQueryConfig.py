@@ -5,6 +5,7 @@ from typing import Dict, Optional
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.KeyCredentialConfig import KeyCredential
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
+from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
 from ogd.common.utils.typing import Map
 
 class BigQueryConfig(DataStoreConfig):
@@ -141,7 +142,7 @@ class BigQueryConfig(DataStoreConfig):
         if isinstance(raw_credential, dict):
             ret_val = KeyCredential.FromDict(name="KeyCredential", unparsed_elements=raw_credential)
         elif isinstance(raw_credential, str):
-            ret_val = KeyCredential(name="KeyCredential", filename=raw_credential, path=Path("./"), other_elements=None)
+            ret_val = KeyCredential(name="BigQueryConfigCredential", location=FileLocationSchema.FromDict(name="BQCredentialLocation", unparsed_elements={"file":raw_credential}), other_elements=None)
         return ret_val
 
     # *** PRIVATE METHODS ***
