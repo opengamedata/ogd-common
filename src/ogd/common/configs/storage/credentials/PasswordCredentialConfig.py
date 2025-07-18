@@ -1,5 +1,5 @@
 # import standard libraries
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.utils.typing import Map
@@ -49,8 +49,8 @@ class PasswordCredential(CredentialConfig):
         :return: _description_
         :rtype: PasswordCredential
         """
-        _user : str           = cls._parseUser(unparsed_elements=unparsed_elements)
-        _pass : Optional[str] = cls._parsePass(unparsed_elements=unparsed_elements)
+        _user : str           = cls._parseUser(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+        _pass : Optional[str] = cls._parsePass(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
 
         return PasswordCredential(name=name, username=_user, password=_pass, other_elements=unparsed_elements)
 
@@ -70,20 +70,26 @@ class PasswordCredential(CredentialConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseUser(unparsed_elements:Map) -> str:
+    def _parseUser(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> str:
+        default_keys : List[str] = ["USER"]
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+
         return PasswordCredential.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["USER"],
+            valid_keys=search_keys,
             to_type=str,
             default_value=PasswordCredential._DEFAULT_USER,
             remove_target=True
         )
 
     @staticmethod
-    def _parsePass(unparsed_elements:Map) -> str:
+    def _parsePass(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> str:
+        default_keys : List[str] = ["PASS", "PASSWORD", "PW"]
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+
         return PasswordCredential.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["PASS", "PASSWORD", "PW"],
+            valid_keys=search_keys,
             to_type=str,
             default_value=PasswordCredential._DEFAULT_PASS,
             remove_target=True

@@ -1,6 +1,6 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.utils.Logger import Logger
@@ -62,8 +62,7 @@ class KeyCredential(CredentialConfig):
                     Logger.Log(f"Could not read key file at {self.Filepath}, an I/O error occurred!")
         except FileNotFoundError:
             Logger.Log(f"Could not open key file {self.Filepath}, the file does not exist!")
-        finally:
-            return ret_val
+        return ret_val
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -121,20 +120,26 @@ class KeyCredential(CredentialConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseFilename(unparsed_elements:Map) -> str:
+    def _parseFilename(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> str:
+        default_keys : List[str] = ["FILE", "KEY"]
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+
         return KeyCredential.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["FILE", "KEY"],
+            valid_keys=search_keys,
             to_type=str,
             default_value=KeyCredential._DEFAULT_FILE,
             remove_target=True
         )
 
     @staticmethod
-    def _parsePath(unparsed_elements:Map) -> Path:
+    def _parsePath(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> Path:
+        default_keys : List[str] = ["PATH"]
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+
         return KeyCredential.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["PATH"],
+            valid_keys=search_keys,
             to_type=Path,
             default_value=KeyCredential._DEFAULT_PATH,
             remove_target=True
