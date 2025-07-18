@@ -1,9 +1,7 @@
 # import standard libraries
-import logging
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 # import local files
 from ogd.common.configs.Config import Config
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 class EmptyCredential(Config):

@@ -1,29 +1,33 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
+from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 class KeyCredential(CredentialConfig):
     """Dumb struct to contain data pertaining to loading a key credential
     """
-    _DEFAULT_PATH = "./"
+    _DEFAULT_PATH = Path("./")
     _DEFAULT_FILE = "key.txt"
+    _DEFAULT_LOCATION = FileLocationSchema(
+        name="KeyCredentialDefaultLocation",
+        folder_path=_DEFAULT_PATH,
+        filename=_DEFAULT_FILE,
+        other_elements=None
+    )
 
-    def __init__(self, name:str, filename:str, path:Path | str, other_elements:Optional[Map]):
+    def __init__(self, name:str, location:FileLocationSchema, other_elements:Optional[Map]):
         unparsed_elements : Map = other_elements or {}
 
-        if isinstance(path, str):
-            path = Path(path)
-        self._path : Path = path     or self._parsePath(unparsed_elements=unparsed_elements)
-        self._file : str  = filename or self._parseFilename(unparsed_elements=unparsed_elements)
+        self._location : FileLocationSchema = location or self._parseLocation(unparsed_elements=unparsed_elements)
         super().__init__(name=name, other_elements=unparsed_elements)
 
     @property
     def Filename(self) -> str:
-        return self._file
+        return self._location.Filename
 
     @property
     def Folder(self) -> Path:
@@ -32,7 +36,7 @@ class KeyCredential(CredentialConfig):
         :return: The path to the folder containing the key credential file.
         :rtype: Path
         """
-        return self._path
+        return self._location.Folder
 
     @property
     def Filepath(self) -> Path:
@@ -41,7 +45,7 @@ class KeyCredential(CredentialConfig):
         :return: The full path to the key credential file.
         :rtype: Path
         """
-        return self.Folder / self.Filename
+        return self._location.Filepath
 
     @property
     def Key(self) -> Optional[str]:
@@ -62,8 +66,7 @@ class KeyCredential(CredentialConfig):
                     Logger.Log(f"Could not read key file at {self.Filepath}, an I/O error occurred!")
         except FileNotFoundError:
             Logger.Log(f"Could not open key file {self.Filepath}, the file does not exist!")
-        finally:
-            return ret_val
+        return ret_val
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -93,24 +96,15 @@ class KeyCredential(CredentialConfig):
         :return: _description_
         :rtype: KeyCredential
         """
-        _file : Optional[str]  = cls._parseFilename(unparsed_elements=unparsed_elements)
-        _path : Optional[Path] = cls._parsePath(unparsed_elements=unparsed_elements)
+        _location : FileLocationSchema = cls._parseLocation(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
 
-        # if we didn't find a PATH, but the FILE has a '/' in it,
-        # we should be able to get file separate from path.
-        if _path is None and _file is not None and "/" in _file:
-            _full_path = Path(_file)
-            _path = _full_path.parent
-            _file = _full_path.name
-
-        return KeyCredential(name=name, filename=_file, path=_path, other_elements=unparsed_elements)
+        return KeyCredential(name=name, location=_location, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "KeyCredential":
         return KeyCredential(
             name="DefaultKeyCredential",
-            filename=cls._DEFAULT_FILE,
-            path=cls._DEFAULT_PATH,
+            location=cls._DEFAULT_LOCATION,
             other_elements={}
         )
 
@@ -121,23 +115,10 @@ class KeyCredential(CredentialConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseFilename(unparsed_elements:Map) -> str:
-        return KeyCredential.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["FILE", "KEY"],
-            to_type=str,
-            default_value=KeyCredential._DEFAULT_FILE,
-            remove_target=True
-        )
+    def _parseLocation(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> FileLocationSchema:
+        default_overrides : Dict[str, str] = {"file" : "key"}
+        final_overrides   : Dict[str, str] = default_overrides | (key_overrides or {})
 
-    @staticmethod
-    def _parsePath(unparsed_elements:Map) -> Path:
-        return KeyCredential.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["PATH"],
-            to_type=Path,
-            default_value=KeyCredential._DEFAULT_PATH,
-            remove_target=True
-        )
+        return FileLocationSchema.FromDict(name="KeyCredentialLocation", unparsed_elements=unparsed_elements, key_overrides=final_overrides)
 
     # *** PRIVATE METHODS ***

@@ -1,9 +1,7 @@
 ## import standard libraries
-import logging
-from typing import Any, Dict, Optional
+from typing import Dict, List, Optional
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 ## @class TableStructureSchema
@@ -78,8 +76,8 @@ class DatabaseLocationSchema(LocationSchema):
         :return: _description_
         :rtype: GameSourceSchema
         """
-        _table_name : Optional[str] = cls._parseTableName(unparsed_elements=unparsed_elements)
-        _db_name    : str = cls._parseDatabaseName(unparsed_elements=unparsed_elements)
+        _table_name : Optional[str] = cls._parseTableName(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+        _db_name    : str           = cls._parseDatabaseName(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
 
         _used = {"table", "database"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
@@ -92,20 +90,24 @@ class DatabaseLocationSchema(LocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseTableName(unparsed_elements:Map) -> Optional[str]:
+    def _parseTableName(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> Optional[str]:
+        default_keys : List[str] = ["table"]
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
         return DatabaseLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["table"],
+            valid_keys=search_keys,
             to_type=str,
             default_value=DatabaseLocationSchema._DEFAULT_TABLE_NAME,
             remove_target=True
         )
 
     @staticmethod
-    def _parseDatabaseName(unparsed_elements:Map) -> str:
+    def _parseDatabaseName(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> str:
+        default_keys : List[str] = ["database"]
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
         return DatabaseLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["database"],
+            valid_keys=search_keys,
             to_type=str,
             default_value=DatabaseLocationSchema._DEFAULT_DB_NAME,
             remove_target=True
