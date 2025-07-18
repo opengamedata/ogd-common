@@ -3,22 +3,26 @@ from pathlib import Path
 from typing import Dict, List, Optional
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
+from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 class KeyCredential(CredentialConfig):
     """Dumb struct to contain data pertaining to loading a key credential
     """
-    _DEFAULT_PATH = "./"
+    _DEFAULT_PATH = Path("./")
     _DEFAULT_FILE = "key.txt"
+    _DEFAULT_LOCATION = FileLocationSchema(
+        name="KeyCredentialDefaultLocation",
+        folder_path=_DEFAULT_PATH,
+        filename=_DEFAULT_FILE,
+        other_elements=None
+    )
 
-    def __init__(self, name:str, filename:str, path:Path | str, other_elements:Optional[Map]):
+    def __init__(self, name:str, location:FileLocationSchema, other_elements:Optional[Map]):
         unparsed_elements : Map = other_elements or {}
 
-        if isinstance(path, str):
-            path = Path(path)
-        self._path : Path = path     or self._parsePath(unparsed_elements=unparsed_elements)
-        self._file : str  = filename or self._parseFilename(unparsed_elements=unparsed_elements)
+        self._location : FileLocationSchema = location or self._parseLocation()
         super().__init__(name=name, other_elements=unparsed_elements)
 
     @property
@@ -92,24 +96,15 @@ class KeyCredential(CredentialConfig):
         :return: _description_
         :rtype: KeyCredential
         """
-        _file : Optional[str]  = cls._parseFilename(unparsed_elements=unparsed_elements)
-        _path : Optional[Path] = cls._parsePath(unparsed_elements=unparsed_elements)
+        _location : FileLocationSchema = cls._parseLocation(unparsed_elements=unparsed_elements)
 
-        # if we didn't find a PATH, but the FILE has a '/' in it,
-        # we should be able to get file separate from path.
-        if _path is None and _file is not None and "/" in _file:
-            _full_path = Path(_file)
-            _path = _full_path.parent
-            _file = _full_path.name
-
-        return KeyCredential(name=name, filename=_file, path=_path, other_elements=unparsed_elements)
+        return KeyCredential(name=name, location=_location, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "KeyCredential":
         return KeyCredential(
             name="DefaultKeyCredential",
-            filename=cls._DEFAULT_FILE,
-            path=cls._DEFAULT_PATH,
+            location=cls._DEFAULT_LOCATION,
             other_elements={}
         )
 
@@ -120,29 +115,7 @@ class KeyCredential(CredentialConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseFilename(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> str:
-        default_keys : List[str] = ["FILE", "KEY"]
-        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
-
-        return KeyCredential.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=search_keys,
-            to_type=str,
-            default_value=KeyCredential._DEFAULT_FILE,
-            remove_target=True
-        )
-
-    @staticmethod
-    def _parsePath(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> Path:
-        default_keys : List[str] = ["PATH"]
-        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
-
-        return KeyCredential.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=search_keys,
-            to_type=Path,
-            default_value=KeyCredential._DEFAULT_PATH,
-            remove_target=True
-        )
+    def _parseLocation(unparsed_elements:Map) -> FileLocationSchema:
+        return FileLocationSchema.FromDict(name="KeyCredentialLocation", unparsed_elements=unparsed_elements, key_overrides={"file" : "key"})
 
     # *** PRIVATE METHODS ***

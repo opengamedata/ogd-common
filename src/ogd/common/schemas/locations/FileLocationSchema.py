@@ -20,12 +20,15 @@ class FileLocationSchema(LocationSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, folder_path:Path, filename:str, other_elements:Optional[Map]):
+    def __init__(self, name:str, folder_path:Path | str, filename:str, other_elements:Optional[Map]):
         unparsed_elements : Map = other_elements or {}
 
         self._folder_path  : Path
         self._filename     : str
 
+
+        if isinstance(folder_path, str):
+            folder_path = Path(folder_path)
         # 1. If we got both params, then just use them.
         if folder_path and filename:
             self._folder_path = folder_path
@@ -111,6 +114,11 @@ class FileLocationSchema(LocationSchema):
         else:
             _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
             _filename    = cls._parseFilename(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+            # if we didn't find a folder, but the file has a '/' in it, we should be able to get file separate from path.
+            if _folder_path is None and _filename is not None and "/" in _filename:
+                _full_path = Path(_filename)
+                _folder_path = _full_path.parent
+                _filename    = _full_path.name
             _used = _used.union({"folder", "filename", "file"})
 
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
