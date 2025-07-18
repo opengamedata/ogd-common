@@ -20,10 +20,10 @@ class DatasetCollectionSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, game_datasets:Dict[str, DatasetSchema], other_elements:Dict[str, Any]):
+    def __init__(self, name:str, datasets:Dict[str, DatasetSchema], other_elements:Dict[str, Any]):
         unparsed_elements : Map = other_elements or {}
 
-        self._game_datasets : Dict[str, DatasetSchema] = game_datasets or self._parseDatasets(unparsed_elements=unparsed_elements)
+        self._datasets : Dict[str, DatasetSchema] = datasets or self._parseDatasets(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements={})
 
@@ -32,7 +32,7 @@ class DatasetCollectionSchema(Schema):
 
     @property
     def Datasets(self) -> Dict[str, DatasetSchema]:
-        return self._game_datasets
+        return self._datasets
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -56,7 +56,7 @@ class DatasetCollectionSchema(Schema):
         """
         _game_datasets : Dict[str, DatasetSchema] = cls._parseDatasets(unparsed_elements=unparsed_elements)
 
-        return DatasetCollectionSchema(name=name, game_datasets=_game_datasets, other_elements={})
+        return DatasetCollectionSchema(name=name, datasets=_game_datasets, other_elements={})
 
     # *** PUBLIC STATICS ***
 
@@ -64,7 +64,7 @@ class DatasetCollectionSchema(Schema):
     def Default(cls) -> "DatasetCollectionSchema":
         return DatasetCollectionSchema(
             name="DefaultDatasetCollectionSchema",
-            game_datasets=cls._DEFAULT_DATASETS,
+            datasets=cls._DEFAULT_DATASETS,
             other_elements={}
         )
 
