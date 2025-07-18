@@ -8,7 +8,7 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 ## @class TableStructureSchema
-class FolderLocationSchema(LocationSchema):
+class DirectoryLocationSchema(LocationSchema):
     """Class to encode the location of data within a database resource.
 
     Generally, the location of a database system would be a URLLocation,
@@ -48,15 +48,15 @@ class FolderLocationSchema(LocationSchema):
         return ret_val
 
     @classmethod
-    def Default(cls) -> "FolderLocationSchema":
-        return FolderLocationSchema(
+    def Default(cls) -> "DirectoryLocationSchema":
+        return DirectoryLocationSchema(
             name="DefaultFolderLocation",
             folder_path=cls._DEFAULT_PATH,
             other_elements={}
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "FolderLocationSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "DirectoryLocationSchema":
         """Create a DatabaseLocationSchema from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -77,7 +77,7 @@ class FolderLocationSchema(LocationSchema):
         _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements)
         _used = {"folder", "path"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return FolderLocationSchema(name=name, folder_path=_folder_path, other_elements=_leftovers)
+        return DirectoryLocationSchema(name=name, folder_path=_folder_path, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
 
@@ -90,10 +90,10 @@ class FolderLocationSchema(LocationSchema):
         default_keys : List[str] = ["folder", "path"]
         search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
 
-        return FolderLocationSchema.ParseElement(
+        return DirectoryLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=Path,
-            default_value=FolderLocationSchema._DEFAULT_PATH,
+            default_value=DirectoryLocationSchema._DEFAULT_PATH,
             remove_target=True
         )
