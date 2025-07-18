@@ -1,7 +1,7 @@
 ## import standard libraries
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.Logger import Logger
@@ -102,15 +102,15 @@ class FileLocationSchema(LocationSchema):
         _filename    : str
 
         # 2. Otherwise, try to get as full path as first try. If it return something, then we've got what we need.
-        parsed_path = cls._parsePath(unparsed_elements=unparsed_elements)
+        parsed_path = cls._parsePath(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
         _used = {"path"}
         if parsed_path:
             _folder_path = parsed_path[0]
             _filename    = parsed_path[1]
         # 3. If there wasn't a full path, then we move on to just parse folder and filename from dict directly.
         else:
-            _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements)
-            _filename    = cls._parseFilename(unparsed_elements=unparsed_elements)
+            _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+            _filename    = cls._parseFilename(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
             _used = _used.union({"folder", "filename", "file"})
 
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
@@ -123,7 +123,7 @@ class FileLocationSchema(LocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parsePath(unparsed_elements:Map, keys:List[str]=["path"]) -> Optional[Tuple[Path, str]]:
+    def _parsePath(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> Optional[Tuple[Path, str]]:
         """Function to parse a full path into a folder and filename
 
         :param unparsed_elements: _description_
@@ -133,9 +133,12 @@ class FileLocationSchema(LocationSchema):
         """
         ret_val = None
 
+        default_keys : List[str] = ["path"]
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+
         raw_path = FileLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=keys,
+            valid_keys=search_keys,
             to_type=Path,
             default_value=None,
             remove_target=True
@@ -150,20 +153,24 @@ class FileLocationSchema(LocationSchema):
         return ret_val
 
     @staticmethod
-    def _parseFolderPath(unparsed_elements:Map, keys:List[str]=["folder", "path", "PATH"]) -> Path:
+    def _parseFolderPath(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> Path:
+        default_keys : List[str] = ["folder", "path"]
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
         return FileLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=keys,
+            valid_keys=search_keys,
             to_type=Path,
             default_value=FileLocationSchema._DEFAULT_PATH,
             remove_target=True
         )
 
     @staticmethod
-    def _parseFilename(unparsed_elements:Map, keys:List[str]=["filename", "FILENAME", "file", "FILE"]) -> str:
+    def _parseFilename(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> str:
+        default_keys : List[str] = ["filename", "file"]
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
         return FileLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=keys,
+            valid_keys=search_keys,
             to_type=str,
             default_value=FileLocationSchema._DEFAULT_FILENAME,
             remove_target=True
