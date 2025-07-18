@@ -22,7 +22,7 @@ class FolderLocationSchema(LocationSchema):
     def __init__(self, name:str, folder_path:Path, other_elements:Optional[Map]):
         unparsed_elements : Map = other_elements or {}
 
-        self._folder_path = folder_path or self._parsePath(unparsed_elements=unparsed_elements)
+        self._folder_path = folder_path or self._parseFolderPath(unparsed_elements=unparsed_elements)
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -89,6 +89,7 @@ class FolderLocationSchema(LocationSchema):
     def _parseFolderPath(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> Path:
         default_keys : List[str] = ["folder", "path"]
         search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+
         return FolderLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
