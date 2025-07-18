@@ -64,7 +64,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
 
         self._files_base     : BaseLocation = files_base     or self._parseFilesBase(unparsed_elements=unparsed_elements)
         self._templates_base : BaseLocation = templates_base or self._parseTemplatesBase(unparsed_elements=unparsed_elements)
-        self._datasets       : Dict[str, DatasetCollectionSchema] = datasets or self._parseDatasetCollections(unparsed_elements=unparsed_elements)
+        self._datasets       : Dict[str, DatasetCollectionSchema] = datasets or self._parseDatasets(unparsed_elements=unparsed_elements)
         super().__init__(name=name, store_type="Repository", other_elements=other_elements)
 
     def __str__(self) -> str:
