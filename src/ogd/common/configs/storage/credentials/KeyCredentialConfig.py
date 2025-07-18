@@ -22,12 +22,12 @@ class KeyCredential(CredentialConfig):
     def __init__(self, name:str, location:FileLocationSchema, other_elements:Optional[Map]):
         unparsed_elements : Map = other_elements or {}
 
-        self._location : FileLocationSchema = location or self._parseLocation()
+        self._location : FileLocationSchema = location or self._parseLocation(unparsed_elements=unparsed_elements)
         super().__init__(name=name, other_elements=unparsed_elements)
 
     @property
     def Filename(self) -> str:
-        return self._file
+        return self._location.Filename
 
     @property
     def Folder(self) -> Path:
@@ -36,7 +36,7 @@ class KeyCredential(CredentialConfig):
         :return: The path to the folder containing the key credential file.
         :rtype: Path
         """
-        return self._path
+        return self._location.Folder
 
     @property
     def Filepath(self) -> Path:
@@ -45,7 +45,7 @@ class KeyCredential(CredentialConfig):
         :return: The full path to the key credential file.
         :rtype: Path
         """
-        return self.Folder / self.Filename
+        return self._location.Filepath
 
     @property
     def Key(self) -> Optional[str]:
