@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, TypeAlias
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
-from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
+from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.utils.typing import Map
 
 FolderCredential : TypeAlias = PasswordCredential | EmptyCredential
@@ -25,8 +25,9 @@ class DatasetRepositoryConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 location:FileLocationSchema, credential:FolderCredential,
-                 file_base_path:Optional[str | Path], template_base_path:Optional[str | Path],
+                 config:Dict[str, Any],
+                 location:DirectoryLocationSchema,
+                 credential:FolderCredential=EmptyCredential.Default(),
                  # params for parent
                  store_type:Optional[str]=None,
                  # dict of leftovers
@@ -34,11 +35,15 @@ class DatasetRepositoryConfig(DataStoreConfig):
         ):
         unparsed_elements : Map = other_elements or {}
 
-        self._location       : FileLocationSchema = location   or self._parseLocation(unparsed_elements=unparsed_elements)
-        self._credential     : FolderCredential   = credential or self._parseCredential(unparsed_elements=unparsed_elements)
-        self._files_base     : Optional[str | Path] = file_base_path     or self._parseFilesBase(unparsed_elements=unparsed_elements)
-        self._templates_base : Optional[str | Path] = template_base_path or self._parseTemplatesBase(unparsed_elements=unparsed_elements)
-        super().__init__(name=name, other_elements=other_elements)
+        self._location       : DirectoryLocationSchema = location   or self._parseLocation(unparsed_elements=unparsed_elements)
+        self._credential     : FolderCredential        = credential or self._parseCredential(unparsed_elements=unparsed_elements)
+        if config:
+            self._files_base     : Optional[str | Path] = self._parseFilesBase(unparsed_elements=config)
+            self._templates_base : Optional[str | Path] = self._parseTemplatesBase(unparsed_elements=config)
+        else:
+            self._files_base     : Optional[str | Path] = self._parseFilesBase(unparsed_elements=unparsed_elements)
+            self._templates_base : Optional[str | Path] = self._parseTemplatesBase(unparsed_elements=unparsed_elements)
+        super().__init__(name=name, store_type="Repository", other_elements=other_elements)
 
     def __str__(self) -> str:
         return str(self.Name)

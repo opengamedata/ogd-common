@@ -2,11 +2,12 @@
 from typing import Dict, Optional
 # import local files
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
-from ogd.common.schemas.Schema import Schema
+from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.utils.typing import Map
 
-class SSHConfig(Schema):
+class SSHConfig(DataStoreConfig):
+    _STORE_TYPE = "SSH"
     _DEFAULT_HOST = "127.0.0.1"
     _DEFAULT_PORT = 22
     _DEFAULT_LOCATION = URLLocationSchema(
@@ -29,7 +30,7 @@ class SSHConfig(Schema):
 
         self._location   : URLLocationSchema  = location       or self._parseLocation(unparsed_elements=unparsed_elements)
         self._credential : PasswordCredential = ssh_credential or self._parseCredential(unparsed_elements=unparsed_elements)
-        super().__init__(name=name, other_elements=other_elements)
+        super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=other_elements)
 
     @property
     def Host(self) -> Optional[str]:
@@ -48,6 +49,14 @@ class SSHConfig(Schema):
         return self._location.Port
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
+    @property
+    def Location(self) -> URLLocationSchema:
+        return self._location
+
+    @property
+    def Credential(self) -> PasswordCredential:
+        return self._credential
 
     @property
     def AsMarkdown(self) -> str:

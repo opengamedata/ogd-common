@@ -10,6 +10,7 @@ from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.utils.typing import Map
 
 class MySQLConfig(DataStoreConfig):
+    _STORE_TYPE = "MYSQL"
     _DEFAULT_HOST = "127.0.0.1"
     _DEFAULT_PORT = 3306
     _DEFAULT_LOCATION = URLLocationSchema(
@@ -27,8 +28,6 @@ class MySQLConfig(DataStoreConfig):
     def __init__(self, name:str,
                  # params for class
                  db_location:URLLocationSchema, db_credential:PasswordCredential, ssh_cfg:"SSHConfig",
-                 # params for parent
-                 store_type:Optional[str]=None,
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
@@ -37,7 +36,7 @@ class MySQLConfig(DataStoreConfig):
         self._db_location : URLLocationSchema  = db_location   or self._parseLocation(unparsed_elements=unparsed_elements)
         self._credential  : PasswordCredential = db_credential or self._parseCredential(unparsed_elements=unparsed_elements)
         self._ssh_cfg     : SSHConfig          = ssh_cfg       or self._parseSSHConfig(unparsed_elements=unparsed_elements)
-        super().__init__(name=name, store_type=store_type, other_elements=other_elements)
+        super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=other_elements)
 
     @property
     def DBHost(self) -> str:
