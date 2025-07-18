@@ -48,7 +48,7 @@ class FileStoreConfig(DataStoreConfig):
         :return: The path to the folder containing the data store file.
         :rtype: Path
         """
-        return self._location.FolderPath
+        return self._location.Folder
 
     @property
     def FileExtension(self) -> str:

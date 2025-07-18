@@ -46,7 +46,7 @@ class FileLocationSchema(LocationSchema):
         super().__init__(name=name, other_elements=other_elements)
 
     @property
-    def FolderPath(self) -> Path:
+    def Folder(self) -> Path:
         """The path of the folder containing the file located by this schema.
 
         :return: The name of the database where the table is located
@@ -60,7 +60,7 @@ class FileLocationSchema(LocationSchema):
 
     @property
     def Filepath(self) -> Path:
-        return self.FolderPath / self.Filename
+        return self.Folder / self.Filename
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -72,7 +72,7 @@ class FileLocationSchema(LocationSchema):
     def AsMarkdown(self) -> str:
         ret_val : str
 
-        ret_val = f"{self.Name}: {self.FolderPath / self.Filename}"
+        ret_val = f"{self.Name}: {self.Folder / self.Filename}"
         return ret_val
 
     @classmethod
