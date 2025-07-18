@@ -1,9 +1,7 @@
 # import standard libraries
-import logging
-from typing import Optional
+from typing import Dict, Optional
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 
@@ -39,7 +37,7 @@ class PasswordCredential(CredentialConfig):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map)-> "PasswordCredential":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "PasswordCredential":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.

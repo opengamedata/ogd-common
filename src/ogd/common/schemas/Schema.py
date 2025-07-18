@@ -3,7 +3,7 @@ import abc
 import logging
 from pathlib import Path
 from shutil import copyfile
-from typing import Any, List, Optional, Self, Type
+from typing import Any, Dict, List, Optional, Self, Type
 # import local files
 from ogd.common.utils.typing import conversions, Map
 from ogd.common.utils import fileio
@@ -25,7 +25,7 @@ class Schema(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map)-> Self:
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> Self:
         """_summary_
 
         :param name: _description_
@@ -41,7 +41,7 @@ class Schema(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def Default(cls) -> "Schema":
+    def Default(cls) -> Self:
         """Property to get an instance of the Schema with default member values.
 
         Note that these defaults may or may not be a usable configuration.
@@ -97,7 +97,7 @@ class Schema(abc.ABC):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Path, search_templates:bool=False):
+    def FromFile(cls, schema_name:str, schema_path:Path, search_templates:bool=False) -> Self:
         """_summary_
 
         :param schema_name: _description_
@@ -112,7 +112,7 @@ class Schema(abc.ABC):
         return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Map)-> Self:
+    def FromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> Self:
         """Function to create an instance of the given Schema subclass, from data in a Map (Dict[str, Any])
 
         :param name: The name of the instance.
@@ -127,7 +127,7 @@ class Schema(abc.ABC):
             _msg = f"For {name} {cls.__name__}, unparsed_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
 
-        return cls._fromDict(name=name, unparsed_elements=unparsed_elements)
+        return cls._fromDict(name=name, unparsed_elements=unparsed_elements, key_overrides=key_overrides)
 
     @classmethod
     def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False, optional_element:bool=False) -> Any:
@@ -174,7 +174,7 @@ class Schema(abc.ABC):
     # *** PRIVATE STATICS ***
 
     @classmethod
-    def _fromFile(cls, schema_name:str, schema_path:Path, search_templates:bool=False):
+    def _fromFile(cls, schema_name:str, schema_path:Path, search_templates:bool=False) -> Self:
         ret_val : Schema
         _formatted_name : str = schema_name
 
@@ -207,7 +207,7 @@ class Schema(abc.ABC):
         return ret_val
 
     @classmethod
-    def _schemaFromTemplate(cls, schema_path:Path, schema_name:str) -> "Schema":
+    def _schemaFromTemplate(cls, schema_path:Path, schema_name:str) -> Self:
         ret_val : Schema
 
         template_name = schema_name + ".template"

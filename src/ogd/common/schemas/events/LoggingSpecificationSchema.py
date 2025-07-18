@@ -150,7 +150,7 @@ class LoggingSpecificationSchema(Schema):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "LoggingSpecificationSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "LoggingSpecificationSchema":
         """_summary_
 
         :param name: _description_
