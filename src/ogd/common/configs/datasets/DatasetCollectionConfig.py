@@ -51,7 +51,7 @@ class DatasetCollectionConfig(Config):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetCollectionConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "DatasetCollectionConfig":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.

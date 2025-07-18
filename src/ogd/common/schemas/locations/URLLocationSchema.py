@@ -78,7 +78,7 @@ class URLLocationSchema(LocationSchema):
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "URLLocationSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "URLLocationSchema":
         """Create a URLLocationSchema from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.

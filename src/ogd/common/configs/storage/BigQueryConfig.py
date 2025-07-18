@@ -1,6 +1,6 @@
 # import standard libraries
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.KeyCredentialConfig import KeyCredential
@@ -70,7 +70,7 @@ class BigQueryConfig(DataStoreConfig):
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map) -> "BigQueryConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> "BigQueryConfig":
         """Create a BigQuery Configuration from a dict.
 
         Expects dictionary to have the following form:

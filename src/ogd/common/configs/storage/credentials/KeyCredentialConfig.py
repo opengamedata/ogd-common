@@ -1,7 +1,6 @@
 # import standard libraries
-import logging
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.utils.Logger import Logger
@@ -76,7 +75,7 @@ class KeyCredential(CredentialConfig):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map)-> "KeyCredential":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "KeyCredential":
         """Create a Key Credential from a dict.
 
         Expects dictionary to have the following form:
