@@ -9,16 +9,16 @@ from ogd.common.utils.typing import Map
 class URLLocationSchema(LocationSchema):
 
     _DEFAULT_HOST_NAME = "DEFAULT HOST"
-    _DEFAULT_PORT      = 3306 # default assumption is this is for a MySQL DB
+    _DEFAULT_PORT      = None
     _DEFAULT_PATH      = "/"
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, host_name:str, port:int, path:str, other_elements:Optional[Map]=None):
+    def __init__(self, name:str, host_name:str, port:Optional[int], path:Optional[str], other_elements:Optional[Map]=None):
         unparsed_elements : Map = other_elements or {}
 
         self._host : str
-        self._port : int
+        self._port : Optional[int]
         self._path : Optional[str]
 
         # 1. If we at least have the host, then we're expecting to get host and path as separate pieces
@@ -45,7 +45,7 @@ class URLLocationSchema(LocationSchema):
         return self._host
 
     @property
-    def Port(self) -> int:
+    def Port(self) -> Optional[int]:
         return self._port
 
     @property
@@ -56,7 +56,8 @@ class URLLocationSchema(LocationSchema):
 
     @property
     def Location(self) -> str:
-        return f"{self.Host}:{self.Port}/{self.Path}"
+        _port = f":{self.Port}" if self.Port else ""
+        return f"{self.Host}{_port}/{self.Path}"
 
     @property
     def AsMarkdown(self) -> str:
@@ -93,7 +94,7 @@ class URLLocationSchema(LocationSchema):
         :rtype: GameSourceSchema
         """
         _host : str
-        _port : int
+        _port : Optional[int]
         _path : Optional[str]
 
         # 1. First, we try to get as a URL from dict as first try. If it returns something, then we've got it.
@@ -158,7 +159,7 @@ class URLLocationSchema(LocationSchema):
         )
 
     @staticmethod
-    def _parsePort(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> int:
+    def _parsePort(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> Optional[int]:
         default_keys : List[str] = ["port"]
         search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
         return URLLocationSchema.ParseElement(
