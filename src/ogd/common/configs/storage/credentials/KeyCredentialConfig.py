@@ -1,6 +1,6 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
