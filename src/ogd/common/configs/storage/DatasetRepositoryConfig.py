@@ -47,11 +47,13 @@ class DatasetRepositoryConfig(DataStoreConfig):
         url=urlparse("https://github.com/opengamedata/opengamedata-samples"),
         other_elements=None
     )
+    _DEFAULT_DATASETS = {}
 
     def __init__(self, name:str,
                  # params for class
                  files_base:BaseLocation,
                  templates_base:BaseLocation,
+                 datasets:Dict[str, DatasetCollectionSchema],
                  # params for parent
                  store_type:Optional[str]=None,
                  # dict of leftovers
@@ -61,6 +63,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
 
         self._files_base     : BaseLocation = files_base     or self._parseFilesBase(unparsed_elements=unparsed_elements)
         self._templates_base : BaseLocation = templates_base or self._parseTemplatesBase(unparsed_elements=unparsed_elements)
+        self._datasets       : Dict[str, DatasetCollectionSchema] = datasets or self._paseDatasetCollections(unparsed_elements=unparsed_elements)
         super().__init__(name=name, store_type="Repository", other_elements=other_elements)
 
     def __str__(self) -> str:
@@ -75,9 +78,14 @@ class DatasetRepositoryConfig(DataStoreConfig):
         :rtype: Optional[str]
         """
         return self._files_base
+
     @property
     def TemplatesBase(self) -> BaseLocation:
         return self._templates_base
+
+    @property
+    def Games(self) -> Dict[str, DatasetCollectionSchema]:
+        return self._datasets
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -161,5 +169,26 @@ class DatasetRepositoryConfig(DataStoreConfig):
             default_value=DatasetRepositoryConfig._DEFAULT_TEMPLATE_BASE,
             remove_target=True
         )
+
+    @staticmethod
+    def _parseDatasets(unparsed_elements:Map) -> Dict[str, DatasetCollectionSchema]:
+        ret_val : Dict[str, DatasetCollectionSchema]
+
+        _data_elems = DatasetRepositoryConfig.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["datasets"],
+            to_type=dict,
+            default_value=None,
+            remove_target=True
+        )
+        if _data_elems:
+            ret_val = {
+                key : DatasetCollectionSchema.FromDict(key, datasets if isinstance(datasets, dict) else {})
+                for key, datasets in _data_elems.items()
+            }
+        else:
+            ret_val = DatasetRepositoryConfig._DEFAULT_DATASETS
+
+        return ret_val
 
     # *** PRIVATE METHODS ***
