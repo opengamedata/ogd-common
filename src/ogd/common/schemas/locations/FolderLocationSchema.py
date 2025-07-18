@@ -56,7 +56,7 @@ class FolderLocationSchema(LocationSchema):
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "FolderLocationSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "FolderLocationSchema":
         """Create a DatabaseLocationSchema from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -86,10 +86,12 @@ class FolderLocationSchema(LocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseFolderPath(unparsed_elements:Map, keys:List[str]=["folder", "path"]) -> Path:
+    def _parseFolderPath(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> Path:
+        default_keys : List[str] = ["folder", "path"]
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
         return FolderLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=keys,
+            valid_keys=search_keys,
             to_type=Path,
             default_value=FolderLocationSchema._DEFAULT_PATH,
             remove_target=True
