@@ -41,7 +41,7 @@ class Schema(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def Default(cls) -> "Schema":
+    def Default(cls) -> Self:
         """Property to get an instance of the Schema with default member values.
 
         Note that these defaults may or may not be a usable configuration.
@@ -97,7 +97,7 @@ class Schema(abc.ABC):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Path, search_templates:bool=False):
+    def FromFile(cls, schema_name:str, schema_path:Path, search_templates:bool=False) -> Self:
         """_summary_
 
         :param schema_name: _description_
@@ -174,7 +174,7 @@ class Schema(abc.ABC):
     # *** PRIVATE STATICS ***
 
     @classmethod
-    def _fromFile(cls, schema_name:str, schema_path:Path, search_templates:bool=False):
+    def _fromFile(cls, schema_name:str, schema_path:Path, search_templates:bool=False) -> Self:
         ret_val : Schema
         _formatted_name : str = schema_name
 
@@ -207,7 +207,7 @@ class Schema(abc.ABC):
         return ret_val
 
     @classmethod
-    def _schemaFromTemplate(cls, schema_path:Path, schema_name:str) -> "Schema":
+    def _schemaFromTemplate(cls, schema_path:Path, schema_name:str) -> Self:
         ret_val : Schema
 
         template_name = schema_name + ".template"
