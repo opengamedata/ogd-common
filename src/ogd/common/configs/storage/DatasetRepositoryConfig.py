@@ -116,7 +116,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
 
         _used = {"files_base", "templates_base"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return DatasetRepositoryConfig(name=name, config=_config, other_elements=_leftovers)
+        return DatasetRepositoryConfig(name=name, files_base=_files_base, templates_base=_templates_base, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
 
@@ -124,12 +124,8 @@ class DatasetRepositoryConfig(DataStoreConfig):
     def Default(cls) -> "DatasetRepositoryConfig":
         return DatasetRepositoryConfig(
             name="CONFIG NOT FOUND",
-            location=cls._DEFAULT_LOCATION,
-            credential=cls._DEFAULT_CREDENTIAL,
-            config={
-                "file_base_class": cls._DEFAULT_FILE_BASE,
-                "template_base_path": cls._DEFAULT_TEMPLATE_BASE
-            }
+            files_base=cls._DEFAULT_FILE_BASE,
+            templates_base=cls._DEFAULT_TEMPLATE_BASE,
             other_elements={}
         )
 
