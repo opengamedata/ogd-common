@@ -76,7 +76,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         pass
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetRepositoryConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "DatasetRepositoryConfig":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.

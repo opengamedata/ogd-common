@@ -48,7 +48,7 @@ class DatasetCollectionSchema(Schema):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "DatasetCollectionSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "DatasetCollectionSchema":
         _config           : DatasetRepositoryConfig                = cls._parseConfig(name=f"{name}Config", unparsed_elements=unparsed_elements)
         _games_file_lists : Dict[str, GameDatasetCollectionSchema] = cls._parseGamesFileLists(unparsed_elements=unparsed_elements)
 

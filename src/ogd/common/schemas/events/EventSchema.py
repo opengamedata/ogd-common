@@ -70,7 +70,7 @@ class EventSchema(Schema):
         return "\n\n".join(ret_val)
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any])-> "EventSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "EventSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -107,7 +107,7 @@ class EventSchema(Schema):
     @staticmethod
     def _parseEventDataElements(unparsed_elements:Map):
         ret_val : Dict[str, DataElementSchema]
-        event_data = EventSchema.ParseElement(
+        event_data : Dict[str, Any] = EventSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["event_data"],
             to_type=dict,
