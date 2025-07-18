@@ -1,6 +1,6 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
@@ -96,7 +96,7 @@ class KeyCredential(CredentialConfig):
         :return: _description_
         :rtype: KeyCredential
         """
-        _location : FileLocationSchema = cls._parseLocation(unparsed_elements=unparsed_elements)
+        _location : FileLocationSchema = cls._parseLocation(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
 
         return KeyCredential(name=name, location=_location, other_elements=unparsed_elements)
 
@@ -115,7 +115,10 @@ class KeyCredential(CredentialConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseLocation(unparsed_elements:Map) -> FileLocationSchema:
-        return FileLocationSchema.FromDict(name="KeyCredentialLocation", unparsed_elements=unparsed_elements, key_overrides={"file" : "key"})
+    def _parseLocation(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> FileLocationSchema:
+        default_overrides : Dict[str, str] = {"file" : "key"}
+        final_overrides   : Dict[str, str] = default_overrides | (key_overrides or {})
+
+        return FileLocationSchema.FromDict(name="KeyCredentialLocation", unparsed_elements=unparsed_elements, key_overrides=final_overrides)
 
     # *** PRIVATE METHODS ***
