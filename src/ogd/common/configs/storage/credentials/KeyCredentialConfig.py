@@ -19,7 +19,7 @@ class KeyCredential(CredentialConfig):
         other_elements=None
     )
 
-    def __init__(self, name:str, location:FileLocationSchema, other_elements:Optional[Map]):
+    def __init__(self, name:str, location:FileLocationSchema, other_elements:Optional[Map]=None):
         unparsed_elements : Map = other_elements or {}
 
         self._location : FileLocationSchema = location or self._parseLocation(unparsed_elements=unparsed_elements)

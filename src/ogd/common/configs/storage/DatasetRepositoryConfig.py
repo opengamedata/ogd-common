@@ -1,33 +1,57 @@
 # standard imports
 from pathlib import Path
+from urllib.parse import urlparse
 from typing import Any, Dict, Optional, TypeAlias
 
 # ogd imports
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
-from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
+from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.utils.typing import Map
 
-FolderCredential : TypeAlias = PasswordCredential | EmptyCredential
+BaseLocation : TypeAlias = URLLocationSchema | DirectoryLocationSchema
 
 # Simple Config-y class to track the base URLs/paths for a list of files and/or file templates.
 class DatasetRepositoryConfig(DataStoreConfig):
     """Simple Config-y class to track the base URLs/paths for a list of files and/or file templates.
 
-    This is a separate class from DatasetCollectionSchema because this config exists as its own sub-element of a `file_list.json` file.
+    It also expects to track a mapping of game names to collections of datasets, under a "datasets" key.
+    Then the structure is like:
+
+    ```
+    {
+        "files_base" : "path/to/folder/"
+        "templates_base" : "URL/to/templates/"
+        "datasets" : {
+            "GAME_NAME" : {
+                "DATASET_START_to_END" : { ... },
+                "DATASET_START_to_END" : { ... },
+                ...
+            }
+            ...
+        }
+    }
+    ```
     """
 
     # *** BUILT-INS & PROPERTIES ***
 
-    _DEFAULT_FILE_BASE = "https://opengamedata.fielddaylab.wisc.edu"
-    _DEFAULT_TEMPLATE_BASE = "https://github.com/opengamedata/opengamedata-samples"
+    _DEFAULT_FILE_BASE = DirectoryLocationSchema(
+        name="DefaultRepositoryLocation",
+        folder_path=Path("./data"),
+        other_elements=None
+    )
+    _DEFAULT_TEMPLATE_BASE = URLLocationSchema(
+        name="DefaultTemplatesBase",
+        url=urlparse("https://github.com/opengamedata/opengamedata-samples"),
+        other_elements=None
+    )
 
     def __init__(self, name:str,
                  # params for class
-                 config:Dict[str, Any],
-                 location:DirectoryLocationSchema,
-                 credential:FolderCredential=EmptyCredential.Default(),
+                 files_base:BaseLocation,
+                 templates_base:BaseLocation,
                  # params for parent
                  store_type:Optional[str]=None,
                  # dict of leftovers
@@ -35,21 +59,15 @@ class DatasetRepositoryConfig(DataStoreConfig):
         ):
         unparsed_elements : Map = other_elements or {}
 
-        self._location       : DirectoryLocationSchema = location   or self._parseLocation(unparsed_elements=unparsed_elements)
-        self._credential     : FolderCredential        = credential or self._parseCredential(unparsed_elements=unparsed_elements)
-        if config:
-            self._files_base     : Optional[str | Path] = self._parseFilesBase(unparsed_elements=config)
-            self._templates_base : Optional[str | Path] = self._parseTemplatesBase(unparsed_elements=config)
-        else:
-            self._files_base     : Optional[str | Path] = self._parseFilesBase(unparsed_elements=unparsed_elements)
-            self._templates_base : Optional[str | Path] = self._parseTemplatesBase(unparsed_elements=unparsed_elements)
+        self._files_base     : BaseLocation = files_base     or self._parseFilesBase(unparsed_elements=unparsed_elements)
+        self._templates_base : BaseLocation = templates_base or self._parseTemplatesBase(unparsed_elements=unparsed_elements)
         super().__init__(name=name, store_type="Repository", other_elements=other_elements)
 
     def __str__(self) -> str:
         return str(self.Name)
 
     @property
-    def FilesBase(self) -> Optional[str | Path]:
+    def FilesBase(self) -> BaseLocation:
         """Property for the base 'path' to a set of dataset files.
         May be an actual path, or a base URL for accessing from a file server.
 
@@ -58,7 +76,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         """
         return self._files_base
     @property
-    def TemplatesBase(self) -> Optional[str | Path]:
+    def TemplatesBase(self) -> BaseLocation:
         return self._templates_base
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -69,16 +87,16 @@ class DatasetRepositoryConfig(DataStoreConfig):
         return ret_val
 
     @property
-    def Location(self) -> LocationSchema:
-        pass
+    def Location(self) -> BaseLocation:
+        return self.FilesBase
 
     @property
     def Credential(self) -> EmptyCredential:
-        pass
+        return EmptyCredential.Default()
 
     @property
     def AsConnectionInfo(self) -> str:
-        pass
+        return f"{self.Name} : {self.Location.Location}"
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "DatasetRepositoryConfig":
@@ -93,12 +111,12 @@ class DatasetRepositoryConfig(DataStoreConfig):
         :return: _description_
         :rtype: DatasetRepositoryConfig
         """
-        _files_base     : Optional[str] = cls._parseFilesBase(unparsed_elements=unparsed_elements)
-        _templates_base : Optional[str] = cls._parseTemplatesBase(unparsed_elements=unparsed_elements)
+        _files_base     : BaseLocation = cls._parseFilesBase(unparsed_elements=unparsed_elements)
+        _templates_base : BaseLocation = cls._parseTemplatesBase(unparsed_elements=unparsed_elements)
 
         _used = {"files_base", "templates_base"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return DatasetRepositoryConfig(name=name, file_base_path=_files_base, template_base_path=_templates_base, other_elements=_leftovers)
+        return DatasetRepositoryConfig(name=name, config=_config, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
 
@@ -106,8 +124,12 @@ class DatasetRepositoryConfig(DataStoreConfig):
     def Default(cls) -> "DatasetRepositoryConfig":
         return DatasetRepositoryConfig(
             name="CONFIG NOT FOUND",
-            file_base_path=cls._DEFAULT_FILE_BASE,
-            template_base_path=cls._DEFAULT_TEMPLATE_BASE,
+            location=cls._DEFAULT_LOCATION,
+            credential=cls._DEFAULT_CREDENTIAL,
+            config={
+                "file_base_class": cls._DEFAULT_FILE_BASE,
+                "template_base_path": cls._DEFAULT_TEMPLATE_BASE
+            }
             other_elements={}
         )
 
@@ -116,36 +138,28 @@ class DatasetRepositoryConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseFilesBase(unparsed_elements:Map) -> str:
-        # The files base is meant to be in a CONFIG sub-dict, so attempt to get it.
-        config_elems = DatasetRepositoryConfig.ParseElement(
+    def _parseFilesBase(unparsed_elements:Map) -> BaseLocation:
+        ret_val : BaseLocation
+
+        raw_base = DatasetRepositoryConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["CONFIG"],
-            to_type=Dict,
-            default_value=None,
-            remove_target=False
-        ) or unparsed_elements
-        return DatasetRepositoryConfig.ParseElement(
-            unparsed_elements=config_elems,
             valid_keys=["files_base"],
             to_type=str,
             default_value=DatasetRepositoryConfig._DEFAULT_FILE_BASE,
             remove_target=True
         )
+        as_url = urlparse(raw_base)
+        if as_url.scheme not in {"", "file"}:
+            ret_val = URLLocationSchema(name="RepositoryFilesBase", url=as_url)
+        else:
+            ret_val = DirectoryLocationSchema(name="RepositoryFilesBase", folder_path=Path(raw_base))
+
+        return ret_val
 
     @staticmethod
-    def _parseTemplatesBase(unparsed_elements:Map) -> str:
-        # The files base is meant to be in a CONFIG sub-dict, so attempt to get it.
-        # Else, fall back on searching the main thing.
-        config_elems = DatasetRepositoryConfig.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["CONFIG"],
-            to_type=Dict,
-            default_value=None,
-            remove_target=False
-        ) or unparsed_elements
+    def _parseTemplatesBase(unparsed_elements:Map) -> BaseLocation:
         return DatasetRepositoryConfig.ParseElement(
-            unparsed_elements=config_elems,
+            unparsed_elements=unparsed_elements,
             valid_keys=["templates_base"],
             to_type=str,
             default_value=DatasetRepositoryConfig._DEFAULT_TEMPLATE_BASE,

@@ -1,6 +1,7 @@
 # import standard libraries
 from pathlib import Path
 from typing import Dict, Optional
+from urllib.parse import ParseResult
 # import local files
 from ogd.common.configs.storage.SSHConfig import SSHConfig
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
@@ -11,16 +12,15 @@ from ogd.common.utils.typing import Map
 
 class MySQLConfig(DataStoreConfig):
     _STORE_TYPE = "MYSQL"
-    _DEFAULT_HOST = "127.0.0.1"
-    _DEFAULT_PORT = 3306
+
     _DEFAULT_LOCATION = URLLocationSchema(
         name="DefaultMySQLLocation",
-        host_name=_DEFAULT_HOST,
-        port=_DEFAULT_PORT,
-        path=""
+        url=ParseResult(
+            scheme="",
+            netloc="127.0.0.1:3306",
+            path="", params="", query="", fragment=""
+        )
     )
-    _DEFAULT_USER = "DEFAULT USER"
-    _DEFAULT_PASS = None
     _DEFAULT_DB_CREDENTIAL = PasswordCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
@@ -43,7 +43,7 @@ class MySQLConfig(DataStoreConfig):
         return self._db_location.Host
 
     @property
-    def DBPort(self) -> int:
+    def DBPort(self) -> Optional[int]:
         return self._db_location.Port
 
     @property
@@ -134,33 +134,11 @@ class MySQLConfig(DataStoreConfig):
 
     @staticmethod
     def _parseLocation(unparsed_elements:Map) -> URLLocationSchema:
-        ret_val : URLLocationSchema
-
-        raw_host = MySQLConfig.ParseElement(
+        return URLLocationSchema.FromDict(
+            name = "DBHostLocation",
             unparsed_elements=unparsed_elements,
-            valid_keys=["DB_HOST"],
-            to_type=str,
-            default_value=MySQLConfig._DEFAULT_HOST,
-            remove_target=True
+            key_overrides={"host" : "DB_HOST", "port" : "DB_PORT"}
         )
-        raw_port = MySQLConfig.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["DB_PORT"],
-            to_type=int,
-            default_value=MySQLConfig._DEFAULT_PORT,
-            remove_target=True
-        )
-        if raw_host and raw_port:
-            ret_val = URLLocationSchema(
-                name      = "DBHostLocation",
-                host_name = raw_host or URLLocationSchema._DEFAULT_HOST_NAME,
-                port      = raw_port or URLLocationSchema._DEFAULT_PORT,
-                path      = ""
-            )
-        else:
-            ret_val = URLLocationSchema.FromDict(name="DBHostLocation", unparsed_elements=unparsed_elements)
-        
-        return ret_val
 
     @staticmethod
     def _parseCredential(unparsed_elements:Map) -> PasswordCredential:
@@ -168,7 +146,7 @@ class MySQLConfig(DataStoreConfig):
 
         _cred_elements = MySQLConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["DB_CREDENTIAL"],
+            valid_keys=["DB_CONFIG"],
             to_type=dict,
             default_value=None,
             remove_target=True
@@ -176,7 +154,8 @@ class MySQLConfig(DataStoreConfig):
         if _cred_elements:
             ret_val = PasswordCredential.FromDict(name="MySQLCredential", unparsed_elements=_cred_elements)
         else:
-            ret_val = MySQLConfig._DEFAULT_DB_CREDENTIAL
+            _overrides = {"USER":"DB_USER", "PASS":"DB_PASS", "PW":"DB_PW"}
+            ret_val = PasswordCredential.FromDict(name="MySQLCredential", unparsed_elements=unparsed_elements, key_overrides=_overrides)
 
         return ret_val
 
@@ -184,12 +163,17 @@ class MySQLConfig(DataStoreConfig):
     def _parseSSHConfig(unparsed_elements:Map) -> SSHConfig:
         ret_val : SSHConfig
 
-        # Parse SSH info, if it exists. Don't notify, if it doesn't exist.
-        # TODO : probably shouldn't have keys expected for SSH be hardcoded here, maybe need a way to get back what stuff it didn't use?
-        # TODO : In general, this should be updated to work similar to all the other parsers.
-        _ssh_keys = {"SSH_HOST", "SSH_PORT", "SSH_CREDENTIAL"}
-        _ssh_elems = { key : unparsed_elements.get(key) for key in _ssh_keys.intersection(unparsed_elements.keys()) }
-        ret_val = SSHConfig.FromDict(name="MySQLSSHConfig", unparsed_elements=_ssh_elems)
+        _ssh_elements = MySQLConfig.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["SSH_CONFIG"],
+            to_type=dict,
+            default_value=None,
+            remove_target=True
+        )
+        if _ssh_elements:
+            ret_val = SSHConfig.FromDict(name="MySQLSSHConfig", unparsed_elements=_ssh_elements)
+        else:
+            ret_val = SSHConfig.FromDict(name="MySQLCredential", unparsed_elements=unparsed_elements)
 
         return ret_val
 

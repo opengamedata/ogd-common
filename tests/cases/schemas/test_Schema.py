@@ -18,7 +18,7 @@ class test_Schema(TestCase):
     We implement a local TestSchema class that simply gives empty implementations of the abstract functions.
     """
     class TestSchema(Schema):
-        def __init__(self, name:str, other_elements:Optional[Dict[str, Any]]):
+        def __init__(self, name:str, other_elements:Optional[Dict[str, Any]]=None):
             super().__init__(name=name, other_elements=other_elements)
 
         @property
