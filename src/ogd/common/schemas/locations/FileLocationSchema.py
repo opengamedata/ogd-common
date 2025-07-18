@@ -59,14 +59,14 @@ class FileLocationSchema(LocationSchema):
         return self._filename
 
     @property
-    def Filepath(self) -> str:
-        return self.Location
+    def Filepath(self) -> Path:
+        return self.FolderPath / self.Filename
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
     def Location(self) -> str:
-        return str(self.FolderPath / self.Filename)
+        return str(self.Filepath)
 
     @property
     def AsMarkdown(self) -> str:
