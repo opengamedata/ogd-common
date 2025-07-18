@@ -8,6 +8,7 @@ from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
+from ogd.common.schemas.datasets.DatasetCollectionSchema import DatasetCollectionSchema
 from ogd.common.utils.typing import Map
 
 BaseLocation : TypeAlias = URLLocationSchema | DirectoryLocationSchema
@@ -63,7 +64,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
 
         self._files_base     : BaseLocation = files_base     or self._parseFilesBase(unparsed_elements=unparsed_elements)
         self._templates_base : BaseLocation = templates_base or self._parseTemplatesBase(unparsed_elements=unparsed_elements)
-        self._datasets       : Dict[str, DatasetCollectionSchema] = datasets or self._paseDatasetCollections(unparsed_elements=unparsed_elements)
+        self._datasets       : Dict[str, DatasetCollectionSchema] = datasets or self._parseDatasetCollections(unparsed_elements=unparsed_elements)
         super().__init__(name=name, store_type="Repository", other_elements=other_elements)
 
     def __str__(self) -> str:
@@ -121,10 +122,11 @@ class DatasetRepositoryConfig(DataStoreConfig):
         """
         _files_base     : BaseLocation = cls._parseFilesBase(unparsed_elements=unparsed_elements)
         _templates_base : BaseLocation = cls._parseTemplatesBase(unparsed_elements=unparsed_elements)
+        _datasets       : Dict[str, DatasetCollectionSchema] = cls._parseDatasets(unparsed_elements=unparsed_elements)
 
         _used = {"files_base", "templates_base"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return DatasetRepositoryConfig(name=name, files_base=_files_base, templates_base=_templates_base, other_elements=_leftovers)
+        return DatasetRepositoryConfig(name=name, files_base=_files_base, templates_base=_templates_base, datasets=_datasets, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
 
@@ -134,6 +136,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
             name="CONFIG NOT FOUND",
             files_base=cls._DEFAULT_FILE_BASE,
             templates_base=cls._DEFAULT_TEMPLATE_BASE,
+            datasets=cls._DEFAULT_DATASETS,
             other_elements={}
         )
 
