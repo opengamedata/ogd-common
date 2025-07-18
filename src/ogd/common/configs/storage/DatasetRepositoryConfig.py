@@ -186,7 +186,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         )
         if _data_elems:
             ret_val = {
-                key : DatasetCollectionSchema.FromDict(key, datasets if isinstance(datasets, dict) else {})
+                key : DatasetCollectionSchema.FromDict(name=key, unparsed_elements=datasets if isinstance(datasets, dict) else {})
                 for key, datasets in _data_elems.items()
             }
         else:
