@@ -13,6 +13,7 @@ from ogd.common.utils.typing import Map
 FileCredential : TypeAlias = PasswordCredential | EmptyCredential
 
 class FileStoreConfig(DataStoreConfig):
+    _STORE_TYPE = "FILE"
     _DEFAULT_LOCATION = FileLocationSchema(
         name="DefaultFileStoreLocation",
         folder_path=Path('./data'),
@@ -26,8 +27,6 @@ class FileStoreConfig(DataStoreConfig):
     def __init__(self, name:str,
                  # params for class
                  location:FileLocationSchema, file_credential:FileCredential,
-                 # params for parent
-                 store_type:Optional[str]=None,
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
@@ -35,7 +34,7 @@ class FileStoreConfig(DataStoreConfig):
 
         self._location    : FileLocationSchema = location or self._parseLocation(unparsed_elements=unparsed_elements)
         self._credential  : FileCredential = file_credential or self._parseCredential(unparsed_elements=unparsed_elements)
-        super().__init__(name=name, store_type=store_type, other_elements=unparsed_elements)
+        super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=unparsed_elements)
 
     @property
     def Filename(self) -> str:

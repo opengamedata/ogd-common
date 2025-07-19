@@ -17,7 +17,7 @@ class DatabaseLocationSchema(LocationSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, database_name:str, table_name:Optional[str], other_elements:Optional[Map]):
+    def __init__(self, name:str, database_name:str, table_name:Optional[str], other_elements:Optional[Map]=None):
         unparsed_elements : Map = other_elements or {}
 
         self._db_name    : str           = database_name or self._parseDatabaseName(unparsed_elements=unparsed_elements)

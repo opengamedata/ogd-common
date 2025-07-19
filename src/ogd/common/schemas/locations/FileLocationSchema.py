@@ -20,7 +20,7 @@ class FileLocationSchema(LocationSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, folder_path:Path | str, filename:str, other_elements:Optional[Map]):
+    def __init__(self, name:str, folder_path:Path | str, filename:str, other_elements:Optional[Map]=None):
         unparsed_elements : Map = other_elements or {}
 
         self._folder_path  : Path

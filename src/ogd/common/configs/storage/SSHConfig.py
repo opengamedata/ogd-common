@@ -1,19 +1,21 @@
 # import standard libraries
 from typing import Dict, Optional
+from urllib.parse import ParseResult
 # import local files
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
-from ogd.common.schemas.Schema import Schema
+from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.utils.typing import Map
 
-class SSHConfig(Schema):
-    _DEFAULT_HOST = "127.0.0.1"
-    _DEFAULT_PORT = 22
+class SSHConfig(DataStoreConfig):
+    _STORE_TYPE = "SSH"
     _DEFAULT_LOCATION = URLLocationSchema(
         name="DefaultSSHLocation",
-        host_name=_DEFAULT_HOST,
-        port=_DEFAULT_PORT,
-        path=""
+        url=ParseResult(
+            scheme="http",
+            netloc="127.0.0.1:22",
+            path="", params="", query="", fragment=""
+        )
     )
     _DEFAULT_CREDENTIAL = PasswordCredential.Default()
 
@@ -29,7 +31,7 @@ class SSHConfig(Schema):
 
         self._location   : URLLocationSchema  = location       or self._parseLocation(unparsed_elements=unparsed_elements)
         self._credential : PasswordCredential = ssh_credential or self._parseCredential(unparsed_elements=unparsed_elements)
-        super().__init__(name=name, other_elements=other_elements)
+        super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=other_elements)
 
     @property
     def Host(self) -> Optional[str]:
@@ -44,10 +46,18 @@ class SSHConfig(Schema):
         return self._credential.Pass
 
     @property
-    def Port(self) -> int:
+    def Port(self) -> Optional[int]:
         return self._location.Port
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
+    @property
+    def Location(self) -> URLLocationSchema:
+        return self._location
+
+    @property
+    def Credential(self) -> PasswordCredential:
+        return self._credential
 
     @property
     def AsMarkdown(self) -> str:
@@ -98,50 +108,22 @@ class SSHConfig(Schema):
 
     @staticmethod
     def _parseLocation(unparsed_elements:Map) -> URLLocationSchema:
-        ret_val : URLLocationSchema
+        _overrides = {"host":"SSH_HOST", "port":"SSH_PORT"}
 
-        raw_host = SSHConfig.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["SSH_HOST"],
-            to_type=str,
-            default_value=SSHConfig._DEFAULT_HOST,
-            remove_target=True
+        return URLLocationSchema.FromDict(
+            name              =  "SSHHostLocation",
+            unparsed_elements = unparsed_elements,
+            key_overrides     = _overrides
         )
-        raw_port = SSHConfig.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["SSH_PORT"],
-            to_type=int,
-            default_value=SSHConfig._DEFAULT_PORT,
-            remove_target=True
-        )
-        if raw_host and raw_port:
-            ret_val = URLLocationSchema(
-                name      = "SSHHostLocation",
-                host_name = raw_host or URLLocationSchema._DEFAULT_HOST_NAME,
-                port      = raw_port or URLLocationSchema._DEFAULT_PORT,
-                path      = ""
-            )
-        else:
-            ret_val = URLLocationSchema.FromDict(name="SSHHostLocation", unparsed_elements=unparsed_elements)
-        
-        return ret_val
 
     @staticmethod
     def _parseCredential(unparsed_elements:Map) -> PasswordCredential:
-        ret_val : PasswordCredential
+        _overrides = { "USER":"SSH_USER", "PASS":"SSH_PASS", "PW":"SSH_PW" }
 
-        _cred_elements = SSHConfig.ParseElement(
+        return PasswordCredential.FromDict(
+            name="SSHCredential",
             unparsed_elements=unparsed_elements,
-            valid_keys=["SSH_CREDENTIAL"],
-            to_type=dict,
-            default_value=None,
-            remove_target=True
+            key_overrides=_overrides
         )
-        if _cred_elements:
-            ret_val = PasswordCredential.FromDict(name="SSHCredential", unparsed_elements=_cred_elements)
-        else:
-            ret_val = SSHConfig._DEFAULT_CREDENTIAL
-
-        return ret_val
 
     # *** PRIVATE METHODS ***

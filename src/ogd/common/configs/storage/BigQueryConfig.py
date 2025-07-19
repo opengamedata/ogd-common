@@ -9,6 +9,7 @@ from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
 from ogd.common.utils.typing import Map
 
 class BigQueryConfig(DataStoreConfig):
+    _STORE_TYPE = "BIGQUERY"
     _DEFAULT_LOCATION = DatabaseLocationSchema(
         name="DefaultBQLocation",
         database_name="wcer-field-day-ogd-1798",
@@ -22,8 +23,6 @@ class BigQueryConfig(DataStoreConfig):
     def __init__(self, name:str,
                  # params for class
                  location:DatabaseLocationSchema, credential:KeyCredential,
-                 # params for parent
-                 store_type:Optional[str]=None,
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
@@ -32,7 +31,7 @@ class BigQueryConfig(DataStoreConfig):
         self._location   : DatabaseLocationSchema  = location if location else BigQueryConfig._parseLocation(unparsed_elements=unparsed_elements)
         self._credential : KeyCredential           = credential or BigQueryConfig._parseCredential(unparsed_elements=unparsed_elements)
 
-        super().__init__(name=name, store_type=store_type, other_elements=unparsed_elements)
+        super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=unparsed_elements)
 
     @property
     def Location(self) -> DatabaseLocationSchema:
