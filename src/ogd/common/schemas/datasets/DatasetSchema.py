@@ -191,8 +191,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         :return: _description_
         :rtype: DatasetSchema
         """
-        _game_id             : str            = cls._parseGameID(name)
-        _key                 : DatasetKey     = DatasetKey(key=name, game_id=_game_id)
+        _key                 : DatasetKey     = DatasetKey(raw_key=name)
     # 1. Parse dates
         _date_modified       : date | str     = cls._parseDateModified(unparsed_elements=unparsed_elements)
         _start_date          : date | str     = cls._parseStartDate(unparsed_elements=unparsed_elements)
@@ -232,21 +231,21 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return DatasetSchema(
             name="DefaultDatasetSchema",
             key=DatasetKey.Default(),
-            date_modified=cls._DEFAULT_DATE_MODIFIED,
-            start_date=cls._DEFAULT_START_DATE,
-            end_date=cls._DEFAULT_END_DATE,
-            ogd_revision=cls._DEFAULT_OGD_REVISION,
-            session_ct=cls._DEFAULT_SESSION_COUNT,
-            player_ct=cls._DEFAULT_PLAYER_COUNT,
-            raw_file=cls._DEFAULT_RAW_FILE,
-            events_file=cls._DEFAULT_EVENTS_FILE,
-            events_template=cls._DEFAULT_EVENTS_TEMPLATE,
-            sessions_file=cls._DEFAULT_SESSIONS_FILE,
-            sessions_template=cls._DEFAULT_SESSIONS_TEMPLATE,
-            players_file=cls._DEFAULT_PLAYERS_FILE,
-            players_template=cls._DEFAULT_PLAYERS_TEMPLATE,
-            population_file=cls._DEFAULT_POPULATION_FILE,
-            population_template=cls._DEFAULT_POPULATION_TEMPLATE,
+            date_modified       = cls._DEFAULT_DATE_MODIFIED,
+            start_date          = cls._DEFAULT_START_DATE,
+            end_date            = cls._DEFAULT_END_DATE,
+            ogd_revision        = cls._DEFAULT_OGD_REVISION,
+            session_ct          = cls._DEFAULT_SESSION_COUNT,
+            player_ct           = cls._DEFAULT_PLAYER_COUNT,
+            raw_file            = cls._DEFAULT_RAW_FILE,
+            events_file         = cls._DEFAULT_EVENTS_FILE,
+            events_template     = cls._DEFAULT_EVENTS_TEMPLATE,
+            sessions_file       = cls._DEFAULT_SESSIONS_FILE,
+            sessions_template   = cls._DEFAULT_SESSIONS_TEMPLATE,
+            players_file        = cls._DEFAULT_PLAYERS_FILE,
+            players_template    = cls._DEFAULT_PLAYERS_TEMPLATE,
+            population_file     = cls._DEFAULT_POPULATION_FILE,
+            population_template = cls._DEFAULT_POPULATION_TEMPLATE,
             other_elements={}
         )
 
@@ -274,26 +273,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         else:
             return None
 
-
     # *** PRIVATE STATICS ***
-
-    @staticmethod
-    def _parseGameID(game_id:Any) -> str:
-        """Private function to get game_id from an input value.
-
-        Historically, this is assumed to come from outside the main dictionary of schema elements,
-        so it just takes a variable we assume to be directly convertible to a string,
-        hence the function directly uses the conversion function, instead of the Schema.ParseElement function.
-
-        :param game_id: A value that, when converted to a string, will be the name of the game whose data is contained in the dataset
-        :type game_id: Any
-        :return: The name of the game whose data is contained in the dataset
-        :rtype: str
-        """
-        ret_val : str = conversions.ToString(name="Game ID", value=game_id)
-        ret_val = '_'.join(dataset_name.split('_')[:-3])
-        
-        return ret_val
 
     @staticmethod
     def _parseDateModified(unparsed_elements:Map) -> date | str:
