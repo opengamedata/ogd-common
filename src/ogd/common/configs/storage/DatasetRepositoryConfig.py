@@ -1,7 +1,7 @@
 # standard imports
 from pathlib import Path
 from urllib.parse import urlparse
-from typing import Any, Dict, Optional, TypeAlias
+from typing import Dict, Optional, TypeAlias
 
 # ogd imports
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
@@ -52,9 +52,9 @@ class DatasetRepositoryConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 files_base:BaseLocation,
-                 templates_base:BaseLocation,
-                 datasets:Dict[str, DatasetCollectionSchema],
+                 files_base:Optional[BaseLocation],
+                 templates_base:Optional[BaseLocation],
+                 datasets:Optional[Dict[str, DatasetCollectionSchema]],
                  # params for parent
                  store_type:Optional[str]=None,
                  # dict of leftovers
@@ -120,13 +120,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         :return: _description_
         :rtype: DatasetRepositoryConfig
         """
-        _files_base     : BaseLocation = cls._parseFilesBase(unparsed_elements=unparsed_elements)
-        _templates_base : BaseLocation = cls._parseTemplatesBase(unparsed_elements=unparsed_elements)
-        _datasets       : Dict[str, DatasetCollectionSchema] = cls._parseDatasets(unparsed_elements=unparsed_elements)
-
-        _used = {"files_base", "templates_base"}
-        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return DatasetRepositoryConfig(name=name, files_base=_files_base, templates_base=_templates_base, datasets=_datasets, other_elements=_leftovers)
+        return DatasetRepositoryConfig(name=name, files_base=None, templates_base=None, datasets=None, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 

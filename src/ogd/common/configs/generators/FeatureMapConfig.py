@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 # import local files
 from ogd.common.configs.Config import Config
 from ogd.common.configs.generators.AggregateConfig import AggregateConfig
@@ -22,9 +22,59 @@ class FeatureMapConfig(Config):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, legacy_mode: bool,        legacy_perlevel_feats:Dict[str, PerCountConfig],
-                 percount_feats:Dict[str, PerCountConfig], aggregate_feats:Dict[str, AggregateConfig],
+    def __init__(self, name:str, legacy_mode:Optional[bool],        legacy_perlevel_feats:Optional[Dict[str, PerCountConfig]],
+                 percount_feats:Optional[Dict[str, PerCountConfig]], aggregate_feats:Optional[Dict[str, AggregateConfig]],
                  other_elements:Optional[Map]=None):
+        """Constructor for the `FeatureMapConfig` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "per_count" : {
+                "ExtractorName1": {
+                    "enabled": true,
+                    "type": "ExtractorClass",
+                    "count": "level_range",
+                    "prefix": "lvl",
+                    "description": "Info about the per-count extractor; the per-count is generally optional.",
+                    "return_type": "str"
+                },
+                "ExtractorName2": {
+                    ...
+                },
+                ...
+            },
+            "aggregate" : {
+                "ExtractorName1": {
+                    "enabled": true,
+                    "type": "ExtractorClass",
+                    "description": "Info about the aggregate (session-level) extractor.",
+                    "return_type": "str"
+                },
+                "ExtractorName2": {
+                    ...
+                },
+                ...
+            }
+        }
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param legacy_mode: _description_
+        :type legacy_mode: Optional[bool]
+        :param legacy_perlevel_feats: _description_
+        :type legacy_perlevel_feats: Optional[Dict[str, PerCountConfig]]
+        :param percount_feats: _description_
+        :type percount_feats: Optional[Dict[str, PerCountConfig]]
+        :param aggregate_feats: _description_
+        :type aggregate_feats: Optional[Dict[str, AggregateConfig]]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._legacy_mode           : bool                       = legacy_mode           or self._parseLegacyMode(unparsed_elements=unparsed_elements)
@@ -101,16 +151,9 @@ class FeatureMapConfig(Config):
         :return: A DetectorMapConfig based on the given collection of elements.
         :rtype: DetectorMapConfig
         """
-        _legacy_mode           : bool                       = cls._parseLegacyMode(unparsed_elements=unparsed_elements)
-        _legacy_perlevel_feats : Dict[str, PerCountConfig]  = cls._parsePerLevelFeatures(unparsed_elements=unparsed_elements)
-        _percount_feats        : Dict[str, PerCountConfig]  = cls._parsePerCountFeatures(unparsed_elements=unparsed_elements)
-        _aggregate_feats       : Dict[str, AggregateConfig] = cls._parseAggregateFeatures(unparsed_elements=unparsed_elements)
-
-        _used = {"legacy", "perlevel", "per_count", "aggregate"}
-        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return FeatureMapConfig(name=name, legacy_mode=_legacy_mode, legacy_perlevel_feats=_legacy_perlevel_feats,
-                                percount_feats=_percount_feats, aggregate_feats=_aggregate_feats,
-                                other_elements=_leftovers)
+        return FeatureMapConfig(name=name, legacy_mode=None, legacy_perlevel_feats=None,
+                                percount_feats=None, aggregate_feats=None,
+                                other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "FeatureMapConfig":

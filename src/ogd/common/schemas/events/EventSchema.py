@@ -8,17 +8,44 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 class EventSchema(Schema):
-    _DEFAULT_DESCRIPTION = "Default event schema object. Does not relate to any actual data."
-    _DEFAULT_EVENT_DATA = {}
-
-    # *** BUILT-INS & PROPERTIES ***
-
     """
     Dumb struct to contain a specification of an Event in a LoggingSpecificationSchema file.
 
     These essentially are just a description of the event, and a set of elements in the EventData attribute of the Event.
     """
-    def __init__(self, name:str, description:str, event_data:Dict[str, DataElementSchema], other_elements:Optional[Map]=None):
+    _DEFAULT_DESCRIPTION = "Default event schema object. Does not relate to any actual data."
+    _DEFAULT_EVENT_DATA = {}
+
+    # *** BUILT-INS & PROPERTIES ***
+
+    def __init__(self, name:str, description:Optional[str], event_data:Optional[Dict[str, DataElementSchema]], other_elements:Optional[Map]=None):
+        """Constructor for the `EventSchema` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "description": "Description of what the event is and when it occurs.",
+            "event_data": {
+                "data_element_name": {
+                "type": "bool",
+                "description": "Description of what the data element means or represents."
+                }
+            }
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param description: _description_
+        :type description: Optional[str]
+        :param event_data: _description_
+        :type event_data: Optional[Dict[str, DataElementSchema]]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._description : str                          = description or self._parseDescription(unparsed_elements=unparsed_elements)
@@ -82,12 +109,7 @@ class EventSchema(Schema):
         :return: _description_
         :rtype: EventSchema
         """
-        _description : str                          = cls._parseDescription(unparsed_elements=unparsed_elements)
-        _event_data  : Dict[str, DataElementSchema] = cls._parseEventDataElements(unparsed_elements=unparsed_elements)
-
-        _used = {"description", "event_data"}
-        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return EventSchema(name=name, description=_description, event_data=_event_data, other_elements=_leftovers)
+        return EventSchema(name=name, description=None, event_data=None, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "EventSchema":

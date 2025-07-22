@@ -7,14 +7,12 @@ and a listing of `"ENABLED"` tests.
 """
 
 # import standard libraries
-import logging
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 
 # import 3rd-party libraries
 
 # import OGD libraries
 from ogd.common.configs.Config import Config
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
 
 # import local files
@@ -25,7 +23,33 @@ class TestConfig(Config):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, verbose:bool, enabled_tests:Dict[str, bool], other_elements:Optional[Map]=None):
+    def __init__(self, name:str, verbose:Optional[bool], enabled_tests:Optional[Dict[str, bool]], other_elements:Optional[Map]=None):
+        """Constructor for the `TestConfig` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "VERBOSE" : False,
+            "ENABLED" : {
+                "TEST1":True,
+                "TEST2":True,
+                ...
+            }
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param verbose: _description_
+        :type verbose: Optional[bool]
+        :param enabled_tests: _description_
+        :type enabled_tests: Optional[Dict[str, bool]]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._verbose       : bool            = verbose       or self._parseVerbose(unparsed_elements=unparsed_elements)
@@ -72,10 +96,7 @@ class TestConfig(Config):
         :return: _description_
         :rtype: TestConfig
         """
-        _verbose         : bool            = cls._parseVerbose(unparsed_elements=unparsed_elements)
-        _enabled_tests   : Dict[str, bool] = cls._parseEnabledTests(unparsed_elements=unparsed_elements)
-
-        return TestConfig(name=name, verbose=_verbose, enabled_tests=_enabled_tests, other_elements=unparsed_elements)
+        return TestConfig(name=name, verbose=None, enabled_tests=None, other_elements=unparsed_elements)
 
     # *** PUBLIC METHODS ***
 

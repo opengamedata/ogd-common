@@ -25,7 +25,7 @@ class test_GameSourceSchema(TestCase):
 
         # 2. Set up local instance of testing class
         source_elems = {
-            "DB_TYPE"    : "FIREBASE",
+            "DB_TYPE"    : "BIGQUERY",
             "PROJECT_ID" : "aqualab-project",
             "PROJECT_KEY": {
                 "FILE": "key.txt",

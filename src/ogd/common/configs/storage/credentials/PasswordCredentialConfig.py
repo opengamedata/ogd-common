@@ -13,7 +13,29 @@ class PasswordCredential(CredentialConfig):
     _DEFAULT_USER = "DEFAULT USER"
     _DEFAULT_PASS = None
 
-    def __init__(self, name:str, username:str, password:Optional[str], other_elements:Optional[Map]=None):
+    def __init__(self, name:str, username:Optional[str], password:Optional[str], other_elements:Optional[Map]=None):
+        """Constructor for the `PerCountConfig` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "user" : "username",
+            "pass" : "password",
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param username: _description_
+        :type username: str
+        :param password: _description_
+        :type password: Optional[str]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
         self._user = username or self._parseUser(unparsed_elements=unparsed_elements)
         self._pass = password or self._parsePass(unparsed_elements=unparsed_elements)
@@ -49,10 +71,7 @@ class PasswordCredential(CredentialConfig):
         :return: _description_
         :rtype: PasswordCredential
         """
-        _user : str           = cls._parseUser(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
-        _pass : Optional[str] = cls._parsePass(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
-
-        return PasswordCredential(name=name, username=_user, password=_pass, other_elements=unparsed_elements)
+        return PasswordCredential(name=name, username=None, password=None, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "PasswordCredential":

@@ -1,9 +1,7 @@
 # import standard libraries
-import logging
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 # import local files
 from ogd.common.schemas.Schema import Schema
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 class SubfeatureConfig(Schema):
@@ -19,6 +17,28 @@ class SubfeatureConfig(Schema):
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
+        """Constructor for the `SubfeatureConfig` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "description": "Description of the feature that is etracted",
+            "return_type": "int"
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param return_type: _description_
+        :type return_type: Optional[str]
+        :param description: _description_
+        :type description: Optional[str]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
         
         self._return_type : str = return_type or self._parseReturnType(unparsed_elements=unparsed_elements)
@@ -63,12 +83,7 @@ class SubfeatureConfig(Schema):
         :return: _description_
         :rtype: SubfeatureConfig
         """
-        _return_type : str = cls._parseReturnType(unparsed_elements=unparsed_elements)
-        _description : str = cls._parseDescription(unparsed_elements=unparsed_elements)
-
-        _used = {"return_type", "description"}
-        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return SubfeatureConfig(name=name, return_type=_return_type, description=_description, other_elements=_leftovers)
+        return SubfeatureConfig(name=name, return_type=None, description=None, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "SubfeatureConfig":

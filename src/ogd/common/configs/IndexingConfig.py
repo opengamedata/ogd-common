@@ -1,10 +1,8 @@
 # import standard libraries
-import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 # import local files
 from ogd.common.configs.Config import Config
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 class FileIndexingConfig(Config):
@@ -14,7 +12,32 @@ class FileIndexingConfig(Config):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, local_dir:Path, remote_url:Optional[str], templates_url:str, other_elements:Optional[Map]=None):
+    def __init__(self, name:str, local_dir:Optional[Path], remote_url:Optional[str], templates_url:Optional[str], other_elements:Optional[Map]=None):
+        """Constructor for the `IndexingConfig` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "LOCAL_DIR"     : "./data/",
+            "REMOTE_URL"    : "https://opengamedata.fielddaylab.wisc.edu/",
+            "TEMPLATES_URL" : "https://github.com/opengamedata/opengamedata-samples"
+        }
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param local_dir: _description_
+        :type local_dir: Optional[Path]
+        :param remote_url: _description_
+        :type remote_url: Optional[str]
+        :param templates_url: _description_
+        :type templates_url: Optional[str]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._local_dir     : Path          = local_dir     or self._parseLocalDir(unparsed_elements=unparsed_elements)
@@ -66,13 +89,7 @@ class FileIndexingConfig(Config):
         :return: _description_
         :rtype: FileIndexingConfig
         """
-        _local_dir     : Path          = cls._parseLocalDir(unparsed_elements=unparsed_elements)
-        _remote_url    : Optional[str] = cls._parseRemoteURL(unparsed_elements=unparsed_elements)
-        _templates_url : str           = cls._parseTemplatesURL(unparsed_elements=unparsed_elements)
-
-        _used = {"LOCAL_DIR", "REMOTE_URL", "TEMPLATES_URL"}
-        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return FileIndexingConfig(name=name, local_dir=_local_dir, remote_url=_remote_url, templates_url=_templates_url, other_elements=_leftovers)
+        return FileIndexingConfig(name=name, local_dir=None, remote_url=None, templates_url=None, other_elements=unparsed_elements)
 
 
     @property

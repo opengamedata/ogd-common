@@ -1,8 +1,6 @@
 ## import standard libraries
-import logging
-import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, TypeAlias
+from typing import Dict, List, Optional, TypeAlias
 ## import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
@@ -13,7 +11,6 @@ from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 ColumnMapIndex   : TypeAlias = Optional[int | List[int] | Dict[str,int]]

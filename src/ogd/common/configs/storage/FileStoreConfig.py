@@ -1,13 +1,11 @@
 # import standard libraries
-import logging
-from typing import Any, Dict, Optional, TypeAlias
+from typing import Dict, Optional, TypeAlias
 from pathlib import Path
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
 from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 FileCredential : TypeAlias = PasswordCredential | EmptyCredential
@@ -26,14 +24,42 @@ class FileStoreConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 location:FileLocationSchema, file_credential:FileCredential,
+                 location:Optional[FileLocationSchema], file_credential:Optional[FileCredential],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
+        """Constructor for the `FileStoreConfig` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        In the format below, `FILE_CREDENTIAL` is optional.
+
+        Expected format:
+
+        ```
+        {
+            "SOURCE_TYPE" : "FILE",
+            "PATH" : "path/to/file.ext",
+            "FILE_CREDENTIAL" : {
+                "USER" : "username",
+                "PASS" : "password"
+            }
+        }
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param location: _description_
+        :type location: FileLocationSchema
+        :param file_credential: _description_
+        :type file_credential: FileCredential
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
-        self._location    : FileLocationSchema = location or self._parseLocation(unparsed_elements=unparsed_elements)
-        self._credential  : FileCredential = file_credential or self._parseCredential(unparsed_elements=unparsed_elements)
+        self._location    : FileLocationSchema = location        or self._parseLocation(unparsed_elements=unparsed_elements)
+        self._credential  : FileCredential     = file_credential or self._parseCredential(unparsed_elements=unparsed_elements)
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=unparsed_elements)
 
     @property
@@ -91,10 +117,7 @@ class FileStoreConfig(DataStoreConfig):
         :return: _description_
         :rtype: FileStoreConfig
         """
-        _file_loc   : FileLocationSchema = cls._parseLocation(unparsed_elements=unparsed_elements)
-        _credential : FileCredential     = cls._parseCredential(unparsed_elements=unparsed_elements)
-
-        return FileStoreConfig(name=name, location=_file_loc, file_credential=_credential, other_elements=unparsed_elements)
+        return FileStoreConfig(name=name, location=None, file_credential=None, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 

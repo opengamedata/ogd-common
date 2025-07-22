@@ -11,7 +11,6 @@ from ogd.common.models.Event import EventSource
 from ogd.common.schemas.tables.TableStructureSchema import TableStructureSchema, ColumnMapIndex, ColumnMapElement
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
-from ogd.common.utils.typing import Map
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
 
@@ -154,7 +153,7 @@ class FeatureTableStructureSchema(TableStructureSchema):
             "## Database Columns",
             "The individual columns recorded in the database for this game.",
             self._columnSetMarkdown,
-            f"## Feature Object Elements",
+            "## Feature Object Elements",
             "The elements (member variables) of each Event object, available to programmers when writing feature extractors. The right-hand side shows which database column(s) are mapped to a given element.",
             self._columnMapMarkdown,
             ""])

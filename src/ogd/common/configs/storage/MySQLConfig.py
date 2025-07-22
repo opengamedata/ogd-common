@@ -27,10 +27,43 @@ class MySQLConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 db_location:URLLocationSchema, db_credential:PasswordCredential, ssh_cfg:"SSHConfig",
+                 db_location:Optional[URLLocationSchema], db_credential:Optional[PasswordCredential], ssh_cfg:Optional[SSHConfig],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
+        """Constructor for the `MySQLConfig` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "DB_TYPE" : "MySQL",
+            "DB_HOST" : "127.0.0.1",
+            "DB_PORT" : 3306,
+            "DB_USER" : "username",
+            "DB_PASS" : "password",
+            "SSH_CONFIG" : {
+                "SSH_HOST": "ogd-logger.fielddaylab.wisc.edu",
+                "SSH_USER": "username",
+                "SSH_PASS": "password",
+                "SSH_PORT": 22
+            }
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param db_location: _description_
+        :type db_location: Optional[URLLocationSchema]
+        :param db_credential: _description_
+        :type db_credential: Optional[PasswordCredential]
+        :param ssh_cfg: _description_
+        :type ssh_cfg: Optional[SSHConfig]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._db_location : URLLocationSchema  = db_location   or self._parseLocation(unparsed_elements=unparsed_elements)
@@ -110,11 +143,7 @@ class MySQLConfig(DataStoreConfig):
         :return: _description_
         :rtype: MySQLConfig
         """
-        _db_location : URLLocationSchema  = cls._parseLocation(unparsed_elements=unparsed_elements)
-        _credential  : PasswordCredential = cls._parseCredential(unparsed_elements=unparsed_elements)
-        _ssh_cfg     : SSHConfig          = cls._parseSSHConfig(unparsed_elements=unparsed_elements)
-
-        return MySQLConfig(name=name, db_location=_db_location, db_credential=_credential, ssh_cfg=_ssh_cfg, other_elements=unparsed_elements)
+        return MySQLConfig(name=name, db_location=None, db_credential=None, ssh_cfg=None, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "MySQLConfig":

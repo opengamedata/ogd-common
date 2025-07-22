@@ -1,6 +1,6 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
@@ -19,7 +19,27 @@ class KeyCredential(CredentialConfig):
         other_elements=None
     )
 
-    def __init__(self, name:str, location:FileLocationSchema, other_elements:Optional[Map]=None):
+    def __init__(self, name:str, location:Optional[FileLocationSchema], other_elements:Optional[Map]=None):
+        """Constructor for the `KeyCredentialConfig` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "KEY" : "key.txt",
+            "PATH" : "./"
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param location: _description_
+        :type location: Optional[FileLocationSchema]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._location : FileLocationSchema = location or self._parseLocation(unparsed_elements=unparsed_elements)
@@ -96,9 +116,7 @@ class KeyCredential(CredentialConfig):
         :return: _description_
         :rtype: KeyCredential
         """
-        _location : FileLocationSchema = cls._parseLocation(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
-
-        return KeyCredential(name=name, location=_location, other_elements=unparsed_elements)
+        return KeyCredential(name=name, location=None, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "KeyCredential":

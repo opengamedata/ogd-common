@@ -20,7 +20,36 @@ class DatasetCollectionSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, datasets:Dict[str, DatasetSchema], other_elements:Dict[str, Any]):
+    def __init__(self, name:str, datasets:Optional[Dict[str, DatasetSchema]], other_elements:Dict[str, Any]):
+        """Constructor for the `DatasetCollectionSchema` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "GAME_NAME_20250101_to_20250131": {
+                "ogd_revision": "1234567",
+                "start_date": "01/01/2025",
+                "end_date": "01/31/2025",
+                ...
+                "all_events_template": "path/to/template
+            },
+            "GAME_NAME_20250201_to_20250228": {
+                ...
+            },
+            ...
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param datasets: _description_
+        :type datasets: Optional[Dict[str, DatasetSchema]]
+        :param other_elements: _description_
+        :type other_elements: Dict[str, Any]
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._datasets : Dict[str, DatasetSchema] = datasets or self._parseDatasets(unparsed_elements=unparsed_elements)
@@ -54,9 +83,7 @@ class DatasetCollectionSchema(Schema):
         :return: _description_
         :rtype: DatasetCollectionSchema
         """
-        _game_datasets : Dict[str, DatasetSchema] = cls._parseDatasets(unparsed_elements=unparsed_elements)
-
-        return DatasetCollectionSchema(name=name, datasets=_game_datasets, other_elements={})
+        return DatasetCollectionSchema(name=name, datasets=None, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 

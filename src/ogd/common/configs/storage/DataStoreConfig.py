@@ -39,6 +39,33 @@ class DataStoreConfig(Config):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, store_type:Optional[str], other_elements:Optional[Map]=None):
+        """Constructor for the `DataStoreConfig` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+        Because `DataStoreConfig` is just a base class for other specific datastore configuration classes,
+        the sample format below includes keys not used by `DataStoreConfig`.
+        The actual key used is `SOURCE_TYPE`, which may optionally be named `DB_TYPE`.
+
+        Expected format:
+
+        ```
+        {
+            "SOURCE_TYPE" : "BIGQUERY",
+            "PROJECT_ID" : "someprojectid",
+            "FILE_CREDENTIAL" : {
+                "FILE" : "key.txt",
+                "PATH" : "./"
+            }
+        }
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param store_type: _description_
+        :type store_type: Optional[str]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._store_type : str = store_type or self._parseStoreType(unparsed_elements=unparsed_elements)

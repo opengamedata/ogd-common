@@ -23,10 +23,34 @@ class SSHConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 location:URLLocationSchema, ssh_credential:PasswordCredential,
+                 location:Optional[URLLocationSchema], ssh_credential:Optional[PasswordCredential],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
+        """Constructor for the `SSHConfig` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "SSH_HOST": "ogd-logger.fielddaylab.wisc.edu",
+            "SSH_USER": "username",
+            "SSH_PASS": "password",
+            "SSH_PORT": 22
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param location: _description_
+        :type location: Optional[URLLocationSchema]
+        :param ssh_credential: _description_
+        :type ssh_credential: Optional[PasswordCredential]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._location   : URLLocationSchema  = location       or self._parseLocation(unparsed_elements=unparsed_elements)
@@ -86,10 +110,7 @@ class SSHConfig(DataStoreConfig):
         :return: _description_
         :rtype: SSHConfig
         """
-        _location   : URLLocationSchema  = cls._parseLocation(unparsed_elements=unparsed_elements)
-        _credential : PasswordCredential = cls._parseCredential(unparsed_elements=unparsed_elements)
-
-        return SSHConfig(name=name, location=_location, ssh_credential=_credential, other_elements=unparsed_elements)
+        return SSHConfig(name=name, location=None, ssh_credential=None, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "SSHConfig":
