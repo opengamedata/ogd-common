@@ -1,7 +1,9 @@
-from typing import Any, List, Optional
+from datetime import datetime, timezone
+from typing import Any, List, Optional, Union
 
 from ogd.common.models.GameData import GameData
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
+from ogd.common.utils.typing import Map
 
 class FeatureData(GameData):
     """
@@ -41,8 +43,7 @@ class FeatureData(GameData):
                 "mode",          "app_id",      "user_id", "session_id",
                 "app_version",   "app_branch",  "log_version"]
 
-    @staticmethod
-    def ColumnValues(self) -> List[str]:
+    def ColumnValues(self) -> List[str | int | List[Any] | ExtractionMode | None]:
         """A list of all values for the row, in order they appear in the `ColumnNames` function.
 
         .. todo:: Technically, this should be string representations of each, but we're technically not enforcing that yet.
@@ -50,8 +51,8 @@ class FeatureData(GameData):
         :return: The list of values.
         :rtype: List[Union[str, datetime, timezone, Map, int, None]]
         """
-        return [self.feature_type,  self.count_index, self.cols,    self.vals,
-                self.mode,          self.app_id,      self.user_id, self.session_id,
+        return [self._feature_type,  self._count_index, self._cols,    self._vals,
+                self._mode,          self.app_id,      self.user_id, self.session_id,
                 self.app_version,   self.app_branch,  self.log_version]
 
     @property
