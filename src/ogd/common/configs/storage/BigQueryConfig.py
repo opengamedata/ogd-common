@@ -119,7 +119,7 @@ class BigQueryConfig(DataStoreConfig):
         :return: _description_
         :rtype: BigQueryConfig
         """
-        return BigQueryConfig(name=name, location=None, credential=None, other_elements=key_overrides)
+        return BigQueryConfig(name=name, location=None, credential=None, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 
