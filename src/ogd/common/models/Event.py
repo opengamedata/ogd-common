@@ -22,7 +22,7 @@ class Event(GameData):
     def __init__(self, app_id:str,          user_id:Optional[str],          session_id:str,
                  timestamp:datetime,        time_offset:Optional[timezone], event_sequence_index:Optional[int],
                  app_version:Optional[str], app_branch:Optional[str],       log_version:Optional[str],     
-                 event_name:str,            event_source:EventSource,       event_data:Map,
+                 event_name:str,            event_source:"EventSource",       event_data:Map,
                  game_state:Optional[Map],  user_data:Optional[Map]):
         """Constructor for an Event struct
 

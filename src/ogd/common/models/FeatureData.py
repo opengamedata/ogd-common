@@ -30,6 +30,30 @@ class FeatureData(GameData):
     def __repr__(self) -> str:
         return self.Name
 
+    @staticmethod
+    def ColumnNames() -> List[str]:
+        """_summary_
+
+        :return: _description_
+        :rtype: List[str]
+        """
+        return ["feature_type",  "count_index", "cols",    "vals",
+                "mode",          "app_id",      "user_id", "session_id",
+                "app_version",   "app_branch",  "log_version"]
+
+    @staticmethod
+    def ColumnValues(self) -> List[str]:
+        """A list of all values for the row, in order they appear in the `ColumnNames` function.
+
+        .. todo:: Technically, this should be string representations of each, but we're technically not enforcing that yet.
+
+        :return: The list of values.
+        :rtype: List[Union[str, datetime, timezone, Map, int, None]]
+        """
+        return [self.feature_type,  self.count_index, self.cols,    self.vals,
+                self.mode,          self.app_id,      self.user_id, self.session_id,
+                self.app_version,   self.app_branch,  self.log_version]
+
     @property
     def Name(self):
         return self._name
