@@ -33,7 +33,7 @@ jobs:
           test_ExtractorConfig,
           test_GeneratorCollectionConfig,
           test_GeneratorConfig,
-          test_PerCountConfig,
+          test_IteratedConfig,
           test_SubfeatureConfig
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
