@@ -21,6 +21,28 @@ class FileLocationSchema(LocationSchema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, folder_path:Path | str, filename:str, other_elements:Optional[Map]=None):
+        """Constructor for the `FileLocationSchema` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "folder" : "path/to/folder",
+            "filename" : "file.ext"
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param folder_path: _description_
+        :type folder_path: Path | str
+        :param filename: _description_
+        :type filename: str
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._folder_path  : Path

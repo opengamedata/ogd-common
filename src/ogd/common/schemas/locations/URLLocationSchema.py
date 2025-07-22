@@ -1,6 +1,6 @@
 ## import standard libraries
 from urllib.parse import urlparse, ParseResult
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import Map
@@ -24,6 +24,25 @@ class URLLocationSchema(LocationSchema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, url:ParseResult, other_elements:Optional[Map]=None):
+        """Constructor for the `URLLocationSchema` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "url" : "http://subdomain.host.com/url/path"
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param url: _description_
+        :type url: ParseResult
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._url = url or self._parseURL(unparsed_elements=unparsed_elements) or self._parseSplitURL(unparsed_elements=unparsed_elements)
@@ -80,10 +99,6 @@ class URLLocationSchema(LocationSchema):
         :return: _description_
         :rtype: GameSourceSchema
         """
-        _host : str
-        _port : Optional[int]
-        _path : Optional[str]
-
         # 1. First, we try to get as a URL from dict as first try. If it returns something, then we've got it.
         url = cls._parseURL(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
         _used = {"url"}
