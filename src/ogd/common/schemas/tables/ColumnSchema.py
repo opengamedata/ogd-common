@@ -1,9 +1,7 @@
 # import standard libraries
-import logging
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 # import local files
 from ogd.common.schemas.Schema import Schema
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 class ColumnSchema(Schema):
@@ -13,7 +11,33 @@ class ColumnSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, readable:str, value_type:str, description:str, other_elements:Optional[Map]=None):
+    def __init__(self, name:str, readable:Optional[str], value_type:Optional[str], description:Optional[str], other_elements:Optional[Map]=None):
+        """Constructor for the `ColumnSchema` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "name": "column_name",
+            "readable": "Human-Readable Column Name",
+            "description": "Description of the column, what its contents represent.",
+            "type": "str"
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param readable: _description_
+        :type readable: Optional[str]
+        :param value_type: _description_
+        :type value_type: Optional[str]
+        :param description: _description_
+        :type description: Optional[str]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._readable    : str = readable    or self._parseReadable(unparsed_elements=unparsed_elements)
@@ -65,15 +89,9 @@ class ColumnSchema(Schema):
         :return: _description_
         :rtype: ColumnSchema
         """
-        _readable    : str = cls._parseReadable(unparsed_elements=unparsed_elements)
-        _description : str = cls._parseDescription(unparsed_elements=unparsed_elements)
-        _value_type  : str = cls._parseValueType(unparsed_elements=unparsed_elements)
         _name        : str = cls._parseName(name=name, unparsed_elements=unparsed_elements)
 
-        _used = {"name", "readable", "description", "type"}
-        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-
-        return ColumnSchema(name=_name, readable=_readable, value_type=_value_type, description=_description, other_elements=_leftovers)
+        return ColumnSchema(name=_name, readable=None, value_type=None, description=None, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "ColumnSchema":

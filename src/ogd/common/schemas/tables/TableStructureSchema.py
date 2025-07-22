@@ -34,6 +34,33 @@ class TableStructureSchema(Schema):
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
         class variables.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "column_map": {
+                "session_id"           : "session_id",
+                "app_id"               : null,
+                "timestamp"            : ["client_time", "client_time_ms"],
+                ...
+            },
+
+            "columns": [
+                {
+                    "name": "session_id",
+                    "readable": "Session ID",
+                    "description": "ID for the play session",
+                    "type": "str"
+                },
+                {
+                    "name": "client_time",
+                    ...
+                },
+        },
+        ```
 
         :param schema_name: The filename for the table schema JSON.
         :type schema_name: str
