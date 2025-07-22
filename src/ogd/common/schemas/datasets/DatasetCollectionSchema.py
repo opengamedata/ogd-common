@@ -83,7 +83,7 @@ class DatasetCollectionSchema(Schema):
         :return: _description_
         :rtype: DatasetCollectionSchema
         """
-        return DatasetCollectionSchema(name=name, datasets=None, other_elements={})
+        return DatasetCollectionSchema(name=name, datasets=None, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 
