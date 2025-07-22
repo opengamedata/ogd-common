@@ -14,7 +14,7 @@ class PasswordCredential(CredentialConfig):
     _DEFAULT_PASS = None
 
     def __init__(self, name:str, username:Optional[str], password:Optional[str], other_elements:Optional[Map]=None):
-        """Constructor for the `PerCountConfig` class.
+        """Constructor for the `IteratedConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
 
