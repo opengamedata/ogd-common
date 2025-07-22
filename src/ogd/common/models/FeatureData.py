@@ -1,9 +1,7 @@
-from datetime import datetime, timezone
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional
 
 from ogd.common.models.GameData import GameData
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
-from ogd.common.utils.typing import Map
 
 class FeatureData(GameData):
     """
