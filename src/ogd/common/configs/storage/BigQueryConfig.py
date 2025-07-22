@@ -1,5 +1,4 @@
 # import standard libraries
-from pathlib import Path
 from typing import Dict, Optional
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
@@ -22,13 +21,39 @@ class BigQueryConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 location:DatabaseLocationSchema, credential:KeyCredential,
+                 location:Optional[DatabaseLocationSchema], credential:Optional[KeyCredential],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
+        """Constructor for the `BigQueryConfig` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "SOURCE_TYPE" : "BIGQUERY",
+            "PROJECT_ID" : "someprojectid",
+            "PROJECT_KEY" : {
+                "FILE" : "key.txt",
+                "PATH" : "./"
+            }
+        }
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param location: _description_
+        :type location: Optional[DatabaseLocationSchema]
+        :param credential: _description_
+        :type credential: Optional[KeyCredential]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
-        self._location   : DatabaseLocationSchema  = location if location else BigQueryConfig._parseLocation(unparsed_elements=unparsed_elements)
+        self._location   : DatabaseLocationSchema  = location   or BigQueryConfig._parseLocation(unparsed_elements=unparsed_elements)
         self._credential : KeyCredential           = credential or BigQueryConfig._parseCredential(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=unparsed_elements)
@@ -76,6 +101,7 @@ class BigQueryConfig(DataStoreConfig):
         Expects dictionary to have the following form:
         ```json
         {
+            "SOURCE_TYPE" : "BIGQUERY",
             "PROJECT_ID" : "someprojectid",
             "PROJECT_KEY" : {
                 "FILE" : "key.txt",
@@ -93,12 +119,7 @@ class BigQueryConfig(DataStoreConfig):
         :return: _description_
         :rtype: BigQueryConfig
         """
-        _project_id : DatabaseLocationSchema  = cls._parseLocation(unparsed_elements=unparsed_elements)
-        _credential : Optional[KeyCredential] = cls._parseCredential(unparsed_elements=unparsed_elements)
-
-        _used = {"PROJECT_ID", "DATASET_ID", "PROJECT_KEY"}
-        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return BigQueryConfig(name=name, location=_project_id, credential=_credential, other_elements=_leftovers)
+        return BigQueryConfig(name=name, location=None, credential=None, other_elements=key_overrides)
 
     # *** PUBLIC STATICS ***
 
