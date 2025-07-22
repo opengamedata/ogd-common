@@ -6,11 +6,11 @@ from unittest import TestCase
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.configs.generators.FeatureMapConfig import FeatureMapConfig
+from src.ogd.common.configs.generators.ExtractorMapConfig import ExtractorMapConfig
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
-class test_FeatureMapConfig(TestCase):
+class test_ExtractorMapConfig(TestCase):
     """Testbed for the GameSourceSchema class.
 
         TODO : Implement and enable tests.
@@ -24,12 +24,12 @@ class test_FeatureMapConfig(TestCase):
         Logger.std_logger.setLevel(_level)
 
         # 2. Set up local instance of testing class
-        cls.test_schema = FeatureMapConfig(
+        cls.test_schema = ExtractorMapConfig(
             name="available_building Schema",
             legacy_mode=True,
-            legacy_perlevel_feats={},
-            percount_feats={},
-            aggregate_feats={},
+            legacy_perlevel_extractors={},
+            iterated_extractors={},
+            aggregate_extractors={},
             other_elements={ "foo":"bar" }
         )
 
@@ -58,14 +58,14 @@ class test_FeatureMapConfig(TestCase):
         # self.assertEqual(_str, "List[Dict]")
 
     @unittest.skip("Not implemented")
-    def test_PerCountFeatures(self):
+    def test_IteratedExtractors(self):
         pass
         # _str = self.test_schema.Description
         # self.assertIsInstance(_str, str)
         # self.assertEqual(_str, "The buildings available for the player to construct")
 
     @unittest.skip("Not implemented")
-    def test_AggregateFeatures(self):
+    def test_AggregateExtractors(self):
         pass
         # _details = self.test_schema.Details
         # self.assertIsInstance(_details, dict)
@@ -101,7 +101,7 @@ class test_FeatureMapConfig(TestCase):
                },
                "description" : "The buildings available for the player to construct"
         }
-        _schema = FeatureMapConfig.FromDict(name="available_buildings Schema", unparsed_elements=_dict)
+        _schema = ExtractorMapConfig.FromDict(name="available_buildings Schema", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "available_buildings Schema")
 

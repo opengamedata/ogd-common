@@ -6,6 +6,7 @@ class IterationMode(IntEnum):
     Aggregate (no iteration) or Per-Count (iterated by count)
     """
     AGGREGATE = 1
+    ITERATED = 2
     PERCOUNT = 2
 
     def __str__(self):

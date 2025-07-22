@@ -25,7 +25,7 @@ class SubfeatureConfig(Schema):
 
         ```
         {
-            "description": "Description of the feature that is etracted",
+            "description": "Description of the feature that is extracted",
             "return_type": "int"
         },
         ```

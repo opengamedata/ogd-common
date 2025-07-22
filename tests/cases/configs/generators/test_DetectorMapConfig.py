@@ -26,7 +26,6 @@ class test_DetectorMapConfig(TestCase):
         # 2. Set up local instance of testing class
         cls.test_schema = DetectorMapConfig(
             name="available_building Schema",
-            perlevel_detectors={},
             percount_detectors={},
             aggregate_detectors={},
             other_elements={ "foo":"bar" }
@@ -50,7 +49,7 @@ class test_DetectorMapConfig(TestCase):
         # self.assertEqual(_str, "List[Dict]")
 
     @unittest.skip("Not implemented")
-    def test_PerCountDetectors(self):
+    def test_IteratedDetectors(self):
         pass
         # _str = self.test_schema.Description
         # self.assertIsInstance(_str, str)

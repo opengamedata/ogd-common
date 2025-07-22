@@ -4,11 +4,11 @@ from typing import Dict, Optional
 # import local files
 from ogd.common.configs.Config import Config
 from ogd.common.configs.generators.AggregateConfig import AggregateConfig
-from ogd.common.configs.generators.PerCountConfig import PerCountConfig
+from ogd.common.configs.generators.IteratedConfig import IteratedConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import conversions, Map
 
-class FeatureMapConfig(Config):
+class ExtractorMapConfig(Config):
     """
     Dumb struct to contain the specification and config of a set of features for a game.
 
@@ -16,16 +16,16 @@ class FeatureMapConfig(Config):
     """
 
     _DEFAULT_LEGACY_MODE = False
-    _DEFAULT_LEGACY_FEATS = {}
-    _DEFAULT_PERCOUNT_FEATS = {}
-    _DEFAULT_AGGREGATE_FEATS = {}
+    _DEFAULT_LEGACY_EXTORS = {}
+    _DEFAULT_ITERATED_EXTORS = {}
+    _DEFAULT_AGGREGATE_EXTORS = {}
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, legacy_mode:Optional[bool],        legacy_perlevel_feats:Optional[Dict[str, PerCountConfig]],
-                 percount_feats:Optional[Dict[str, PerCountConfig]], aggregate_feats:Optional[Dict[str, AggregateConfig]],
+    def __init__(self, name:str, legacy_mode:Optional[bool],        legacy_perlevel_extractors:Optional[Dict[str, IteratedConfig]],
+                 iterated_extractors:Optional[Dict[str, IteratedConfig]], aggregate_extractors:Optional[Dict[str, AggregateConfig]],
                  other_elements:Optional[Map]=None):
-        """Constructor for the `FeatureMapConfig` class.
+        """Constructor for the `ExtractorMapConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
 
@@ -33,13 +33,13 @@ class FeatureMapConfig(Config):
 
         ```
         {
-            "per_count" : {
+            "iterated" : {
                 "ExtractorName1": {
                     "enabled": true,
                     "type": "ExtractorClass",
                     "count": "level_range",
                     "prefix": "lvl",
-                    "description": "Info about the per-count extractor; the per-count is generally optional.",
+                    "description": "Info about the iterated extractor.",
                     "return_type": "str"
                 },
                 "ExtractorName2": {
@@ -67,9 +67,9 @@ class FeatureMapConfig(Config):
         :param legacy_mode: _description_
         :type legacy_mode: Optional[bool]
         :param legacy_perlevel_feats: _description_
-        :type legacy_perlevel_feats: Optional[Dict[str, PerCountConfig]]
+        :type legacy_perlevel_feats: Optional[Dict[str, IteratedConfig]]
         :param percount_feats: _description_
-        :type percount_feats: Optional[Dict[str, PerCountConfig]]
+        :type percount_feats: Optional[Dict[str, IteratedConfig]]
         :param aggregate_feats: _description_
         :type aggregate_feats: Optional[Dict[str, AggregateConfig]]
         :param other_elements: _description_, defaults to None
@@ -78,9 +78,9 @@ class FeatureMapConfig(Config):
         unparsed_elements : Map = other_elements or {}
 
         self._legacy_mode           : bool                       = legacy_mode           or self._parseLegacyMode(unparsed_elements=unparsed_elements)
-        self._legacy_perlevel_feats : Dict[str, PerCountConfig]  = legacy_perlevel_feats or self._parsePerLevelFeatures(unparsed_elements=unparsed_elements)
-        self._percount_feats        : Dict[str, PerCountConfig]  = percount_feats        or self._parsePerCountFeatures(unparsed_elements=unparsed_elements)
-        self._aggregate_feats       : Dict[str, AggregateConfig] = aggregate_feats       or self._parseAggregateFeatures(unparsed_elements=unparsed_elements)
+        self._legacy_extractors     : Dict[str, IteratedConfig]  = legacy_perlevel_extractors or self._parsePerLevelExtractors(unparsed_elements=unparsed_elements)
+        self._iterated_extractors   : Dict[str, IteratedConfig]  = iterated_extractors        or self._parseIteratedExtractors(unparsed_elements=unparsed_elements)
+        self._aggregate_feats       : Dict[str, AggregateConfig] = aggregate_extractors       or self._parseAggregateExtractors(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -89,15 +89,23 @@ class FeatureMapConfig(Config):
         return self._legacy_mode
 
     @property
-    def LegacyPerLevelFeatures(self) -> Dict[str, PerCountConfig]:
-        return self._legacy_perlevel_feats
+    def LegacyPerLevelFeatures(self) -> Dict[str, IteratedConfig]:
+        return self._legacy_extractors
 
     @property
-    def PerCountFeatures(self) -> Dict[str, PerCountConfig]:
-        return self._percount_feats
+    def IteratedExtractors(self) -> Dict[str, IteratedConfig]:
+        return self._iterated_extractors
+    @property
+    def PerCountFeatures(self) -> Dict[str, IteratedConfig]:
+        """Legacy alias for IteratedExtractors
+
+        :return: _description_
+        :rtype: Dict[str, IteratedConfig]
+        """
+        return self.IteratedExtractors
 
     @property
-    def AggregateFeatures(self) -> Dict[str, AggregateConfig]:
+    def AggregateExtractors(self) -> Dict[str, AggregateConfig]:
         return self._aggregate_feats
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -105,14 +113,14 @@ class FeatureMapConfig(Config):
     @property
     def AsMarkdown(self) -> str:
         feature_summary = ["## Processed Features",
-                           "The features/metrics calculated from this game's event logs by OpenGameData when an 'export' is run."
+                           "The features/metrics extracted from this game's event logs by OpenGameData when an 'export' is run."
                           ]
-        feature_list = [feature.AsMarkdown for feature in self._aggregate_feats.values()] + [feature.AsMarkdown for feature in self._percount_feats.values()]
+        feature_list = [feature.AsMarkdown for feature in self._aggregate_feats.values()] + [feature.AsMarkdown for feature in self._iterated_extractors.values()]
         feature_list = feature_list if len(feature_list) > 0 else ["None"]
         return "  \n\n".join(feature_summary + feature_list)
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "FeatureMapConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "ExtractorMapConfig":
         """Function to generate a DetectorMapConfig from a JSON-formatted dictionary.
 
         Expected structure is:
@@ -128,11 +136,11 @@ class FeatureMapConfig(Config):
                     "description":"Info about the per-level detector; the perlevel is a legacy sub-dict and should not be included."
                 }
             },
-            "per_count" : {
+            "iterated" : {
                 "example" : {
                     "type":"ExampleDetectorClass",
                     "enabled":true,
-                    "description":"Info about the per-count detector; the per-count is generally optional."
+                    "description":"Info about the iterated detector."
                 }
             },
             "aggregate" : {
@@ -151,18 +159,18 @@ class FeatureMapConfig(Config):
         :return: A DetectorMapConfig based on the given collection of elements.
         :rtype: DetectorMapConfig
         """
-        return FeatureMapConfig(name=name, legacy_mode=None, legacy_perlevel_feats=None,
-                                percount_feats=None, aggregate_feats=None,
+        return ExtractorMapConfig(name=name, legacy_mode=None, legacy_perlevel_extractors=None,
+                                iterated_extractors=None, aggregate_extractors=None,
                                 other_elements=unparsed_elements)
 
     @classmethod
-    def Default(cls) -> "FeatureMapConfig":
-        return FeatureMapConfig(
-            name="DefaultFeatureMapConfig",
+    def Default(cls) -> "ExtractorMapConfig":
+        return ExtractorMapConfig(
+            name="DefaultExtractorMapConfig",
             legacy_mode=cls._DEFAULT_LEGACY_MODE,
-            legacy_perlevel_feats=cls._DEFAULT_LEGACY_FEATS,
-            percount_feats=cls._DEFAULT_PERCOUNT_FEATS,
-            aggregate_feats=cls._DEFAULT_AGGREGATE_FEATS,
+            legacy_perlevel_extractors=cls._DEFAULT_LEGACY_EXTORS,
+            iterated_extractors=cls._DEFAULT_ITERATED_EXTORS,
+            aggregate_extractors=cls._DEFAULT_AGGREGATE_EXTORS,
             other_elements={}
         )
 
@@ -197,11 +205,11 @@ class FeatureMapConfig(Config):
         legacy_element = unparsed_elements.get("legacy", None)
         if legacy_element:
             if isinstance(legacy_element, dict):
-                ret_val = FeatureMapConfig.ParseElement(
+                ret_val = ExtractorMapConfig.ParseElement(
                     unparsed_elements=legacy_element,
                     valid_keys=["enabled"],
                     to_type=bool,
-                    default_value=FeatureMapConfig._DEFAULT_LEGACY_MODE,
+                    default_value=ExtractorMapConfig._DEFAULT_LEGACY_MODE,
                 )
             else:
                 ret_val = conversions.ConvertToType(value=legacy_element, to_type=bool, name="legacy_element")
@@ -209,48 +217,48 @@ class FeatureMapConfig(Config):
         return ret_val
 
     @staticmethod
-    def _parsePerLevelFeatures(unparsed_elements:Map) -> Dict[str, PerCountConfig]:
-        ret_val : Dict[str, PerCountConfig]
+    def _parsePerLevelExtractors(unparsed_elements:Map) -> Dict[str, IteratedConfig]:
+        ret_val : Dict[str, IteratedConfig]
 
-        perlevels = FeatureMapConfig.ParseElement(
+        perlevels = ExtractorMapConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["perlevel", "per_level"],
             to_type=dict,
-            default_value=FeatureMapConfig._DEFAULT_LEGACY_FEATS
+            default_value=ExtractorMapConfig._DEFAULT_LEGACY_EXTORS
         )
         if isinstance(perlevels, dict):
-            ret_val = { key : PerCountConfig.FromDict(name=key, unparsed_elements=val) for key,val in perlevels.items() }
+            ret_val = { key : IteratedConfig.FromDict(name=key, unparsed_elements=val) for key,val in perlevels.items() }
         else:
             ret_val = {}
             Logger.Log("Per-level features map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
 
     @staticmethod
-    def _parsePerCountFeatures(unparsed_elements:Map) -> Dict[str, PerCountConfig]:
-        ret_val : Dict[str, PerCountConfig]
+    def _parseIteratedExtractors(unparsed_elements:Map) -> Dict[str, IteratedConfig]:
+        ret_val : Dict[str, IteratedConfig]
 
-        percounts = FeatureMapConfig.ParseElement(
+        percounts = ExtractorMapConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["per_count", "percount"],
+            valid_keys=["iterated", "per_count", "percount"],
             to_type=dict,
-            default_value=FeatureMapConfig._DEFAULT_PERCOUNT_FEATS
+            default_value=ExtractorMapConfig._DEFAULT_ITERATED_EXTORS
         )
         if isinstance(percounts, dict):
-            ret_val = { key : PerCountConfig.FromDict(name=key, unparsed_elements=val) for key,val in percounts.items() }
+            ret_val = { key : IteratedConfig.FromDict(name=key, unparsed_elements=val) for key,val in percounts.items() }
         else:
             ret_val = {}
-            Logger.Log("Per-count features map was not a dict, defaulting to empty dict", logging.WARN)
+            Logger.Log("Iterated features map was not a dict, defaulting to empty dict", logging.WARN)
         return ret_val
 
     @staticmethod
-    def _parseAggregateFeatures(unparsed_elements:Map) -> Dict[str, AggregateConfig]:
+    def _parseAggregateExtractors(unparsed_elements:Map) -> Dict[str, AggregateConfig]:
         ret_val : Dict[str, AggregateConfig]
 
-        aggregates = FeatureMapConfig.ParseElement(
+        aggregates = ExtractorMapConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["aggregate"],
             to_type=dict,
-            default_value=FeatureMapConfig._DEFAULT_AGGREGATE_FEATS
+            default_value=ExtractorMapConfig._DEFAULT_AGGREGATE_EXTORS
         )
         if isinstance(aggregates, dict):
             ret_val = {key : AggregateConfig.FromDict(name=key, unparsed_elements=val) for key,val in aggregates.items()}

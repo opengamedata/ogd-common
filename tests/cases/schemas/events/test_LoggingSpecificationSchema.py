@@ -27,9 +27,7 @@ class test_LoggingSpecificationSchema(TestCase):
         cls.test_schema = LoggingSpecificationSchema(
             name="available_building Schema", game_id="", enum_defs={},
             game_state={}, user_data={}, event_list=[],
-            detector_map={}, aggregate_feats={}, percount_feats={},
-            legacy_perlevel_feats={}, use_legacy_mode=True,
-            config={}, min_level=0, max_level=2, other_ranges={}, supported_vers=[],
+            logging_version=1,
             other_elements={ "foo":"bar" }
         )
 
@@ -100,7 +98,7 @@ class test_LoggingSpecificationSchema(TestCase):
         # self.assertEqual(_str, "The buildings available for the player to construct")
 
     @unittest.skip("Not implemented")
-    def test_PerCountDetectors(self):
+    def test_IteratedDetectors(self):
         pass
         # _str = self.test_schema.Description
         # self.assertIsInstance(_str, str)
@@ -135,14 +133,14 @@ class test_LoggingSpecificationSchema(TestCase):
         # self.assertEqual(_str, "The buildings available for the player to construct")
 
     @unittest.skip("Not implemented")
-    def test_PerCountFeatures(self):
+    def test_IteratedExtractors(self):
         pass
         # _str = self.test_schema.Description
         # self.assertIsInstance(_str, str)
         # self.assertEqual(_str, "The buildings available for the player to construct")
 
     @unittest.skip("Not implemented")
-    def test_AggregateFeatures(self):
+    def test_AggregateExtractors(self):
         pass
         # _str = self.test_schema.Description
         # self.assertIsInstance(_str, str)

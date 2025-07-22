@@ -8,7 +8,7 @@ from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
-class FeatureConfig(GeneratorConfig):
+class ExtractorConfig(GeneratorConfig):
     """Base class for all schemas related to defining feature Extractor configurations.
     """
     _DEFAULT_RETURN_TYPE = "str"
@@ -24,11 +24,11 @@ class FeatureConfig(GeneratorConfig):
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
-        """Constructor for the `FeatureConfig` class.
+        """Constructor for the `ExtractorConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
-        Because `FeatureConfig` is just a base class for other specific feature configuration classes,
-        the sample format below includes keys not used by `FeatureConfig`.
+        Because `ExtractorConfig` is just a base class for other specific feature configuration classes,
+        the sample format below includes keys not used by `ExtractorConfig`.
         The actual keys used are `subfeatures` and `return_type`.
         `subfeatures` is an optional key.
 
@@ -37,7 +37,7 @@ class FeatureConfig(GeneratorConfig):
         ```
         {
             "enabled": true,
-            "type": "FeatureType",
+            "type": "ExtractorType",
             "description": "Human-readable description of the feature this module extracts.",
             "return_type": "int",
             "subfeatures" : [
@@ -67,8 +67,8 @@ class FeatureConfig(GeneratorConfig):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._subfeatures : Dict[str, SubfeatureConfig] = subfeatures or FeatureConfig._parseSubfeatures(unparsed_elements=unparsed_elements)
-        self._return_type : str                         = return_type or FeatureConfig._parseReturnType(unparsed_elements=unparsed_elements)
+        self._subfeatures : Dict[str, SubfeatureConfig] = subfeatures or ExtractorConfig._parseSubfeatures(unparsed_elements=unparsed_elements)
+        self._return_type : str                         = return_type or ExtractorConfig._parseReturnType(unparsed_elements=unparsed_elements)
 
         # Don't explicitly pass in other params, let them be parsed from other_elements.
         super().__init__(name=name, enabled=enabled, type_name=type_name, description=description, other_elements=unparsed_elements)
@@ -91,11 +91,11 @@ class FeatureConfig(GeneratorConfig):
 
     @staticmethod
     def _parseReturnType(unparsed_elements:Map) -> str:
-        return FeatureConfig.ParseElement(
+        return ExtractorConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["return_type"],
             to_type=str,
-            default_value=FeatureConfig._DEFAULT_RETURN_TYPE,
+            default_value=ExtractorConfig._DEFAULT_RETURN_TYPE,
             remove_target=True
         )
 
@@ -103,11 +103,11 @@ class FeatureConfig(GeneratorConfig):
     def _parseSubfeatures(unparsed_elements) -> Dict[str, SubfeatureConfig]:
         ret_val : Dict[str, SubfeatureConfig]
 
-        subfeatures = FeatureConfig.ParseElement(
+        subfeatures = ExtractorConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["subfeatures"],
             to_type=dict,
-            default_value=FeatureConfig._DEFAULT_SUBFEATURES,
+            default_value=ExtractorConfig._DEFAULT_SUBFEATURES,
             remove_target=True
         )
         if isinstance(subfeatures, dict):
