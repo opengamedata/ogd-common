@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 # import local files
 from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
@@ -18,7 +18,38 @@ class GameStateSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, game_state:Dict[str, DataElementSchema], other_elements:Optional[Map]=None):
+    def __init__(self, name:str, game_state:Optional[Dict[str, DataElementSchema]], other_elements:Optional[Map]=None):
+        """Constructor for the `GameStateSchema` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "game_state_element_name": {
+                "type": "float",
+                "description": "Description of the data element of the game_state column."
+            },
+            "seconds_from_launch": {
+                "type": "float",
+                "description": "The number of seconds of game time elapsed since the game was launched, *not including time when the game was paused*."
+            },
+            "current_level": {
+                "type": "int",
+                "description": "The current level the player is playing."
+            },
+            ...
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param game_state: _description_
+        :type game_state: Optional[Dict[str, DataElementSchema]]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._game_state  : Dict[str, DataElementSchema] = game_state or self._parseGameStateElements(unparsed_elements=unparsed_elements)
@@ -76,10 +107,7 @@ class GameStateSchema(Schema):
         :return: _description_
         :rtype: GameStateSchema
         """
-        _game_state  : Dict[str, DataElementSchema] = cls._parseGameStateElements(unparsed_elements=unparsed_elements)
-
-        _leftovers = {}
-        return GameStateSchema(name=name, game_state=_game_state, other_elements=_leftovers)
+        return GameStateSchema(name=name, game_state=None, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "GameStateSchema":

@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
@@ -17,7 +17,37 @@ class DataElementSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, element_type:str, description:str, details:Optional[Dict[str, str]], other_elements:Optional[Map]=None):
+    def __init__(self, name:str, element_type:Optional[str], description:Optional[str], details:Optional[Dict[str, str]], other_elements:Optional[Map]=None):
+        """Constructor for the `DataElementSchema` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        In the format below, `details` is an optional key.
+
+        Expected format:
+
+        ```
+        {
+               "type": "List[Dict]",
+               "details": {
+                  "name": "str",
+                  "price": "int"
+               },
+               "description": "A description of what the data element means or represents. In this example, some kind of a pricing menu."
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param element_type: _description_
+        :type element_type: Optional[str]
+        :param description: _description_
+        :type description: Optional[str]
+        :param details: _description_
+        :type details: Optional[Dict[str, str]]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._type        : str                      = element_type or self._parseElementType(unparsed_elements=unparsed_elements)
@@ -71,13 +101,7 @@ class DataElementSchema(Schema):
         :return: _description_
         :rtype: DataElementSchema
         """
-        _type        : str                      = cls._parseElementType(unparsed_elements=unparsed_elements)
-        _description : str                      = cls._parseDescription(unparsed_elements=unparsed_elements)
-        _details     : Optional[Dict[str, str]] = cls._parseDetails(unparsed_elements=unparsed_elements)
-
-        _used = {"type", "description", "details"}
-        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return DataElementSchema(name=name, element_type=_type, description=_description, details=_details, other_elements=_leftovers)
+        return DataElementSchema(name=name, element_type=None, description=None, details=None, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "DataElementSchema":
@@ -94,7 +118,7 @@ class DataElementSchema(Schema):
     # *** PUBLIC METHODS ***
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Map)-> "Schema":
+    def FromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "DataElementSchema":
         """Override of base class function to create an instance of DataElementSchema, from data in a Map (Dict[str, Any])
 
         :param name: The name of the instance.

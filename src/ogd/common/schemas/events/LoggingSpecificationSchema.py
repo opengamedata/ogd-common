@@ -28,10 +28,50 @@ class LoggingSpecificationSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, game_id:str, enum_defs:Dict[str, List[str]],
-                 game_state:Map, user_data:Map, event_list:List[EventSchema],
-                 logging_version:int, other_elements:Optional[Map]=None):
-        """Constructor for the LoggingSpecificationSchema class.
+    def __init__(self, name:str, game_id:str, enum_defs:Optional[Dict[str, List[str]]],
+                 game_state:Optional[Map], user_data:Optional[Map], event_list:Optional[List[EventSchema]],
+                 logging_version:Optional[int], other_elements:Optional[Map]=None):
+        """Constructor for the `LoggingSpecificationSchema` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "enumas": {
+                "EnumOne": [ "VALUE1", "VALUE2", "VALUE3", ... ],
+                ...
+            }
+            "game_state": {
+                "game_state_element_name": {
+                    "type": "float",
+                    "description": "Description of the data element of the game_state column."
+                },
+                ...
+            },
+            "user_data": {
+                "user_data_element_name": {
+                    "type": "float",
+                    "description": "Description of the data element of the user_data column."
+                },
+                ...
+            },
+            "events": {
+                "event_name" : {
+                    "description": "Description of what the event is and when it occurs.",
+                    "event_data": {
+                        "data_element_name": {
+                        "type": "bool",
+                        "description": "Description of what the data element means or represents."
+                        },
+                        ...
+                    }
+                }
+            },
+            "logging_version" : 1
+        },
+        ```
 
         :param name: _description_
         :type name: str
@@ -54,11 +94,11 @@ class LoggingSpecificationSchema(Schema):
 
     # 1. define instance vars
         self._game_id     : str                  = game_id
-        self._enum_defs   : Dict[str, List[str]] = enum_defs      or self._parseEnumDefs(unparsed_elements=unparsed_elements)
-        self._game_state  : Map                  = game_state     or self._parseGameState(unparsed_elements=unparsed_elements)
-        self._user_data   : Map                  = user_data      or self._parseUserData(unparsed_elements=unparsed_elements)
-        self._event_list  : List[EventSchema]    = event_list     or self._parseEventList(unparsed_elements=unparsed_elements)
-        self._log_version : int                  = logging_version
+        self._enum_defs   : Dict[str, List[str]] = enum_defs       or self._parseEnumDefs(unparsed_elements=unparsed_elements)
+        self._game_state  : Map                  = game_state      or self._parseGameState(unparsed_elements=unparsed_elements)
+        self._user_data   : Map                  = user_data       or self._parseUserData(unparsed_elements=unparsed_elements)
+        self._event_list  : List[EventSchema]    = event_list      or self._parseEventList(unparsed_elements=unparsed_elements)
+        self._log_version : int                  = logging_version or self._parseLogVersion(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -163,18 +203,10 @@ class LoggingSpecificationSchema(Schema):
         :rtype: LoggingSpecificationSchema
         """
         _game_id     : str                  = name
-        _enum_defs   : Dict[str, List[str]] = cls._parseEnumDefs(unparsed_elements=unparsed_elements)
-        _game_state  : Dict[str, Any]       = cls._parseGameState(unparsed_elements=unparsed_elements)
-        _user_data   : Dict[str, Any]       = cls._parseUserData(unparsed_elements=unparsed_elements)
-        _event_list  : List[EventSchema]    = cls._parseEventList(unparsed_elements=unparsed_elements)
-        _log_version : int                  = cls._parseLogVersion(unparsed_elements=unparsed_elements)
-
-        _used = {'enums', 'game_state', 'user_data', 'events', 'logging_version', 'log_version'}
-        _leftovers = { key:val for key,val in unparsed_elements.items() if key not in _used }
-        return LoggingSpecificationSchema(name=name, game_id=_game_id, enum_defs=_enum_defs,
-                          game_state=_game_state, user_data=_user_data,
-                          event_list=_event_list, logging_version=_log_version,
-                          other_elements=_leftovers)
+        return LoggingSpecificationSchema(name=name, game_id=_game_id, enum_defs=None,
+                          game_state=None, user_data=None,
+                          event_list=None, logging_version=None,
+                          other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "LoggingSpecificationSchema":
@@ -192,7 +224,7 @@ class LoggingSpecificationSchema(Schema):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, game_id:str, schema_path:Optional[Path] = None, search_templates:bool=True) -> "LoggingSpecificationSchema":
+    def FromFile(cls, schema_name:str, schema_path:Optional[Path] = None, search_templates:bool=True) -> "LoggingSpecificationSchema":
         """Function to get a LoggingSpecificationSchema from a file
 
         :param game_id: _description_
@@ -206,6 +238,8 @@ class LoggingSpecificationSchema(Schema):
         :rtype: LoggingSpecificationSchema
         """
         ret_val : Schema
+
+        game_id = schema_name.split(".")[0]
         # Give schema_path a default, don't think we can use game_id to construct it directly in the function header (so do it here if None)
         schema_path = schema_path or cls._DEFAULT_GAME_FOLDER / game_id / "schemas"
         ret_val = cls._fromFile(schema_name=game_id, schema_path=schema_path, search_templates=search_templates)
