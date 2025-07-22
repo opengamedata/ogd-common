@@ -100,7 +100,7 @@ class test_LoggingSpecificationSchema(TestCase):
         # self.assertEqual(_str, "The buildings available for the player to construct")
 
     @unittest.skip("Not implemented")
-    def test_PerCountDetectors(self):
+    def test_IteratedDetectors(self):
         pass
         # _str = self.test_schema.Description
         # self.assertIsInstance(_str, str)
@@ -135,14 +135,14 @@ class test_LoggingSpecificationSchema(TestCase):
         # self.assertEqual(_str, "The buildings available for the player to construct")
 
     @unittest.skip("Not implemented")
-    def test_PerCountFeatures(self):
+    def test_IteratedExtractors(self):
         pass
         # _str = self.test_schema.Description
         # self.assertIsInstance(_str, str)
         # self.assertEqual(_str, "The buildings available for the player to construct")
 
     @unittest.skip("Not implemented")
-    def test_AggregateFeatures(self):
+    def test_AggregateExtractors(self):
         pass
         # _str = self.test_schema.Description
         # self.assertIsInstance(_str, str)
