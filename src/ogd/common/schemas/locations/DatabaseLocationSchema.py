@@ -17,7 +17,31 @@ class DatabaseLocationSchema(LocationSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, database_name:str, table_name:Optional[str], other_elements:Optional[Map]=None):
+    def __init__(self, name:str, database_name:Optional[str], table_name:Optional[str], other_elements:Optional[Map]=None):
+        """Constructor for the `DatabaseLocationSchema` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        In the format below, `TABLE_NAME` is an optional element.
+
+        Expected format:
+
+        ```
+        {
+            "DATABASE" : "database_name",
+            "TABLE_NAME" : "table"
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param database_name: _description_
+        :type database_name: Optional[str]
+        :param table_name: _description_
+        :type table_name: Optional[str]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._db_name    : str           = database_name or self._parseDatabaseName(unparsed_elements=unparsed_elements)
@@ -76,12 +100,7 @@ class DatabaseLocationSchema(LocationSchema):
         :return: _description_
         :rtype: GameSourceSchema
         """
-        _table_name : Optional[str] = cls._parseTableName(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
-        _db_name    : str           = cls._parseDatabaseName(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
-
-        _used = {"table", "database"}
-        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return DatabaseLocationSchema(name=name, table_name=_table_name, database_name=_db_name, other_elements=_leftovers)
+        return DatabaseLocationSchema(name=name, table_name=None, database_name=None, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 

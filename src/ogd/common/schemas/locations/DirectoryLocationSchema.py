@@ -1,10 +1,8 @@
 ## import standard libraries
-import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 ## @class TableStructureSchema
@@ -19,7 +17,26 @@ class DirectoryLocationSchema(LocationSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, folder_path:Path, other_elements:Optional[Map]=None):
+    def __init__(self, name:str, folder_path:Optional[Path], other_elements:Optional[Map]=None):
+        """Constructor for the `DirectoryLocationSchema` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "folder": "path/to/folder"
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param folder_path: _description_
+        :type folder_path: Optional[Path]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._folder_path = folder_path or self._parseFolderPath(unparsed_elements=unparsed_elements)
@@ -72,12 +89,7 @@ class DirectoryLocationSchema(LocationSchema):
         :return: _description_
         :rtype: GameSourceSchema
         """
-        _folder_path : Path
-
-        _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements)
-        _used = {"folder", "path"}
-        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return DirectoryLocationSchema(name=name, folder_path=_folder_path, other_elements=_leftovers)
+        return DirectoryLocationSchema(name=name, folder_path=None, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 
