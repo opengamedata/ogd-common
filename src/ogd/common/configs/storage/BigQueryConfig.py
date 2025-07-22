@@ -36,7 +36,7 @@ class BigQueryConfig(DataStoreConfig):
             "SOURCE_TYPE" : "BIGQUERY",
             "PROJECT_ID" : "someprojectid",
             "PROJECT_KEY" : {
-                "FILE" : "key.txt",
+                "KEY" : "key.txt",
                 "PATH" : "./"
             }
         }
