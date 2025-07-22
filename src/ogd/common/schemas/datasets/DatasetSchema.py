@@ -2,13 +2,13 @@
 import logging
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Dict, Optional, Self
+from typing import Dict, Optional, Self
 
 # ogd imports
 from ogd.common.schemas.Schema import Schema
 from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map, conversions
+from ogd.common.utils.typing import Map
 
 class DatasetSchema(Schema):
     """DatasetSchema struct
@@ -35,23 +35,89 @@ class DatasetSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,           key:DatasetKey,
-                 date_modified:date|str,   start_date:date|str,      end_date:date|str,
-                 ogd_revision:str,         session_ct:Optional[int], player_ct:Optional[int],
+                 date_modified:Optional[date|str],   start_date:Optional[date|str],      end_date:Optional[date|str],
+                 ogd_revision:Optional[str],     session_ct:Optional[int], player_ct:Optional[int],
                  raw_file:Optional[Path],
                  events_file:Optional[Path],     events_template:Optional[Path],
                  sessions_file:Optional[Path],   sessions_template:Optional[Path],
                  players_file:Optional[Path],    players_template:Optional[Path],
                  population_file:Optional[Path], population_template:Optional[Path],
                  other_elements:Optional[Map]=None):
+        """Constructor for the `DatasetSchema` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "ogd_revision": "1234567",
+            "start_date": "01/01/2025",
+            "end_date": "01/31/2025",
+            "date_modified": "02/02/2025",
+            "sessions": 1234,
+            "population_file": "path/to/GAME_NAME_20250101_to_20250131_1234567_population-features.zip",
+            "population_template": "path/to/template",
+            "players_file": "path/to/GAME_NAME_20250101_to_20250131_1234567_player-features.zip",
+            "players_template": "path/to/template",
+            "sessions_file": "path/to/GAME_NAME_20250101_to_20250131_1234567_session-features.zip",
+            "sessions_template": "path/to/template",
+            "events_file": "path/to/GAME_NAME_20250101_to_20250131_1234567_events.zip",
+            "events_template": "path/to/template",
+            "all_events_file": "path/to/GAME_NAME_20250101_to_20250131_1234567_all-events.zip",
+            "all_events_template": "path/to/template
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param key: _description_
+        :type key: DatasetKey
+        :param date_modified: _description_
+        :type date_modified: date | str
+        :param start_date: _description_
+        :type start_date: date | str
+        :param end_date: _description_
+        :type end_date: date | str
+        :param ogd_revision: _description_
+        :type ogd_revision: str
+        :param session_ct: _description_
+        :type session_ct: Optional[int]
+        :param player_ct: _description_
+        :type player_ct: Optional[int]
+        :param raw_file: _description_
+        :type raw_file: Optional[Path]
+        :param events_file: _description_
+        :type events_file: Optional[Path]
+        :param events_template: _description_
+        :type events_template: Optional[Path]
+        :param sessions_file: _description_
+        :type sessions_file: Optional[Path]
+        :param sessions_template: _description_
+        :type sessions_template: Optional[Path]
+        :param players_file: _description_
+        :type players_file: Optional[Path]
+        :param players_template: _description_
+        :type players_template: Optional[Path]
+        :param population_file: _description_
+        :type population_file: Optional[Path]
+        :param population_template: _description_
+        :type population_template: Optional[Path]
+        :param other_elements: _description_, defaults to None
+        :type other_elements: Optional[Map], optional
+        """
         unparsed_elements : Map = other_elements or {}
 
         self._key                 : DatasetKey     = key
+    # 1. Set dates
         self._date_modified       : date | str     = date_modified       or self._parseDateModified(unparsed_elements=unparsed_elements)
         self._start_date          : date | str     = start_date          or self._parseStartDate(unparsed_elements=unparsed_elements)
         self._end_date            : date | str     = end_date            or self._parseEndDate(unparsed_elements=unparsed_elements)
+    # 2. Set metadata
         self._ogd_revision        : str            = ogd_revision        or self._parseOGDRevision(unparsed_elements=unparsed_elements)
         self._session_ct          : Optional[int]  = session_ct          or self._parseSessionCount(unparsed_elements=unparsed_elements)
         self._player_ct           : Optional[int]  = player_ct           or self._parsePlayerCount(unparsed_elements=unparsed_elements)
+    # 3. Set file/template paths
         self._raw_file            : Optional[Path] = raw_file            or self._parseRawFile(unparsed_elements=unparsed_elements)
         self._events_file         : Optional[Path] = events_file         or self._parseEventsFile(unparsed_elements=unparsed_elements)
         self._events_template     : Optional[Path] = events_template     or self._parseEventsTemplate(unparsed_elements=unparsed_elements)
@@ -192,39 +258,16 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         :rtype: DatasetSchema
         """
         _key                 : DatasetKey     = DatasetKey(raw_key=name)
-    # 1. Parse dates
-        _date_modified       : date | str     = cls._parseDateModified(unparsed_elements=unparsed_elements)
-        _start_date          : date | str     = cls._parseStartDate(unparsed_elements=unparsed_elements)
-        _end_date            : date | str     = cls._parseEndDate(unparsed_elements=unparsed_elements)
-    # 2. Parse metadata
-        _ogd_revision        : str            = cls._parseOGDRevision(unparsed_elements=unparsed_elements)
-        _session_ct          : Optional[int]  = cls._parseSessionCount(unparsed_elements=unparsed_elements)
-        _player_ct           : Optional[int]  = cls._parsePlayerCount(unparsed_elements=unparsed_elements)
-    # 3. Parse file/template paths
-        _raw_file            : Optional[Path] = cls._parseRawFile(unparsed_elements=unparsed_elements)
-        _events_file         : Optional[Path] = cls._parseEventsFile(unparsed_elements=unparsed_elements)
-        _events_template     : Optional[Path] = cls._parseEventsTemplate(unparsed_elements=unparsed_elements)
-        _sessions_file       : Optional[Path] = cls._parseSessionsFile(unparsed_elements=unparsed_elements)
-        _sessions_template   : Optional[Path] = cls._parseSessionsTemplate(unparsed_elements=unparsed_elements)
-        _players_file        : Optional[Path] = cls._parsePlayersFile(unparsed_elements=unparsed_elements)
-        _players_template    : Optional[Path] = cls._parsePlayersTemplate(unparsed_elements=unparsed_elements)
-        _population_file     : Optional[Path] = cls._parsePopulationFile(unparsed_elements=unparsed_elements)
-        _population_template : Optional[Path] = cls._parsePopulationTemplate(unparsed_elements=unparsed_elements)
 
-        _used = {"date_modified", "start_date", "end_date", "ogd_revision", "sessions", "players",
-                 "raw_file", "events_file", "events_template",
-                 "sessions_file", "sessions_template", "players_file", "players_template",
-                 "population_file", "population_template"}
-        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
         return DatasetSchema(name=name, key=_key,
-                             date_modified=_date_modified, start_date=_start_date, end_date=_end_date,
-                             ogd_revision=_ogd_revision,   session_ct=_session_ct, player_ct=_player_ct,
-                             raw_file=_raw_file,
-                             events_file=_events_file,         events_template=_events_template,
-                             sessions_file=_sessions_file,     sessions_template=_sessions_template,
-                             players_file=_players_file,       players_template=_players_template,
-                             population_file=_population_file, population_template=_population_template,
-                             other_elements=_leftovers)
+                             date_modified=None, start_date=None, end_date=None,
+                             ogd_revision=None,   session_ct=None, player_ct=None,
+                             raw_file=None,
+                             events_file    =None, events_template    =None,
+                             sessions_file  =None, sessions_template  =None,
+                             players_file   =None, players_template   =None,
+                             population_file=None, population_template=None,
+                             other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "DatasetSchema":
@@ -253,7 +296,6 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
     # *** PUBLIC METHODS ***
 
-    # TODO : once we have official minimum Python up to 3.11, import Self and set other:Optional[Self]
     def IsNewerThan(self, other:Optional[Self]) -> bool | None:
         """
         Check if `self` has a more recent "modified on" date than `other`.
