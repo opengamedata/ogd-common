@@ -27,9 +27,7 @@ class test_LoggingSpecificationSchema(TestCase):
         cls.test_schema = LoggingSpecificationSchema(
             name="available_building Schema", game_id="", enum_defs={},
             game_state={}, user_data={}, event_list=[],
-            detector_map={}, aggregate_feats={}, percount_feats={},
-            legacy_perlevel_feats={}, use_legacy_mode=True,
-            config={}, min_level=0, max_level=2, other_ranges={}, supported_vers=[],
+            logging_version=1,
             other_elements={ "foo":"bar" }
         )
 
