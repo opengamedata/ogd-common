@@ -1,5 +1,5 @@
 ## import standard libraries
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import Map
@@ -84,7 +84,9 @@ class DatabaseLocationSchema(LocationSchema):
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "DatabaseLocationSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map,
+                  key_overrides:Optional[Dict[str, str]]=None,
+                  default_override:Optional[Self]=None)-> "DatabaseLocationSchema":
         """Create a DatabaseLocationSchema from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -100,8 +102,8 @@ class DatabaseLocationSchema(LocationSchema):
         :return: _description_
         :rtype: GameSourceSchema
         """
-        _db_name    : str           = cls._parseDatabaseName(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
-        _table_name : Optional[str] = cls._parseTableName(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+        _db_name    : str           = cls._parseDatabaseName(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
+        _table_name : Optional[str] = cls._parseTableName(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
         return DatabaseLocationSchema(name=name, table_name=_db_name, database_name=_table_name, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
@@ -111,25 +113,35 @@ class DatabaseLocationSchema(LocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseTableName(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> Optional[str]:
+    def _parseTableName(unparsed_elements:Map,
+                        key_overrides:Optional[Dict[str, str]]=None,
+                        default_override:Optional["DatabaseLocationSchema"]=None) -> Optional[str]:
         default_keys : List[str] = ["table"]
-        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+        search_keys  : List[str] = ([key_overrides[key] for key in default_keys if key in key_overrides] + default_keys) \
+                                if key_overrides else default_keys
+        default_value : Optional[str] = default_override.TableName if default_override else DatabaseLocationSchema._DEFAULT_TABLE_NAME
+
         return DatabaseLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=str,
-            default_value=DatabaseLocationSchema._DEFAULT_TABLE_NAME,
+            default_value=default_value,
             remove_target=True
         )
 
     @staticmethod
-    def _parseDatabaseName(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> str:
+    def _parseDatabaseName(unparsed_elements:Map,
+                           key_overrides:Optional[Dict[str, str]]=None,
+                           default_override:Optional["DatabaseLocationSchema"]=None) -> str:
         default_keys : List[str] = ["database"]
-        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys \
+                                if key_overrides else default_keys
+        default_value : Optional[str] = default_override.DatabaseName if default_override else DatabaseLocationSchema._DEFAULT_DB_NAME
+
         return DatabaseLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=str,
-            default_value=DatabaseLocationSchema._DEFAULT_DB_NAME,
+            default_value=default_value,
             remove_target=True
         )

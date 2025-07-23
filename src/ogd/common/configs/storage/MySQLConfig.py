@@ -1,6 +1,6 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Self
 from urllib.parse import ParseResult
 # import local files
 from ogd.common.configs.storage.SSHConfig import SSHConfig
@@ -131,7 +131,7 @@ class MySQLConfig(DataStoreConfig):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "MySQLConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "MySQLConfig":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.

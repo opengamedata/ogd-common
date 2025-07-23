@@ -1,5 +1,5 @@
 # standard imports
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Self
 
 # ogd imports
 from ogd.common.schemas.Schema import Schema
@@ -71,7 +71,7 @@ class DatasetCollectionSchema(Schema):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "DatasetCollectionSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "DatasetCollectionSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.

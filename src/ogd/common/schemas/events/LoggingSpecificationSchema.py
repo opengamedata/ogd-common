@@ -1,7 +1,7 @@
 # import standard libraries
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.events.DataElementSchema import DataElementSchema
@@ -190,7 +190,7 @@ class LoggingSpecificationSchema(Schema):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "LoggingSpecificationSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "LoggingSpecificationSchema":
         """_summary_
 
         :param name: _description_

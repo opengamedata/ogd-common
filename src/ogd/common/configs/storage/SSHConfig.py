@@ -1,5 +1,5 @@
 # import standard libraries
-from typing import Dict, Optional
+from typing import Dict, Optional, Self
 from urllib.parse import ParseResult
 # import local files
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
@@ -98,7 +98,7 @@ class SSHConfig(DataStoreConfig):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "SSHConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "SSHConfig":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
