@@ -23,7 +23,7 @@ class EmptyCredential(Config):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "EmptyCredential":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "EmptyCredential":
         """Function to generate an EmptyCredential from a dictionary mapping string keys to values.
 
         Technically,  it doesn't matter what goes in, because an EmptyCredential is always empty.

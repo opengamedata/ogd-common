@@ -183,7 +183,7 @@ class TableStructureSchema(Schema):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "TableStructureSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "TableStructureSchema":
         """Function to generate a TableStructureSchema from a dictionary.
 
         The structure is assumed to be as follows:

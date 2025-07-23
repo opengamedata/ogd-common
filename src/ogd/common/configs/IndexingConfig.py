@@ -1,6 +1,6 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Self
 # import local files
 from ogd.common.configs.Config import Config
 from ogd.common.utils.typing import Map
@@ -70,7 +70,7 @@ class FileIndexingConfig(Config):
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "FileIndexingConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "FileIndexingConfig":
         """Create a file indexing Configuration from a dict.
 
         Expects dictionary to have the following form:
