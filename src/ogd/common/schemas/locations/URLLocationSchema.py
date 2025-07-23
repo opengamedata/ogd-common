@@ -107,7 +107,7 @@ class URLLocationSchema(LocationSchema):
         url = cls._parseURL(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
         _used = {"url"}
         if not url:
-            url = cls._parseSplitURL(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+            url = cls._parseSplitURL(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
             _used = _used.union({"host", "port", "path"})
 
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
@@ -175,7 +175,7 @@ class URLLocationSchema(LocationSchema):
         )
         default_keys = ["port"]
         search_keys  = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
-        default_port : Optional[str] = default_override.Port if default_override else URLLocationSchema._DEFAULT_PORT
+        default_port : Optional[int] = default_override.Port if default_override else URLLocationSchema._DEFAULT_PORT
         _port = URLLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
