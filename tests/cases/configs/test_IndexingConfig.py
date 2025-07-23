@@ -44,18 +44,21 @@ class test_IndexingConfig(TestCase):
 
     def test_LocalDirectory(self):
         _dir = self.test_schema.LocalDirectory
-        self.assertIsInstance(_dir, Path)
-        self.assertEqual(_dir, Path("./data/"))
+        self.assertIsInstance(_dir, DirectoryLocationSchema)
+        self.assertIsInstance(_dir.FolderPath, Path)
+        self.assertEqual(_dir.FolderPath, Path("./data/"))
 
     def test_RemoteURL(self):
-        _str = self.test_schema.RemoteURL
-        self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "https://fieldday-web.ad.education.wisc.edu/opengamedata/")
+        _url = self.test_schema.RemoteURL
+        self.assertIsInstance(_url, URLLocationSchema)
+        self.assertIsInstance(_url.Location, str)
+        self.assertEqual(_url.Location, "https://fieldday-web.ad.education.wisc.edu/opengamedata/")
 
     def test_TemplatesURL(self):
-        _str = self.test_schema.TemplatesURL
-        self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "https://github.com/opengamedata/opengamedata-samples")
+        _url = self.test_schema.TemplatesURL
+        self.assertIsInstance(_url, URLLocationSchema)
+        self.assertIsInstance(_url.Location, str)
+        self.assertEqual(_url.Location, "https://github.com/opengamedata/opengamedata-samples")
 
     def test_NonStandardElements(self):
         _elems = {
