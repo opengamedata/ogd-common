@@ -10,7 +10,7 @@ from ogd.common.configs.TableConfig import TableConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
-class GameSourceSchema(Schema):
+class GameStoreConfig(Schema):
     """A simple Schema structure containing configuration information for a particular game's data.
     
     When given to an interface, this schema is treated as the location from which to retrieve data.
@@ -53,7 +53,7 @@ class GameSourceSchema(Schema):
         if game_id is not None:
             self._game_id = game_id
         else:
-            Logger.Log(f"GameSourceSchema did not receive a game_id, defaulting to {name}")
+            Logger.Log(f"GameStoreConfig did not receive a game_id, defaulting to {name}")
             self._game_id = name
         super().__init__(name=name, other_elements=other_elements)
 
@@ -102,9 +102,9 @@ class GameSourceSchema(Schema):
         return ret_val
 
     @classmethod
-    def Default(cls) -> "GameSourceSchema":
-        return GameSourceSchema(
-            name="DefaultGameSourceSchema",
+    def Default(cls) -> "GameStoreConfig":
+        return GameStoreConfig(
+            name="DefaultGameStoreConfig",
             game_id=cls._DEFAULT_GAME_ID,
             source_name=cls._DEFAULT_SOURCE_NAME,
             source_schema=BigQueryConfig.Default(),
@@ -115,11 +115,11 @@ class GameSourceSchema(Schema):
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any], data_sources:Dict[str, DataStoreConfig]) -> "GameSourceSchema":
-        """Create a GameSourceSchema from a given dictionary
+    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any], data_sources:Dict[str, DataStoreConfig]) -> "GameStoreConfig":
+        """Create a GameStoreConfig from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
-        TODO : data_sources shouldn't really be a param here. Better to have e.g. a way to register the list into GameSourceSchema class, or something.
+        TODO : data_sources shouldn't really be a param here. Better to have e.g. a way to register the list into GameStoreConfig class, or something.
 
         :param name: _description_
         :type name: str
@@ -130,7 +130,7 @@ class GameSourceSchema(Schema):
         :param data_sources: _description_
         :type data_sources: Dict[str, DataStoreConfig]
         :return: _description_
-        :rtype: GameSourceSchema
+        :rtype: GameStoreConfig
         """
         _game_id       : str                       = cls._parseGameID(unparsed_elements=unparsed_elements)
         _db_name       : str                       = cls._parseDBName(unparsed_elements=unparsed_elements)
@@ -148,7 +148,7 @@ class GameSourceSchema(Schema):
 
         _used = {"source", "source_name", "database", "table", "schema"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return GameSourceSchema(name=name, game_id=_game_id, source_name=_source_name, source_schema=_source_schema,
+        return GameStoreConfig(name=name, game_id=_game_id, source_name=_source_name, source_schema=_source_schema,
                                 db_name=_db_name, table_name=_table_name, table_schema=_table_schema,
                                 other_elements=_leftovers)
 
@@ -157,7 +157,7 @@ class GameSourceSchema(Schema):
     # *** PUBLIC METHODS ***
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], data_sources:Dict[str, DataStoreConfig]) -> "GameSourceSchema":
+    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], data_sources:Dict[str, DataStoreConfig]) -> "GameStoreConfig":
         if not isinstance(unparsed_elements, dict):
             unparsed_elements   = {}
             _msg = f"For {name} {cls.__name__}, unparsed_elements was not a dict, defaulting to empty dict"
@@ -169,51 +169,51 @@ class GameSourceSchema(Schema):
 
     @staticmethod
     def _parseSourceName(unparsed_elements:Map) -> str:
-        return GameSourceSchema.ParseElement(
+        return GameStoreConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["source", "source_name"],
             to_type=str,
-            default_value=GameSourceSchema._DEFAULT_SOURCE_NAME,
+            default_value=GameStoreConfig._DEFAULT_SOURCE_NAME,
             remove_target=True
         )
 
     @staticmethod
     def _parseGameID(unparsed_elements:Map, name:Optional[str]=None) -> str:
-        return GameSourceSchema.ParseElement(
+        return GameStoreConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["game", "game_id"],
             to_type=str,
-            default_value=name or GameSourceSchema._DEFAULT_GAME_ID,
+            default_value=name or GameStoreConfig._DEFAULT_GAME_ID,
             remove_target=True
         )
 
     @staticmethod
     def _parseDBName(unparsed_elements:Map) -> str:
-        return GameSourceSchema.ParseElement(
+        return GameStoreConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["database"],
             to_type=str,
-            default_value=GameSourceSchema._DEFAULT_DB_NAME,
+            default_value=GameStoreConfig._DEFAULT_DB_NAME,
             remove_target=True
         )
 
     @staticmethod
     def _parseTableName(unparsed_elements:Map) -> str:
-        return GameSourceSchema.ParseElement(
+        return GameStoreConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["table"],
             to_type=str,
-            default_value=GameSourceSchema._DEFAULT_TABLE_NAME,
+            default_value=GameStoreConfig._DEFAULT_TABLE_NAME,
             remove_target=True
         )
 
     @staticmethod
     def _parseTableConfigName(unparsed_elements:Map) -> str:
-        return GameSourceSchema.ParseElement(
+        return GameStoreConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["schema"],
             to_type=str,
-            default_value=GameSourceSchema._DEFAULT_TABLE_SCHEMA,
+            default_value=GameStoreConfig._DEFAULT_TABLE_SCHEMA,
             remove_target=True
         )
 

@@ -8,7 +8,7 @@ from typing import Dict, Final, List, Tuple, Optional
 # import locals
 from ogd.common.connectors.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
-from ogd.common.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.utils.Logger import Logger
 
@@ -18,7 +18,7 @@ class BigQueryInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, game_id:str, config:GameSourceSchema, fail_fast:bool):
+    def __init__(self, game_id:str, config:GameStoreConfig, fail_fast:bool):
         super().__init__(game_id=game_id, config=config, fail_fast=fail_fast)
         self.Open()
 

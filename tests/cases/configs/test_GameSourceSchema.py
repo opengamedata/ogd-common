@@ -9,11 +9,11 @@ from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.configs.GameSourceSchema import GameSourceSchema
+from src.ogd.common.configs.GameStoreConfig import GameStoreConfig
 from tests.config.t_config import settings
 
-class test_GameSourceSchema(TestCase):
-    """Testbed for the GameSourceSchema class.
+class test_GameStoreConfig(TestCase):
+    """Testbed for the GameStoreConfig class.
     """
 
     @classmethod
@@ -32,7 +32,7 @@ class test_GameSourceSchema(TestCase):
                 "PATH": "./"
             }
         }
-        cls.test_schema = GameSourceSchema(
+        cls.test_schema = GameStoreConfig(
             name="Game Source Schema",
             game_id="AQUALAB",
             source_name="AQUALAB_BQ",
@@ -111,7 +111,7 @@ class test_GameSourceSchema(TestCase):
             "PROJECT_KEY": "./key.txt"
         }
         _sources : Dict[str, DataStoreConfig] = { "AQUALAB_BQ" : BigQueryConfig.FromDict(name="AQUALAB_BQ", unparsed_elements=source_elems) }
-        _schema = GameSourceSchema.FromDict(name="AQUALAB", unparsed_elements=_dict, data_sources=_sources)
+        _schema = GameStoreConfig.FromDict(name="AQUALAB", unparsed_elements=_dict, data_sources=_sources)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "AQUALAB")
         self.assertIsInstance(_schema.SourceName, str)
@@ -130,19 +130,19 @@ class test_GameSourceSchema(TestCase):
             "source":"Foo",
             "fakekey" : "Bar"
         }
-        _str = GameSourceSchema._parseSourceName(_map)
+        _str = GameStoreConfig._parseSourceName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
         # First parse should remove key, so second should return default from class
-        _str = GameSourceSchema._parseSourceName(_map)
+        _str = GameStoreConfig._parseSourceName(_map)
         self.assertIsInstance(_str, str)
-        self.assertEqual(_str, GameSourceSchema._DEFAULT_SOURCE_NAME)
+        self.assertEqual(_str, GameStoreConfig._DEFAULT_SOURCE_NAME)
         # Check that source_name is also treated as valid
         _map = {
             "source_name":"Foo",
             "fakekey" : "Bar"
         }
-        _str = GameSourceSchema._parseSourceName(_map)
+        _str = GameStoreConfig._parseSourceName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
@@ -152,11 +152,11 @@ class test_GameSourceSchema(TestCase):
             "fakekey" : "Bar",
             "game_id" : "Baz"
         }
-        _str = GameSourceSchema._parseGameID(_map)
+        _str = GameStoreConfig._parseGameID(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
         # first parse should remove "game" key, so second attempt should give "Baz"
-        _str = GameSourceSchema._parseGameID(_map)
+        _str = GameStoreConfig._parseGameID(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Baz")
 
@@ -165,7 +165,7 @@ class test_GameSourceSchema(TestCase):
             "database":"Foo",
             "fakekey" : "Bar"
         }
-        _str = GameSourceSchema._parseDBName(_map)
+        _str = GameStoreConfig._parseDBName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
@@ -174,7 +174,7 @@ class test_GameSourceSchema(TestCase):
             "table":"Foo",
             "fakekey" : "Bar"
         }
-        _str = GameSourceSchema._parseTableName(_map)
+        _str = GameStoreConfig._parseTableName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
@@ -183,7 +183,7 @@ class test_GameSourceSchema(TestCase):
             "schema":"Foo",
             "fakekey" : "Bar"
         }
-        _str = GameSourceSchema._parseTableConfigName(_map)
+        _str = GameStoreConfig._parseTableConfigName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 

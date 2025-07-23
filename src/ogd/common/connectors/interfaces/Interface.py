@@ -16,7 +16,7 @@ from ogd.common.models.FeatureData import FeatureData
 from ogd.common.models.FeatureDataset import FeatureDataset
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
-from ogd.common.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.schemas.tables.EventTableStructureSchema import EventTableStructureSchema
 from ogd.common.schemas.tables.FeatureTableStructureSchema import FeatureTableStructureSchema
 from ogd.common.models.SemanticVersion import SemanticVersion
@@ -64,7 +64,7 @@ class Interface(StorageConnector):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, schema:GameSourceSchema, fail_fast:bool):
+    def __init__(self, schema:GameStoreConfig, fail_fast:bool):
         self._fail_fast = fail_fast
         super().__init__(schema=schema)
 
@@ -142,7 +142,7 @@ class Interface(StorageConnector):
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict | event_filter.AsDict
         _events = []
         if self.IsOpen:
-            if isinstance(self.GameSourceSchema.TableConfigName, EventTableStructureSchema):
+            if isinstance(self.GameStoreConfig.TableConfigName, EventTableStructureSchema):
                 # _date_clause = f" on date(s) {date_filter}"
                 _msg = f"Retrieving event data from {self.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
@@ -158,7 +158,7 @@ class Interface(StorageConnector):
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict
         _features = []
         if self.IsOpen:
-            if isinstance(self.GameSourceSchema.TableConfigName, EventTableStructureSchema):
+            if isinstance(self.GameStoreConfig.TableConfigName, EventTableStructureSchema):
                 # _date_clause = f" on date(s) {date_filter}"
                 _msg = f"Retrieving event data from {self.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
@@ -180,7 +180,7 @@ class Interface(StorageConnector):
         _curr_sess : str      = ""
         _evt_sess_index : int = 1
         _fallbacks = {"app_id":self._source_schema.GameID}
-        _table_schema = self.GameSourceSchema.TableConfigName
+        _table_schema = self.GameStoreConfig.TableConfigName
         if isinstance(_table_schema, EventTableStructureSchema):
             for row in rows:
                 try:

@@ -18,7 +18,7 @@ from ogd import games
 from ogd.common.interfaces.outerfaces.DataOuterface import DataOuterface
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.models.enums.ExportMode import ExportMode
-from ogd.common.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.configs.generators.GeneratorCollectionConfig import GeneratorCollectionConfig
 from ogd.common.configs.IndexingConfig import FileIndexingConfig
 from ogd.common.schemas.events.LoggingSpecificationSchema import LoggingSpecificationSchema
@@ -32,7 +32,7 @@ class TSVOuterface(DataOuterface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, game_id:str, config:GameSourceSchema, export_modes:Set[ExportMode], date_range:Dict[str,Optional[datetime]], file_indexing:FileIndexingConfig, extension:str="tsv", dataset_id:Optional[str]=None):
+    def __init__(self, game_id:str, config:GameStoreConfig, export_modes:Set[ExportMode], date_range:Dict[str,Optional[datetime]], file_indexing:FileIndexingConfig, extension:str="tsv", dataset_id:Optional[str]=None):
         super().__init__(game_id=game_id, config=config, export_modes=export_modes)
         self._file_paths    : Dict[str,Optional[Path]] = {"population":None, "players":None, "sessions":None, "processed_events":None, "raw_events":None}
         self._zip_paths     : Dict[str,Optional[Path]] = {"population":None, "players":None, "sessions":None, "processed_events":None, "raw_events":None}

@@ -7,7 +7,7 @@ from typing import Any, Dict, IO, List, Tuple, Optional
 ## import local files
 from ogd.common.connectors.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
-from ogd.common.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.configs.TableConfig import TableConfig
 from ogd.common.utils.Logger import Logger
 
@@ -15,7 +15,7 @@ class CSVInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, game_id:str, config:GameSourceSchema, fail_fast:bool, filepath:Path, delim:str = ','):
+    def __init__(self, game_id:str, config:GameStoreConfig, fail_fast:bool, filepath:Path, delim:str = ','):
         # set up data from params
         self._filepath  : Path = filepath
         self._delimiter : str = delim

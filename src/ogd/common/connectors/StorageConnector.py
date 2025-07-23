@@ -6,7 +6,7 @@ import abc
 import logging
 
 # import local files
-from ogd.common.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.utils.Logger import Logger
 
 class StorageConnector(abc.ABC):
@@ -38,8 +38,8 @@ class StorageConnector(abc.ABC):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, schema:GameSourceSchema):
-        self._source_schema  : GameSourceSchema = schema
+    def __init__(self, schema:GameStoreConfig):
+        self._source_schema  : GameStoreConfig = schema
         self._is_open : bool = False
 
     def __del__(self):
@@ -59,7 +59,7 @@ class StorageConnector(abc.ABC):
         return self._source_schema.Name
 
     @property
-    def GameSourceSchema(self) -> GameSourceSchema:
+    def GameStoreConfig(self) -> GameStoreConfig:
         return self._source_schema
 
     # *** PUBLIC STATICS ***
