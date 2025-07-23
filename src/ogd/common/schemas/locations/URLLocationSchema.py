@@ -173,6 +173,7 @@ class URLLocationSchema(LocationSchema):
             default_value=default_host,
             remove_target=True
         )
+
         default_keys = ["port"]
         search_keys  = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
         default_port : Optional[int] = default_override.Port if default_override else URLLocationSchema._DEFAULT_PORT
@@ -184,6 +185,7 @@ class URLLocationSchema(LocationSchema):
             remove_target=True
         )
         _port_str = f":{_port}" if _port else ""
+
         default_keys = ["path"]
         search_keys  = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
         default_path : Optional[str] = default_override.Path if default_override else URLLocationSchema._DEFAULT_PATH
