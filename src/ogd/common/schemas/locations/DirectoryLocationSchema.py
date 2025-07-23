@@ -89,7 +89,8 @@ class DirectoryLocationSchema(LocationSchema):
         :return: _description_
         :rtype: GameSourceSchema
         """
-        return DirectoryLocationSchema(name=name, folder_path=None, other_elements=unparsed_elements)
+        _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+        return DirectoryLocationSchema(name=name, folder_path=_folder_path, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 

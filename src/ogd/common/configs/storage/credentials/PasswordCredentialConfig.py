@@ -71,7 +71,9 @@ class PasswordCredential(CredentialConfig):
         :return: _description_
         :rtype: PasswordCredential
         """
-        return PasswordCredential(name=name, username=None, password=None, other_elements=unparsed_elements)
+        _user = cls._parseUser(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+        _pass = cls._parsePass(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+        return PasswordCredential(name=name, username=_user, password=_pass, other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "PasswordCredential":
