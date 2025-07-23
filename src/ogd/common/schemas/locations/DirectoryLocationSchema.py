@@ -89,7 +89,7 @@ class DirectoryLocationSchema(LocationSchema):
         :return: _description_
         :rtype: GameSourceSchema
         """
-        _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+        _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
         return DirectoryLocationSchema(name=name, folder_path=_folder_path, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
@@ -99,14 +99,15 @@ class DirectoryLocationSchema(LocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseFolderPath(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> Path:
+    def _parseFolderPath(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional["DirectoryLocationSchema"]=None) -> Path:
         default_keys : List[str] = ["folder", "path"]
         search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+        default_value : Path = default_override.FolderPath if default_override else DirectoryLocationSchema._DEFAULT_PATH
 
         return DirectoryLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=Path,
-            default_value=DirectoryLocationSchema._DEFAULT_PATH,
+            default_value=default_value,
             remove_target=True
         )

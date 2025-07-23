@@ -1,6 +1,6 @@
 ## import standard libraries
 from urllib.parse import urlparse, ParseResult
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import Map
@@ -47,6 +47,10 @@ class URLLocationSchema(LocationSchema):
 
         self._url = url or self._parseURL(unparsed_elements=unparsed_elements) or self._parseSplitURL(unparsed_elements=unparsed_elements)
         super().__init__(name=name, other_elements=unparsed_elements)
+
+    @property
+    def Scheme(self) -> str:
+        return self._url.scheme or self._DEFAULT_SCHEME
 
     @property
     def Host(self) -> str:
@@ -116,7 +120,8 @@ class URLLocationSchema(LocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseURL(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> Optional[ParseResult]:
+    def _parseURL(unparsed_elements:Map,
+                  key_overrides:Optional[Dict[str, str]]=None) -> Optional[ParseResult]:
         """Attempt to parse from a straight-up URL element.
 
         :param unparsed_elements: _description_
@@ -141,45 +146,52 @@ class URLLocationSchema(LocationSchema):
         return ret_val
 
     @staticmethod
-    def _parseSplitURL(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> ParseResult:
+    def _parseSplitURL(unparsed_elements:Map,
+                       key_overrides:Optional[Dict[str, str]]=None,
+                       default_override:Optional["URLLocationSchema"]=None) -> ParseResult:
         default_keys : List[str]
         search_keys  : List[str]
 
         default_keys = ["scheme"]
         search_keys = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+        default_scheme : str = default_override.Scheme if default_override else URLLocationSchema._DEFAULT_SCHEME
         _scheme = URLLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=str,
-            default_value=URLLocationSchema._DEFAULT_HOST_NAME,
+            default_value=default_scheme,
             remove_target=True
         )
+
         default_keys = ["host"]
         search_keys = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+        default_host : str = default_override.Host if default_override else URLLocationSchema._DEFAULT_HOST_NAME
         _host = URLLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=str,
-            default_value=URLLocationSchema._DEFAULT_HOST_NAME,
+            default_value=default_host,
             remove_target=True
         )
         default_keys = ["port"]
         search_keys  = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+        default_port : Optional[str] = default_override.Port if default_override else URLLocationSchema._DEFAULT_PORT
         _port = URLLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=int,
-            default_value=URLLocationSchema._DEFAULT_PORT,
+            default_value=default_port,
             remove_target=True
         )
         _port_str = f":{_port}" if _port else ""
         default_keys = ["path"]
         search_keys  = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+        default_path : Optional[str] = default_override.Path if default_override else URLLocationSchema._DEFAULT_PATH
         _path = URLLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=str,
-            default_value=URLLocationSchema._DEFAULT_PATH,
+            default_value=default_path,
             remove_target=True
         )
 
