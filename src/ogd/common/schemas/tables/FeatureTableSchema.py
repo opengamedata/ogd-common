@@ -8,14 +8,14 @@ from typing import Any, Dict, List, Tuple, Optional
 # import local files
 from ogd.common.models.FeatureData import FeatureData
 from ogd.common.models.Event import EventSource
-from ogd.common.schemas.tables.TableStructureSchema import TableStructureSchema, ColumnMapIndex, ColumnMapElement
+from ogd.common.schemas.tables.TableSchema import TableSchema, ColumnMapIndex, ColumnMapElement
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
 
-## @class TableStructureSchema
-class FeatureTableSchema(TableStructureSchema):
+## @class TableSchema
+class FeatureTableSchema(TableSchema):
     """Dumb struct to hold useful info about the structure of feature data for a particular game in a particular database.
        This includes the indices of several important database columns, the names
        of the database columns, and a list of
@@ -27,7 +27,7 @@ class FeatureTableSchema(TableStructureSchema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema], other_elements:Optional[Map]=None):
-        """Constructor for the TableStructureSchema class.
+        """Constructor for the TableSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
         class variables.
@@ -169,7 +169,7 @@ class FeatureTableSchema(TableStructureSchema):
         )
 
     @classmethod
-    def _subparseDict(cls, name:str, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableStructureSchema":
+    def _subparseDict(cls, name:str, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -183,7 +183,7 @@ class FeatureTableSchema(TableStructureSchema):
         :param logger: _description_, defaults to None
         :type logger: Optional[logging.Logger], optional
         :return: _description_
-        :rtype: TableStructureSchema
+        :rtype: TableSchema
         """
         _column_map : Dict[str, ColumnMapIndex] = {
             "session_id"           : None,

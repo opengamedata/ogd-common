@@ -7,23 +7,23 @@ from typing import Any, Dict, List, Tuple, Optional
 
 # import local files
 from ogd.common.models.Event import Event, EventSource
-from ogd.common.schemas.tables.TableStructureSchema import TableStructureSchema, ColumnMapIndex, ColumnMapElement
+from ogd.common.schemas.tables.TableSchema import TableSchema, ColumnMapIndex, ColumnMapElement
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
 
-## @class TableStructureSchema
+## @class TableSchema
 #  Dumb struct to hold useful info about the structure of database data
 #  for a particular game.
 #  This includes the indices of several important database columns, the names
 #  of the database columns, the max and min levels in the game, and a list of
 #  IDs for the game sessions in the given requested date range.
-class EventTableSchema(TableStructureSchema):
+class EventTableSchema(TableSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema], other_elements:Optional[Map]=None):
-        """Constructor for the TableStructureSchema class.
+        """Constructor for the TableSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
         class variables.
@@ -165,7 +165,7 @@ class EventTableSchema(TableStructureSchema):
         )
 
     @classmethod
-    def _subparseDict(cls, name:str, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableStructureSchema":
+    def _subparseDict(cls, name:str, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -179,7 +179,7 @@ class EventTableSchema(TableStructureSchema):
         :param logger: _description_, defaults to None
         :type logger: Optional[logging.Logger], optional
         :return: _description_
-        :rtype: TableStructureSchema
+        :rtype: TableSchema
         """
         _column_map : Dict[str, ColumnMapIndex] = {
             "session_id"           : None,

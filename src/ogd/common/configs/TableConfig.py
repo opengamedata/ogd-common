@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Self, TypeAlias
 ## import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
-from ogd.common.schemas.tables.TableStructureSchema import TableStructureSchema
+from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
@@ -28,8 +28,8 @@ class TableConfig(Schema):
     _DEFAULT_LOCATION_TYPE = "FILE"
     _DEFAULT_LOCATION = {}
 
-    def __init__(self, name, structure:TableStructureSchema, location:LocationSchema, other_elements:Optional[Map]=None):
-        """Constructor for the TableStructureSchema class.
+    def __init__(self, name, structure:TableSchema, location:LocationSchema, other_elements:Optional[Map]=None):
+        """Constructor for the TableSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
         class variables.
@@ -44,7 +44,7 @@ class TableConfig(Schema):
         # declare and initialize vars
         unparsed_elements : Map = other_elements or {}
         _table_type = self._parseTableType(unparsed_elements=unparsed_elements)
-        self._structure : TableStructureSchema = structure or self._parseStructure(name=f"{name}Structure", table_type=_table_type, unparsed_elements=unparsed_elements)
+        self._structure : TableSchema = structure or self._parseStructure(name=f"{name}Structure", table_type=_table_type, unparsed_elements=unparsed_elements)
         _location_type = self._parseLocationType(unparsed_elements=unparsed_elements)
         self._location  : LocationSchema  = location  or self._parseLocation(name=f"{name}Location", location_type=_location_type, unparsed_elements=unparsed_elements)
 
@@ -52,11 +52,11 @@ class TableConfig(Schema):
         super().__init__(name=name, other_elements=other_elements)
 
     @property
-    def Structure(self) -> TableStructureSchema:
+    def Structure(self) -> TableSchema:
         """Function to get the table's full structure schema
 
         :return: The table structure schema
-        :rtype: TableStructureSchema
+        :rtype: TableSchema
         """
         return self._structure
 
@@ -93,7 +93,7 @@ class TableConfig(Schema):
         :rtype: TableConfig
         """
         _table_type_str : str                  = cls._parseTableType(unparsed_elements=unparsed_elements)
-        _structure      : TableStructureSchema = cls._parseStructure(name=name, table_type=_table_type_str, unparsed_elements=unparsed_elements)
+        _structure      : TableSchema = cls._parseStructure(name=name, table_type=_table_type_str, unparsed_elements=unparsed_elements)
         _loc_type_str   : str                  = cls._parseLocationType(unparsed_elements=unparsed_elements)
         _location       : LocationSchema       = cls._parseLocation(name=name, location_type=_loc_type_str, unparsed_elements=unparsed_elements)
 
@@ -127,8 +127,8 @@ class TableConfig(Schema):
         )
 
     @staticmethod
-    def _parseStructure(name:str, table_type:str, unparsed_elements:Map) -> TableStructureSchema:
-        ret_val : TableStructureSchema
+    def _parseStructure(name:str, table_type:str, unparsed_elements:Map) -> TableSchema:
+        ret_val : TableSchema
 
         _structure = TableConfig.ParseElement(
             unparsed_elements=unparsed_elements,

@@ -7,7 +7,7 @@ from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
-## @class TableStructureSchema
+## @class FileLocationSchema
 class FileLocationSchema(LocationSchema):
     """Class to encode the location of data within a database resource.
 

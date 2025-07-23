@@ -5,7 +5,7 @@ from typing import Optional
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.typing import Map
 
-## @class TableStructureSchema
+## @class LocationSchema
 class LocationSchema(Schema):
 
     # *** ABSTRACTS ***

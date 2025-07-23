@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Self
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import Map
 
-## @class TableStructureSchema
+## @class DatabaseLocationSchema
 class DatabaseLocationSchema(LocationSchema):
     """Class to encode the location of data within a database resource.
 

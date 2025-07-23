@@ -13,8 +13,8 @@ from ogd.common.utils.typing import Map, conversions
 ColumnMapIndex   : TypeAlias = Optional[int | List[int] | Dict[str,int]]
 ColumnMapElement : TypeAlias = Optional[str | List[str] | Dict[str,str]]
 
-## @class TableStructureSchema
-class TableStructureSchema(Schema):
+## @class TableSchema
+class TableSchema(Schema):
     """Dumb struct to hold info about the structure of data for a particular game, from a particular source.
         In particular, it contains an ordered list of columns in the data source table,
         and a mapping of those columns to the corresponding elements of a formal OGD structure.
@@ -22,7 +22,7 @@ class TableStructureSchema(Schema):
 
     @classmethod
     @abc.abstractmethod
-    def _subparseDict(cls, name:str, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableStructureSchema":
+    def _subparseDict(cls, name:str, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableSchema":
         pass
 
     # *** BUILT-INS & PROPERTIES ***
@@ -30,7 +30,7 @@ class TableStructureSchema(Schema):
     _DEFAULT_COLUMNS = []
 
     def __init__(self, name, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema], other_elements:Optional[Map]=None):
-        """Constructor for the TableStructureSchema class.
+        """Constructor for the TableSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
         class variables.
@@ -183,8 +183,8 @@ class TableStructureSchema(Schema):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "TableStructureSchema":
-        """Function to generate a TableStructureSchema from a dictionary.
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "TableSchema":
+        """Function to generate a TableSchema from a dictionary.
 
         The structure is assumed to be as follows:
         ```python
@@ -195,16 +195,16 @@ class TableStructureSchema(Schema):
         }
         ```
 
-        The specific handling of the column map will be determined by the specific TableStructureSchema subclass on which the FromDict feature is called.
+        The specific handling of the column map will be determined by the specific TableSchema subclass on which the FromDict feature is called.
 
-        :param name: The name of the returned TableStructureSchema object
+        :param name: The name of the returned TableSchema object
         :type name: str
-        :param all_elements: A dictionary containing all elements to be parsed into the TableStructureSchema object
+        :param all_elements: A dictionary containing all elements to be parsed into the TableSchema object
         :type all_elements: Dict[str, Any]
         :param logger: An optional logger for outputting errors/warnings, defaults to None
         :type logger: Optional[logging.Logger], optional
-        :return: An instance of the TableStructureSchema subclass on which the function is called
-        :rtype: TableStructureSchema
+        :return: An instance of the TableSchema subclass on which the function is called
+        :rtype: TableSchema
         """
         _column_json_list : List               = unparsed_elements.get('columns', [])
         _column_schemas   : List[ColumnSchema] = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), unparsed_elements=column) for column in _column_json_list]
@@ -213,15 +213,15 @@ class TableStructureSchema(Schema):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Optional[str | Path], search_templates:bool=False) -> "TableStructureSchema":
+    def FromFile(cls, schema_name:str, schema_path:Optional[str | Path], search_templates:bool=False) -> "TableSchema":
         ret_val : Schema
 
         schema_path = schema_path or Path(schemas.__file__).parent / "table_schemas"
         ret_val = cls._fromFile(schema_name=schema_name, schema_path=Path(schema_path))
-        if isinstance(ret_val, TableStructureSchema):
+        if isinstance(ret_val, TableSchema):
             return ret_val
         else:
-            raise ValueError("TableStructureSchema's call to _fromFile yielded a Schema of different type!")
+            raise ValueError("TableSchema's call to _fromFile yielded a Schema of different type!")
 
     # *** PUBLIC METHODS ***
 

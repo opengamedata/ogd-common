@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Self
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import Map
 
-## @class TableStructureSchema
+## @class URLLocationSchema
 class URLLocationSchema(LocationSchema):
 
     _DEFAULT_SCHEME    = "http"
