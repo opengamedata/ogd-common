@@ -1,6 +1,6 @@
 ## import standard libraries
 from pathlib import Path
-from typing import Dict, List, Optional, TypeAlias
+from typing import Dict, List, Optional, Self, TypeAlias
 ## import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema

@@ -2,7 +2,7 @@
 import abc
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Optional, TypeAlias
+from typing import Any, Dict, List, Tuple, Optional, Self, TypeAlias
 ## import local files
 from ogd.common import schemas
 from ogd.common.schemas.Schema import Schema

@@ -1,5 +1,5 @@
 # standard imports
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Self
 
 # ogd imports
 from ogd.common.schemas.Schema import Schema

@@ -1,5 +1,5 @@
 # import standard libraries
-from typing import Dict, Optional
+from typing import Dict, Optional, Self
 from urllib.parse import ParseResult
 # import local files
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential

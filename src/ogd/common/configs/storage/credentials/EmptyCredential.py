@@ -1,5 +1,5 @@
 # import standard libraries
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Self
 # import local files
 from ogd.common.configs.Config import Config
 from ogd.common.utils.typing import Map

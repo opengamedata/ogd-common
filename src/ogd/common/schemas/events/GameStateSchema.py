@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Dict, Optional
+from typing import Dict, Optional, Self
 # import local files
 from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
