@@ -1,5 +1,5 @@
 ## import standard libraries
-from urllib.parse import urlparse, ParseResult
+from urllib.parse import urlparse, urlunparse, ParseResult
 from typing import Dict, List, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
@@ -69,7 +69,7 @@ class URLLocationSchema(LocationSchema):
     @property
     def Location(self) -> str:
         _port = f":{self.Port}" if self.Port else ""
-        return f"{self.Host}{_port}/{self.Path}"
+        return urlunparse(self._url)
 
     @property
     def AsMarkdown(self) -> str:

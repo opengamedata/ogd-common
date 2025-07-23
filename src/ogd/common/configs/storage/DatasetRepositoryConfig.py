@@ -146,26 +146,41 @@ class DatasetRepositoryConfig(DataStoreConfig):
             unparsed_elements=unparsed_elements,
             valid_keys=["files_base"],
             to_type=str,
-            default_value=DatasetRepositoryConfig._DEFAULT_FILE_BASE,
+            default_value=None,
             remove_target=True
         )
-        as_url = urlparse(raw_base)
-        if as_url.scheme not in {"", "file"}:
-            ret_val = URLLocationSchema(name="RepositoryFilesBase", url=as_url)
+        if raw_base:
+            as_url = urlparse(raw_base)
+            if as_url.scheme not in {"", "file"}:
+                ret_val = URLLocationSchema(name="RepositoryFilesBase", url=as_url)
+            else:
+                ret_val = DirectoryLocationSchema(name="RepositoryFilesBase", folder_path=Path(raw_base))
         else:
-            ret_val = DirectoryLocationSchema(name="RepositoryFilesBase", folder_path=Path(raw_base))
+            ret_val = DatasetRepositoryConfig._DEFAULT_FILE_BASE
 
         return ret_val
 
     @staticmethod
     def _parseTemplatesBase(unparsed_elements:Map) -> BaseLocation:
-        return DatasetRepositoryConfig.ParseElement(
+        ret_val : BaseLocation
+
+        raw_base = DatasetRepositoryConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["templates_base"],
             to_type=str,
-            default_value=DatasetRepositoryConfig._DEFAULT_TEMPLATE_BASE,
+            default_value=None,
             remove_target=True
         )
+        if raw_base:
+            as_url = urlparse(raw_base)
+            if as_url.scheme not in {"", "file"}:
+                ret_val = URLLocationSchema(name="RepositoryTemplatesBase", url=as_url)
+            else:
+                ret_val = DirectoryLocationSchema(name="RepositoryTemplatesBase", folder_path=Path(raw_base))
+        else:
+            ret_val = DatasetRepositoryConfig._DEFAULT_TEMPLATE_BASE
+        
+        return ret_val
 
     @staticmethod
     def _parseDatasets(unparsed_elements:Map) -> Dict[str, DatasetCollectionSchema]:

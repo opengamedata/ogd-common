@@ -3,9 +3,12 @@ import logging
 import unittest
 from pathlib import Path
 from unittest import TestCase
+from urllib.parse import urlparse
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
+from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
+from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 # import locals
 from src.ogd.common.configs.IndexingConfig import FileIndexingConfig
 from tests.config.t_config import settings
@@ -24,9 +27,9 @@ class test_IndexingConfig(TestCase):
         # 2. Set up local instance of testing class
         cls.test_schema = FileIndexingConfig(
             name="Indexing Schema",
-            local_dir=Path("./data/"),
-            remote_url="https://fieldday-web.ad.education.wisc.edu/opengamedata/",
-            templates_url="https://github.com/opengamedata/opengamedata-samples",
+            local_dir=DirectoryLocationSchema(name="LocalDir", folder_path=Path("./data")),
+            remote_url=URLLocationSchema(name="RemoteURL", url=urlparse("https://fieldday-web.ad.education.wisc.edu/opengamedata/")),
+            templates_url=URLLocationSchema(name="TemplateURL", url=urlparse("https://github.com/opengamedata/opengamedata-samples")),
             other_elements={ "foo":"bar" }
         )
 
@@ -41,18 +44,21 @@ class test_IndexingConfig(TestCase):
 
     def test_LocalDirectory(self):
         _dir = self.test_schema.LocalDirectory
-        self.assertIsInstance(_dir, Path)
-        self.assertEqual(_dir, Path("./data/"))
+        self.assertIsInstance(_dir, DirectoryLocationSchema)
+        self.assertIsInstance(_dir.FolderPath, Path)
+        self.assertEqual(_dir.FolderPath, Path("./data/"))
 
     def test_RemoteURL(self):
-        _str = self.test_schema.RemoteURL
-        self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "https://fieldday-web.ad.education.wisc.edu/opengamedata/")
+        _url = self.test_schema.RemoteURL
+        self.assertIsInstance(_url, URLLocationSchema)
+        self.assertIsInstance(_url.Location, str)
+        self.assertEqual(_url.Location, "https://fieldday-web.ad.education.wisc.edu/opengamedata/")
 
     def test_TemplatesURL(self):
-        _str = self.test_schema.TemplatesURL
-        self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "https://github.com/opengamedata/opengamedata-samples")
+        _url = self.test_schema.TemplatesURL
+        self.assertIsInstance(_url, URLLocationSchema)
+        self.assertIsInstance(_url.Location, str)
+        self.assertEqual(_url.Location, "https://github.com/opengamedata/opengamedata-samples")
 
     def test_NonStandardElements(self):
         _elems = {
@@ -77,19 +83,18 @@ class test_IndexingConfig(TestCase):
         _schema = FileIndexingConfig.FromDict(name="FILE_INDEXING", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "FILE_INDEXING")
-        self.assertIsInstance(_schema.LocalDirectory, Path)
-        self.assertEqual(_schema.LocalDirectory, Path("./data"))
-        self.assertIsInstance(_schema.RemoteURL, str)
-        self.assertEqual(_schema.RemoteURL, "https://fieldday-web.ad.education.wisc.edu/opengamedata/")
-        self.assertIsInstance(_schema.TemplatesURL, str)
-        self.assertEqual(_schema.TemplatesURL, "https://github.com/opengamedata/opengamedata-samples")
+        self.assertIsInstance(_schema.LocalDirectory, DirectoryLocationSchema)
+        self.assertEqual(_schema.LocalDirectory.FolderPath, Path("./data"))
+        self.assertIsInstance(_schema.RemoteURL, URLLocationSchema)
+        self.assertEqual(_schema.RemoteURL.Location, "https://fieldday-web.ad.education.wisc.edu/opengamedata/")
+        self.assertIsInstance(_schema.TemplatesURL, URLLocationSchema)
+        self.assertEqual(_schema.TemplatesURL.Location, "https://github.com/opengamedata/opengamedata-samples")
 
-    @unittest.skip("Not yet implemented")
     def test_parseLocalDir(self):
-        pass
-        # _name = Schema._parseName("Foo")
-        # self.assertIsInstance(_name, str)
-        # self.assertEqual(_name, "Foo")
+        unparsed_elements = { "LOCAL_DIR" : "./data/" }
+        result = FileIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        self.assertIsInstance(result, DirectoryLocationSchema)
+        self.assertEqual(result.FolderPath, Path("./data"))
 
     @unittest.skip("Not yet implemented")
     def test_parseRemoteURL(self):
