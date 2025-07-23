@@ -17,8 +17,8 @@ from ogd.common.models.FeatureDataset import FeatureDataset
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
-from ogd.common.schemas.tables.EventTableStructureSchema import EventTableStructureSchema
-from ogd.common.schemas.tables.FeatureTableStructureSchema import FeatureTableStructureSchema
+from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
+from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.utils.Logger import Logger
 
@@ -142,7 +142,7 @@ class Interface(StorageConnector):
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict | event_filter.AsDict
         _events = []
         if self.IsOpen:
-            if isinstance(self.GameStoreConfig.TableConfigName, EventTableStructureSchema):
+            if isinstance(self.GameStoreConfig.TableConfigName, EventTableSchema):
                 # _date_clause = f" on date(s) {date_filter}"
                 _msg = f"Retrieving event data from {self.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
@@ -158,7 +158,7 @@ class Interface(StorageConnector):
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict
         _features = []
         if self.IsOpen:
-            if isinstance(self.GameStoreConfig.TableConfigName, EventTableStructureSchema):
+            if isinstance(self.GameStoreConfig.TableConfigName, EventTableSchema):
                 # _date_clause = f" on date(s) {date_filter}"
                 _msg = f"Retrieving event data from {self.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
@@ -181,7 +181,7 @@ class Interface(StorageConnector):
         _evt_sess_index : int = 1
         _fallbacks = {"app_id":self._source_schema.GameID}
         _table_schema = self.GameStoreConfig.TableConfigName
-        if isinstance(_table_schema, EventTableStructureSchema):
+        if isinstance(_table_schema, EventTableSchema):
             for row in rows:
                 try:
                     event = _table_schema.RowToEvent(row)

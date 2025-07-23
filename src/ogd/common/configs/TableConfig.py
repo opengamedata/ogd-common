@@ -5,8 +5,8 @@ from typing import Dict, List, Optional, Self, TypeAlias
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.TableStructureSchema import TableStructureSchema
-from ogd.common.schemas.tables.EventTableStructureSchema import EventTableStructureSchema
-from ogd.common.schemas.tables.FeatureTableStructureSchema import FeatureTableStructureSchema
+from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
+from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
@@ -105,7 +105,7 @@ class TableConfig(Schema):
     def Default(cls) -> "TableConfig":
         return TableConfig(
             name="DefaultTableConfig",
-            structure=EventTableStructureSchema.Default(),
+            structure=EventTableSchema.Default(),
             location=FileLocationSchema.Default(),
             other_elements={}
         )
@@ -139,14 +139,14 @@ class TableConfig(Schema):
         )
         match table_type.upper():
             case "EVENT":
-                ret_val =  EventTableStructureSchema.FromFile(schema_name=_structure.name, schema_path=_structure.parent) \
+                ret_val =  EventTableSchema.FromFile(schema_name=_structure.name, schema_path=_structure.parent) \
                         if type(_structure) == Path else \
-                           EventTableStructureSchema.FromDict(name=f"{name}EventStructure", unparsed_elements=_structure)
+                           EventTableSchema.FromDict(name=f"{name}EventStructure", unparsed_elements=_structure)
                           
             case "FEATURE":
-                ret_val =  FeatureTableStructureSchema.FromFile(schema_name=_structure.name, schema_path=_structure.parent) \
+                ret_val =  FeatureTableSchema.FromFile(schema_name=_structure.name, schema_path=_structure.parent) \
                         if type(_structure) == Path else \
-                           FeatureTableStructureSchema.FromDict(name=f"{name}EventStructure", unparsed_elements=_structure)
+                           FeatureTableSchema.FromDict(name=f"{name}EventStructure", unparsed_elements=_structure)
                 
         
         return ret_val

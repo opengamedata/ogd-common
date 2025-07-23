@@ -1,8 +1,8 @@
 from typing import Any, Dict
 
 from ogd.common.schemas.tables.TableStructureSchema import TableStructureSchema
-from ogd.common.schemas.tables.EventTableStructureSchema import EventTableStructureSchema
-from ogd.common.schemas.tables.FeatureTableStructureSchema import FeatureTableStructureSchema
+from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
+from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 
 class TableStructureFactory:
     @staticmethod
@@ -11,8 +11,8 @@ class TableStructureFactory:
         # _table_type       = TableType.FromString(_table_type_str) if _table_type_str is not None else TableType.EVENT
         match (table_type.upper()):
             case "EVENT":
-                return EventTableStructureSchema.FromDict(name=name, unparsed_elements=all_elements)
+                return EventTableSchema.FromDict(name=name, unparsed_elements=all_elements)
             case "FEATURE":
-                return FeatureTableStructureSchema.FromDict(name=name, unparsed_elements=all_elements)
+                return FeatureTableSchema.FromDict(name=name, unparsed_elements=all_elements)
             case _:
                 raise ValueError(f"Could not generate TableStructureSchema from dictionary, table_type had invalid value {table_type}")
