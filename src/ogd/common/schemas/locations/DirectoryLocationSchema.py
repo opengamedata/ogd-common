@@ -80,14 +80,14 @@ class DirectoryLocationSchema(LocationSchema):
 
         :param name: _description_
         :type name: str
-        :param all_elements: _description_
-        :type all_elements: Dict[str, Any]
-        :param logger: _description_
-        :type logger: Optional[logging.Logger]
-        :param data_sources: _description_
-        :type data_sources: Dict[str, DataStoreConfig]
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Map
+        :param key_overrides: _description_, defaults to None
+        :type key_overrides: Optional[Dict[str, str]], optional
+        :param default_override: _description_, defaults to None
+        :type default_override: Optional[Self], optional
         :return: _description_
-        :rtype: GameSourceSchema
+        :rtype: DirectoryLocationSchema
         """
         _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
         return DirectoryLocationSchema(name=name, folder_path=_folder_path, other_elements=unparsed_elements)

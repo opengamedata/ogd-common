@@ -94,14 +94,14 @@ class URLLocationSchema(LocationSchema):
 
         :param name: _description_
         :type name: str
-        :param all_elements: _description_
-        :type all_elements: Dict[str, Any]
-        :param logger: _description_
-        :type logger: Optional[logging.Logger]
-        :param data_sources: _description_
-        :type data_sources: Dict[str, DataStoreConfig]
+        :param unparsed_elements: _description_
+        :type unparsed_elements: Map
+        :param key_overrides: _description_, defaults to None
+        :type key_overrides: Optional[Dict[str, str]], optional
+        :param default_override: _description_, defaults to None
+        :type default_override: Optional[Self], optional
         :return: _description_
-        :rtype: GameSourceSchema
+        :rtype: URLLocationSchema
         """
         # 1. First, we try to get as a URL from dict as first try. If it returns something, then we've got it.
         url = cls._parseURL(unparsed_elements=unparsed_elements, key_overrides=key_overrides)

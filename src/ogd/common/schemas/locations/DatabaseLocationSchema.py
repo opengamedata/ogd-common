@@ -100,7 +100,7 @@ class DatabaseLocationSchema(LocationSchema):
         :param data_sources: _description_
         :type data_sources: Dict[str, DataStoreConfig]
         :return: _description_
-        :rtype: GameSourceSchema
+        :rtype: DatabaseLocationSchema
         """
         _db_name    : str           = cls._parseDatabaseName(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
         _table_name : Optional[str] = cls._parseTableName(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
