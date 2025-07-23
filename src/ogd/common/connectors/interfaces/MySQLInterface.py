@@ -286,7 +286,7 @@ class MySQLInterface(Interface):
             _db_name     : str = self.GameSourceSchema.DatabaseName
             _table_name  : str = self.GameSourceSchema.TableName
 
-            sess_id_col  : str = self.GameSourceSchema.TableSchema.SessionIDColumn or "session_id"
+            sess_id_col  : str = self.GameSourceSchema.TableConfig.SessionIDColumn or "session_id"
 
             filters : List[str] = []
             params  : List[str] = []
@@ -324,13 +324,13 @@ class MySQLInterface(Interface):
     #             params.append(self._game_id)
     #         # if versions is not None and versions is not []:
     #         #     filters.append(f"app_version in ({','.join([str(version) for version in versions])})")
-    #         filters.append(f"`{self._TableSchema.EventSequenceIndexColumn}`='0'")
+    #         filters.append(f"`{self._TableConfig.EventSequenceIndexColumn}`='0'")
     #         filters.append(f"(`server_time` BETWEEN '{min.isoformat()}' AND '{max.isoformat()}')")
     #         filter_clause = " AND ".join(filters)
 
     #         # run query
     #         # We grab the ids for all sessions that have 0th move in the proper date range.
-    #         sess_id_col = self._TableSchema.SessionIDColumn or "`session_id`"
+    #         sess_id_col = self._TableConfig.SessionIDColumn or "`session_id`"
     #         sess_ids_raw = SQL.SELECT(cursor=self._db_cursor,   db_name=_db_name,     table=_table_name,
     #                                  columns=[sess_id_col],     filter=filter_clause,
     #                                  sort_columns=[sess_id_col], sort_direction="ASC", distinct=True,
@@ -382,10 +382,10 @@ class MySQLInterface(Interface):
     #         #     filters.append(f"app_version in ({','.join([str(version) for version in versions])})")
     #         ids_string = ','.join([f"'{x}'" for x in id_list])
     #         if id_mode == IDMode.SESSION:
-    #             sess_id_col = self._TableSchema.SessionIDColumn or "session_id"
+    #             sess_id_col = self._TableConfig.SessionIDColumn or "session_id"
     #             filters.append(f"{sess_id_col} IN ({ids_string})")
     #         elif id_mode == IDMode.USER:
-    #             play_id_col = self._TableSchema.UserIDColumn or "player_id"
+    #             play_id_col = self._TableConfig.UserIDColumn or "player_id"
     #             filters.append(f"`{play_id_col}` IN ({ids_string})")
     #         else:
     #             raise ValueError("Invalid IDMode in MySQLInterface!")
@@ -411,10 +411,10 @@ class MySQLInterface(Interface):
             _db_name     : str = self.GameSourceSchema.DatabaseName
             _table_name  : str = self.GameSourceSchema.TableName
 
-            sess_id_col = self.GameSourceSchema.TableSchema.SessionIDColumn or 'session_id'
-            play_id_col = self.GameSourceSchema.TableSchema.UserIDColumn or 'player_id'
-            seq_idx_col = self.GameSourceSchema.TableSchema.EventSequenceIndexColumn or 'session_n'
-            evt_nam_col = self.GameSourceSchema.TableSchema.EventNameColumn or "event_name"
+            sess_id_col = self.GameSourceSchema.TableConfig.SessionIDColumn or 'session_id'
+            play_id_col = self.GameSourceSchema.TableConfig.UserIDColumn or 'player_id'
+            seq_idx_col = self.GameSourceSchema.TableConfig.EventSequenceIndexColumn or 'session_n'
+            evt_nam_col = self.GameSourceSchema.TableConfig.EventNameColumn or "event_name"
 
             filters = []
             params = []

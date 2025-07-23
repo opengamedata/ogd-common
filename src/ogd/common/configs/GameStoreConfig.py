@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.schemas.Schema import Schema
-from ogd.common.schemas.tables.TableSchema import TableSchema
+from ogd.common.configs.TableConfig import TableConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
@@ -21,10 +21,10 @@ class GameSourceSchema(Schema):
     - `Source` : A data source where game data is stored
     - `DatabaseName` : The name of the specific database within the source that contains this game's data
     - `TableName` : The neame of the specific table within the database holding the given game's data
-    - `TableSchema` : A schema indicating the structure of the table containing the given game's data.
+    - `TableConfig` : A schema indicating the structure of the table containing the given game's data.
 
-    TODO : use a TableSchema for the table_schema instead of just the name of the schema, like we do with source_schema.
-    TODO : Implement and use a smart Load(...) function of TableSchema to load schema from given name, rather than FromFile.
+    TODO : use a TableConfig for the table_schema instead of just the name of the schema, like we do with source_schema.
+    TODO : Implement and use a smart Load(...) function of TableConfig to load schema from given name, rather than FromFile.
     """
 
     _DEFAULT_GAME_ID       = "UNKNOWN GAME"
@@ -47,8 +47,8 @@ class GameSourceSchema(Schema):
         self._source_schema     : Optional[DataStoreConfig] = source_schema
         self._db_name           : str                       = db_name       or self._parseDBName(unparsed_elements=unparsed_elements)
         self._table_name        : str                       = table_name    or self._parseTableName(unparsed_elements=unparsed_elements)
-        self._table_schema_name : str                       = table_schema  or self._parseTableSchemaName(unparsed_elements=unparsed_elements)
-        self._table_schema      : TableSchema = TableSchema.FromFile(schema_name=self._table_schema_name, schema_path=self._DEFAULT_TABLE_FOLDER_PATH)
+        self._table_schema_name : str                       = table_schema  or self._parseTableConfigName(unparsed_elements=unparsed_elements)
+        self._table_schema      : TableConfig = TableConfig.FromFile(schema_name=self._table_schema_name, schema_path=self._DEFAULT_TABLE_FOLDER_PATH)
 
         if game_id is not None:
             self._game_id = game_id
@@ -85,11 +85,11 @@ class GameSourceSchema(Schema):
         return self._table_name
 
     @property
-    def TableSchema(self) -> TableSchema:
+    def TableConfig(self) -> TableConfig:
         return self._table_schema
 
     @property
-    def TableSchemaName(self) -> str:
+    def TableConfigName(self) -> str:
         return self._table_schema_name
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -98,7 +98,7 @@ class GameSourceSchema(Schema):
     def AsMarkdown(self) -> str:
         ret_val : str
 
-        ret_val = f"{self.Name}: _{self.TableSchemaName}_ format, source {self.Source.Name if self.Source else 'None'} : {self.DatabaseName}.{self.TableName}"
+        ret_val = f"{self.Name}: _{self.TableConfigName}_ format, source {self.Source.Name if self.Source else 'None'} : {self.DatabaseName}.{self.TableName}"
         return ret_val
 
     @classmethod
@@ -134,7 +134,7 @@ class GameSourceSchema(Schema):
         """
         _game_id       : str                       = cls._parseGameID(unparsed_elements=unparsed_elements)
         _db_name       : str                       = cls._parseDBName(unparsed_elements=unparsed_elements)
-        _table_schema  : str                       = cls._parseTableSchemaName(unparsed_elements=unparsed_elements)
+        _table_schema  : str                       = cls._parseTableConfigName(unparsed_elements=unparsed_elements)
         _table_name    : str                       = cls._parseTableName(unparsed_elements=unparsed_elements)
 
         _source_name   : str                       = cls._parseSourceName(unparsed_elements=unparsed_elements)
@@ -208,7 +208,7 @@ class GameSourceSchema(Schema):
         )
 
     @staticmethod
-    def _parseTableSchemaName(unparsed_elements:Map) -> str:
+    def _parseTableConfigName(unparsed_elements:Map) -> str:
         return GameSourceSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["schema"],

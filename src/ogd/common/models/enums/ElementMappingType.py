@@ -5,7 +5,7 @@
 from enum import IntEnum
 
 class ElementMappingType(IntEnum):
-    """Enum representing the different kinds of column-element mappings in TableSchemas.
+    """Enum representing the different kinds of column-element mappings in TableConfigs.
 
     Namely:
 

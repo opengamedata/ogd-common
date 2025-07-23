@@ -16,8 +16,8 @@ from ogd.common.utils.typing import Map
 ColumnMapIndex   : TypeAlias = Optional[int | List[int] | Dict[str,int]]
 ColumnMapElement : TypeAlias = Optional[str | List[str] | Dict[str,str]]
 
-## @class TableSchema
-class TableSchema(Schema):
+## @class TableConfig
+class TableConfig(Schema):
     """Dumb struct to hold a table structure and table location.
     """
 
@@ -80,7 +80,7 @@ class TableSchema(Schema):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "TableSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "TableConfig":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -90,7 +90,7 @@ class TableSchema(Schema):
         :param unparsed_elements: _description_
         :type unparsed_elements: Dict[str, Any]
         :return: _description_
-        :rtype: TableSchema
+        :rtype: TableConfig
         """
         _table_type_str : str                  = cls._parseTableType(unparsed_elements=unparsed_elements)
         _structure      : TableStructureSchema = cls._parseStructure(name=name, table_type=_table_type_str, unparsed_elements=unparsed_elements)
@@ -99,12 +99,12 @@ class TableSchema(Schema):
 
         _used = {"table_type", "structure", "location_type", "location"}
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return TableSchema(name=name, structure=_structure, location=_location, other_elements=_leftovers)
+        return TableConfig(name=name, structure=_structure, location=_location, other_elements=_leftovers)
 
     @classmethod
-    def Default(cls) -> "TableSchema":
-        return TableSchema(
-            name="DefaultTableSchema",
+    def Default(cls) -> "TableConfig":
+        return TableConfig(
+            name="DefaultTableConfig",
             structure=EventTableStructureSchema.Default(),
             location=FileLocationSchema.Default(),
             other_elements={}
@@ -118,11 +118,11 @@ class TableSchema(Schema):
 
     @staticmethod
     def _parseTableType(unparsed_elements:Map) -> str:
-        return TableSchema.ParseElement(
+        return TableConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["table_type"],
             to_type=str,
-            default_value=TableSchema._DEFAULT_TABLE_TYPE,
+            default_value=TableConfig._DEFAULT_TABLE_TYPE,
             remove_target=True
         )
 
@@ -130,11 +130,11 @@ class TableSchema(Schema):
     def _parseStructure(name:str, table_type:str, unparsed_elements:Map) -> TableStructureSchema:
         ret_val : TableStructureSchema
 
-        _structure = TableSchema.ParseElement(
+        _structure = TableConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["structure"],
             to_type=[Path, dict], # check first if we got a string that parses to a path for the file, otherwise assume whole structure is given.
-            default_value=TableSchema._DEFAULT_STRUCTURE,
+            default_value=TableConfig._DEFAULT_STRUCTURE,
             remove_target=True
         )
         match table_type.upper():
@@ -153,11 +153,11 @@ class TableSchema(Schema):
 
     @staticmethod
     def _parseLocationType(unparsed_elements:Map) -> str:
-        return TableSchema.ParseElement(
+        return TableConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["location_type"],
             to_type=str,
-            default_value=TableSchema._DEFAULT_LOCATION_TYPE,
+            default_value=TableConfig._DEFAULT_LOCATION_TYPE,
             remove_target=True
         )
 
@@ -165,11 +165,11 @@ class TableSchema(Schema):
     def _parseLocation(name:str, location_type:str, unparsed_elements:Map) -> LocationSchema:
         ret_val : LocationSchema
 
-        _location = TableSchema.ParseElement(
+        _location = TableConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["location"],
             to_type=dict,
-            default_value=TableSchema._DEFAULT_LOCATION,
+            default_value=TableConfig._DEFAULT_LOCATION,
             remove_target=True
         )
         match location_type.upper():

@@ -8,7 +8,7 @@ from typing import Any, Dict, IO, List, Tuple, Optional
 from ogd.common.connectors.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.configs.GameSourceSchema import GameSourceSchema
-from ogd.common.schemas.tables.TableSchema import TableSchema
+from ogd.common.configs.TableConfig import TableConfig
 from ogd.common.utils.Logger import Logger
 
 class CSVInterface(Interface):
@@ -28,7 +28,7 @@ class CSVInterface(Interface):
 
     def _open(self) -> bool:
         try:
-            # TODO should include option for access to the TableSchema in the interface, because obviously it should know what form the table takes.
+            # TODO should include option for access to the TableConfig in the interface, because obviously it should know what form the table takes.
             target_types = { 'session_id' : 'str' }
             _data = pd.read_csv(filepath_or_buffer=self._filepath, delimiter=self._delimiter, dtype=target_types, parse_dates=['timestamp'])
             # _data = pd.read_csv(filepath_or_buffer=self._filepath, delimiter=self._delimiter)

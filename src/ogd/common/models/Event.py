@@ -16,7 +16,7 @@ class EventSource(IntEnum):
 class Event(GameData):
     """
     Completely dumb struct that enforces a particular structure for the data we get from a source.
-    Basically, whenever we fetch data, the TableSchema will be used to map columns to the required elements of an Event.
+    Basically, whenever we fetch data, the TableConfig will be used to map columns to the required elements of an Event.
     Then the extractors etc. can just access columns in a direct manner.
     """
     def __init__(self, app_id:str,          user_id:Optional[str],          session_id:str,

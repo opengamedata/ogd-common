@@ -142,7 +142,7 @@ class Interface(StorageConnector):
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict | event_filter.AsDict
         _events = []
         if self.IsOpen:
-            if isinstance(self.GameSourceSchema.TableSchemaName, EventTableStructureSchema):
+            if isinstance(self.GameSourceSchema.TableConfigName, EventTableStructureSchema):
                 # _date_clause = f" on date(s) {date_filter}"
                 _msg = f"Retrieving event data from {self.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
@@ -158,7 +158,7 @@ class Interface(StorageConnector):
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict
         _features = []
         if self.IsOpen:
-            if isinstance(self.GameSourceSchema.TableSchemaName, EventTableStructureSchema):
+            if isinstance(self.GameSourceSchema.TableConfigName, EventTableStructureSchema):
                 # _date_clause = f" on date(s) {date_filter}"
                 _msg = f"Retrieving event data from {self.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
@@ -180,7 +180,7 @@ class Interface(StorageConnector):
         _curr_sess : str      = ""
         _evt_sess_index : int = 1
         _fallbacks = {"app_id":self._source_schema.GameID}
-        _table_schema = self.GameSourceSchema.TableSchemaName
+        _table_schema = self.GameSourceSchema.TableConfigName
         if isinstance(_table_schema, EventTableStructureSchema):
             for row in rows:
                 try:
@@ -211,7 +211,7 @@ class Interface(StorageConnector):
         :param rows: _description_
         :type rows: List[Tuple]
         :param schema: _description_
-        :type schema: FeatureTableSchema
+        :type schema: FeatureTableConfig
         :return: _description_
         :rtype: List[FeatureData]
         """
