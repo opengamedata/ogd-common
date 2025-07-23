@@ -4,7 +4,7 @@ from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 
-class TableStructureFactory:
+class TableSchemaFactory:
     @staticmethod
     def FromDict(name:str, all_elements:Dict[str, Any])-> TableSchema:
         table_type = str(all_elements.get("table_type", "NOT FOUND"))
