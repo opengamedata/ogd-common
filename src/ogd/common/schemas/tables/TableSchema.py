@@ -1,6 +1,6 @@
 ## import standard libraries
 from pathlib import Path
-from typing import Dict, List, Optional, TypeAlias
+from typing import Dict, List, Optional, Self, TypeAlias
 ## import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
@@ -80,7 +80,7 @@ class TableSchema(Schema):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "TableSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "TableSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.

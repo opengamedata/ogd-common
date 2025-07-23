@@ -1,7 +1,7 @@
 ## import standard libraries
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Self, Tuple
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.Logger import Logger
@@ -107,7 +107,7 @@ class FileLocationSchema(LocationSchema):
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "FileLocationSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "FileLocationSchema":
         """Create a DatabaseLocationSchema from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -134,8 +134,8 @@ class FileLocationSchema(LocationSchema):
             _filename    = parsed_path[1]
         # 3. If there wasn't a full path, then we move on to just parse folder and filename from dict directly.
         else:
-            _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
-            _filename    = cls._parseFilename(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+            _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
+            _filename    = cls._parseFilename(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
             # if we didn't find a folder, but the file has a '/' in it, we should be able to get file separate from path.
             if _folder_path is None and _filename is not None and "/" in _filename:
                 _full_path = Path(_filename)
@@ -153,7 +153,8 @@ class FileLocationSchema(LocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parsePath(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> Optional[Tuple[Path, str]]:
+    def _parsePath(unparsed_elements:Map,
+                   key_overrides:Optional[Dict[str, str]]=None) -> Optional[Tuple[Path, str]]:
         """Function to parse a full path into a folder and filename
 
         :param unparsed_elements: _description_
@@ -183,25 +184,33 @@ class FileLocationSchema(LocationSchema):
         return ret_val
 
     @staticmethod
-    def _parseFolderPath(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> Path:
+    def _parseFolderPath(unparsed_elements:Map,
+                         key_overrides:Optional[Dict[str, str]]=None,
+                         default_override:Optional["FileLocationSchema"]=None) -> Path:
         default_keys : List[str] = ["folder", "path"]
         search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+        default_value : Path = default_override.Folder if default_override else FileLocationSchema._DEFAULT_PATH
+
         return FileLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=Path,
-            default_value=FileLocationSchema._DEFAULT_PATH,
+            default_value=default_value,
             remove_target=True
         )
 
     @staticmethod
-    def _parseFilename(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> str:
+    def _parseFilename(unparsed_elements:Map,
+                       key_overrides:Optional[Dict[str, str]]=None,
+                       default_override:Optional["FileLocationSchema"]=None) -> str:
         default_keys : List[str] = ["filename", "file"]
         search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+        default_value : str = default_override.Filename if default_override else FileLocationSchema._DEFAULT_FILENAME
+
         return FileLocationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=str,
-            default_value=FileLocationSchema._DEFAULT_FILENAME,
+            default_value=default_value,
             remove_target=True
         )

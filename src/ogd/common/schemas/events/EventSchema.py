@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Self
 # import local files
 from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
@@ -97,7 +97,7 @@ class EventSchema(Schema):
         return "\n\n".join(ret_val)
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "EventSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "EventSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.

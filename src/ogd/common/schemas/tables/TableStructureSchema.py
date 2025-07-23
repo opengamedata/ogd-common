@@ -2,7 +2,7 @@
 import abc
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Optional, TypeAlias
+from typing import Any, Dict, List, Tuple, Optional, Self, TypeAlias
 ## import local files
 from ogd.common import schemas
 from ogd.common.schemas.Schema import Schema
@@ -183,7 +183,7 @@ class TableStructureSchema(Schema):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "TableStructureSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "TableStructureSchema":
         """Function to generate a TableStructureSchema from a dictionary.
 
         The structure is assumed to be as follows:

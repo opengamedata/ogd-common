@@ -1,5 +1,5 @@
 # import standard libraries
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Self
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.utils.typing import Map
@@ -59,7 +59,7 @@ class PasswordCredential(CredentialConfig):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "PasswordCredential":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "PasswordCredential":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -71,8 +71,8 @@ class PasswordCredential(CredentialConfig):
         :return: _description_
         :rtype: PasswordCredential
         """
-        _user = cls._parseUser(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
-        _pass = cls._parsePass(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+        _user = cls._parseUser(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
+        _pass = cls._parsePass(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
         return PasswordCredential(name=name, username=_user, password=_pass, other_elements=unparsed_elements)
 
     @classmethod
@@ -91,28 +91,36 @@ class PasswordCredential(CredentialConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseUser(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> str:
+    def _parseUser(unparsed_elements:Map,
+                   key_overrides:Optional[Dict[str, str]]=None,
+                   default_override:Optional["PasswordCredential"]=None) -> str:
         default_keys : List[str] = ["USER"]
-        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys \
+                                if key_overrides else default_keys
+        default_value : Optional[str] = default_override.User if default_override else PasswordCredential._DEFAULT_USER
 
         return PasswordCredential.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=str,
-            default_value=PasswordCredential._DEFAULT_USER,
+            default_value=default_value,
             remove_target=True
         )
 
     @staticmethod
-    def _parsePass(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> str:
+    def _parsePass(unparsed_elements:Map,
+                   key_overrides:Optional[Dict[str, str]]=None,
+                   default_override:Optional["PasswordCredential"]=None) -> str:
         default_keys : List[str] = ["PASS", "PASSWORD", "PW"]
-        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys \
+                                if key_overrides else default_keys
+        default_value : Optional[str] = default_override.Pass if default_override else PasswordCredential._DEFAULT_PASS
 
         return PasswordCredential.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=str,
-            default_value=PasswordCredential._DEFAULT_PASS,
+            default_value=default_value,
             remove_target=True
         )
 

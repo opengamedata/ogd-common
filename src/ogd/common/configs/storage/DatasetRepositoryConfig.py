@@ -1,7 +1,7 @@
 # standard imports
 from pathlib import Path
 from urllib.parse import urlparse
-from typing import Dict, Optional, TypeAlias
+from typing import Dict, Optional, Self, TypeAlias
 
 # ogd imports
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
@@ -108,7 +108,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         return f"{self.Name} : {self.Location.Location}"
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "DatasetRepositoryConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "DatasetRepositoryConfig":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.

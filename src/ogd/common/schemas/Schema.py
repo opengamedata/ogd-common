@@ -25,7 +25,7 @@ class Schema(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> Self:
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> Self:
         """_summary_
 
         :param name: _description_
@@ -112,7 +112,7 @@ class Schema(abc.ABC):
         return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> Self:
+    def FromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> Self:
         """Function to create an instance of the given Schema subclass, from data in a Map (Dict[str, Any])
 
         :param name: The name of the instance.
@@ -127,7 +127,7 @@ class Schema(abc.ABC):
             _msg = f"For {name} {cls.__name__}, unparsed_elements was not a dict, defaulting to empty dict"
             Logger.Log(_msg, logging.WARN)
 
-        return cls._fromDict(name=name, unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+        return cls._fromDict(name=name, unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
 
     @classmethod
     def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False, optional_element:bool=False) -> Any:
@@ -208,8 +208,6 @@ class Schema(abc.ABC):
 
     @classmethod
     def _schemaFromTemplate(cls, schema_path:Path, schema_name:str) -> Self:
-        ret_val : Schema
-
         template_name = schema_name + ".template"
         try:
             template_contents = fileio.loadJSONFile(filename=template_name, path=schema_path, autocorrect_extension=False)
