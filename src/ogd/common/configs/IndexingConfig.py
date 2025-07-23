@@ -112,58 +112,29 @@ class FileIndexingConfig(Config):
 
     @staticmethod
     def _parseLocalDir(unparsed_elements:Map) -> DirectoryLocationSchema:
-        ret_val : DirectoryLocationSchema
-
-        raw_local = FileIndexingConfig.ParseElement(
+        return DirectoryLocationSchema.FromDict(
+            name="LocalDir",
             unparsed_elements=unparsed_elements,
-            valid_keys=["LOCAL_DIR"],
-            to_type=Path,
-            default_value=None,
-            remove_target=True
+            key_overrides={"folder":"LOCAL_DIR"},
+            default_override=FileIndexingConfig._DEFAULT_LOCAL_DIR
         )
-        # In order for us to control what the default path is, we'll try to parse here and just pass in to constructor, rather than use their FromDict.
-        if raw_local:
-            ret_val = DirectoryLocationSchema(name="RepositoryFilesBase", folder_path=Path(raw_local))
-        else:
-            ret_val = FileIndexingConfig._DEFAULT_LOCAL_DIR
-        
-        return ret_val
 
     @staticmethod
     def _parseRemoteURL(unparsed_elements:Map) -> URLLocationSchema:
-        ret_val : URLLocationSchema
-
-        raw_url = FileIndexingConfig.ParseElement(
+        return URLLocationSchema.FromDict(
+            name="RemoteURL",
             unparsed_elements=unparsed_elements,
-            valid_keys=["REMOTE_URL"],
-            to_type=str,
-            default_value=None,
-            remove_target=True
+            key_overrides={"url":"REMOTE_URL"},
+            default_override=FileIndexingConfig._DEFAULT_REMOTE_URL
         )
-        if raw_url:
-            as_url = urlparse(raw_url)
-            ret_val = URLLocationSchema(name="RemoteURL", url=as_url)
-        else:
-            ret_val = FileIndexingConfig._DEFAULT_REMOTE_URL
-        return ret_val
 
     @staticmethod
     def _parseTemplatesURL(unparsed_elements:Map) -> URLLocationSchema:
-        ret_val : URLLocationSchema
-
-        raw_url = FileIndexingConfig.ParseElement(
+        return URLLocationSchema.FromDict(
+            name="RemoteURL",
             unparsed_elements=unparsed_elements,
-            valid_keys=["TEMPLATES_URL"],
-            to_type=str,
-            default_value=None,
-            remove_target=True
+            key_overrides={"url":"TEMPLATES_URL"},
+            default_override=FileIndexingConfig._DEFAULT_TEMPLATE_URL
         )
-        if raw_url:
-            as_url = urlparse(raw_url)
-            ret_val = URLLocationSchema(name="TemplatesURL", url=as_url)
-        else:
-            ret_val = FileIndexingConfig._DEFAULT_TEMPLATE_URL
-
-        return ret_val
 
     # *** PRIVATE METHODS ***
