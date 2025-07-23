@@ -117,22 +117,22 @@ class TableSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseTableType(unparsed_elements:Map, keys:List[str]=["table_type"]) -> str:
+    def _parseTableType(unparsed_elements:Map) -> str:
         return TableSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=keys,
+            valid_keys=["table_type"],
             to_type=str,
             default_value=TableSchema._DEFAULT_TABLE_TYPE,
             remove_target=True
         )
 
     @staticmethod
-    def _parseStructure(name:str, table_type:str, unparsed_elements:Map, keys:List[str]=["structure"]) -> TableStructureSchema:
+    def _parseStructure(name:str, table_type:str, unparsed_elements:Map) -> TableStructureSchema:
         ret_val : TableStructureSchema
 
         _structure = TableSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=keys,
+            valid_keys=["structure"],
             to_type=[Path, dict], # check first if we got a string that parses to a path for the file, otherwise assume whole structure is given.
             default_value=TableSchema._DEFAULT_STRUCTURE,
             remove_target=True
@@ -152,22 +152,22 @@ class TableSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseLocationType(unparsed_elements:Map, keys:List[str]=["location_type"]) -> str:
+    def _parseLocationType(unparsed_elements:Map) -> str:
         return TableSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=keys,
+            valid_keys=["location_type"],
             to_type=str,
             default_value=TableSchema._DEFAULT_LOCATION_TYPE,
             remove_target=True
         )
 
     @staticmethod
-    def _parseLocation(name:str, location_type:str, unparsed_elements:Map, keys:List[str]=["location"]) -> LocationSchema:
+    def _parseLocation(name:str, location_type:str, unparsed_elements:Map) -> LocationSchema:
         ret_val : LocationSchema
 
         _location = TableSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=keys,
+            valid_keys=["location"],
             to_type=dict,
             default_value=TableSchema._DEFAULT_LOCATION,
             remove_target=True
