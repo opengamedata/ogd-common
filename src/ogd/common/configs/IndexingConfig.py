@@ -1,7 +1,7 @@
 # import standard libraries
 from pathlib import Path
 from typing import Dict, Optional, Self
-from urllib.parse import urlparse, ParseResult
+from urllib.parse import ParseResult
 # import local files
 from ogd.common.configs.Config import Config
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
