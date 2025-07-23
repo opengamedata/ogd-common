@@ -98,7 +98,7 @@ class KeyCredential(CredentialConfig):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "KeyCredential":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "KeyCredential":
         """Create a Key Credential from a dict.
 
         Expects dictionary to have the following form:

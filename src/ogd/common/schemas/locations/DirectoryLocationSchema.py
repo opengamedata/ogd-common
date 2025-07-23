@@ -1,6 +1,6 @@
 ## import standard libraries
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import Map
@@ -73,7 +73,7 @@ class DirectoryLocationSchema(LocationSchema):
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "DirectoryLocationSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "DirectoryLocationSchema":
         """Create a DatabaseLocationSchema from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.

@@ -1,5 +1,5 @@
 # import standard libraries
-from typing import Dict, Optional, TypeAlias
+from typing import Dict, Optional, Self, TypeAlias
 from pathlib import Path
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
@@ -105,7 +105,7 @@ class FileStoreConfig(DataStoreConfig):
         return ret_val
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "FileStoreConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "FileStoreConfig":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.

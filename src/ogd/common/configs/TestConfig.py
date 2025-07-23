@@ -7,7 +7,7 @@ and a listing of `"ENABLED"` tests.
 """
 
 # import standard libraries
-from typing import Dict, Optional
+from typing import Dict, Optional, Self
 
 # import 3rd-party libraries
 
@@ -84,7 +84,7 @@ class TestConfig(Config):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "TestConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "TestConfig":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
