@@ -100,7 +100,9 @@ class DatabaseLocationSchema(LocationSchema):
         :return: _description_
         :rtype: GameSourceSchema
         """
-        return DatabaseLocationSchema(name=name, table_name=None, database_name=None, other_elements=unparsed_elements)
+        _db_name    : str           = cls._parseDatabaseName(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+        _table_name : Optional[str] = cls._parseTableName(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+        return DatabaseLocationSchema(name=name, table_name=_db_name, database_name=_table_name, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 
