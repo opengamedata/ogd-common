@@ -104,7 +104,7 @@ class DatabaseLocationSchema(LocationSchema):
         """
         _db_name    : str           = cls._parseDatabaseName(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
         _table_name : Optional[str] = cls._parseTableName(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
-        return DatabaseLocationSchema(name=name, table_name=_db_name, database_name=_table_name, other_elements=unparsed_elements)
+        return DatabaseLocationSchema(name=name, database_name=_db_name, table_name=_table_name, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 
