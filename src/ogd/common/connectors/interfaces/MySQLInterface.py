@@ -286,7 +286,7 @@ class MySQLInterface(Interface):
             _db_name     : str = self.GameStoreConfig.DatabaseName
             _table_name  : str = self.GameStoreConfig.TableName
 
-            sess_id_col  : str = self.GameStoreConfig.TableConfig.SessionIDColumn or "session_id"
+            sess_id_col  : str = self.GameStoreConfig.SchemaName.SessionIDColumn or "session_id"
 
             filters : List[str] = []
             params  : List[str] = []
@@ -411,10 +411,10 @@ class MySQLInterface(Interface):
             _db_name     : str = self.GameStoreConfig.DatabaseName
             _table_name  : str = self.GameStoreConfig.TableName
 
-            sess_id_col = self.GameStoreConfig.TableConfig.SessionIDColumn or 'session_id'
-            play_id_col = self.GameStoreConfig.TableConfig.UserIDColumn or 'player_id'
-            seq_idx_col = self.GameStoreConfig.TableConfig.EventSequenceIndexColumn or 'session_n'
-            evt_nam_col = self.GameStoreConfig.TableConfig.EventNameColumn or "event_name"
+            sess_id_col = self.GameStoreConfig.SchemaName.SessionIDColumn or 'session_id'
+            play_id_col = self.GameStoreConfig.SchemaName.UserIDColumn or 'player_id'
+            seq_idx_col = self.GameStoreConfig.SchemaName.EventSequenceIndexColumn or 'session_n'
+            evt_nam_col = self.GameStoreConfig.SchemaName.EventNameColumn or "event_name"
 
             filters = []
             params = []

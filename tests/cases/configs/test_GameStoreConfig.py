@@ -36,7 +36,7 @@ class test_GameStoreConfig(TestCase):
             name="Game Source Schema",
             game_id="AQUALAB",
             source_name="AQUALAB_BQ",
-            source_schema=BigQueryConfig.FromDict(name="AQUALAB_BQ", unparsed_elements=source_elems),
+            schema_name=BigQueryConfig.FromDict(name="AQUALAB_BQ", unparsed_elements=source_elems),
             db_name="aqualab",
             table_name="aqualab_daily",
             table_schema="OPENGAMEDATA_BIGQUERY",
@@ -183,7 +183,7 @@ class test_GameStoreConfig(TestCase):
             "schema":"Foo",
             "fakekey" : "Bar"
         }
-        _str = GameStoreConfig._parseTableConfigName(_map)
+        _str = GameStoreConfig._parseSchemaName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
