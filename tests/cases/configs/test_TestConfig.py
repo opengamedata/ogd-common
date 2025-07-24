@@ -10,7 +10,7 @@ from src.ogd.common.configs.TestConfig import TestConfig as TestConfigLocal
 from tests.config.t_config import settings
 
 class test_TestConfig(TestCase):
-    """Testbed for the GameSourceSchema class.
+    """Testbed for the GameStoreConfig class.
     """
 
     @classmethod

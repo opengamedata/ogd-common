@@ -14,7 +14,7 @@ from src.ogd.common.configs.IndexingConfig import FileIndexingConfig
 from tests.config.t_config import settings
 
 class test_IndexingConfig(TestCase):
-    """Testbed for the GameSourceSchema class.
+    """Testbed for the GameStoreConfig class.
     """
 
     @classmethod

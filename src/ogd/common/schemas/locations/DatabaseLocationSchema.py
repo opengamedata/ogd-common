@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Self
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import Map
 
-## @class TableStructureSchema
+## @class DatabaseLocationSchema
 class DatabaseLocationSchema(LocationSchema):
     """Class to encode the location of data within a database resource.
 
@@ -29,7 +29,7 @@ class DatabaseLocationSchema(LocationSchema):
         ```
         {
             "DATABASE" : "database_name",
-            "TABLE_NAME" : "table"
+            "TABLE" : "table_name"
         },
         ```
 
@@ -100,11 +100,11 @@ class DatabaseLocationSchema(LocationSchema):
         :param data_sources: _description_
         :type data_sources: Dict[str, DataStoreConfig]
         :return: _description_
-        :rtype: GameSourceSchema
+        :rtype: DatabaseLocationSchema
         """
         _db_name    : str           = cls._parseDatabaseName(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
         _table_name : Optional[str] = cls._parseTableName(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
-        return DatabaseLocationSchema(name=name, table_name=_db_name, database_name=_table_name, other_elements=unparsed_elements)
+        return DatabaseLocationSchema(name=name, database_name=_db_name, table_name=_table_name, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 
@@ -116,7 +116,7 @@ class DatabaseLocationSchema(LocationSchema):
     def _parseTableName(unparsed_elements:Map,
                         key_overrides:Optional[Dict[str, str]]=None,
                         default_override:Optional["DatabaseLocationSchema"]=None) -> Optional[str]:
-        default_keys : List[str] = ["table"]
+        default_keys : List[str] = ["table", "table_name"]
         search_keys  : List[str] = ([key_overrides[key] for key in default_keys if key in key_overrides] + default_keys) \
                                 if key_overrides else default_keys
         default_value : Optional[str] = default_override.TableName if default_override else DatabaseLocationSchema._DEFAULT_TABLE_NAME

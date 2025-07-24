@@ -1,4 +1,4 @@
-"""EventTableStructureSchema Module"""
+"""EventTableSchema Module"""
 # import standard libraries
 import logging
 from collections import Counter
@@ -6,24 +6,28 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Tuple, Optional
 
 # import local files
-from ogd.common.models.Event import Event, EventSource
-from ogd.common.schemas.tables.TableStructureSchema import TableStructureSchema, ColumnMapIndex, ColumnMapElement
+from ogd.common.models.FeatureData import FeatureData
+from ogd.common.models.Event import EventSource
+from ogd.common.schemas.tables.TableSchema import TableSchema, ColumnMapIndex, ColumnMapElement
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
+from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
 
-## @class TableStructureSchema
-#  Dumb struct to hold useful info about the structure of database data
-#  for a particular game.
-#  This includes the indices of several important database columns, the names
-#  of the database columns, the max and min levels in the game, and a list of
-#  IDs for the game sessions in the given requested date range.
-class EventTableStructureSchema(TableStructureSchema):
+## @class TableSchema
+class FeatureTableSchema(TableSchema):
+    """Dumb struct to hold useful info about the structure of feature data for a particular game in a particular database.
+       This includes the indices of several important database columns, the names
+       of the database columns, and a list of
+       IDs for the game sessions in the given requested date range.
+
+       TODO : right now, this is all just a copy of what's in EventTableSchema, need to implement for feature data.
+    """
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema], other_elements:Optional[Map]=None):
-        """Constructor for the TableStructureSchema class.
+        """Constructor for the TableSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
         class variables.
@@ -149,23 +153,23 @@ class EventTableStructureSchema(TableStructureSchema):
             "## Database Columns",
             "The individual columns recorded in the database for this game.",
             self._columnSetMarkdown,
-            f"## Event Object Elements",
+            "## Feature Object Elements",
             "The elements (member variables) of each Event object, available to programmers when writing feature extractors. The right-hand side shows which database column(s) are mapped to a given element.",
             self._columnMapMarkdown,
             ""])
         return ret_val
 
     @classmethod
-    def Default(cls) -> "EventTableStructureSchema":
-        return EventTableStructureSchema(
-            name="DefaultEventTableStructureSchema",
+    def Default(cls) -> "FeatureTableSchema":
+        return FeatureTableSchema(
+            name="DefaultFeatureTableSchema",
             column_map={},
             columns=cls._DEFAULT_COLUMNS,
             other_elements={}
         )
 
     @classmethod
-    def _subparseDict(cls, name:str, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableStructureSchema":
+    def _subparseDict(cls, name:str, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -179,7 +183,7 @@ class EventTableStructureSchema(TableStructureSchema):
         :param logger: _description_, defaults to None
         :type logger: Optional[logging.Logger], optional
         :return: _description_
-        :rtype: TableStructureSchema
+        :rtype: TableSchema
         """
         _column_map : Dict[str, ColumnMapIndex] = {
             "session_id"           : None,
@@ -225,20 +229,22 @@ class EventTableStructureSchema(TableStructureSchema):
                 Logger.Log(f"Column config does not have a '{key}' element, defaulting to {key} : None", logging.WARN)
         _leftovers = { key : val for key,val in raw_map.items() if key not in _column_map.keys() }
 
-        return EventTableStructureSchema(name=name, column_map=_column_map, columns=column_schemas, other_elements=_leftovers)
+        return FeatureTableSchema(name=name, column_map=_column_map, columns=column_schemas, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
 
     # *** PUBLIC METHODS ***
 
     _conversion_warnings = Counter()
-    def RowToEvent(self, row:Tuple, concatenator:str = '.', fallbacks:Map={}):
-        """Function to convert a row to an Event, based on the loaded schema.
+    def RowToFeatureData(self, row:Tuple, concatenator:str = '.', fallbacks:Map={}) -> FeatureData:
+        """Function to convert a row to a FeatureData value, based on the loaded schema.
         In general, columns specified in the schema's column_map are mapped to corresponding elements of the Event.
         If the column_map gave a list, rather than a single column name, the values from each column are concatenated in order with '.' character separators.
         Finally, the concatenated values (or single value) are parsed according to the type required by Event.
         One exception: For event_data, we expect to create a Dict object, so each column in the list will have its value parsed according to the type in 'columns',
             and placed into a dict mapping the original column name to the parsed value (unless the parsed value is a dict, then it is merged into the top-level dict).
+
+        TODO : actually implement this whole dang function.
 
         :param row: The raw row data for an event. Generally assumed to be a tuple, though in principle a list would be fine too.
         :type  row: Tuple[str]
@@ -267,30 +273,30 @@ class EventTableStructureSchema(TableStructureSchema):
         # 3) Assign vals to our arg vars and pass to Event ctor.
         sess_id = self._getValueFromRow(row=row, indices=self.SessionIDIndex,   concatenator=concatenator, fallback=fallbacks.get('session_id'))
         if not isinstance(sess_id, str):
-            if "sess_id" not in EventTableStructureSchema._conversion_warnings:
-                Logger.Log(f"{self.Name} event table schema set session_id as {type(sess_id)}, but session_id should be a string", logging.WARN)
-            EventTableStructureSchema._conversion_warnings["sess_id"] += 1
+            if "sess_id" not in FeatureTableSchema._conversion_warnings:
+                Logger.Log(f"{self.Name} feature table schema set session_id as {type(sess_id)}, but session_id should be a string", logging.WARN)
+            FeatureTableSchema._conversion_warnings["sess_id"] += 1
             sess_id = str(sess_id)
 
         app_id  = self._getValueFromRow(row=row, indices=self.AppIDIndex,       concatenator=concatenator, fallback=fallbacks.get('app_id'))
         if not isinstance(app_id, str):
-            if "app_id" not in EventTableStructureSchema._conversion_warnings:
-                Logger.Log(f"{self.Name} event table schema set app_id as {type(app_id)}, but app_id should be a string", logging.WARN)
-            EventTableStructureSchema._conversion_warnings["app_id"] += 1
+            if "app_id" not in FeatureTableSchema._conversion_warnings:
+                Logger.Log(f"{self.Name} feature table schema set app_id as {type(app_id)}, but app_id should be a string", logging.WARN)
+            FeatureTableSchema._conversion_warnings["app_id"] += 1
             app_id = str(app_id)
 
         tstamp  = self._getValueFromRow(row=row, indices=self.TimestampIndex,   concatenator=concatenator, fallback=fallbacks.get('timestamp'))
         if not isinstance(tstamp, datetime):
-            if "timestamp" not in EventTableStructureSchema._conversion_warnings:
-                Logger.Log(f"{self.Name} event table schema parsed timestamp as {type(tstamp)}, but timestamp should be a datetime", logging.WARN)
-            EventTableStructureSchema._conversion_warnings["timestamp"] += 1
+            if "timestamp" not in FeatureTableSchema._conversion_warnings:
+                Logger.Log(f"{self.Name} feature table schema parsed timestamp as {type(tstamp)}, but timestamp should be a datetime", logging.WARN)
+            FeatureTableSchema._conversion_warnings["timestamp"] += 1
             tstamp = conversions.DatetimeFromString(tstamp)
 
         ename   = self._getValueFromRow(row=row, indices=self.EventNameIndex,   concatenator=concatenator, fallback=fallbacks.get('event_name'))
         if not isinstance(ename, str):
-            if "ename" not in EventTableStructureSchema._conversion_warnings:
-                Logger.Log(f"{self.Name} event table schema set event_name as {type(ename)}, but event_name should be a string", logging.WARN)
-            EventTableStructureSchema._conversion_warnings["ename"] += 1
+            if "ename" not in FeatureTableSchema._conversion_warnings:
+                Logger.Log(f"{self.Name} feature table schema set event_name as {type(ename)}, but event_name should be a string", logging.WARN)
+            FeatureTableSchema._conversion_warnings["ename"] += 1
             ename = str(ename)
 
         datas : Dict[str, Any] = self._getValueFromRow(row=row, indices=self.EventDataIndex,   concatenator=concatenator, fallback=fallbacks.get('event_data'))
@@ -300,44 +306,44 @@ class EventTableStructureSchema(TableStructureSchema):
 
         esrc    = self._getValueFromRow(row=row, indices=self.EventSourceIndex, concatenator=concatenator, fallback=fallbacks.get('event_source', EventSource.GAME))
         if not isinstance(esrc, EventSource):
-            if "esrc" not in EventTableStructureSchema._conversion_warnings:
-                Logger.Log(f"{self.Name} event table schema set event_source as {type(esrc)}, but event_source should be an EventSource", logging.WARN)
-            EventTableStructureSchema._conversion_warnings["esrc"] += 1
+            if "esrc" not in FeatureTableSchema._conversion_warnings:
+                Logger.Log(f"{self.Name} feature table schema set event_source as {type(esrc)}, but event_source should be an EventSource", logging.WARN)
+            FeatureTableSchema._conversion_warnings["esrc"] += 1
             esrc = EventSource.GENERATED if esrc == "GENERATED" else EventSource.GAME
 
         app_ver = self._getValueFromRow(row=row, indices=self.AppVersionIndex,  concatenator=concatenator, fallback=fallbacks.get('app_version', "0"))
         if not isinstance(app_ver, str):
-            if "app_ver" not in EventTableStructureSchema._conversion_warnings:
-                Logger.Log(f"{self.Name} event table schema set app_version as {type(app_ver)}, but app_version should be a string", logging.WARN)
-            EventTableStructureSchema._conversion_warnings["app_ver"] += 1
+            if "app_ver" not in FeatureTableSchema._conversion_warnings:
+                Logger.Log(f"{self.Name} feature table schema set app_version as {type(app_ver)}, but app_version should be a string", logging.WARN)
+            FeatureTableSchema._conversion_warnings["app_ver"] += 1
             app_ver = str(app_ver)
 
         app_br = self._getValueFromRow(row=row, indices=self.AppBranchIndex,  concatenator=concatenator, fallback=fallbacks.get('app_branch'))
         if not isinstance(app_br, str):
-            if "app_br" not in EventTableStructureSchema._conversion_warnings:
-                Logger.Log(f"{self.Name} event table schema set app_branch as {type(app_br)}, but app_branch should be a string", logging.WARN)
-            EventTableStructureSchema._conversion_warnings["app_br"] += 1
+            if "app_br" not in FeatureTableSchema._conversion_warnings:
+                Logger.Log(f"{self.Name} feature table schema set app_branch as {type(app_br)}, but app_branch should be a string", logging.WARN)
+            FeatureTableSchema._conversion_warnings["app_br"] += 1
             app_br = str(app_br)
 
         log_ver = self._getValueFromRow(row=row, indices=self.LogVersionIndex,  concatenator=concatenator, fallback=fallbacks.get('log_version', "0"))
         if not isinstance(log_ver, str):
-            if "log_ver" not in EventTableStructureSchema._conversion_warnings:
-                Logger.Log(f"{self.Name} event table schema set log_version as {type(log_ver)}, but log_version should be a string", logging.WARN)
-            EventTableStructureSchema._conversion_warnings["log_ver"] += 1
+            if "log_ver" not in FeatureTableSchema._conversion_warnings:
+                Logger.Log(f"{self.Name} feature table schema set log_version as {type(log_ver)}, but log_version should be a string", logging.WARN)
+            FeatureTableSchema._conversion_warnings["log_ver"] += 1
             log_ver = str(log_ver)
 
         offset = self._getValueFromRow(row=row, indices=self.TimeOffsetIndex,  concatenator=concatenator, fallback=fallbacks.get('time_offset'))
         if isinstance(offset, timedelta):
-            if "offset" not in EventTableStructureSchema._conversion_warnings:
-                Logger.Log(f"{self.Name} event table schema set offset as {type(offset)}, but offset should be a timezone", logging.WARN)
-            EventTableStructureSchema._conversion_warnings["offset"] += 1
+            if "offset" not in FeatureTableSchema._conversion_warnings:
+                Logger.Log(f"{self.Name} feature table schema set offset as {type(offset)}, but offset should be a timezone", logging.WARN)
+            FeatureTableSchema._conversion_warnings["offset"] += 1
             offset = timezone(offset)
 
         uid     = self._getValueFromRow(row=row, indices=self.UserIDIndex,      concatenator=concatenator, fallback=fallbacks.get('user_id'))
         if uid is not None and not isinstance(uid, str):
-            if "uid" not in EventTableStructureSchema._conversion_warnings:
-                Logger.Log(f"{self.Name} event table schema set user_id as {type(uid)}, but user_id should be a string", logging.WARN)
-            EventTableStructureSchema._conversion_warnings["uid"] += 1
+            if "uid" not in FeatureTableSchema._conversion_warnings:
+                Logger.Log(f"{self.Name} feature table schema set user_id as {type(uid)}, but user_id should be a string", logging.WARN)
+            FeatureTableSchema._conversion_warnings["uid"] += 1
             uid = str(uid)
 
         udata   = self._getValueFromRow(row=row, indices=self.UserDataIndex,    concatenator=concatenator, fallback=fallbacks.get('user_data'))
@@ -346,15 +352,14 @@ class EventTableStructureSchema(TableStructureSchema):
 
         index   = self._getValueFromRow(row=row, indices=self.EventSequenceIndexIndex, concatenator=concatenator, fallback=fallbacks.get('event_sequence_index'))
         if index is not None and not isinstance(index, int):
-            if "index" not in EventTableStructureSchema._conversion_warnings:
-                Logger.Log(f"{self.Name} event table schema set event_sequence_index as {type(index)}, but event_sequence_index should be an int", logging.WARN)
-            EventTableStructureSchema._conversion_warnings["index"] += 1
+            if "index" not in FeatureTableSchema._conversion_warnings:
+                Logger.Log(f"{self.Name} feature table schema set event_sequence_index as {type(index)}, but event_sequence_index should be an int", logging.WARN)
+            FeatureTableSchema._conversion_warnings["index"] += 1
             index = int(index)
 
-        return Event(session_id=sess_id, app_id=app_id, timestamp=tstamp,
-                     event_name=ename, event_data=edata, event_source=esrc,
-                     app_version=app_ver, app_branch=app_br, log_version=log_ver,
-                     time_offset=offset, user_id=uid, user_data=udata,
-                     game_state=state, event_sequence_index=index)
+        return FeatureData(name="FeaturesNotImplemented", feature_type="FeaturesNotImplemented", count_index=None,
+                           cols=[], vals=[], mode=ExtractionMode.SESSION, app_id="NONE", user_id=None, session_id="NONE",
+                           app_version=None, app_branch=None, log_version=None
+                           )
 
     # *** PRIVATE STATICS ***

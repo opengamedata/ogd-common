@@ -7,7 +7,7 @@ from typing import List, Set
 # import OGD files
 from ogd.common.interfaces.outerfaces.DataOuterface import DataOuterface
 from ogd.common.models.enums.ExportMode import ExportMode
-from ogd.common.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
 
@@ -19,7 +19,7 @@ class DebugOuterface(DataOuterface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, game_id:str, config:GameSourceSchema, export_modes:Set[ExportMode]):
+    def __init__(self, game_id:str, config:GameStoreConfig, export_modes:Set[ExportMode]):
         super().__init__(game_id=game_id, export_modes=export_modes, config=config)
         # self.Open()
 

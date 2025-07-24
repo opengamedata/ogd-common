@@ -12,7 +12,7 @@ from ogd.common.connectors.interfaces.Interface import Interface
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
-from ogd.common.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.configs.storage.MySQLConfig import MySQLConfig
 from ogd.common.utils.Logger import Logger
 
@@ -25,7 +25,7 @@ class SQL:
 
     # Function to set up a connection to a database, via an ssh tunnel if available.
     @staticmethod
-    def ConnectDB(schema:GameSourceSchema) -> Tuple[Optional[sshtunnel.SSHTunnelForwarder], Optional[connection.MySQLConnection]]:
+    def ConnectDB(schema:GameStoreConfig) -> Tuple[Optional[sshtunnel.SSHTunnelForwarder], Optional[connection.MySQLConnection]]:
         """
         Function to set up a connection to a database, via an ssh tunnel if available.
 
@@ -241,7 +241,7 @@ class MySQLInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, schema:GameSourceSchema, fail_fast:bool):
+    def __init__(self, schema:GameStoreConfig, fail_fast:bool):
         self._tunnel    : Optional[sshtunnel.SSHTunnelForwarder] = None
         self._db        : Optional[connection.MySQLConnection] = None
         self._db_cursor : Optional[cursor.MySQLCursor] = None
@@ -256,8 +256,8 @@ class MySQLInterface(Interface):
             self.Open(force_reopen=False)
         if not self._is_open:
             start = datetime.now()
-            if isinstance(self.GameSourceSchema.Source, MySQLConfig):
-                self._tunnel, self._db = SQL.ConnectDB(schema=self.GameSourceSchema)
+            if isinstance(self.GameStoreConfig.Source, MySQLConfig):
+                self._tunnel, self._db = SQL.ConnectDB(schema=self.GameStoreConfig)
                 if self._db is not None:
                     self._db_cursor = self._getCursor()
                     self._is_open = True
@@ -269,7 +269,7 @@ class MySQLInterface(Interface):
                     SQL.disconnectMySQL(tunnel=self._tunnel, db=self._db)
                     return False
             else:
-                Logger.Log(f"Unable to open MySQL interface, the game source schema has invalid type {type(self.GameSourceSchema)}", logging.ERROR)
+                Logger.Log(f"Unable to open MySQL interface, the game source schema has invalid type {type(self.GameStoreConfig)}", logging.ERROR)
                 SQL.disconnectMySQL(tunnel=self._tunnel, db=self._db)
                 return False
         else:
@@ -282,18 +282,18 @@ class MySQLInterface(Interface):
         return True
 
     def _availableIDs(self, mode:IDMode, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
-        if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLConfig):
-            _db_name     : str = self.GameSourceSchema.DatabaseName
-            _table_name  : str = self.GameSourceSchema.TableName
+        if self._db_cursor is not None and isinstance(self.GameStoreConfig.Source, MySQLConfig):
+            _db_name     : str = self.GameStoreConfig.DatabaseName
+            _table_name  : str = self.GameStoreConfig.TableName
 
-            sess_id_col  : str = self.GameSourceSchema.TableSchema.SessionIDColumn or "session_id"
+            sess_id_col  : str = self.GameStoreConfig.SchemaName.SessionIDColumn or "session_id"
 
             filters : List[str] = []
             params  : List[str] = []
             # 1. If we're in shared table, then need to filter on game ID
-            if _table_name != self.GameSourceSchema.GameID:
+            if _table_name != self.GameStoreConfig.GameID:
                 filters.append(f"`app_id`=%s")
-                params.append(self.GameSourceSchema.GameID)
+                params.append(self.GameStoreConfig.GameID)
             # 2. Sort out filters from date_filter
 
             # 3. Sort out filters from version_filter
@@ -311,10 +311,10 @@ class MySQLInterface(Interface):
 
     # def _IDsFromDates(self, min:datetime, max:datetime, versions:Optional[List[int]]=None) -> List[str]:
     #     ret_val = []
-    #     if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLConfig):
+    #     if self._db_cursor is not None and isinstance(self.GameStoreConfig.Source, MySQLConfig):
     #         # alias long setting names.
-    #         _db_name     : str = self.GameSourceSchema.DatabaseName
-    #         _table_name  : str = self.GameSourceSchema.TableName
+    #         _db_name     : str = self.GameStoreConfig.DatabaseName
+    #         _table_name  : str = self.GameStoreConfig.TableName
 
     #         # prep filter strings
     #         filters = []
@@ -324,13 +324,13 @@ class MySQLInterface(Interface):
     #             params.append(self._game_id)
     #         # if versions is not None and versions is not []:
     #         #     filters.append(f"app_version in ({','.join([str(version) for version in versions])})")
-    #         filters.append(f"`{self._TableSchema.EventSequenceIndexColumn}`='0'")
+    #         filters.append(f"`{self._TableConfig.EventSequenceIndexColumn}`='0'")
     #         filters.append(f"(`server_time` BETWEEN '{min.isoformat()}' AND '{max.isoformat()}')")
     #         filter_clause = " AND ".join(filters)
 
     #         # run query
     #         # We grab the ids for all sessions that have 0th move in the proper date range.
-    #         sess_id_col = self._TableSchema.SessionIDColumn or "`session_id`"
+    #         sess_id_col = self._TableConfig.SessionIDColumn or "`session_id`"
     #         sess_ids_raw = SQL.SELECT(cursor=self._db_cursor,   db_name=_db_name,     table=_table_name,
     #                                  columns=[sess_id_col],     filter=filter_clause,
     #                                  sort_columns=[sess_id_col], sort_direction="ASC", distinct=True,
@@ -343,16 +343,16 @@ class MySQLInterface(Interface):
 
     def _availableDates(self, id_filter:IDFilterCollection, version_filter:VersioningFilterCollection) -> Dict[str,datetime]:
         ret_val = {'min':datetime.now(), 'max':datetime.now()}
-        if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLConfig):
-            _db_name     : str = self.GameSourceSchema.DatabaseName
-            _table_name  : str = self.GameSourceSchema.TableName
+        if self._db_cursor is not None and isinstance(self.GameStoreConfig.Source, MySQLConfig):
+            _db_name     : str = self.GameStoreConfig.DatabaseName
+            _table_name  : str = self.GameStoreConfig.TableName
 
             # prep filter strings
             filters = []
             params  = []
-            if _table_name != self.GameSourceSchema.GameID:
+            if _table_name != self.GameStoreConfig.GameID:
                 filters.append(f"`app_id`=%s")
-                params.append(self.GameSourceSchema.GameID)
+                params.append(self.GameStoreConfig.GameID)
             filter_clause = " AND ".join(filters)
 
             # run query
@@ -367,10 +367,10 @@ class MySQLInterface(Interface):
 
     # def _datesFromIDs(self, id_list:List[str], id_mode:IDMode=IDMode.SESSION, versions:Optional[List[int]]=None) -> Dict[str, datetime]:
     #     ret_val = {'min':datetime.now(), 'max':datetime.now()}
-    #     if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLConfig):
+    #     if self._db_cursor is not None and isinstance(self.GameStoreConfig.Source, MySQLConfig):
     #         # alias long setting names.
-    #         _db_name     : str = self.GameSourceSchema.DatabaseName
-    #         _table_name  : str = self.GameSourceSchema.TableName
+    #         _db_name     : str = self.GameStoreConfig.DatabaseName
+    #         _table_name  : str = self.GameStoreConfig.TableName
             
     #         # prep filter strings
     #         filters = []
@@ -382,10 +382,10 @@ class MySQLInterface(Interface):
     #         #     filters.append(f"app_version in ({','.join([str(version) for version in versions])})")
     #         ids_string = ','.join([f"'{x}'" for x in id_list])
     #         if id_mode == IDMode.SESSION:
-    #             sess_id_col = self._TableSchema.SessionIDColumn or "session_id"
+    #             sess_id_col = self._TableConfig.SessionIDColumn or "session_id"
     #             filters.append(f"{sess_id_col} IN ({ids_string})")
     #         elif id_mode == IDMode.USER:
-    #             play_id_col = self._TableSchema.UserIDColumn or "player_id"
+    #             play_id_col = self._TableConfig.UserIDColumn or "player_id"
     #             filters.append(f"`{play_id_col}` IN ({ids_string})")
     #         else:
     #             raise ValueError("Invalid IDMode in MySQLInterface!")
@@ -406,21 +406,21 @@ class MySQLInterface(Interface):
     def _getEventRows(self, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
         ret_val = []
         # grab data for the given session range. Sort by event time, so
-        if self._db_cursor is not None and isinstance(self.GameSourceSchema.Source, MySQLConfig):
+        if self._db_cursor is not None and isinstance(self.GameStoreConfig.Source, MySQLConfig):
             # filt = f"app_id='{self._game_id}' AND (session_id  BETWEEN '{next_slice[0]}' AND '{next_slice[-1]}'){ver_filter}"
-            _db_name     : str = self.GameSourceSchema.DatabaseName
-            _table_name  : str = self.GameSourceSchema.TableName
+            _db_name     : str = self.GameStoreConfig.DatabaseName
+            _table_name  : str = self.GameStoreConfig.TableName
 
-            sess_id_col = self.GameSourceSchema.TableSchema.SessionIDColumn or 'session_id'
-            play_id_col = self.GameSourceSchema.TableSchema.UserIDColumn or 'player_id'
-            seq_idx_col = self.GameSourceSchema.TableSchema.EventSequenceIndexColumn or 'session_n'
-            evt_nam_col = self.GameSourceSchema.TableSchema.EventNameColumn or "event_name"
+            sess_id_col = self.GameStoreConfig.SchemaName.SessionIDColumn or 'session_id'
+            play_id_col = self.GameStoreConfig.SchemaName.UserIDColumn or 'player_id'
+            seq_idx_col = self.GameStoreConfig.SchemaName.EventSequenceIndexColumn or 'session_n'
+            evt_nam_col = self.GameStoreConfig.SchemaName.EventNameColumn or "event_name"
 
             filters = []
             params = []
-            if _table_name != self.GameSourceSchema.GameID:
+            if _table_name != self.GameStoreConfig.GameID:
                 filters.append(f"`app_id`=%s")
-                params.append(self.GameSourceSchema.GameID)
+                params.append(self.GameStoreConfig.GameID)
             # if versions is not None and versions is not []:
             #     filters.append(f"app_version in ({','.join([str(version) for version in versions])})")
             id_param_string = ",".join( [f"%s"]*len(id_list) )

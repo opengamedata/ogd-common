@@ -6,7 +6,7 @@ from unittest import TestCase
 from zipfile import ZipFile
 # import locals
 from ogd.common.connectors.interfaces.CSVInterface import CSVInterface
-from ogd.common.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.configs.GameStoreConfig import GameStoreConfig
 
 class test_CSVInterface(TestCase):
     TEST_MIN_DATE     : Final[datetime]  = datetime(year=2021, month=2, day=1, hour= 0, minute=0, second=0)
@@ -51,7 +51,7 @@ class test_CSVInterface(TestCase):
 
     def test_IDsFromDates(self):
         with self.zipped_file.open(self.zipped_file.namelist()[0]) as f:
-            _cfg = GameSourceSchema.FromDict(name="FILE SOURCE", unparsed_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
+            _cfg = GameStoreConfig.FromDict(name="FILE SOURCE", unparsed_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
             CSVI = CSVInterface(game_id='BACTERIA', config=_cfg, filepath=f, delim='\t', fail_fast=False)
             if CSVI.Open():
                 result_session_list = CSVI.IDsFromDates(self.TEST_MIN_DATE, self.TEST_MAX_DATE)
@@ -64,7 +64,7 @@ class test_CSVInterface(TestCase):
 
     def test_DatesFromIDs(self):
         with self.zipped_file.open(self.zipped_file.namelist()[0]) as f:
-            _cfg = GameSourceSchema.FromDict(name="FILE SOURCE", unparsed_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
+            _cfg = GameStoreConfig.FromDict(name="FILE SOURCE", unparsed_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
             CSVI = CSVInterface(game_id='BACTERIA', config=_cfg, filepath=f, delim='\t', fail_fast=False)
             if CSVI.Open():
                 dates = CSVI.DatesFromIDs(self.TEST_SESSION_LIST)

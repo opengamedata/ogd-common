@@ -18,11 +18,11 @@ from ogd import games
 from ogd.common.interfaces.outerfaces.DataOuterface import DataOuterface
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 from ogd.common.models.enums.ExportMode import ExportMode
-from ogd.common.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.configs.generators.GeneratorCollectionConfig import GeneratorCollectionConfig
 from ogd.common.configs.IndexingConfig import FileIndexingConfig
 from ogd.common.schemas.events.LoggingSpecificationSchema import LoggingSpecificationSchema
-from ogd.common.schemas.tables.TableSchema import TableSchema
+from ogd.common.configs.TableConfig import TableConfig
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
@@ -32,7 +32,7 @@ class TSVOuterface(DataOuterface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, game_id:str, config:GameSourceSchema, export_modes:Set[ExportMode], date_range:Dict[str,Optional[datetime]], file_indexing:FileIndexingConfig, extension:str="tsv", dataset_id:Optional[str]=None):
+    def __init__(self, game_id:str, config:GameStoreConfig, export_modes:Set[ExportMode], date_range:Dict[str,Optional[datetime]], file_indexing:FileIndexingConfig, extension:str="tsv", dataset_id:Optional[str]=None):
         super().__init__(game_id=game_id, config=config, export_modes=export_modes)
         self._file_paths    : Dict[str,Optional[Path]] = {"population":None, "players":None, "sessions":None, "processed_events":None, "raw_events":None}
         self._zip_paths     : Dict[str,Optional[Path]] = {"population":None, "players":None, "sessions":None, "processed_events":None, "raw_events":None}
@@ -112,7 +112,7 @@ class TSVOuterface(DataOuterface):
             _games_path  = Path(games.__file__) if Path(games.__file__).is_dir() else Path(games.__file__).parent
             event_collection     : LoggingSpecificationSchema     = LoggingSpecificationSchema.FromFile(game_id=self._game_id, schema_path=_games_path / self._game_id / "schemas")
             generator_collection : GeneratorCollectionConfig = GeneratorCollectionConfig.FromFile(game_id=self._game_id, schema_path=_games_path / self._game_id / "schemas")
-            table_schema = TableSchema(schema_name=self._config.TableSchema)
+            table_schema = TableConfig(schema_name=self._config.TableConfig)
             readme = Readme(event_collection=event_collection, generator_collection=generator_collection, table_schema=table_schema)
             readme.GenerateReadme(path=self._game_data_dir)
         else:

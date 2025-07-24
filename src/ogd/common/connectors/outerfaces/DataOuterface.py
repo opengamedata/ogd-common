@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Set
 from ogd.common.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.ExportMode import ExportMode
-from ogd.common.configs.GameSourceSchema import GameSourceSchema
+from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
 
@@ -74,7 +74,7 @@ class DataOuterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, game_id, config:GameSourceSchema, export_modes:Set[ExportMode]):
+    def __init__(self, game_id, config:GameStoreConfig, export_modes:Set[ExportMode]):
         super().__init__(config=config)
         self._game_id : str  = game_id
         self._modes   : Set[ExportMode] = export_modes

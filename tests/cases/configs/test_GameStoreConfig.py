@@ -7,13 +7,14 @@ from unittest import TestCase
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.configs.TestConfig import TestConfig
+from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.configs.GameSourceSchema import GameSourceSchema
+from src.ogd.common.configs.GameStoreConfig import GameStoreConfig
 from tests.config.t_config import settings
 
-class test_GameSourceSchema(TestCase):
-    """Testbed for the GameSourceSchema class.
+class test_GameStoreConfig(TestCase):
+    """Testbed for the GameStoreConfig class.
     """
 
     @classmethod
@@ -32,14 +33,12 @@ class test_GameSourceSchema(TestCase):
                 "PATH": "./"
             }
         }
-        cls.test_schema = GameSourceSchema(
+        cls.test_schema = GameStoreConfig(
             name="Game Source Schema",
             game_id="AQUALAB",
             source_name="AQUALAB_BQ",
-            source_schema=BigQueryConfig.FromDict(name="AQUALAB_BQ", unparsed_elements=source_elems),
-            db_name="aqualab",
-            table_name="aqualab_daily",
-            table_schema="OPENGAMEDATA_BIGQUERY",
+            schema_name="OPENGAMEDATA_BIGQUERY",
+            table_location=DatabaseLocationSchema(name="DBLocation", database_name="aqualab", table_name="aqualab_daily"),
             other_elements={ "foo":"bar" }
         )
 
@@ -74,10 +73,10 @@ class test_GameSourceSchema(TestCase):
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "aqualab_daily")
 
-    def test_TableSchema(self):
-        """Test the correctness of TableSchema property
+    def test_SchemaName(self):
+        """Test the correctness of TableConfig property
         """
-        _str = self.test_schema.TableSchemaName
+        _str = self.test_schema.SchemaName
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "OPENGAMEDATA_BIGQUERY")
 
@@ -111,81 +110,60 @@ class test_GameSourceSchema(TestCase):
             "PROJECT_KEY": "./key.txt"
         }
         _sources : Dict[str, DataStoreConfig] = { "AQUALAB_BQ" : BigQueryConfig.FromDict(name="AQUALAB_BQ", unparsed_elements=source_elems) }
-        _schema = GameSourceSchema.FromDict(name="AQUALAB", unparsed_elements=_dict, data_sources=_sources)
+        _schema = GameStoreConfig.FromDict(name="AQUALAB", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "AQUALAB")
         self.assertIsInstance(_schema.SourceName, str)
         self.assertEqual(_schema.SourceName, "AQUALAB_BQ")
-        self.assertIsInstance(_schema.Source, DataStoreConfig)
-        # self.assertEqual(_schema.Source, "AQUALAB")
         self.assertIsInstance(_schema.DatabaseName, str)
         self.assertEqual(_schema.DatabaseName, "aqualab")
         self.assertIsInstance(_schema.TableName, str)
         self.assertEqual(_schema.TableName, "aqualab_daily")
-        self.assertIsInstance(_schema.TableSchemaName, str)
-        self.assertEqual(_schema.TableSchemaName, "OPENGAMEDATA_BIGQUERY")
+        self.assertIsInstance(_schema.SchemaName, str)
+        self.assertEqual(_schema.SchemaName, "OPENGAMEDATA_BIGQUERY")
 
-    def test_parseSource(self):
+    def test_parseSourceName(self):
         _map = {
             "source":"Foo",
             "fakekey" : "Bar"
         }
-        _str = GameSourceSchema._parseSourceName(_map)
+        _str = GameStoreConfig._parseSourceName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
         # First parse should remove key, so second should return default from class
-        _str = GameSourceSchema._parseSourceName(_map)
+        _str = GameStoreConfig._parseSourceName(_map)
         self.assertIsInstance(_str, str)
-        self.assertEqual(_str, GameSourceSchema._DEFAULT_SOURCE_NAME)
+        self.assertEqual(_str, GameStoreConfig._DEFAULT_SOURCE_NAME)
         # Check that source_name is also treated as valid
         _map = {
             "source_name":"Foo",
             "fakekey" : "Bar"
         }
-        _str = GameSourceSchema._parseSourceName(_map)
+        _str = GameStoreConfig._parseSourceName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
-    def test_parseGameID(self):
-        _map = {
-            "game":"Foo",
-            "fakekey" : "Bar",
-            "game_id" : "Baz"
-        }
-        _str = GameSourceSchema._parseGameID(_map)
-        self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "Foo")
-        # first parse should remove "game" key, so second attempt should give "Baz"
-        _str = GameSourceSchema._parseGameID(_map)
-        self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "Baz")
-
-    def test_parseDBName(self):
-        _map = {
-            "database":"Foo",
-            "fakekey" : "Bar"
-        }
-        _str = GameSourceSchema._parseDBName(_map)
-        self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "Foo")
-
-    def test_parseTableName(self):
-        _map = {
-            "table":"Foo",
-            "fakekey" : "Bar"
-        }
-        _str = GameSourceSchema._parseTableName(_map)
-        self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "Foo")
-
-    def test_parseTableSchemaName(self):
+    def test_parseSchemaName(self):
         _map = {
             "schema":"Foo",
             "fakekey" : "Bar"
         }
-        _str = GameSourceSchema._parseTableSchemaName(_map)
+        _str = GameStoreConfig._parseSchemaName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
+
+    def test_parseTableLocation(self):
+        _map = {
+            "database":"Foo",
+            "table":"Bar",
+            "fakekey" : "Baz"
+        }
+        _loc = GameStoreConfig._parseTableLocation(unparsed_elements=_map)
+        self.assertIsInstance(_loc, DatabaseLocationSchema)
+        self.assertIsInstance(_loc.DatabaseName, str)
+        self.assertEqual(_loc.DatabaseName, "Foo")
+        self.assertIsInstance(_loc.TableName, str)
+        self.assertEqual(_loc.TableName, "Bar")
 
 
 if __name__ == '__main__':
