@@ -29,7 +29,7 @@ class DatabaseLocationSchema(LocationSchema):
         ```
         {
             "DATABASE" : "database_name",
-            "TABLE_NAME" : "table"
+            "TABLE" : "table_name"
         },
         ```
 
@@ -116,7 +116,7 @@ class DatabaseLocationSchema(LocationSchema):
     def _parseTableName(unparsed_elements:Map,
                         key_overrides:Optional[Dict[str, str]]=None,
                         default_override:Optional["DatabaseLocationSchema"]=None) -> Optional[str]:
-        default_keys : List[str] = ["table"]
+        default_keys : List[str] = ["table", "table_name"]
         search_keys  : List[str] = ([key_overrides[key] for key in default_keys if key in key_overrides] + default_keys) \
                                 if key_overrides else default_keys
         default_value : Optional[str] = default_override.TableName if default_override else DatabaseLocationSchema._DEFAULT_TABLE_NAME
