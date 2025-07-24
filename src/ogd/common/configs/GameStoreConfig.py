@@ -1,12 +1,8 @@
 # import standard libraries
-import logging
-from typing import Any, Dict, Optional, Self
+from typing import Dict, Optional, Self
 # import local files
-from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
-from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 class GameStoreConfig(Schema):
