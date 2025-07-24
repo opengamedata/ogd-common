@@ -1,12 +1,11 @@
 # import standard libraries
 import logging
-from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Self
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.schemas.Schema import Schema
-from ogd.common.configs.TableConfig import TableConfig
+from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
@@ -29,32 +28,56 @@ class GameStoreConfig(Schema):
 
     _DEFAULT_GAME_ID       = "UNKNOWN GAME"
     _DEFAULT_SOURCE_NAME   = "OPENGAMEDATA_BQ"
+    _DEFAULT_SCHEMA_NAME   = "OPENGAMEDATA_BIGQUERY"
     _DEFAULT_DB_NAME       = "UNKNOWN GAME"
     _DEFAULT_TABLE_NAME    = "_daily"
-    _DEFAULT_TABLE_SCHEMA  = "OPENGAMEDATA_BIGQUERY"
-    _DEFAULT_TABLE_FOLDER_PATH = Path("./tables/")
+    _DEFAULT_TABLE_LOC     = DatabaseLocationSchema(
+        name="DefaultTableLocation",
+        database_name=_DEFAULT_DB_NAME,
+        table_name=_DEFAULT_TABLE_NAME
+    )
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str,  game_id:Optional[str],
-                 source_name:str, source_schema:Optional[DataStoreConfig],
-                 db_name:str,     table_name:str,  table_schema:str,
+    def __init__(self, name:str, game_id:Optional[str],
+                 source_name:Optional[str], schema_name:Optional[str],
+                 table_location:Optional[DatabaseLocationSchema],
                  other_elements:Optional[Map]):
+        """Constructor for the `GameStoreConfig` class.
+        
+        If optional params are not given, data is searched for in `other_elements`.
+
+        Expected format:
+
+        ```
+        {
+            "source" : "DATA_SOURCE_NAME",
+            "schema" : "TABLE_SCHEMA_NAME",
+            "database": "db_name",
+            "table" : "table_name"
+        },
+        ```
+
+        :param name: _description_
+        :type name: str
+        :param game_id: _description_
+        :type game_id: Optional[str]
+        :param source_name: _description_
+        :type source_name: Optional[str]
+        :param schema_name: _description_
+        :type schema_name: Optional[str]
+        :param table_location: _description_
+        :type table_location: Optional[DatabaseLocationSchema]
+        :param other_elements: _description_
+        :type other_elements: Optional[Map]
+        """
         unparsed_elements : Map = other_elements or {}
 
-        self._game_id           : str                       = game_id       or self._parseGameID(unparsed_elements=unparsed_elements, name=name)
-        self._source_name       : str                       = source_name   or self._parseSourceName(unparsed_elements=unparsed_elements)
-        self._source_schema     : Optional[DataStoreConfig] = source_schema
-        self._db_name           : str                       = db_name       or self._parseDBName(unparsed_elements=unparsed_elements)
-        self._table_name        : str                       = table_name    or self._parseTableName(unparsed_elements=unparsed_elements)
-        self._table_schema_name : str                       = table_schema  or self._parseTableConfigName(unparsed_elements=unparsed_elements)
-        self._table_schema      : TableConfig = TableConfig.FromFile(schema_name=self._table_schema_name, schema_path=self._DEFAULT_TABLE_FOLDER_PATH)
+        self._game_id        : str                    = game_id or name
+        self._source_name    : str                    = source_name    or self._parseSourceName(unparsed_elements=unparsed_elements)
+        self._schema_name    : str                    = schema_name    or self._parseSchemaName(unparsed_elements=unparsed_elements)
+        self._table_location : DatabaseLocationSchema = table_location or self._parseTableLocation(unparsed_elements=unparsed_elements)
 
-        if game_id is not None:
-            self._game_id = game_id
-        else:
-            Logger.Log(f"GameStoreConfig did not receive a game_id, defaulting to {name}")
-            self._game_id = name
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -73,24 +96,20 @@ class GameStoreConfig(Schema):
         return self._source_name
 
     @property
-    def Source(self) -> Optional[DataStoreConfig]:
-        return self._source_schema
+    def SchemaName(self) -> str:
+        return self._schema_name
+
+    @property
+    def Location(self) -> DatabaseLocationSchema:
+        return self._table_location
 
     @property
     def DatabaseName(self) -> str:
-        return self._db_name
+        return self._table_location.DatabaseName
 
     @property
-    def TableName(self) -> str:
-        return self._table_name
-
-    @property
-    def TableConfig(self) -> TableConfig:
-        return self._table_schema
-
-    @property
-    def TableConfigName(self) -> str:
-        return self._table_schema_name
+    def TableName(self) -> Optional[str]:
+        return self._table_location.TableName
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -98,7 +117,7 @@ class GameStoreConfig(Schema):
     def AsMarkdown(self) -> str:
         ret_val : str
 
-        ret_val = f"{self.Name}: _{self.TableConfigName}_ format, source {self.Source.Name if self.Source else 'None'} : {self.DatabaseName}.{self.TableName}"
+        ret_val = f"{self.Name}: _{self.SchemaName}_ format, source {self.SourceName} : {self.Location.Location}"
         return ret_val
 
     @classmethod
@@ -107,15 +126,15 @@ class GameStoreConfig(Schema):
             name="DefaultGameStoreConfig",
             game_id=cls._DEFAULT_GAME_ID,
             source_name=cls._DEFAULT_SOURCE_NAME,
-            source_schema=BigQueryConfig.Default(),
-            db_name=cls._DEFAULT_DB_NAME,
-            table_name=cls._DEFAULT_TABLE_NAME,
-            table_schema=cls._DEFAULT_TABLE_SCHEMA,
+            schema_name=cls._DEFAULT_SCHEMA_NAME,
+            table_location=cls._DEFAULT_TABLE_LOC,
             other_elements={}
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Dict[str, Any], data_sources:Dict[str, DataStoreConfig]) -> "GameStoreConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map,
+                  key_overrides:Optional[Dict[str, str]]=None,
+                  default_override:Optional[Self]=None) -> "GameStoreConfig":
         """Create a GameStoreConfig from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -132,38 +151,12 @@ class GameStoreConfig(Schema):
         :return: _description_
         :rtype: GameStoreConfig
         """
-        _game_id       : str                       = cls._parseGameID(unparsed_elements=unparsed_elements)
-        _db_name       : str                       = cls._parseDBName(unparsed_elements=unparsed_elements)
-        _table_schema  : str                       = cls._parseTableConfigName(unparsed_elements=unparsed_elements)
-        _table_name    : str                       = cls._parseTableName(unparsed_elements=unparsed_elements)
-
-        _source_name   : str                       = cls._parseSourceName(unparsed_elements=unparsed_elements)
-        _source_schema : Optional[DataStoreConfig] = None
-
-        if _source_name in data_sources.keys():
-            _source_schema = data_sources[_source_name]
-        else:
-            _msg = f"{name} config's 'source' name ({_source_name}) was not found in available source schemas; defaulting to source_schema={_source_schema}"
-            Logger.Log(_msg, logging.WARN)
-
-        _used = {"source", "source_name", "database", "table", "schema"}
-        _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return GameStoreConfig(name=name, game_id=_game_id, source_name=_source_name, source_schema=_source_schema,
-                                db_name=_db_name, table_name=_table_name, table_schema=_table_schema,
-                                other_elements=_leftovers)
+        return GameStoreConfig(name=name, game_id=None, source_name=None, schema_name=None,
+                                table_location=None, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 
     # *** PUBLIC METHODS ***
-
-    @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Dict[str, Any], data_sources:Dict[str, DataStoreConfig]) -> "GameStoreConfig":
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements   = {}
-            _msg = f"For {name} {cls.__name__}, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
-
-        return cls._fromDict(name=name, unparsed_elements=unparsed_elements, data_sources=data_sources)
 
     # *** PRIVATE STATICS ***
 
@@ -178,43 +171,21 @@ class GameStoreConfig(Schema):
         )
 
     @staticmethod
-    def _parseGameID(unparsed_elements:Map, name:Optional[str]=None) -> str:
-        return GameStoreConfig.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["game", "game_id"],
-            to_type=str,
-            default_value=name or GameStoreConfig._DEFAULT_GAME_ID,
-            remove_target=True
-        )
-
-    @staticmethod
-    def _parseDBName(unparsed_elements:Map) -> str:
-        return GameStoreConfig.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["database"],
-            to_type=str,
-            default_value=GameStoreConfig._DEFAULT_DB_NAME,
-            remove_target=True
-        )
-
-    @staticmethod
-    def _parseTableName(unparsed_elements:Map) -> str:
-        return GameStoreConfig.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["table"],
-            to_type=str,
-            default_value=GameStoreConfig._DEFAULT_TABLE_NAME,
-            remove_target=True
-        )
-
-    @staticmethod
-    def _parseTableConfigName(unparsed_elements:Map) -> str:
+    def _parseSchemaName(unparsed_elements:Map) -> str:
         return GameStoreConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["schema"],
             to_type=str,
-            default_value=GameStoreConfig._DEFAULT_TABLE_SCHEMA,
+            default_value=GameStoreConfig._DEFAULT_SCHEMA_NAME,
             remove_target=True
+        )
+
+    @staticmethod
+    def _parseTableLocation(unparsed_elements:Map) -> DatabaseLocationSchema:
+        return DatabaseLocationSchema.FromDict(
+            name="TableLocation",
+            unparsed_elements=unparsed_elements,
+            default_override=GameStoreConfig._DEFAULT_TABLE_LOC
         )
 
     # *** PRIVATE METHODS ***
