@@ -66,7 +66,7 @@ class Interface(StorageConnector):
 
     def __init__(self, schema:GameStoreConfig, fail_fast:bool):
         self._fail_fast = fail_fast
-        super().__init__(schema=schema)
+        super().__init__(config=schema)
 
     def __del__(self):
         self.Close()

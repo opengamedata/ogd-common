@@ -38,8 +38,7 @@ class StorageConnector(abc.ABC):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, schema:GameStoreConfig):
-        self._source_schema  : GameStoreConfig = schema
+    def __init__(self):
         self._is_open : bool = False
 
     def __del__(self):
@@ -56,11 +55,7 @@ class StorageConnector(abc.ABC):
 
     @property
     def ResourceName(self) -> str:
-        return self._source_schema.Name
-
-    @property
-    def GameStoreConfig(self) -> GameStoreConfig:
-        return self._source_schema
+        return self.Name
 
     # *** PUBLIC STATICS ***
 
