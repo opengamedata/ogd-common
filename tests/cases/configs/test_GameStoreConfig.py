@@ -37,7 +37,7 @@ class test_GameStoreConfig(TestCase):
             name="Game Source Schema",
             game_id="AQUALAB",
             source_name="AQUALAB_BQ",
-            schema_name=BigQueryConfig.FromDict(name="AQUALAB_BQ", unparsed_elements=source_elems),
+            schema_name="OPENGAMEDATA_BIGQUERY",
             table_location=DatabaseLocationSchema(name="DBLocation", database_name="aqualab", table_name="aqualab_daily"),
             other_elements={ "foo":"bar" }
         )
