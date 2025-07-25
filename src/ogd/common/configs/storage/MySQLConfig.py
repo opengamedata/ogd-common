@@ -25,6 +25,7 @@ class MySQLConfig(DataStoreConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_db_location", "_credential", "_ssh_cfg"]
     def __init__(self, name:str,
                  # params for class
                  db_location:Optional[URLLocationSchema], db_credential:Optional[PasswordCredential], ssh_cfg:Optional[SSHConfig],
