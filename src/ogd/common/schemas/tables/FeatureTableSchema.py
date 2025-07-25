@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Tuple, Optional
 
 # import local files
-from ogd.common.models.FeatureData import FeatureData
+from ogd.common.models.Feature import Feature
 from ogd.common.models.Event import EventSource
 from ogd.common.schemas.tables.TableSchema import TableSchema, ColumnMapIndex, ColumnMapElement
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
@@ -236,8 +236,8 @@ class FeatureTableSchema(TableSchema):
     # *** PUBLIC METHODS ***
 
     _conversion_warnings = Counter()
-    def RowToFeatureData(self, row:Tuple, concatenator:str = '.', fallbacks:Map={}) -> FeatureData:
-        """Function to convert a row to a FeatureData value, based on the loaded schema.
+    def RowToFeature(self, row:Tuple, concatenator:str = '.', fallbacks:Map={}) -> Feature:
+        """Function to convert a row to a Feature value, based on the loaded schema.
         In general, columns specified in the schema's column_map are mapped to corresponding elements of the Event.
         If the column_map gave a list, rather than a single column name, the values from each column are concatenated in order with '.' character separators.
         Finally, the concatenated values (or single value) are parsed according to the type required by Event.
@@ -357,7 +357,7 @@ class FeatureTableSchema(TableSchema):
             FeatureTableSchema._conversion_warnings["index"] += 1
             index = int(index)
 
-        return FeatureData(name="FeaturesNotImplemented", feature_type="FeaturesNotImplemented", count_index=None,
+        return Feature(name="FeaturesNotImplemented", feature_type="FeaturesNotImplemented", count_index=None,
                            cols=[], vals=[], mode=ExtractionMode.SESSION, app_id="NONE", user_id=None, session_id="NONE",
                            app_version=None, app_branch=None, log_version=None
                            )
