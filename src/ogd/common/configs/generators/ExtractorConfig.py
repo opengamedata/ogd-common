@@ -16,6 +16,7 @@ class ExtractorConfig(GeneratorConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_subfeatures", "_return_type"]
     def __init__(self, name:str,
                  # params for class
                  return_type:Optional[str], subfeatures:Optional[Dict[str, SubfeatureConfig]],

@@ -13,6 +13,7 @@ class IteratedConfig(ExtractorConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_count", "_prefix"]
     def __init__(self, name:str,
                  # params for class
                  count:Optional[int|str], prefix:Optional[str],

@@ -10,6 +10,7 @@ class SubfeatureConfig(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_return_type", "_description"]
     def __init__(self, name:str,
                  # params for class
                  return_type:Optional[str], description:Optional[str],

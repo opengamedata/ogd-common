@@ -16,6 +16,7 @@ class DetectorMapConfig(Config):
     """
     Dumb struct to contain the specification and config of a set of features for a game.
     """
+    __slots__ = ["_iterated_detectors", "_aggregate_detectors"]
     def __init__(self, name:str,
                  percount_detectors:Optional[Dict[str, DetectorConfig]],
                  aggregate_detectors:Optional[Dict[str, DetectorConfig]],

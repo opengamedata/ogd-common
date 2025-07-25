@@ -13,6 +13,7 @@ class GeneratorConfig(Config):
     _DEFAULT_ENABLED = True
     _DEFAULT_DESCRIPTION = "Default Generator schema object. Does not correspond to any actual data."
 
+    __slots__ = ["_enabled", "_type_name", "_description"]
     def __init__(self, name:str, enabled:Optional[Set[ExtractionMode]], type_name:Optional[str], description:Optional[str], other_elements:Optional[Map]=None):
         """Constructor for the `GeneratorConfig` class.
         

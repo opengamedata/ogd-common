@@ -54,6 +54,7 @@ class Schema(abc.ABC):
 
     _DEFAULT_SCHEMA_NAME = "DefaultSchemaName"
 
+    __slots__ = ["_name", "_other_elements"]
     def __init__(self, name:str, other_elements:Optional[Map]=None):
         self._name : str           = name or Schema._DEFAULT_SCHEMA_NAME
         self._other_elements : Map = other_elements or {}
