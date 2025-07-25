@@ -104,7 +104,7 @@ class TableSchema(Schema):
 
     @property
     def AppIDIndex(self) -> ColumnMapIndex:
-        return self._column_map['app_id']
+        return self.ColumnMap['app_id']
 
     @property
     def AppIDColumn(self) -> Optional[str]:
@@ -117,7 +117,7 @@ class TableSchema(Schema):
 
     @property
     def UserIDIndex(self) -> ColumnMapIndex:
-        return self._column_map['user_id']
+        return self.ColumnMap['user_id']
 
     @property
     def UserIDColumn(self) -> Optional[str]:
@@ -130,7 +130,7 @@ class TableSchema(Schema):
 
     @property
     def SessionIDIndex(self) -> ColumnMapIndex:
-        return self._column_map['session_id']
+        return self.ColumnMap['session_id']
 
     @property
     def SessionIDColumn(self) -> Optional[str]:
@@ -143,7 +143,7 @@ class TableSchema(Schema):
 
     @property
     def AppVersionIndex(self) -> ColumnMapIndex:
-        return self._column_map['app_version']
+        return self.ColumnMap['app_version']
 
     @property
     def AppVersionColumn(self) -> Optional[str]:
@@ -156,7 +156,7 @@ class TableSchema(Schema):
 
     @property
     def AppBranchIndex(self) -> ColumnMapIndex:
-        return self._column_map['app_branch']
+        return self.ColumnMap['app_branch']
 
     @property
     def AppBranchColumn(self) -> Optional[str]:
@@ -169,7 +169,7 @@ class TableSchema(Schema):
 
     @property
     def LogVersionIndex(self) -> ColumnMapIndex:
-        return self._column_map['log_version']
+        return self.ColumnMap['log_version']
 
     @property
     def LogVersionColumn(self) -> Optional[str]:
@@ -238,7 +238,7 @@ class TableSchema(Schema):
         ret_val : str
 
         event_column_list = []
-        for event_element,columns_mapped in self._column_map.items():
+        for event_element,columns_mapped in self.ColumnMap.items():
             if columns_mapped is not None:
                 if isinstance(columns_mapped, str):
                     event_column_list.append(f"**{event_element}** = Column '*{columns_mapped}*'  ")
