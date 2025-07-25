@@ -1,17 +1,15 @@
 ## import standard libraries
-import abc
+import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Optional, Self, TypeAlias
+from typing import Any, Dict, List, Tuple, Optional, Self
 ## import local files
 from ogd.common import schemas
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
+from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapIndex, ColumnMapElement
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
-
-ColumnMapIndex   : TypeAlias = Optional[int | List[int] | Dict[str,int]]
-ColumnMapElement : TypeAlias = Optional[str | List[str] | Dict[str,str]]
 
 ## @class TableSchema
 class TableSchema(Schema):
@@ -20,16 +18,15 @@ class TableSchema(Schema):
         and a mapping of those columns to the corresponding elements of a formal OGD structure.
     """
 
-    @classmethod
-    @abc.abstractmethod
-    def _subparseDict(cls, name:str, raw_map:Dict[str, ColumnMapElement], column_schemas:List[ColumnSchema], logger:Optional[logging.Logger]=None) -> "TableSchema":
-        pass
-
     # *** BUILT-INS & PROPERTIES ***
 
     _DEFAULT_COLUMNS = []
 
-    def __init__(self, name, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema], other_elements:Optional[Map]=None):
+    def __init__(self, name,
+                 column_map:Optional[ColumnMapSchema],
+                 columns:Optional[List[ColumnSchema]],
+                 other_elements:Optional[Map]=None
+        ):
         """Constructor for the TableSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
@@ -69,10 +66,12 @@ class TableSchema(Schema):
         :param is_legacy: [description], defaults to False
         :type is_legacy: bool, optional
         """
+        unparsed_elements : Map = other_elements or {}
+
         # declare and initialize vars
         # self._schema            : Optional[Dict[str, Any]] = all_elements
-        self._column_map    : Dict[str, ColumnMapIndex] = column_map
-        self._table_columns : List[ColumnSchema]        = columns
+        self._column_map    : ColumnMapSchema    = column_map or self._parseColumnMap(unparsed_elements=unparsed_elements)
+        self._table_columns : List[ColumnSchema] = columns    or self._parseColumns(unparsed_elements=unparsed_elements)
 
         # after loading the file, take the stuff we need and store.
         super().__init__(name=name, other_elements=other_elements)
@@ -91,7 +90,7 @@ class TableSchema(Schema):
         return [col.Name for col in self._table_columns]
 
     @property
-    def ColumnMap(self) -> Dict[str, ColumnMapIndex]:
+    def ColumnMap(self) -> ColumnMapSchema:
         """Mapping from Event element names to the indices of the database columns mapped to them.
         There may be a single index, indicating a 1-to-1 mapping of a database column to the element;
         There may be a list of indices, indicating multiple columns will be concatenated to form the element value;
@@ -102,85 +101,31 @@ class TableSchema(Schema):
         """
         return self._column_map
 
-    @property
-    def AppIDIndex(self) -> ColumnMapIndex:
-        return self.ColumnMap['app_id']
-
-    @property
-    def AppIDColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.AppIDIndex, int):
-            ret_val = self.ColumnNames[self.AppIDIndex]
-        elif isinstance(self.AppIDIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.AppIDIndex])
-        return ret_val
-
-    @property
-    def UserIDIndex(self) -> ColumnMapIndex:
-        return self.ColumnMap['user_id']
-
-    @property
-    def UserIDColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.UserIDIndex, int):
-            ret_val = self.ColumnNames[self.UserIDIndex]
-        elif isinstance(self.UserIDIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.UserIDIndex])
-        return ret_val
-
-    @property
-    def SessionIDIndex(self) -> ColumnMapIndex:
-        return self.ColumnMap['session_id']
-
-    @property
-    def SessionIDColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.SessionIDIndex, int):
-            ret_val = self.ColumnNames[self.SessionIDIndex]
-        elif isinstance(self.SessionIDIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.SessionIDIndex])
-        return ret_val
-
-    @property
-    def AppVersionIndex(self) -> ColumnMapIndex:
-        return self.ColumnMap['app_version']
-
-    @property
-    def AppVersionColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.AppVersionIndex, int):
-            ret_val = self.ColumnNames[self.AppVersionIndex]
-        elif isinstance(self.AppVersionIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.AppVersionIndex])
-        return ret_val
-
-    @property
-    def AppBranchIndex(self) -> ColumnMapIndex:
-        return self.ColumnMap['app_branch']
-
-    @property
-    def AppBranchColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.AppBranchIndex, int):
-            ret_val = self.ColumnNames[self.AppBranchIndex]
-        elif isinstance(self.AppBranchIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.AppBranchIndex])
-        return ret_val
-
-    @property
-    def LogVersionIndex(self) -> ColumnMapIndex:
-        return self.ColumnMap['log_version']
-
-    @property
-    def LogVersionColumn(self) -> Optional[str]:
-        ret_val = None
-        if isinstance(self.LogVersionIndex, int):
-            ret_val = self.ColumnNames[self.LogVersionIndex]
-        elif isinstance(self.LogVersionIndex, list):
-            ret_val = ", ".join([self.ColumnNames[idx] for idx in self.LogVersionIndex])
-        return ret_val
-
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+    @property
+    def AsMarkdown(self) -> str:
+        ret_val : str
+
+        _columns_markdown = "\n".join([item.AsMarkdown for item in self.Columns])
+        ret_val = "\n\n".join([
+            "## Database Columns",
+            "The individual columns recorded in the database for this game.",
+            _columns_markdown,
+            f"## Event Object Elements",
+            "The elements (member variables) of each Event object, available to programmers when writing feature extractors. The right-hand side shows which database column(s) are mapped to a given element.",
+            self.ColumnMap.AsMarkdown,
+            ""]
+        )
+        return ret_val
+
+    @classmethod
+    def Default(cls) -> "TableSchema":
+        return TableSchema(
+            name="DefaultTableSchema",
+            column_map=ColumnMapSchema.Default(),
+            columns=cls._DEFAULT_COLUMNS,
+            other_elements={}
+        )
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "TableSchema":
@@ -206,9 +151,7 @@ class TableSchema(Schema):
         :return: An instance of the TableSchema subclass on which the function is called
         :rtype: TableSchema
         """
-        _column_json_list : List               = unparsed_elements.get('columns', [])
-        _column_schemas   : List[ColumnSchema] = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), unparsed_elements=column) for column in _column_json_list]
-        return cls._subparseDict(name=name, raw_map=unparsed_elements.get('column_map', {}), column_schemas=_column_schemas)
+        return TableSchema(name=name, column_map=None, columns=None, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 
@@ -228,57 +171,36 @@ class TableSchema(Schema):
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***
+    
+    def _formatMappedColumn(self, index:ColumnMapIndex):
+        """Takes a column mapping index, and returns a nicely-formatted string of the columns included in the index.
 
-    @property
-    def _columnSetMarkdown(self) -> str:
-        return "\n".join([item.AsMarkdown for item in self.Columns])
+        If the index is just an int, it will return the name of the column:
+        > "ColumnName"
 
-    @property
-    def _columnMapMarkdown(self) -> str:
+        If the index is a list, it will return a comma-separated list of the column names:
+        > "ColumnName1, ColumnName2"
+
+        If the index is a dict, it will return a JSON-formatted string mapping keys to column names:
+        > { "key1" : "ColumnName1", "key2" : "ColumnName2 }
+
+        :param index: _description_
+        :type index: ColumnMapIndex
+        :raises TypeError: _description_
+        :return: _description_
+        :rtype: _type_
+        """
         ret_val : str
 
-        event_column_list = []
-        for event_element,columns_mapped in self.ColumnMap.items():
-            if columns_mapped is not None:
-                if isinstance(columns_mapped, str):
-                    event_column_list.append(f"**{event_element}** = Column '*{columns_mapped}*'  ")
-                elif isinstance(columns_mapped, list):
-                    mapped_list = ", ".join([f"'*{item}*'" for item in columns_mapped])
-                    event_column_list.append(f"**{event_element}** = Columns {mapped_list}  ") # figure out how to do one string foreach item in list.
-                elif isinstance(columns_mapped, int):
-                    event_column_list.append(f"**{event_element}** = Column '*{self.ColumnNames[columns_mapped]}*' (index {columns_mapped})  ")
-                else:
-                    event_column_list.append(f"**{event_element}** = Column '*{columns_mapped}*' (DEBUG: Type {type(columns_mapped)})  ")
-            else:
-                event_column_list.append(f"**{event_element}** = null  ")
-        ret_val = "\n".join(event_column_list)
-        return ret_val
-    
-    @staticmethod
-    def _retrieveElement(elem:Any, name:str) -> Optional[ColumnMapElement]:
-        """_summary_
-
-        :param elem: _description_
-        :type elem: Any
-        :param name: _description_
-        :type name: str
-        :return: _description_
-        :rtype: Optional[ColumnMapElement]
-        """
-        ret_val : Optional[str | List[str] | Dict[str, str]]
-        if elem is not None:
-            if isinstance(elem, str):
-                ret_val = elem
-            elif isinstance(elem, list):
-                ret_val = elem
-            elif isinstance(elem, dict):
-                ret_val = elem
-            else:
-                ret_val = str(elem)
-                Logger.Log(f"Column name(s) mapped to {name} was not a string or list, defaulting to str(name) == {ret_val} being mapped to {name}", logging.WARN)
+        if isinstance(index, int):
+            ret_val = self.ColumnNames[index]
+        elif isinstance(index, list):
+            ret_val = ", ".join([self.ColumnNames[idx] for idx in index])
+        elif isinstance(index, dict):
+            ret_val = json.dumps({key: self.ColumnNames[i] for key,i in index.items()})
         else:
-            ret_val = None
-            Logger.Log(f"Column name mapped to {name} was left null, nothing will be mapped to {name}", logging.WARN)
+            raise TypeError(f"Column mapping can not be type {type(index)}!")
+        
         return ret_val
 
     def _getValueFromRow(self, row:Tuple, indices:Optional[int | List[int] | Dict[str, int]], concatenator:str, fallback:Any) -> Any:
@@ -299,4 +221,40 @@ class TableSchema(Schema):
                     ret_val.update(_val if isinstance(_val, dict) else {key:_val})
         else:
             ret_val = fallback
+        return ret_val
+
+    @staticmethod
+    def _parseColumns(unparsed_elements:Map) -> List[ColumnSchema]:
+        ret_val : List[ColumnSchema]
+
+        _column_json_list = TableSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["columns"],
+            to_type=list,
+            default_value=None,
+            remove_target=True
+        )
+        if _column_json_list:
+            ret_val = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), unparsed_elements=column) for column in _column_json_list]
+        else:
+            ret_val = TableSchema._DEFAULT_COLUMNS
+
+        return ret_val
+
+    @staticmethod
+    def _parseColumnMap(unparsed_elements:Map) -> ColumnMapSchema:
+        ret_val : ColumnMapSchema
+
+        raw_map = TableSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["column_map"],
+            to_type=dict,
+            default_value=None,
+            remove_target=True
+        )
+        if raw_map:
+            ret_val = ColumnMapSchema.FromDict(name="ColumnMap", unparsed_elements=raw_map)
+        else:
+            ret_val = ColumnMapSchema.Default()
+
         return ret_val

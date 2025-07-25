@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Tuple, Optional
 
 # import local files
 from ogd.common.models.Event import Event, EventSource
-from ogd.common.schemas.tables.TableSchema import TableSchema, ColumnMapIndex, ColumnMapElement
+from ogd.common.schemas.tables.TableSchema import TableSchema, ColumnMapElement, ColumnMapElement
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
@@ -22,7 +22,7 @@ class EventTableSchema(TableSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name, column_map:Dict[str, ColumnMapIndex], columns:List[ColumnSchema], other_elements:Optional[Map]=None):
+    def __init__(self, name, column_map:Dict[str, ColumnMapElement], columns:List[ColumnSchema], other_elements:Optional[Map]=None):
         """Constructor for the TableSchema class.
         Given a database connection and a game data request,
         this retrieves a bit of information from the database to fill in the
@@ -38,35 +38,35 @@ class EventTableSchema(TableSchema):
         super().__init__(name=name, column_map=column_map, columns=columns, other_elements=other_elements)
 
     @property
-    def TimestampIndex(self) -> ColumnMapIndex:
+    def TimestampIndex(self) -> ColumnMapElement:
         return self._column_map['timestamp']
 
     @property
-    def EventNameIndex(self) -> ColumnMapIndex:
+    def EventNameIndex(self) -> ColumnMapElement:
         return self._column_map['event_name']
 
     @property
-    def EventDataIndex(self) -> ColumnMapIndex:
+    def EventDataIndex(self) -> ColumnMapElement:
         return self._column_map['event_data']
 
     @property
-    def EventSourceIndex(self) -> ColumnMapIndex:
+    def EventSourceIndex(self) -> ColumnMapElement:
         return self._column_map['event_source']
 
     @property
-    def TimeOffsetIndex(self) -> ColumnMapIndex:
+    def TimeOffsetIndex(self) -> ColumnMapElement:
         return self._column_map['time_offset']
 
     @property
-    def UserDataIndex(self) -> ColumnMapIndex:
+    def UserDataIndex(self) -> ColumnMapElement:
         return self._column_map['user_data']
 
     @property
-    def GameStateIndex(self) -> ColumnMapIndex:
+    def GameStateIndex(self) -> ColumnMapElement:
         return self._column_map['game_state']
 
     @property
-    def EventSequenceIndexIndex(self) -> ColumnMapIndex:
+    def EventSequenceIndexIndex(self) -> ColumnMapElement:
         return self._column_map['event_sequence_index']
 
     @property
@@ -181,7 +181,7 @@ class EventTableSchema(TableSchema):
         :return: _description_
         :rtype: TableSchema
         """
-        _column_map : Dict[str, ColumnMapIndex] = {
+        _column_map : Dict[str, ColumnMapElement] = {
             "session_id"           : None,
             "app_id"               : None,
             "timestamp"            : None,
