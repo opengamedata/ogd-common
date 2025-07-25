@@ -3,7 +3,7 @@ from typing import Any, List, Optional
 from ogd.common.models.GameData import GameData
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 
-class FeatureData(GameData):
+class Feature(GameData):
     """
     
     .. todo:: Add element to track the feature extractor version in some way.
