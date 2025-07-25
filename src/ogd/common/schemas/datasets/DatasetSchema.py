@@ -34,6 +34,12 @@ class DatasetSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_key", "_date_modified", "_start_date", "_end_date",
+                 "_ogd_revision", "_session_ct", "_player_ct",
+                 "_raw_file", "_events_file", "_events_template",
+                 "_sessions_file", "_sessions_template",
+                 "_players_file", "_players_template",
+                 "_population_file", "_population_template"]
     def __init__(self, name:str,           key:DatasetKey,
                  date_modified:Optional[date|str],   start_date:Optional[date|str],      end_date:Optional[date|str],
                  ogd_revision:Optional[str],     session_ct:Optional[int], player_ct:Optional[int],
