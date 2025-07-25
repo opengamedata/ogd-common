@@ -23,6 +23,7 @@ class URLLocationSchema(LocationSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_url"]
     def __init__(self, name:str, url:ParseResult, other_elements:Optional[Map]=None):
         """Constructor for the `URLLocationSchema` class.
         

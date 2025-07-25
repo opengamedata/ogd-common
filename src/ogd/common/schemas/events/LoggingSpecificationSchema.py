@@ -28,6 +28,7 @@ class LoggingSpecificationSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_game_id", "_enum_defs", "_game_state", "_user_data", "_event_list", "_log_version"]
     def __init__(self, name:str, game_id:str, enum_defs:Optional[Dict[str, List[str]]],
                  game_state:Optional[Map], user_data:Optional[Map], event_list:Optional[List[EventSchema]],
                  logging_version:Optional[int], other_elements:Optional[Map]=None):

@@ -17,6 +17,7 @@ class DataElementSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_type", "_description", "_details"]
     def __init__(self, name:str, element_type:Optional[str], description:Optional[str], details:Optional[Dict[str, str]], other_elements:Optional[Map]=None):
         """Constructor for the `DataElementSchema` class.
         
