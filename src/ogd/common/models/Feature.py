@@ -4,17 +4,19 @@ from ogd.common.models.GameData import GameData
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
 
 class Feature(GameData):
-    """
-    
-    .. todo:: Add element to track the feature extractor version in some way.
-
-    :param GameData: _description_
-    :type GameData: _type_
-    """
+    __slots__ = ["_name", "_feature_type", "_count_index",
+                 "_cols", "_vals", "_mode"]
     def __init__(self, name:str,            feature_type:str,         count_index:Optional[int],
                  cols:List[str],            vals:List[Any],           mode:ExtractionMode,
                  app_id:str,                user_id:Optional[str],    session_id:str,
                  app_version:Optional[str], app_branch:Optional[str], log_version:Optional[str]):
+        """
+        
+        .. todo:: Add element to track the feature extractor version in some way.
+
+        :param GameData: _description_
+        :type GameData: _type_
+        """
         super().__init__(app_id=app_id,           user_id=user_id,       session_id=session_id,
                          app_version=app_version, app_branch=app_branch, log_version=log_version)
         self._name = name
