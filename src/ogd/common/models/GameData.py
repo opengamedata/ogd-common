@@ -33,6 +33,8 @@ class GameData(abc.ABC):
         """
         pass
 
+    __slots__ = ["app_id", "user_id", "session_id",
+                 "app_version", "app_branch", "log_version"]
     def __init__(self, app_id:str,          user_id:Optional[str],          session_id:str,
                  app_version:Optional[str], app_branch:Optional[str],       log_version:Optional[str]):
         """Constructor for a GameData struct.

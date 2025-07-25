@@ -19,6 +19,7 @@ class BigQueryConfig(DataStoreConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_location", "_credential"]
     def __init__(self, name:str,
                  # params for class
                  location:Optional[DatabaseLocationSchema], credential:Optional[KeyCredential],

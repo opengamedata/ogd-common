@@ -17,6 +17,7 @@ class DatabaseLocationSchema(LocationSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_db_name", "_table_name"]
     def __init__(self, name:str, database_name:Optional[str], table_name:Optional[str], other_elements:Optional[Map]=None):
         """Constructor for the `DatabaseLocationSchema` class.
         

@@ -19,6 +19,7 @@ class KeyCredential(CredentialConfig):
         other_elements=None
     )
 
+    __slots__ = ["_location"]
     def __init__(self, name:str, location:Optional[FileLocationSchema], other_elements:Optional[Map]=None):
         """Constructor for the `KeyCredentialConfig` class.
         

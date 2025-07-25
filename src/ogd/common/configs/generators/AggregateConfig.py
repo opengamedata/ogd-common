@@ -11,6 +11,7 @@ from ogd.common.utils.typing import Map
 class AggregateConfig(ExtractorConfig):
     """Schema for tracking the configuration of an aggregate feature."""
 
+    __slots__ = []
     def __init__(self, name:str,
                  # params for class
                  # params for parent

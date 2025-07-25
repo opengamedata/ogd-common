@@ -50,6 +50,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
     )
     _DEFAULT_DATASETS = {}
 
+    __slots__ = ["_files_base", "_templates_base", "_datasets"]
     def __init__(self, name:str,
                  # params for class
                  files_base:Optional[BaseLocation],
