@@ -9,6 +9,7 @@ from ogd.common.utils.typing import Map
 
 class DetectorConfig(GeneratorConfig):
     """Schema for tracking the configuration of a detector."""
+    __slots__ = []
     def __init__(self, name:str,
                  # params for class
                  # params for parent
