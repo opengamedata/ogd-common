@@ -11,7 +11,7 @@ from ogd.common.utils.typing import Map
 class GameData(abc.ABC):
     """
     Completely dumb struct that enforces a particular structure for the data we get from a source.
-    This acts as a common starting point for the `Event` and `FeatureData` classes, defining the common elements between the two.
+    This acts as a common starting point for the `Event` and `Feature` classes, defining the common elements between the two.
 
     TODO : Consider whether to inherit from Schema. Would at least be good to have FromDict as a required function
     """
