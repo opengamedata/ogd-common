@@ -23,6 +23,7 @@ class TestConfig(Config):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_verbose", "_enabled_tests"]
     def __init__(self, name:str, verbose:Optional[bool], enabled_tests:Optional[Dict[str, bool]], other_elements:Optional[Map]=None):
         """Constructor for the `TestConfig` class.
         
