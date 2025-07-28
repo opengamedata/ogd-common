@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Tuple, Optional, Self
 ## import local files
 from ogd.common import schemas
 from ogd.common.models.Event import Event
-from ogd.common.models.FeatureData import FeatureData
+from ogd.common.models.Feature import Feature
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.EventMapSchema import EventMapSchema
