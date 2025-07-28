@@ -65,9 +65,10 @@ class Event(GameData):
         self.event_sequence_index : Optional[int] = event_sequence_index
         self.event_name           : str           = event_name
         self.event_source         : EventSource   = event_source
-        self.event_data           : Map     = event_data
-        self.game_state           : Map     = game_state if game_state is not None else {}
-        self.user_data            : Map     = user_data if user_data is not None else {}
+        self.event_data           : Map           = event_data
+        self.game_state           : Map           = game_state if game_state is not None else {}
+        self.user_data            : Map           = user_data if user_data is not None else {}
+        self._hash                : Optional[int] = None
 
     def __str__(self):
         return f"app_id       : {self.app_id}\n"\
@@ -154,6 +155,12 @@ class Event(GameData):
                 self.event_data,  self.event_source.name,  self.app_version, self.app_branch,
                 self.log_version, self.TimeOffsetString,   self.user_id,     self.user_data,
                 self.game_state,  self.event_sequence_index]
+
+    @property
+    def Hash(self) -> int:
+        if not self._hash:
+            self._hash = hash(self)
+        return self._hash
 
     @property
     def AppVersion(self) -> str:
