@@ -85,6 +85,9 @@ class Event(GameData):
              + f"user_data    : {self.user_data}\n"\
              + f"game_state   : {self.game_state}\n"\
 
+    def __hash__(self):
+        return hash(str(self))
+
     def FallbackDefaults(self, app_id:Optional[str]=None, index:Optional[int]=None):
         if self.app_id == None and app_id != None:
             self.app_id = app_id
