@@ -5,8 +5,12 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional, Self
 ## import local files
 from ogd.common import schemas
+from ogd.common.models.Event import Event
+from ogd.common.models.FeatureData import FeatureData
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
+from ogd.common.schemas.tables.EventMapSchema import EventMapSchema
+from ogd.common.schemas.tables.FeatureMapSchema import FeatureMapSchema
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapIndex, ColumnMapElement
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
@@ -168,6 +172,12 @@ class TableSchema(Schema):
 
     # *** PUBLIC METHODS ***
 
+    def EventFromRow(self, row:Tuple) -> Event:
+        idx = self._indexFromMapping(self.ColumnMap.AppIDColumn)
+        _app_id = self._valueFromRow(row=row, indices=idx, concatenator=".", fallback=None)
+
+        return Event()
+
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***
@@ -202,8 +212,20 @@ class TableSchema(Schema):
             raise TypeError(f"Column mapping can not be type {type(index)}!")
         
         return ret_val
+    
+    def _indexFromMapping(self, mapping:ColumnMapElement) -> ColumnMapIndex:
+        ret_val : ColumnMapIndex
 
-    def _getValueFromRow(self, row:Tuple, indices:Optional[int | List[int] | Dict[str, int]], concatenator:str, fallback:Any) -> Any:
+        if isinstance(mapping, str):
+            ret_val = self.ColumnNames.index(mapping)
+        elif isinstance(mapping, list):
+            ret_val = [self.ColumnNames.index(col_name) for col_name in mapping]
+        elif isinstance(mapping, dict):
+            ret_val = {key:self.ColumnNames.index(val) for key,val in mapping}
+
+        return ret_val
+
+    def _valueFromRow(self, row:Tuple, indices:Optional[ColumnMapIndex], concatenator:str, fallback:Any) -> Any:
         ret_val : Any
         if indices is not None:
             if isinstance(indices, int):

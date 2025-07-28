@@ -15,7 +15,7 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
 
 ## @class TableSchema
-class FeatureTableSchema(TableSchema):
+class FeatureMapSchema(TableSchema):
     """Dumb struct to hold useful info about the structure of feature data for a particular game in a particular database.
        This includes the indices of several important database columns, the names
        of the database columns, and a list of
@@ -160,8 +160,8 @@ class FeatureTableSchema(TableSchema):
         return ret_val
 
     @classmethod
-    def Default(cls) -> "FeatureTableSchema":
-        return FeatureTableSchema(
+    def Default(cls) -> "FeatureMapSchema":
+        return FeatureMapSchema(
             name="DefaultFeatureTableSchema",
             column_map={},
             columns=cls._DEFAULT_COLUMNS,
@@ -229,7 +229,7 @@ class FeatureTableSchema(TableSchema):
                 Logger.Log(f"Column config does not have a '{key}' element, defaulting to {key} : None", logging.WARN)
         _leftovers = { key : val for key,val in raw_map.items() if key not in _column_map.keys() }
 
-        return FeatureTableSchema(name=name, column_map=_column_map, columns=column_schemas, other_elements=_leftovers)
+        return FeatureMapSchema(name=name, column_map=_column_map, columns=column_schemas, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
 
@@ -271,90 +271,90 @@ class FeatureTableSchema(TableSchema):
         # 2) Handle event_data parameter, a special case.
         #    For this case we've got to parse the json, and then fold in whatever other columns were desired.
         # 3) Assign vals to our arg vars and pass to Event ctor.
-        sess_id = self._getValueFromRow(row=row, indices=self.SessionIDIndex,   concatenator=concatenator, fallback=fallbacks.get('session_id'))
+        sess_id = self._valueFromRow(row=row, indices=self.SessionIDIndex,   concatenator=concatenator, fallback=fallbacks.get('session_id'))
         if not isinstance(sess_id, str):
-            if "sess_id" not in FeatureTableSchema._conversion_warnings:
+            if "sess_id" not in FeatureMapSchema._conversion_warnings:
                 Logger.Log(f"{self.Name} feature table schema set session_id as {type(sess_id)}, but session_id should be a string", logging.WARN)
-            FeatureTableSchema._conversion_warnings["sess_id"] += 1
+            FeatureMapSchema._conversion_warnings["sess_id"] += 1
             sess_id = str(sess_id)
 
-        app_id  = self._getValueFromRow(row=row, indices=self.AppIDIndex,       concatenator=concatenator, fallback=fallbacks.get('app_id'))
+        app_id  = self._valueFromRow(row=row, indices=self.AppIDIndex,       concatenator=concatenator, fallback=fallbacks.get('app_id'))
         if not isinstance(app_id, str):
-            if "app_id" not in FeatureTableSchema._conversion_warnings:
+            if "app_id" not in FeatureMapSchema._conversion_warnings:
                 Logger.Log(f"{self.Name} feature table schema set app_id as {type(app_id)}, but app_id should be a string", logging.WARN)
-            FeatureTableSchema._conversion_warnings["app_id"] += 1
+            FeatureMapSchema._conversion_warnings["app_id"] += 1
             app_id = str(app_id)
 
-        tstamp  = self._getValueFromRow(row=row, indices=self.TimestampIndex,   concatenator=concatenator, fallback=fallbacks.get('timestamp'))
+        tstamp  = self._valueFromRow(row=row, indices=self.TimestampIndex,   concatenator=concatenator, fallback=fallbacks.get('timestamp'))
         if not isinstance(tstamp, datetime):
-            if "timestamp" not in FeatureTableSchema._conversion_warnings:
+            if "timestamp" not in FeatureMapSchema._conversion_warnings:
                 Logger.Log(f"{self.Name} feature table schema parsed timestamp as {type(tstamp)}, but timestamp should be a datetime", logging.WARN)
-            FeatureTableSchema._conversion_warnings["timestamp"] += 1
+            FeatureMapSchema._conversion_warnings["timestamp"] += 1
             tstamp = conversions.DatetimeFromString(tstamp)
 
-        ename   = self._getValueFromRow(row=row, indices=self.EventNameIndex,   concatenator=concatenator, fallback=fallbacks.get('event_name'))
+        ename   = self._valueFromRow(row=row, indices=self.EventNameIndex,   concatenator=concatenator, fallback=fallbacks.get('event_name'))
         if not isinstance(ename, str):
-            if "ename" not in FeatureTableSchema._conversion_warnings:
+            if "ename" not in FeatureMapSchema._conversion_warnings:
                 Logger.Log(f"{self.Name} feature table schema set event_name as {type(ename)}, but event_name should be a string", logging.WARN)
-            FeatureTableSchema._conversion_warnings["ename"] += 1
+            FeatureMapSchema._conversion_warnings["ename"] += 1
             ename = str(ename)
 
-        datas : Dict[str, Any] = self._getValueFromRow(row=row, indices=self.EventDataIndex,   concatenator=concatenator, fallback=fallbacks.get('event_data'))
+        datas : Dict[str, Any] = self._valueFromRow(row=row, indices=self.EventDataIndex,   concatenator=concatenator, fallback=fallbacks.get('event_data'))
 
         # TODO: go bac to isostring function; need 0-padding on ms first, though
         edata   = dict(sorted(datas.items())) # Sort keys alphabetically
 
-        esrc    = self._getValueFromRow(row=row, indices=self.EventSourceIndex, concatenator=concatenator, fallback=fallbacks.get('event_source', EventSource.GAME))
+        esrc    = self._valueFromRow(row=row, indices=self.EventSourceIndex, concatenator=concatenator, fallback=fallbacks.get('event_source', EventSource.GAME))
         if not isinstance(esrc, EventSource):
-            if "esrc" not in FeatureTableSchema._conversion_warnings:
+            if "esrc" not in FeatureMapSchema._conversion_warnings:
                 Logger.Log(f"{self.Name} feature table schema set event_source as {type(esrc)}, but event_source should be an EventSource", logging.WARN)
-            FeatureTableSchema._conversion_warnings["esrc"] += 1
+            FeatureMapSchema._conversion_warnings["esrc"] += 1
             esrc = EventSource.GENERATED if esrc == "GENERATED" else EventSource.GAME
 
-        app_ver = self._getValueFromRow(row=row, indices=self.AppVersionIndex,  concatenator=concatenator, fallback=fallbacks.get('app_version', "0"))
+        app_ver = self._valueFromRow(row=row, indices=self.AppVersionIndex,  concatenator=concatenator, fallback=fallbacks.get('app_version', "0"))
         if not isinstance(app_ver, str):
-            if "app_ver" not in FeatureTableSchema._conversion_warnings:
+            if "app_ver" not in FeatureMapSchema._conversion_warnings:
                 Logger.Log(f"{self.Name} feature table schema set app_version as {type(app_ver)}, but app_version should be a string", logging.WARN)
-            FeatureTableSchema._conversion_warnings["app_ver"] += 1
+            FeatureMapSchema._conversion_warnings["app_ver"] += 1
             app_ver = str(app_ver)
 
-        app_br = self._getValueFromRow(row=row, indices=self.AppBranchIndex,  concatenator=concatenator, fallback=fallbacks.get('app_branch'))
+        app_br = self._valueFromRow(row=row, indices=self.AppBranchIndex,  concatenator=concatenator, fallback=fallbacks.get('app_branch'))
         if not isinstance(app_br, str):
-            if "app_br" not in FeatureTableSchema._conversion_warnings:
+            if "app_br" not in FeatureMapSchema._conversion_warnings:
                 Logger.Log(f"{self.Name} feature table schema set app_branch as {type(app_br)}, but app_branch should be a string", logging.WARN)
-            FeatureTableSchema._conversion_warnings["app_br"] += 1
+            FeatureMapSchema._conversion_warnings["app_br"] += 1
             app_br = str(app_br)
 
-        log_ver = self._getValueFromRow(row=row, indices=self.LogVersionIndex,  concatenator=concatenator, fallback=fallbacks.get('log_version', "0"))
+        log_ver = self._valueFromRow(row=row, indices=self.LogVersionIndex,  concatenator=concatenator, fallback=fallbacks.get('log_version', "0"))
         if not isinstance(log_ver, str):
-            if "log_ver" not in FeatureTableSchema._conversion_warnings:
+            if "log_ver" not in FeatureMapSchema._conversion_warnings:
                 Logger.Log(f"{self.Name} feature table schema set log_version as {type(log_ver)}, but log_version should be a string", logging.WARN)
-            FeatureTableSchema._conversion_warnings["log_ver"] += 1
+            FeatureMapSchema._conversion_warnings["log_ver"] += 1
             log_ver = str(log_ver)
 
-        offset = self._getValueFromRow(row=row, indices=self.TimeOffsetIndex,  concatenator=concatenator, fallback=fallbacks.get('time_offset'))
+        offset = self._valueFromRow(row=row, indices=self.TimeOffsetIndex,  concatenator=concatenator, fallback=fallbacks.get('time_offset'))
         if isinstance(offset, timedelta):
-            if "offset" not in FeatureTableSchema._conversion_warnings:
+            if "offset" not in FeatureMapSchema._conversion_warnings:
                 Logger.Log(f"{self.Name} feature table schema set offset as {type(offset)}, but offset should be a timezone", logging.WARN)
-            FeatureTableSchema._conversion_warnings["offset"] += 1
+            FeatureMapSchema._conversion_warnings["offset"] += 1
             offset = timezone(offset)
 
-        uid     = self._getValueFromRow(row=row, indices=self.UserIDIndex,      concatenator=concatenator, fallback=fallbacks.get('user_id'))
+        uid     = self._valueFromRow(row=row, indices=self.UserIDIndex,      concatenator=concatenator, fallback=fallbacks.get('user_id'))
         if uid is not None and not isinstance(uid, str):
-            if "uid" not in FeatureTableSchema._conversion_warnings:
+            if "uid" not in FeatureMapSchema._conversion_warnings:
                 Logger.Log(f"{self.Name} feature table schema set user_id as {type(uid)}, but user_id should be a string", logging.WARN)
-            FeatureTableSchema._conversion_warnings["uid"] += 1
+            FeatureMapSchema._conversion_warnings["uid"] += 1
             uid = str(uid)
 
-        udata   = self._getValueFromRow(row=row, indices=self.UserDataIndex,    concatenator=concatenator, fallback=fallbacks.get('user_data'))
+        udata   = self._valueFromRow(row=row, indices=self.UserDataIndex,    concatenator=concatenator, fallback=fallbacks.get('user_data'))
 
-        state   = self._getValueFromRow(row=row, indices=self.GameStateIndex,   concatenator=concatenator, fallback=fallbacks.get('game_state'))
+        state   = self._valueFromRow(row=row, indices=self.GameStateIndex,   concatenator=concatenator, fallback=fallbacks.get('game_state'))
 
-        index   = self._getValueFromRow(row=row, indices=self.EventSequenceIndexIndex, concatenator=concatenator, fallback=fallbacks.get('event_sequence_index'))
+        index   = self._valueFromRow(row=row, indices=self.EventSequenceIndexIndex, concatenator=concatenator, fallback=fallbacks.get('event_sequence_index'))
         if index is not None and not isinstance(index, int):
-            if "index" not in FeatureTableSchema._conversion_warnings:
+            if "index" not in FeatureMapSchema._conversion_warnings:
                 Logger.Log(f"{self.Name} feature table schema set event_sequence_index as {type(index)}, but event_sequence_index should be an int", logging.WARN)
-            FeatureTableSchema._conversion_warnings["index"] += 1
+            FeatureMapSchema._conversion_warnings["index"] += 1
             index = int(index)
 
         return FeatureData(name="FeaturesNotImplemented", feature_type="FeaturesNotImplemented", count_index=None,
