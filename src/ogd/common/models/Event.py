@@ -70,9 +70,9 @@ class Event(GameData):
         self.user_data            : Map     = user_data if user_data is not None else {}
 
     def __str__(self):
-        return f"session_id   : {self.session_id}\n"\
-             + f"app_id       : {self.app_id}\n"\
+        return f"app_id       : {self.app_id}\n"\
              + f"user_id      : {self.user_id}\n"\
+             + f"session_id   : {self.session_id}\n"\
              + f"app_version  : {self.app_version}\n"\
              + f"app_branch   : {self.app_branch}\n"\
              + f"log_version  : {self.log_version}\n"\
@@ -80,13 +80,19 @@ class Event(GameData):
              + f"offset       : {self.TimeOffsetString}\n"\
              + f"index        : {self.event_sequence_index}\n"\
              + f"event_name   : {self.event_name}\n"\
-             + f"event_data   : {self.event_data}\n"\
              + f"event_source : {self.event_source.name}\n"\
-             + f"user_data    : {self.user_data}\n"\
+             + f"event_data   : {self.event_data}\n"\
              + f"game_state   : {self.game_state}\n"\
+             + f"user_data    : {self.user_data}\n"\
 
     def __hash__(self):
-        return hash(str(self))
+        _elems = [self.AppID, self.UserID, self.SessionID,
+                  self.AppVersion, self.AppBranch, self.LogVersion,
+                  self.Timestamp, self.TimeOffset, self.EventSequenceIndex,
+                  self.EventName, self.EventSource, self.EventData,
+                  self.GameState, self.UserData]
+        _str_elems = [str(elem) for elem in _elems]
+        return hash("".join(_str_elems))
 
     def FallbackDefaults(self, app_id:Optional[str]=None, index:Optional[int]=None):
         if self.app_id == None and app_id != None:
