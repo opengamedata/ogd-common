@@ -12,7 +12,7 @@ from ogd.common.connectors.filters.collections import *
 from ogd.common.connectors.StorageConnector import StorageConnector
 from ogd.common.models.Event import Event
 from ogd.common.models.EventDataset import EventDataset
-from ogd.common.models.FeatureData import FeatureData
+from ogd.common.models.Feature import Feature
 from ogd.common.models.FeatureDataset import FeatureDataset
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
@@ -203,7 +203,7 @@ class Interface(StorageConnector):
             Logger.Log(f"Could not convert row data to Events, the given table schema was not for event data!", logging.WARNING, depth=3)
         return ret_val
 
-    def _featuresFromRows(self, rows:List[Tuple]) -> List[FeatureData]:
+    def _featuresFromRows(self, rows:List[Tuple]) -> List[Feature]:
         """_summary_
 
         TODO :implement
@@ -213,6 +213,6 @@ class Interface(StorageConnector):
         :param schema: _description_
         :type schema: FeatureTableConfig
         :return: _description_
-        :rtype: List[FeatureData]
+        :rtype: List[Feature]
         """
         return []

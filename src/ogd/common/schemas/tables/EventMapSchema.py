@@ -149,7 +149,7 @@ class EventMapSchema(TableSchema):
             "## Database Columns",
             "The individual columns recorded in the database for this game.",
             self._columnSetMarkdown,
-            f"## Event Object Elements",
+            "## Event Object Elements",
             "The elements (member variables) of each Event object, available to programmers when writing feature extractors. The right-hand side shows which database column(s) are mapped to a given element.",
             self._columnMapMarkdown,
             ""])
@@ -232,7 +232,7 @@ class EventMapSchema(TableSchema):
     # *** PUBLIC METHODS ***
 
     _conversion_warnings = Counter()
-    def RowToEvent(self, row:Tuple, concatenator:str = '.', fallbacks:Map={}):
+    def RowToEvent(self, row:Tuple, concatenator:str = '.', fallbacks:Map={}) -> Event:
         """Function to convert a row to an Event, based on the loaded schema.
         In general, columns specified in the schema's column_map are mapped to corresponding elements of the Event.
         If the column_map gave a list, rather than a single column name, the values from each column are concatenated in order with '.' character separators.
