@@ -68,10 +68,13 @@ class Interface(abc.ABC):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, config:GameStoreConfig, fail_fast:bool):
-        self._fail_fast = fail_fast
-        self._config = config
+        self._config    : GameStoreConfig = config
+        self._fail_fast : bool            = fail_fast
         super().__init__()
 
+    @property
+    def Config(self) -> GameStoreConfig:
+        return self._config
 
     # *** PUBLIC STATICS ***
 
@@ -141,7 +144,7 @@ class Interface(abc.ABC):
         _events = []
 
         if self.Connector.IsOpen:
-            if isinstance(self.GameStoreConfig.TableConfigName, EventTableSchema):
+            if isinstance(self.Config.Schema, EventTableSchema):
                 # _date_clause = f" on date(s) {date_filter}"
                 _msg = f"Retrieving event data from {self.Connector.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
