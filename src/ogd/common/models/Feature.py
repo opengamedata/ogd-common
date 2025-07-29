@@ -1,7 +1,6 @@
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from ogd.common.models.GameData import GameData
-from ogd.common.models.enums.ExtractionMode import ExtractionMode
 
 class Feature(GameData):
     """
@@ -11,21 +10,41 @@ class Feature(GameData):
     :param GameData: _description_
     :type GameData: _type_
     """
-    def __init__(self, name:str,            feature_type:str,         count_index:Optional[int],
-                 cols:List[str],            vals:List[Any],           mode:ExtractionMode,
-                 app_id:str,                user_id:Optional[str],    session_id:str,
-                 app_version:Optional[str], app_branch:Optional[str], log_version:Optional[str]):
-        super().__init__(app_id=app_id,           user_id=user_id,       session_id=session_id,
-                         app_version=app_version, app_branch=app_branch, log_version=log_version)
+    def __init__(self, name:str, feature_type:str,
+                 game_unit:Optional[str], game_unit_index:Optional[int],
+                 app_id:str, user_id:Optional[str], session_id:str,
+                 subfeatures:List[str], values:List[Any]):
+        """_summary_
+
+        :param name: _description_
+        :type name: str
+        :param feature_type: _description_
+        :type feature_type: str
+        :param game_unit: _description_
+        :type game_unit: Optional[str]
+        :param game_unit_index: _description_
+        :type game_unit_index: Optional[int]
+        :param app_id: _description_
+        :type app_id: str
+        :param user_id: _description_
+        :type user_id: Optional[str]
+        :param session_id: _description_
+        :type session_id: str
+        :param subfeatures: _description_
+        :type subfeatures: List[str]
+        :param values: _description_
+        :type values: List[Any]
+        """
+        super().__init__(app_id=app_id, user_id=user_id, session_id=session_id)
         self._name = name
         self._feature_type = feature_type
-        self._count_index = count_index
-        self._cols = cols
-        self._vals = vals
-        self._mode = mode
+        self._game_unit = game_unit
+        self._game_unit_index = game_unit_index
+        self._subfeatures = subfeatures
+        self._values  = values
 
     def __str__(self) -> str:
-        return f"Name: {self.Name}\tCount Index: {self.CountIndex}\nColumns: {self._cols}\t Values: {self._vals}\nMode: {self._mode.name}\tPlayer: {self.PlayerID}\tSession: {self.SessionID}"
+        return f"Name: {self.Name}\tGame Unit: {self.GameUnit}{self.GameUnitIndex}\nValue: {self._values}\nPlayer: {self.PlayerID}\tSession: {self.SessionID}"
 
     def __repr__(self) -> str:
         return self.Name
@@ -37,11 +56,10 @@ class Feature(GameData):
         :return: _description_
         :rtype: List[str]
         """
-        return ["feature_type",  "count_index", "cols",    "vals",
-                "mode",          "app_id",      "user_id", "session_id",
-                "app_version",   "app_branch",  "log_version"]
+        return ["name",   "feature_type", "game_unit",  "game_unit_index", 
+                "app_id", "user_id",      "session_id", "subfeatures", "values"]
 
-    def ColumnValues(self) -> List[str | int | List[Any] | ExtractionMode | None]:
+    def ColumnValues(self) -> List[str | int | List[Any] | None]:
         """A list of all values for the row, in order they appear in the `ColumnNames` function.
 
         .. todo:: Technically, this should be string representations of each, but we're technically not enforcing that yet.
@@ -49,30 +67,39 @@ class Feature(GameData):
         :return: The list of values.
         :rtype: List[Union[str, datetime, timezone, Map, int, None]]
         """
-        return [self._feature_type,  self._count_index, self._cols,    self._vals,
-                self._mode,          self.app_id,      self.user_id, self.session_id,
-                self.app_version,   self.app_branch,  self.log_version]
+        return [self.Name,  self.FeatureType, self.GameUnit,  self.GameUnitIndex,
+                self.AppID, self.UserID,      self.SessionID, self.Subfeatures, self.Values]
 
     @property
-    def Name(self):
+    def Name(self) -> str:
         return self._name
 
     @property
-    def FeatureType(self):
+    def FeatureType(self) -> str:
         return self._feature_type
 
     @property
-    def CountIndex(self):
-        return self._count_index
+    def GameUnit(self) -> str:
+        return self._game_unit or "*"
 
     @property
-    def FeatureNames(self) -> List[str]:
-        return self._cols
+    def GameUnitIndex(self) -> str | int:
+        return self._game_unit_index or "*"
+    @property
+    def CountIndex(self) -> str | int:
+        return self.GameUnitIndex
 
     @property
-    def FeatureValues(self) -> List[Any]:
-        return self._vals
+    def Subfeatures(self) -> List[str]:
+        return self._subfeatures
 
     @property
-    def ExportMode(self):
-        return self._mode
+    def Values(self) -> List[Any]:
+        return self._values
+
+    @property
+    def ValueMap(self) -> Dict[str, Any]:
+        if len(self.Subfeatures) != len(self.Values):
+            raise ValueError(f"For {self.Name}, number of subfeatures (+1) did not match number of values!")
+        else:
+            return {self.Subfeatures[i] : self.Values[i] for i in range(len(self.Subfeatures))}

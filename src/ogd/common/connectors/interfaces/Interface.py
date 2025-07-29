@@ -184,7 +184,7 @@ class Interface(StorageConnector):
         if isinstance(_table_schema, EventTableSchema):
             for row in rows:
                 try:
-                    event = _table_schema.RowToEvent(row)
+                    event = _table_schema.EventFromRow(row)
                     # in case event index was not given, we should fall back on using the order it came to us.
                     if event.SessionID != _curr_sess:
                         _curr_sess = event.SessionID

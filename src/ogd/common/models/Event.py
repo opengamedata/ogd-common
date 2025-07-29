@@ -20,8 +20,8 @@ class Event(GameData):
     Then the extractors etc. can just access columns in a direct manner.
     """
     def __init__(self, app_id:str,          user_id:Optional[str],          session_id:str,
-                 timestamp:datetime,        time_offset:Optional[timezone], event_sequence_index:Optional[int],
                  app_version:Optional[str], app_branch:Optional[str],       log_version:Optional[str],     
+                 timestamp:datetime,        time_offset:Optional[timezone], event_sequence_index:Optional[int],
                  event_name:str,            event_source:"EventSource",     event_data:Map,
                  game_state:Optional[Map],  user_data:Optional[Map]):
         """Constructor for an Event struct
@@ -32,18 +32,18 @@ class Event(GameData):
         :type user_id: Optional[str]
         :param session_id: _description_
         :type session_id: str
-        :param timestamp: _description_
-        :type timestamp: datetime
-        :param time_offset: _description_
-        :type time_offset: Optional[timezone]
-        :param event_sequence_index: _description_
-        :type event_sequence_index: Optional[int]
         :param app_version: _description_
         :type app_version: Optional[str]
         :param app_branch: _description_
         :type app_branch: Optional[str]
         :param log_version: _description_
         :type log_version: Optional[str]
+        :param timestamp: _description_
+        :type timestamp: datetime
+        :param time_offset: _description_
+        :type time_offset: Optional[timezone]
+        :param event_sequence_index: _description_
+        :type event_sequence_index: Optional[int]
         :param event_name: _description_
         :type event_name: str
         :param event_source: _description_
@@ -56,32 +56,44 @@ class Event(GameData):
         :type user_data: Optional[Map]
         """
         # TODO: event source, e.g. from game or from detector
-        super().__init__(app_id=app_id,           user_id=user_id,       session_id=session_id,
-                         app_version=app_version, app_branch=app_branch, log_version=log_version)
+        super().__init__(app_id=app_id,           user_id=user_id,       session_id=session_id)
+        self.app_version          : str           = app_version if app_version is not None else "0"
+        self.app_branch           : str           = app_branch  if app_branch  is not None else "main"
+        self.log_version          : str           = log_version if log_version is not None else "0"
         self.timestamp            : datetime      = timestamp
         self.time_offset          : Optional[timezone] = time_offset
         self.event_sequence_index : Optional[int] = event_sequence_index
         self.event_name           : str           = event_name
         self.event_source         : EventSource   = event_source
-        self.event_data           : Map     = event_data
-        self.game_state           : Map     = game_state if game_state is not None else {}
-        self.user_data            : Map     = user_data if user_data is not None else {}
+        self.event_data           : Map           = event_data
+        self.game_state           : Map           = game_state if game_state is not None else {}
+        self.user_data            : Map           = user_data if user_data is not None else {}
+        self._hash                : Optional[int] = None
 
     def __str__(self):
-        return f"session_id   : {self.session_id}\n"\
-             + f"app_id       : {self.app_id}\n"\
-             + f"timestamp    : {self.timestamp}\n"\
-             + f"event_name   : {self.event_name}\n"\
-             + f"event_data   : {self.event_data}\n"\
-             + f"event_source : {self.event_source.name}\n"\
+        return f"app_id       : {self.app_id}\n"\
+             + f"user_id      : {self.user_id}\n"\
+             + f"session_id   : {self.session_id}\n"\
              + f"app_version  : {self.app_version}\n"\
              + f"app_branch   : {self.app_branch}\n"\
              + f"log_version  : {self.log_version}\n"\
+             + f"timestamp    : {self.timestamp}\n"\
              + f"offset       : {self.TimeOffsetString}\n"\
-             + f"user_id      : {self.user_id}\n"\
-             + f"user_data    : {self.user_data}\n"\
-             + f"game_state   : {self.game_state}\n"\
              + f"index        : {self.event_sequence_index}\n"\
+             + f"event_name   : {self.event_name}\n"\
+             + f"event_source : {self.event_source.name}\n"\
+             + f"event_data   : {self.event_data}\n"\
+             + f"game_state   : {self.game_state}\n"\
+             + f"user_data    : {self.user_data}\n"\
+
+    def __hash__(self):
+        _elems = [self.AppID, self.UserID, self.SessionID,
+                  self.AppVersion, self.AppBranch, self.LogVersion,
+                  self.Timestamp, self.TimeOffset, self.EventSequenceIndex,
+                  self.EventName, self.EventSource, self.EventData,
+                  self.GameState, self.UserData]
+        _str_elems = [str(elem) for elem in _elems]
+        return hash("".join(_str_elems))
 
     def FallbackDefaults(self, app_id:Optional[str]=None, index:Optional[int]=None):
         if self.app_id == None and app_id != None:
@@ -143,6 +155,46 @@ class Event(GameData):
                 self.event_data,  self.event_source.name,  self.app_version, self.app_branch,
                 self.log_version, self.TimeOffsetString,   self.user_id,     self.user_data,
                 self.game_state,  self.event_sequence_index]
+
+    @property
+    def Hash(self) -> int:
+        if not self._hash:
+            self._hash = hash(self)
+        return self._hash
+
+    @property
+    def AppVersion(self) -> str:
+        """The semantic versioning string for the game that generated this Event.
+
+        Some legacy games may use a single integer or a string similar to AppID in this column.
+
+        :return: The semantic versioning string for the game that generated this Event
+        :rtype: str
+        """
+        return self.app_version
+
+    @property
+    def AppBranch(self) -> str:
+        """The name of the branch of a game version that generated this Event.
+
+        The branch name is typically used for cases where multiple experimental versions of a game are deployed in parallel;
+        most events will simply have a branch of "main" or "master."
+
+        :return: The name of the branch of a game version that generated this Event
+        :rtype: str
+        """
+        return self.app_branch
+
+    @property
+    def LogVersion(self) -> str:
+        """The version of the logging schema implemented in the game that generated the Event
+
+        For most games, this is a single integer; however, semantic versioning is valid for this column as well.
+
+        :return: The version of the logging schema implemented in the game that generated the Event
+        :rtype: str
+        """
+        return self.log_version
 
     @property
     def Timestamp(self) -> datetime:
