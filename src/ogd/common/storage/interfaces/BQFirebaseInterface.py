@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from typing import Dict, Final, List, Tuple, Optional
 # import locals
-from ogd.common.connectors.interfaces.BigQueryInterface import BigQueryInterface
+from ogd.common.storage.interfaces.BigQueryInterface import BigQueryInterface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.utils.Logger import Logger

@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple, Optional
 # import locals
 from ogd.common.models.coding.Code import Code
 from ogd.common.models.coding.Coder import Coder
-from ogd.common.connectors.interfaces.CodingInterface import CodingInterface
+from ogd.common.storage.interfaces.CodingInterface import CodingInterface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.utils.Logger import Logger

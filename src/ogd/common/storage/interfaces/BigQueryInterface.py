@@ -6,7 +6,7 @@ from google.cloud import bigquery
 from google.api_core.exceptions import BadRequest
 from typing import Dict, Final, List, Tuple, Optional
 # import locals
-from ogd.common.connectors.interfaces.Interface import Interface
+from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig

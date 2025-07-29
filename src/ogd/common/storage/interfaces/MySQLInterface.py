@@ -8,7 +8,7 @@ from typing import Dict, Final, List, Tuple, Optional
 # import locals
 from ogd.common.filters import *
 from ogd.common.filters.collections import *
-from ogd.common.connectors.interfaces.Interface import Interface
+from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType

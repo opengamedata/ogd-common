@@ -6,7 +6,7 @@ from typing import Dict, List, Tuple, Optional
 # import local files
 from ogd.common.models.coding.Code import Code
 from ogd.common.models.coding.Coder import Coder
-from ogd.common.connectors.interfaces.Interface import Interface
+from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.utils.Logger import Logger
 

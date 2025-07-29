@@ -5,7 +5,7 @@ from pandas.io.parsers import TextFileReader
 from pathlib import Path
 from typing import Any, Dict, IO, List, Tuple, Optional
 ## import local files
-from ogd.common.connectors.interfaces.Interface import Interface
+from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.configs.TableConfig import TableConfig
