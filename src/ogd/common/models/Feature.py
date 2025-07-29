@@ -1,7 +1,6 @@
 from typing import Any, Dict, List, Optional
 
 from ogd.common.models.GameData import GameData
-from ogd.common.models.enums.ExtractionMode import ExtractionMode
 
 class Feature(GameData):
     """
