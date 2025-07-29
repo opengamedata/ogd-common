@@ -71,18 +71,6 @@ class EventTableSchema(TableSchema):
 
         super().__init__(name=name, column_map=column_map, columns=columns, other_elements=unparsed_elements)
 
-    @property
-    def ColumnMap(self) -> ColumnMapSchema:
-        """Mapping from Event element names to the indices of the database columns mapped to them.
-        There may be a single index, indicating a 1-to-1 mapping of a database column to the element;
-        There may be a list of indices, indicating multiple columns will be concatenated to form the element value;
-        There may be a further mapping of keys to indicies, indicating multiple columns will be joined into a JSON object, with keys mapped to values found at the columns with given indices.
-
-        :return: The dictionary mapping of element names to indices.
-        :rtype: Dict[str, Union[int, List[int], Dict[str, int], None]]
-        """
-        return self._column_map
-
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
     @property
     def AsMarkdown(self) -> str:
@@ -103,7 +91,7 @@ class EventTableSchema(TableSchema):
     @classmethod
     def Default(cls) -> "EventTableSchema":
         return EventTableSchema(
-            name="DefaultTableSchema",
+            name="DefaultEventTableSchema",
             column_map=EventMapSchema.Default(),
             columns=cls._DEFAULT_COLUMNS,
             other_elements={}
@@ -164,19 +152,19 @@ class EventTableSchema(TableSchema):
             raise TypeError(f"{self.Name} contains a mapping for Features, not Events!")
 
         # define vars to be passed as params
-        sess_id : str
-        app_id  : str
-        tstamp  : datetime
-        ename   : str
-        edata   : Map
-        app_ver : str
-        app_br  : str
-        log_ver : str
-        offset  : Optional[timezone]
-        user_id : Optional[str]
-        udata   : Optional[Map]
-        state   : Optional[Map]
-        event_index   : Optional[int]
+        app_id      : str
+        user_id     : Optional[str]
+        sess_id     : str
+        app_ver     : str
+        app_br      : str
+        log_ver     : str
+        tstamp      : datetime
+        offset      : Optional[timezone]
+        event_index : Optional[int]
+        ename       : str
+        edata       : Map
+        state       : Optional[Map]
+        udata       : Optional[Map]
 
         # 1. Get ID data
         idx = self._indexFromMapping(self.ColumnMap.AppIDColumn)
