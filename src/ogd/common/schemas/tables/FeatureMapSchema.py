@@ -17,10 +17,11 @@ class FeatureMapSchema(ColumnMapSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, feature_type:Optional[str],
-                 game_unit:Optional[ColumnMapElement],  game_unit_index:Optional[ColumnMapElement],
-                 app_id:Optional[ColumnMapElement],     user_id:Optional[ColumnMapElement],         session_id:Optional[ColumnMapElement],
-                 subfeatures:Optional[ColumnMapElement], values:Optional[ColumnMapElement],
+    def __init__(self, name:str,
+                 feature_name:Optional[ColumnMapElement], feature_type:Optional[ColumnMapElement],
+                 game_unit:Optional[ColumnMapElement],    game_unit_index:Optional[ColumnMapElement],
+                 app_id:Optional[ColumnMapElement],       user_id:Optional[ColumnMapElement],         session_id:Optional[ColumnMapElement],
+                 subfeatures:Optional[ColumnMapElement],  values:Optional[ColumnMapElement],
                  other_elements:Optional[Map]=None):
         """Constructor for the TableSchema class.
         
@@ -64,6 +65,7 @@ class FeatureMapSchema(ColumnMapSchema):
         """
         unparsed_elements : Map = other_elements or {}
 
+        self._feature_name    : ColumnMapElement = feature_name    or self._parseFeatureName(unparsed_elements=unparsed_elements)
         self._feature_type    : ColumnMapElement = feature_type    or self._parseFeatureType(unparsed_elements=unparsed_elements)
         self._game_unit       : ColumnMapElement = game_unit       or self._parseGameUnit(unparsed_elements=unparsed_elements)
         self._game_unit_index : ColumnMapElement = game_unit_index or self._parseGameUnitIndex(unparsed_elements=unparsed_elements)
@@ -99,6 +101,7 @@ class FeatureMapSchema(ColumnMapSchema):
     def Default(cls) -> "FeatureMapSchema":
         return FeatureMapSchema(
             name="DefaultEventTableSchema",
+            feature_name="feature_name",
             feature_type="feature_type",
             game_unit="game_unit",
             game_unit_index="game_unit_index",
@@ -147,7 +150,7 @@ class FeatureMapSchema(ColumnMapSchema):
         :return: _description_
         :rtype: EventMapSchema
         """
-        return FeatureMapSchema(name=name, feature_type=None, game_unit=None, game_unit_index=None,
+        return FeatureMapSchema(name=name, feature_name=None, feature_type=None, game_unit=None, game_unit_index=None,
                               app_id=None, user_id=None, session_id=None, subfeatures=None, values=None)
 
     # *** PUBLIC STATICS ***
@@ -155,6 +158,16 @@ class FeatureMapSchema(ColumnMapSchema):
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
+
+    @staticmethod
+    def _parseFeatureName(unparsed_elements:Map) -> Optional[ColumnMapElement]:
+        return ColumnMapSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["feature_name", "name", "feature"],
+            to_type=[str, list, dict],
+            default_value=None,
+            remove_target=False
+        )
 
     @staticmethod
     def _parseFeatureType(unparsed_elements:Map) -> Optional[ColumnMapElement]:
