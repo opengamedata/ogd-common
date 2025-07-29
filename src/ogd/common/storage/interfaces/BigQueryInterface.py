@@ -1,15 +1,18 @@
 import json
 import logging
-import os
 from datetime import datetime, date
 from google.cloud import bigquery
 from google.api_core.exceptions import BadRequest
 from typing import Dict, Final, List, Tuple, Optional
 # import locals
-from ogd.common.storage.interfaces.Interface import Interface
-from ogd.common.models.enums.IDMode import IDMode
+from ogd.common.filters.collections import *
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
+from ogd.common.models.enums.IDMode import IDMode
+from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
+from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
+from ogd.common.storage.interfaces.Interface import Interface
+from ogd.common.storage.connectors.BigQueryConnector import BigQueryConnector
 from ogd.common.utils.Logger import Logger
 
 AQUALAB_MIN_VERSION : Final[float] = 6.2
@@ -18,50 +21,56 @@ class BigQueryInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:GameStoreConfig, fail_fast:bool):
+    def __init__(self, store:BigQueryConnector, config:GameStoreConfig, fail_fast:bool):
         super().__init__(config=config, fail_fast=fail_fast)
-        self.Open()
+        self._store = store
+        self._store.Open()
+
+    @property
+    def FormattedSessionIDColumn(self) -> str:
+        ret_val : str = "session_id"
+
+        if self.Config.Table is not None:
+            col_elem = self.Config.Table.ColumnMap.SessionIDColumn
+            if isinstance(col_elem, str):
+                ret_val = col_elem
+            elif isinstance(col_elem, list):
+                _concat = ", '.', ".join([f"`{col}`" for col in col_elem])
+                ret_val = (f"concat({_concat}) as session_id")
+
+        return ret_val
+
+    @property
+    def FormattedUserIDColumn(self) -> str:
+        ret_val : str = "session_id"
+
+        if self.Config.Table is not None:
+            col_elem = self.Config.Table.ColumnMap.UserIDColumn
+            if isinstance(col_elem, str):
+                ret_val = col_elem
+            elif isinstance(col_elem, list):
+                _concat = ", '.', ".join([f"`{col}`" for col in col_elem])
+                ret_val = (f"concat({_concat}) as user_id")
+
+        return ret_val
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
-    def _open(self, force_reopen: bool = False) -> bool:
-        if force_reopen:
-            self.Close()
-            self.Open(force_reopen=False)
-        if not self._is_open:
-            if "GITHUB_ACTIONS" in os.environ:
-                self._client = bigquery.Client()
-            elif isinstance(self._config.Source, BigQueryConfig):
-                os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = self._config.Source.Credential or "NO CREDENTIAL CONFIGURED!" or f"./{self._game_id}.json"
-                self._client = bigquery.Client()
-            else:
-                raise ValueError("No BigQuery credential available in current configuration!")
-            if self._client != None:
-                self._is_open = True
-                Logger.Log("Connected to BigQuery database.", logging.DEBUG)
-                return True
-            else:
-                Logger.Log("Could not connect to BigQuery Database.", logging.WARN)
-                return False
-        else:
-            return True
+    @property
+    def Connector(self) -> BigQueryConnector:
+        return self._store
 
-    def _close(self) -> bool:
-        self._client.close()
-        self._is_open = False
-        Logger.Log("Closed connection to BigQuery.", logging.DEBUG)
-        return True
-
-    def _allIDs(self) -> List[str]:
+    def _availableIDs(self, mode:IDMode, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
         ret_val = []
 
+        _id_clause = self.FormattedSessionIDColumn if mode == IDMode.SESSION else self.FormattedUserIDColumn
         query = f"""
-            SELECT DISTINCT session_id
+            SELECT DISTINCT {_id_clause}
             FROM `{self.DBPath()}`,
         """
         Logger.Log(f"Running query for all ids:\n{query}", logging.DEBUG, depth=3)
         try:
-            data = self._client.query(query)
+            data = self.Connector.Client.query(query)
             session_ids = [str(row['session_id']) for row in data]
         except BadRequest as err:
             Logger.Log(f"In _allIDs, got a BadRequest error when trying to retrieve data from BigQuery, defaulting to empty result!\n{err}")
@@ -176,32 +185,21 @@ class BigQueryInterface(Interface):
 
     # *** PUBLIC METHODS ***
 
-    def IsOpen(self) -> bool:
-        """Overridden version of IsOpen function, checks that BigQueryInterface client has been initialized.
-
-        :return: True if the interface is open, else False
-        :rtype: bool
-        """
-        return True if (super().IsOpen() and self._client is not None) else False
-
-    def DBPath(self, min_date:Optional[date]=None, max_date:Optional[date]=None) -> str:
+    def DBPath(self, date_filter:TimingFilterCollection) -> str:
         """The path of form "[projectID].[datasetID].[tableName]" used to make queries
 
         :return: The full path from project ID to table name, if properly set in configuration, else the literal string "INVALID SOURCE SCHEMA".
         :rtype: str
         """
-        if isinstance(self._config.Source, BigQueryConfig):
-            # _current_date = datetime.now().date()
-            date_wildcard = "*"
-            # if min_date is not None and max_date is not None:
-            #     date_wildcard = BigQueryInterface._datesWildcard(a=min_date, b=max_date)
-            # elif min_date is not None:
-            #     date_wildcard = BigQueryInterface._datesWildcard(a=min_date, b=_current_date)
-            # elif max_date is not None:
-            #     date_wildcard = BigQueryInterface._datesWildcard(a=_current_date, b=max_date)
-            return f"{self._config.Source.AsConnectionInfo}.{self._config.DatabaseName}.{self._config.TableName}_{date_wildcard}"
-        else:
-            return "INVALID SOURCE SCHEMA"
+        # _current_date = datetime.now().date()
+        date_wildcard = "*"
+        # if min_date is not None and max_date is not None:
+        #     date_wildcard = BigQueryInterface._datesWildcard(a=min_date, b=max_date)
+        # elif min_date is not None:
+        #     date_wildcard = BigQueryInterface._datesWildcard(a=min_date, b=_current_date)
+        # elif max_date is not None:
+        #     date_wildcard = BigQueryInterface._datesWildcard(a=_current_date, b=max_date)
+        return f"{self._config.Source.AsConnectionInfo}.{self._config.DatabaseName}.{self._config.TableName}_{date_wildcard}"
 
     # *** PRIVATE STATICS ***
 

@@ -19,6 +19,10 @@ class BigQueryConnector(StorageConnector):
         self._client : Optional[bigquery.Client] = None
         super().__init__()
 
+    @property
+    def Client(self) -> Optional[bigquery.Client]:
+        return self._client
+
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
