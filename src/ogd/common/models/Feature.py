@@ -14,13 +14,13 @@ class Feature(GameData):
     def __init__(self, name:str, feature_type:str,
                  game_unit:Optional[str], game_unit_index:Optional[int],
                  app_id:str, user_id:Optional[str], session_id:str,
-                 columns:List[str], values:List[Any]):
+                 subfeatures:List[str], values:List[Any]):
         super().__init__(app_id=app_id, user_id=user_id, session_id=session_id)
         self._name = name
         self._feature_type = feature_type
         self._game_unit = game_unit
         self._game_unit_index = game_unit_index
-        self._columns = columns
+        self._subfeatures = subfeatures
         self._values  = values
 
     def __str__(self) -> str:
@@ -37,7 +37,7 @@ class Feature(GameData):
         :rtype: List[str]
         """
         return ["name",   "feature_type", "game_unit",  "game_unit_index", 
-                "app_id", "user_id",      "session_id", "columns", "values"]
+                "app_id", "user_id",      "session_id", "subfeatures", "values"]
 
     def ColumnValues(self) -> List[str | int | List[Any] | None]:
         """A list of all values for the row, in order they appear in the `ColumnNames` function.
@@ -48,7 +48,7 @@ class Feature(GameData):
         :rtype: List[Union[str, datetime, timezone, Map, int, None]]
         """
         return [self.Name,  self.FeatureType, self.GameUnit,  self.GameUnitIndex,
-                self.AppID, self.UserID,      self.SessionID, self.Columns, self.Values]
+                self.AppID, self.UserID,      self.SessionID, self.Subfeatures, self.Values]
 
     @property
     def Name(self) -> str:
@@ -70,8 +70,8 @@ class Feature(GameData):
         return self.GameUnitIndex
 
     @property
-    def Columns(self) -> List[str]:
-        return self._columns
+    def Subfeatures(self) -> List[str]:
+        return self._subfeatures
 
     @property
     def Values(self) -> List[Any]:
