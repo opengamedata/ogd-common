@@ -67,8 +67,9 @@ class Interface(abc.ABC):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, fail_fast:bool):
+    def __init__(self, config:GameStoreConfig, fail_fast:bool):
         self._fail_fast = fail_fast
+        self._config = config
         super().__init__()
 
 
