@@ -76,6 +76,10 @@ class FeatureMapSchema(ColumnMapSchema):
                          other_elements=unparsed_elements)
 
     @property
+    def FeatureNameColumn(self) -> ColumnMapElement:
+        return self._feature_name
+
+    @property
     def FeatureTypeColumn(self) -> ColumnMapElement:
         return self._feature_type
 
