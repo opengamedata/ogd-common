@@ -18,6 +18,11 @@ class StorageConnector(abc.ABC):
 
     # *** ABSTRACTS ***
 
+    @property
+    @abc.abstractmethod
+    def StoreConfig(self) -> DataStoreConfig:
+        pass
+
     @abc.abstractmethod
     def _open(self) -> bool:
         """Private implementation of the logic for opening a connection to a storage resource
@@ -34,11 +39,6 @@ class StorageConnector(abc.ABC):
         :return: True if the connection was closed successfully, otherwise False.
         :rtype: bool
         """
-        pass
-
-    @property
-    @abc.abstractmethod
-    def StoreConfig(self) -> DataStoreConfig:
         pass
 
     # *** BUILT-INS & PROPERTIES ***
