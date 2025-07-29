@@ -23,9 +23,9 @@ class TableSchema(Schema):
 
     # *** ABSTRACTS ***
 
+    @property
     @abc.abstractmethod
-    @staticmethod
-    def _parseColumnMap(unparsed_elements:Map) -> ColumnMapSchema:
+    def ColumnMap(self) -> ColumnMapSchema:
         pass
 
     # *** BUILT-INS & PROPERTIES ***
@@ -33,7 +33,6 @@ class TableSchema(Schema):
     _DEFAULT_COLUMNS = []
 
     def __init__(self, name,
-                 column_map:Optional[ColumnMapSchema],
                  columns:Optional[List[ColumnSchema]],
                  other_elements:Optional[Map]=None
         ):
@@ -77,7 +76,6 @@ class TableSchema(Schema):
 
         # declare and initialize vars
         # self._schema            : Optional[Dict[str, Any]] = all_elements
-        self._column_map    : ColumnMapSchema    = column_map or self._parseColumnMap(unparsed_elements=unparsed_elements)
         self._table_columns : List[ColumnSchema] = columns    or self._parseColumns(unparsed_elements=unparsed_elements)
 
         # after loading the file, take the stuff we need and store.
@@ -95,18 +93,6 @@ class TableSchema(Schema):
         :rtype: List[str]
         """
         return [col.Name for col in self._table_columns]
-
-    @property
-    def ColumnMap(self) -> ColumnMapSchema:
-        """Mapping from Event element names to the indices of the database columns mapped to them.
-        There may be a single index, indicating a 1-to-1 mapping of a database column to the element;
-        There may be a list of indices, indicating multiple columns will be concatenated to form the element value;
-        There may be a further mapping of keys to indicies, indicating multiple columns will be joined into a JSON object, with keys mapped to values found at the columns with given indices.
-
-        :return: The dictionary mapping of element names to indices.
-        :rtype: Dict[str, Union[int, List[int], Dict[str, int], None]]
-        """
-        return self._column_map
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
