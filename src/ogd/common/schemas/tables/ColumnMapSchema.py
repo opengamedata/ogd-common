@@ -14,7 +14,9 @@ class ColumnMapSchema(Schema):
     _DEFAULT_COLUMNS = []
 
     def __init__(self, name,
-                 app_id:Optional[ColumnMapElement],    user_id:Optional[ColumnMapElement],     session_id:Optional[ColumnMapElement],
+                 app_id:Optional[str | List[str]],
+                 user_id:Optional[str | List[str]],
+                 session_id:Optional[str | List[str]],
                  other_elements:Optional[Map]=None
         ):
         """Constructor for the TableSchema class.
