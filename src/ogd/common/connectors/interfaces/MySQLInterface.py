@@ -41,18 +41,18 @@ class SQL:
         tunnel  : Optional[sshtunnel.SSHTunnelForwarder] = None
         db_conn : Optional[connection.MySQLConnection]   = None
         # Logger.Log("Preparing database connection...", logging.INFO)
-        if schema.Source is not None and isinstance(schema.Source, MySQLConfig):
-            if schema.Source.HasSSH:
-                Logger.Log(f"Preparing to connect to MySQL via SSH, on host {schema.Source.SSH.Host}", level=logging.DEBUG)
-                if (schema.Source.SSH.Host != "" and schema.Source.SSH.User != "" and schema.Source.SSH.Pass != ""):
-                    tunnel,db_conn = SQL._connectToMySQLviaSSH(sql=schema.Source, db=schema.DatabaseName)
+        if schema.SourceConfig is not None and isinstance(schema.SourceConfig, MySQLConfig):
+            if schema.SourceConfig.HasSSH:
+                Logger.Log(f"Preparing to connect to MySQL via SSH, on host {schema.SourceConfig.SSH.Host}", level=logging.DEBUG)
+                if (schema.SourceConfig.SSH.Host != "" and schema.SourceConfig.SSH.User != "" and schema.SourceConfig.SSH.Pass != ""):
+                    tunnel,db_conn = SQL._connectToMySQLviaSSH(sql=schema.SourceConfig, db=schema.DatabaseName)
                 else:
-                    Logger.Log(f"SSH login had empty data, preparing to connect to MySQL directly instead, on host {schema.Source.DBHost}", level=logging.DEBUG)
-                    db_conn = SQL._connectToMySQL(login=schema.Source, db=schema.DatabaseName)
+                    Logger.Log(f"SSH login had empty data, preparing to connect to MySQL directly instead, on host {schema.SourceConfig.DBHost}", level=logging.DEBUG)
+                    db_conn = SQL._connectToMySQL(login=schema.SourceConfig, db=schema.DatabaseName)
                     tunnel = None
             else:
-                Logger.Log(f"Preparing to connect to MySQL directly, on host {schema.Source.DBHost}", level=logging.DEBUG)
-                db_conn = SQL._connectToMySQL(login=schema.Source, db=schema.DatabaseName)
+                Logger.Log(f"Preparing to connect to MySQL directly, on host {schema.SourceConfig.DBHost}", level=logging.DEBUG)
+                db_conn = SQL._connectToMySQL(login=schema.SourceConfig, db=schema.DatabaseName)
                 tunnel = None
             # Logger.Log("Done preparing database connection.", logging.INFO)
             ret_val = (tunnel, db_conn)

@@ -38,7 +38,7 @@ class StorageConnector(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def Config(self) -> DataStoreConfig:
+    def StoreConfig(self) -> DataStoreConfig:
         pass
 
     # *** BUILT-INS & PROPERTIES ***
@@ -60,7 +60,7 @@ class StorageConnector(abc.ABC):
 
     @property
     def ResourceName(self) -> str:
-        return self.Config.Location.Location
+        return self.StoreConfig.Location.Location
 
     # *** PUBLIC STATICS ***
 

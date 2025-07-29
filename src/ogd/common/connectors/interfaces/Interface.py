@@ -17,18 +17,21 @@ from ogd.common.models.FeatureDataset import FeatureDataset
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
-from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
-from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.utils.Logger import Logger
 
-class Interface(StorageConnector):
+class Interface(abc.ABC):
     """Base class for all connectors that serve as an interface to some IO resource.
 
     All subclasses must implement the `_availableIDs`, `_availableDates`, `_IDsFromDates`, and `_datesFromIDs` functions.
     """
 
     # *** ABSTRACTS ***
+
+    @property
+    @abc.abstractmethod
+    def Connector(self) -> StorageConnector:
+        pass
 
     @abc.abstractmethod
     def _availableIDs(self, mode:IDMode, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
@@ -64,12 +67,10 @@ class Interface(StorageConnector):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, schema:GameStoreConfig, fail_fast:bool):
+    def __init__(self, fail_fast:bool):
         self._fail_fast = fail_fast
-        super().__init__(config=schema)
+        super().__init__()
 
-    def __del__(self):
-        self.Close()
 
     # *** PUBLIC STATICS ***
 
@@ -84,14 +85,12 @@ class Interface(StorageConnector):
         :rtype: List[str]
         """
         ret_val = None
-        if self.IsOpen:
-            _date_clause = f" on date(s) {date_filter}"
-            _version_clause = f" with version(s) {version_filter}"
-            _msg = f"Retrieving IDs with {mode} ID mode{_date_clause}{_version_clause} from {self.ResourceName}."
+        if self.Connector.IsOpen:
+            _msg = f"Retrieving IDs with {mode} ID mode on date(s) {date_filter} with version(s) {version_filter} from {self.Connector.ResourceName}."
             Logger.Log(_msg, logging.INFO, depth=3)
             ret_val = self._availableIDs(mode=mode, date_filter=date_filter, version_filter=version_filter)
         else:
-            Logger.Log(f"Can't retrieve list of {mode} IDs from {self.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
+            Logger.Log(f"Can't retrieve list of {mode} IDs from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val
 
     def AvailableDates(self, id_filter:IDFilterCollection, version_filter:VersioningFilterCollection) -> Union[Dict[str,datetime], Dict[str,None]]:
@@ -106,13 +105,12 @@ class Interface(StorageConnector):
         :rtype: Union[Dict[str,datetime], Dict[str,None]]
         """
         ret_val = {'min':None, 'max':None}
-        if self.IsOpen:
-            _version_clause = f" with version(s) {version_filter}"
-            _msg = f"Retrieving range of event/feature dates{_version_clause} from {self.ResourceName}."
+        if self.Connector.IsOpen:
+            _msg = f"Retrieving range of event/feature dates with version(s) {version_filter} from {self.Connector.ResourceName}."
             Logger.Log(_msg, logging.INFO, depth=3)
             ret_val = self._availableDates(id_filter=id_filter, version_filter=version_filter)
         else:
-            Logger.Log(f"Could not get full date range from {self.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
+            Logger.Log(f"Could not get full date range from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val
 
 
@@ -129,45 +127,46 @@ class Interface(StorageConnector):
         :rtype: List[SemanticVersion | str]
         """
         ret_val = []
-        if self.IsOpen:
-            _date_clause = f" on date(s) {date_filter}"
-            _msg = f"Retrieving data versions{_date_clause} from {self.ResourceName}."
+        if self.Connector.IsOpen:
+            _msg = f"Retrieving data versions on date(s) {date_filter} from {self.Connector.ResourceName}."
             Logger.Log(_msg, logging.INFO, depth=3)
             ret_val = self._availableVersions(mode=mode, id_filter=id_filter, date_filter=date_filter)
         else:
-            Logger.Log(f"Could not retrieve data versions from {self.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
+            Logger.Log(f"Could not retrieve data versions from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val
 
     def GetEventCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection(), event_filter:EventFilterCollection=EventFilterCollection()) -> EventDataset:
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict | event_filter.AsDict
         _events = []
-        if self.IsOpen:
+
+        if self.Connector.IsOpen:
             if isinstance(self.GameStoreConfig.TableConfigName, EventTableSchema):
                 # _date_clause = f" on date(s) {date_filter}"
-                _msg = f"Retrieving event data from {self.ResourceName}."
+                _msg = f"Retrieving event data from {self.Connector.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
                 _rows = self._getEventRows(id_filter=id_filter, date_filter=date_filter, version_filter=version_filter, event_filter=event_filter)
                 _events = self._eventsFromRows(rows=_rows)
             else:
-                Logger.Log(f"Could not retrieve event data from {self.ResourceName}, the given table schema was not for event data!", logging.WARNING, depth=3)
+                Logger.Log(f"Could not retrieve event data from {self.Connector.ResourceName}, the given table schema was not for event data!", logging.WARNING, depth=3)
         else:
-            Logger.Log(f"Could not retrieve event data from {self.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
+            Logger.Log(f"Could not retrieve event data from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
+
         return EventDataset(events=_events, filters=_filters)
 
     def GetFeatureCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection()) -> FeatureDataset:
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict
         _features = []
-        if self.IsOpen:
+        if self.Connector.IsOpen:
             if isinstance(self.GameStoreConfig.TableConfigName, EventTableSchema):
                 # _date_clause = f" on date(s) {date_filter}"
-                _msg = f"Retrieving event data from {self.ResourceName}."
+                _msg = f"Retrieving event data from {self.Connector.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
                 _rows = self._getFeatureRows(id_filter=id_filter, date_filter=date_filter, version_filter=version_filter)
                 _features = self._featuresFromRows(rows=_rows)
             else:
-                Logger.Log(f"Could not retrieve event data from {self.ResourceName}, the given table schema was not for event data!", logging.WARNING, depth=3)
+                Logger.Log(f"Could not retrieve event data from {self.Connector.ResourceName}, the given table schema was not for event data!", logging.WARNING, depth=3)
         else:
-            Logger.Log(f"Could not retrieve feature data from {self.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
+            Logger.Log(f"Could not retrieve feature data from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return FeatureDataset(features=_features, filters=_filters)
 
     # *** PRIVATE STATICS ***
