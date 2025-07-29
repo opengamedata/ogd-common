@@ -15,7 +15,10 @@ class BigQueryConfig(DataStoreConfig):
         table_name=None,
         other_elements=None
     )
-    _DEFAULT_CREDENTIAL = KeyCredential.Default()
+    _DEFAULT_CREDENTIAL = KeyCredential(
+        name="DefaultBQKeyCredential",
+        location=FileLocationSchema(name="DefaultBQKeyFile", folder_path=Path("./config/"), filename="ogd.json"),
+    )
 
     # *** BUILT-INS & PROPERTIES ***
 
