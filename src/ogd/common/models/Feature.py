@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from ogd.common.models.GameData import GameData
 from ogd.common.models.enums.ExtractionMode import ExtractionMode
@@ -76,3 +76,10 @@ class Feature(GameData):
     @property
     def Values(self) -> List[Any]:
         return self._values
+
+    @property
+    def ValueMap(self) -> Dict[str, Any]:
+        if len(self.Subfeatures) != len(self.Values):
+            raise ValueError(f"For {self.Name}, number of subfeatures (+1) did not match number of values!")
+        else:
+            return {self.Subfeatures[i] : self.Values[i] for i in range(len(self.Subfeatures))}
