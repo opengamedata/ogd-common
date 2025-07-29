@@ -1,16 +1,13 @@
 ## import standard libraries
+import abc
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Optional, Self
+from typing import Any, List, Tuple, Optional
 ## import local files
 from ogd.common import schemas
-from ogd.common.models.Event import Event
-from ogd.common.models.Feature import Feature
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
-from ogd.common.schemas.tables.EventMapSchema import EventMapSchema
-from ogd.common.schemas.tables.FeatureMapSchema import FeatureMapSchema
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapIndex, ColumnMapElement
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
@@ -22,6 +19,13 @@ class TableSchema(Schema):
         and a mapping of those columns to the corresponding elements of a formal OGD structure.
     """
 
+    # *** ABSTRACTS ***
+
+    @abc.abstractmethod
+    @staticmethod
+    def _parseColumnMap(unparsed_elements:Map) -> ColumnMapSchema:
+        pass
+
     # *** BUILT-INS & PROPERTIES ***
 
     _DEFAULT_COLUMNS = []
@@ -32,9 +36,6 @@ class TableSchema(Schema):
                  other_elements:Optional[Map]=None
         ):
         """Constructor for the TableSchema class.
-        Given a database connection and a game data request,
-        this retrieves a bit of information from the database to fill in the
-        class variables.
         
         If optional params are not given, data is searched for in `other_elements`.
 
@@ -106,56 +107,6 @@ class TableSchema(Schema):
         return self._column_map
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
-    @property
-    def AsMarkdown(self) -> str:
-        ret_val : str
-
-        _columns_markdown = "\n".join([item.AsMarkdown for item in self.Columns])
-        ret_val = "\n\n".join([
-            "## Database Columns",
-            "The individual columns recorded in the database for this game.",
-            _columns_markdown,
-            f"## Event Object Elements",
-            "The elements (member variables) of each Event object, available to programmers when writing feature extractors. The right-hand side shows which database column(s) are mapped to a given element.",
-            self.ColumnMap.AsMarkdown,
-            ""]
-        )
-        return ret_val
-
-    @classmethod
-    def Default(cls) -> "TableSchema":
-        return TableSchema(
-            name="DefaultTableSchema",
-            column_map=ColumnMapSchema.Default(),
-            columns=cls._DEFAULT_COLUMNS,
-            other_elements={}
-        )
-
-    @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "TableSchema":
-        """Function to generate a TableSchema from a dictionary.
-
-        The structure is assumed to be as follows:
-        ```python
-        {
-            "table_type" : <either EVENT or FEATURE>,
-            "columns" : [<list of column schemas>],
-            "column_map" : {<mapping of column names to indices>}
-        }
-        ```
-
-        The specific handling of the column map will be determined by the specific TableSchema subclass on which the FromDict feature is called.
-
-        :param name: The name of the returned TableSchema object
-        :type name: str
-        :param all_elements: A dictionary containing all elements to be parsed into the TableSchema object
-        :type all_elements: Dict[str, Any]
-        :param logger: An optional logger for outputting errors/warnings, defaults to None
-        :type logger: Optional[logging.Logger], optional
-        :return: An instance of the TableSchema subclass on which the function is called
-        :rtype: TableSchema
-        """
-        return TableSchema(name=name, column_map=None, columns=None, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 
@@ -171,12 +122,6 @@ class TableSchema(Schema):
             raise ValueError("TableSchema's call to _fromFile yielded a Schema of different type!")
 
     # *** PUBLIC METHODS ***
-
-    def EventFromRow(self, row:Tuple) -> Event:
-        idx = self._indexFromMapping(self.ColumnMap.AppIDColumn)
-        _app_id = self._valueFromRow(row=row, indices=idx, concatenator=".", fallback=None)
-
-        return Event()
 
     # *** PRIVATE STATICS ***
 
@@ -260,23 +205,5 @@ class TableSchema(Schema):
             ret_val = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), unparsed_elements=column) for column in _column_json_list]
         else:
             ret_val = TableSchema._DEFAULT_COLUMNS
-
-        return ret_val
-
-    @staticmethod
-    def _parseColumnMap(unparsed_elements:Map) -> ColumnMapSchema:
-        ret_val : ColumnMapSchema
-
-        raw_map = TableSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["column_map"],
-            to_type=dict,
-            default_value=None,
-            remove_target=True
-        )
-        if raw_map:
-            ret_val = ColumnMapSchema.FromDict(name="ColumnMap", unparsed_elements=raw_map)
-        else:
-            ret_val = ColumnMapSchema.Default()
 
         return ret_val
