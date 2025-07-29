@@ -45,9 +45,9 @@ class ColumnMapSchema(Schema):
         # declare and initialize vars
         self._raw_map : Map = other_elements or {}
 
-        self._app_id     : Optional[str] = app_id      or self._parseAppID(unparsed_elements=self._raw_map)
-        self._user_id    : Optional[str] = user_id     or self._parseUserID(unparsed_elements=self._raw_map)
-        self._session_id : Optional[str] = session_id  or self._parseSessionID(unparsed_elements=self._raw_map)
+        self._app_id     : Optional[str | List[str]] = app_id     or self._parseAppID(unparsed_elements=self._raw_map)
+        self._user_id    : Optional[str | List[str]] = user_id    or self._parseUserID(unparsed_elements=self._raw_map)
+        self._session_id : Optional[str | List[str]] = session_id or self._parseSessionID(unparsed_elements=self._raw_map)
 
         # after loading the file, take the stuff we need and store.
         super().__init__(name=name, other_elements=other_elements)
@@ -65,15 +65,15 @@ class ColumnMapSchema(Schema):
         return self._raw_map
 
     @property
-    def AppIDColumn(self) -> Optional[str]:
+    def AppIDColumn(self) -> Optional[str | List[str]]:
         return self._app_id
 
     @property
-    def UserIDColumn(self) -> Optional[str]:
+    def UserIDColumn(self) -> Optional[str | List[str]]:
         return self._user_id
 
     @property
-    def SessionIDColumn(self) -> Optional[str]:
+    def SessionIDColumn(self) -> Optional[str | List[str]]:
         return self._session_id
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -106,31 +106,31 @@ class ColumnMapSchema(Schema):
     # *** PRIVATE STATICS ***
     
     @staticmethod
-    def _parseAppID(unparsed_elements:Map) -> Optional[str]:
+    def _parseAppID(unparsed_elements:Map) -> Optional[str | List[str]]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["app_id", "game_id"],
-            to_type=[str],
+            to_type=[str, list],
             default_value=None,
             remove_target=False
         )
 
     @staticmethod
-    def _parseUserID(unparsed_elements:Map) -> Optional[str]:
+    def _parseUserID(unparsed_elements:Map) -> Optional[str | List[str]]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["user_id", "player_id"],
-            to_type=[str],
+            to_type=[str, list],
             default_value=None,
             remove_target=False
         )
 
     @staticmethod
-    def _parseSessionID(unparsed_elements:Map) -> Optional[str]:
+    def _parseSessionID(unparsed_elements:Map) -> Optional[str | List[str]]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["session_id"],
-            to_type=[str],
+            to_type=[str, list],
             default_value=None,
             remove_target=False
         )
