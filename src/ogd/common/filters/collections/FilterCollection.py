@@ -2,7 +2,7 @@
 import abc
 from typing import Dict
 # import local files
-from ogd.common.connectors.filters.Filter import Filter
+from ogd.common.filters.Filter import Filter
 
 class FilterCollection:
     @abc.abstractmethod

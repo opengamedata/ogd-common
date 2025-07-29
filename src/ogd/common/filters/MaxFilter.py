@@ -1,5 +1,5 @@
 from typing import Any
-from ogd.common.connectors.filters.Filter import Filter
+from ogd.common.filters.Filter import Filter
 from ogd.common.models.enums.FilterMode import FilterMode
 
 class MaxFilter(Filter):

@@ -8,7 +8,7 @@ from pprint import pformat
 from typing import Dict, List, Optional, Tuple, Union
 
 # import local files
-from ogd.common.connectors.filters.collections import *
+from ogd.common.filters.collections import *
 from ogd.common.connectors.StorageConnector import StorageConnector
 from ogd.common.models.Event import Event
 from ogd.common.models.EventDataset import EventDataset

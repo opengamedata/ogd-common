@@ -1,8 +1,8 @@
 ## import standard libraries
 from typing import Dict, List, Optional, Set
 # import local files
-from ogd.common.connectors.filters import *
-from ogd.common.connectors.filters.collections.FilterCollection import FilterCollection
+from ogd.common.filters import *
+from ogd.common.filters.collections.FilterCollection import FilterCollection
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.models.enums.FilterMode import FilterMode
 

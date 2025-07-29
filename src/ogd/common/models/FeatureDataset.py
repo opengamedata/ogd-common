@@ -1,8 +1,8 @@
 ## import standard libraries
 from typing import Dict, List
 # import local files
-from ogd.common.connectors.filters.collections import *
-from ogd.common.connectors.filters.Filter import Filter
+from ogd.common.filters.collections import *
+from ogd.common.filters.Filter import Filter
 from ogd.common.models.Feature import Feature
 
 class FeatureDataset:
