@@ -11,7 +11,7 @@ from ogd.common.utils.typing import Map
 class GameData(abc.ABC):
     """
     Completely dumb struct that enforces a particular structure for the data we get from a source.
-    This acts as a common starting point for the `Event` and `FeatureData` classes, defining the common elements between the two.
+    This acts as a common starting point for the `Event` and `Feature` classes, defining the common elements between the two.
 
     TODO : Consider whether to inherit from Schema. Would at least be good to have FromDict as a required function
     """
@@ -33,8 +33,7 @@ class GameData(abc.ABC):
         """
         pass
 
-    def __init__(self, app_id:str,          user_id:Optional[str],          session_id:str,
-                 app_version:Optional[str], app_branch:Optional[str],       log_version:Optional[str]):
+    def __init__(self, app_id:str, user_id:Optional[str], session_id:Optional[str]):
         """Constructor for a GameData struct.
 
         :param app_id: _description_
@@ -53,10 +52,7 @@ class GameData(abc.ABC):
         # TODO: event source, e.g. from game or from detector
         self.app_id               : str           = app_id
         self.user_id              : Optional[str] = user_id
-        self.session_id           : str           = session_id
-        self.app_version          : str           = app_version if app_version is not None else "0"
-        self.app_branch           : str           = app_branch  if app_branch  is not None else "main"
-        self.log_version          : str           = log_version if log_version is not None else "0"
+        self.session_id           : Optional[str] = session_id
 
     @staticmethod
     def CompareVersions(a:str, b:str, version_separator='.') -> int:
@@ -117,10 +113,10 @@ class GameData(abc.ABC):
         :return: The Session ID of the session that generated the Event
         :rtype: str
         """
-        return self.session_id
+        return self.session_id or "*"
 
     @property
-    def PlayerID(self) -> Optional[str]:
+    def PlayerID(self) -> str:
         """Syntactic sugar for the UserID property:
         
         A persistent ID for a given user, identifying the individual across multiple gameplay sessions
@@ -129,7 +125,7 @@ class GameData(abc.ABC):
         :return: A persistent ID for a given user, identifying the individual across multiple gameplay sessions
         :rtype: Optional[str]
         """
-        return self.user_id
+        return self.user_id or "*"
 
     @property
     def UserID(self) -> Optional[str]:
@@ -141,37 +137,3 @@ class GameData(abc.ABC):
         :rtype: Optional[str]
         """
         return self.user_id
-
-    @property
-    def AppVersion(self) -> str:
-        """The semantic versioning string for the game that generated this Event.
-
-        Some legacy games may use a single integer or a string similar to AppID in this column.
-
-        :return: The semantic versioning string for the game that generated this Event
-        :rtype: str
-        """
-        return self.app_version
-
-    @property
-    def AppBranch(self) -> str:
-        """The name of the branch of a game version that generated this Event.
-
-        The branch name is typically used for cases where multiple experimental versions of a game are deployed in parallel;
-        most events will simply have a branch of "main" or "master."
-
-        :return: The name of the branch of a game version that generated this Event
-        :rtype: str
-        """
-        return self.app_branch
-
-    @property
-    def LogVersion(self) -> str:
-        """The version of the logging schema implemented in the game that generated the Event
-
-        For most games, this is a single integer; however, semantic versioning is valid for this column as well.
-
-        :return: The version of the logging schema implemented in the game that generated the Event
-        :rtype: str
-        """
-        return self.log_version
