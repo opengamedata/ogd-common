@@ -143,7 +143,7 @@ class Interface(abc.ABC):
 
     def GetEventCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection(), event_filter:EventFilterCollection=EventFilterCollection()) -> EventDataset:
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict | event_filter.AsDict
-        _events = []
+        _events : List[Event] = []
 
         if self.Connector.IsOpen:
             if isinstance(self.Config.Table, EventTableSchema):
@@ -173,7 +173,7 @@ class Interface(abc.ABC):
 
     def GetFeatureCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection()) -> FeatureDataset:
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict
-        _features = []
+        _features : List[Feature] = []
 
         if self.Connector.IsOpen:
             if isinstance(self.Config.Table, FeatureTableSchema):
