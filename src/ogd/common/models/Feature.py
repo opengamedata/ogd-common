@@ -14,6 +14,27 @@ class Feature(GameData):
                  game_unit:Optional[str], game_unit_index:Optional[int],
                  app_id:str, user_id:Optional[str], session_id:str,
                  subfeatures:List[str], values:List[Any]):
+        """_summary_
+
+        :param name: _description_
+        :type name: str
+        :param feature_type: _description_
+        :type feature_type: str
+        :param game_unit: _description_
+        :type game_unit: Optional[str]
+        :param game_unit_index: _description_
+        :type game_unit_index: Optional[int]
+        :param app_id: _description_
+        :type app_id: str
+        :param user_id: _description_
+        :type user_id: Optional[str]
+        :param session_id: _description_
+        :type session_id: str
+        :param subfeatures: _description_
+        :type subfeatures: List[str]
+        :param values: _description_
+        :type values: List[Any]
+        """
         super().__init__(app_id=app_id, user_id=user_id, session_id=session_id)
         self._name = name
         self._feature_type = feature_type
