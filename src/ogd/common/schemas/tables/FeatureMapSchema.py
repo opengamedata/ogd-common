@@ -3,8 +3,7 @@
 from typing import Dict, Optional, Self
 
 # import local files
-from ogd.common.schemas.tables.TableSchema import ColumnMapElement, ColumnMapElement
-from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema
+from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapElement
 from ogd.common.utils.typing import Map
 
 ## @class TableSchema

@@ -3,14 +3,16 @@ import abc
 import json
 import logging
 from pathlib import Path
-from typing import Any, List, Tuple, Optional
+from typing import Any, Dict, List, Optional, Tuple, TypeAlias
 ## import local files
 from ogd.common import schemas
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
-from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapIndex, ColumnMapElement
+from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapElement
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
+
+ColumnMapIndex   : TypeAlias = Optional[int | List[int] | Dict[str,int]]
 
 ## @class TableSchema
 class TableSchema(Schema):

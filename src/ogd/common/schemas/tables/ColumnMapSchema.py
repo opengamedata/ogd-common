@@ -1,13 +1,9 @@
 ## import standard libraries
-import abc
-import logging
-from typing import Dict, List, Optional, Self, TypeAlias
+from typing import Dict, List, Optional, TypeAlias
 ## import local files
 from ogd.common.schemas.Schema import Schema
-from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.utils.typing import Map
 
-ColumnMapIndex   : TypeAlias = Optional[int | List[int] | Dict[str,int]]
 ColumnMapElement : TypeAlias = Optional[str | List[str] | Dict[str,str]]
 
 ## @class TableSchema
