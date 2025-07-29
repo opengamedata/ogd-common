@@ -98,10 +98,10 @@ class GameStoreConfig(Schema):
         return self._source_name
 
     @property
-    def SourceConfig(self) -> Optional[DataStoreConfig]:
+    def StoreConfig(self) -> Optional[DataStoreConfig]:
         return self._config
-    @SourceConfig.setter
-    def SourceConfig(self, source:DataStoreConfig):
+    @StoreConfig.setter
+    def StoreConfig(self, source:DataStoreConfig):
         self._config = source
 
     @property
@@ -109,14 +109,14 @@ class GameStoreConfig(Schema):
         return self._schema_name
 
     @property
-    def Schema(self) -> Optional[TableSchema]:
+    def Table(self) -> Optional[TableSchema]:
         return self._schema
-    @Schema.setter
-    def Schema(self, schema:TableSchema):
+    @Table.setter
+    def Table(self, schema:TableSchema):
         self._schema = schema
 
     @property
-    def Location(self) -> DatabaseLocationSchema:
+    def TableLocation(self) -> DatabaseLocationSchema:
         return self._table_location
 
     @property
@@ -133,7 +133,7 @@ class GameStoreConfig(Schema):
     def AsMarkdown(self) -> str:
         ret_val : str
 
-        ret_val = f"{self.Name}: _{self.SchemaName}_ format, source {self.SourceName} : {self.Location.Location}"
+        ret_val = f"{self.Name}: _{self.SchemaName}_ format, source {self.SourceName} : {self.TableLocation.Location}"
         return ret_val
 
     @classmethod
