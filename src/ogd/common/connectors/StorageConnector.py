@@ -6,7 +6,7 @@ import abc
 import logging
 
 # import local files
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.utils.Logger import Logger
 
 class StorageConnector(abc.ABC):
@@ -36,6 +36,11 @@ class StorageConnector(abc.ABC):
         """
         pass
 
+    @property
+    @abc.abstractmethod
+    def Config(self) -> DataStoreConfig:
+        pass
+
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self):
@@ -55,7 +60,7 @@ class StorageConnector(abc.ABC):
 
     @property
     def ResourceName(self) -> str:
-        return self.Name
+        return self.Config.Location.Location
 
     # *** PUBLIC STATICS ***
 
