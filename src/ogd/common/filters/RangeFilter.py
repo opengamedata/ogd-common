@@ -1,14 +1,14 @@
 ## import standard libraries
 import logging
-from typing import Optional, Set
+from typing import Generic, Optional, Set, TypeVar
 # import local files
 from ogd.common.filters.Filter import Filter
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import ComparableType
 
-class RangeFilter(Filter[ComparableType]):
-    def __init__(self, mode:FilterMode, minimum:Optional[ComparableType], maximum:Optional[ComparableType]):
+T = TypeVar("T")
+class RangeFilter(Filter[T]):
+    def __init__(self, mode:FilterMode, minimum:Optional[T], maximum:Optional[T]):
         super().__init__(mode=mode)
         if minimum and maximum and minimum > maximum:
             Logger.Log(f"When creating MinMaxFilter, got a minimum ({minimum}) larger than maximum ({maximum})!", level=logging.WARNING)
@@ -40,15 +40,15 @@ class RangeFilter(Filter[ComparableType]):
         return f"<class {type(self).__name__} {self.FilterMode}:{self.Min}-{self.Max}>"
 
     @property
-    def AsSet(self) -> Set[ComparableType]:
+    def AsSet(self) -> Set[T]:
         return set()
 
     @property
-    def Min(self) -> Optional[ComparableType]:
+    def Min(self) -> Optional[T]:
         return self._min
 
     @property
-    def Max(self) -> Optional[ComparableType]:
+    def Max(self) -> Optional[T]:
         return self._max
 
     @property

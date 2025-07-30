@@ -1,8 +1,9 @@
 ## import standard libraries
-from typing import Dict, List, Optional, Set
+from typing import List, Optional, Set
 # import local files
 from ogd.common.filters import *
 from ogd.common.models.enums.FilterMode import FilterMode
+from ogd.common.utils.typing import Pair
 
 class EventFilterCollection:
     """Dumb struct to hold filters for versioning information
@@ -66,55 +67,21 @@ class EventFilterCollection:
             self._event_names = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(allowed_events))
 
     @property
-    def EventCodeFilter(self) -> Optional[SetFilter]:
+    def EventCodeFilter(self) -> Optional[SetFilter | RangeFilter]:
         return self._event_codes
     @EventCodeFilter.setter
-    def EventCodeFilter(self, allowed_events:Optional[SetFilter | List[int] | Set[int] | slice]):
+    def EventCodeFilter(self, allowed_events:Optional[SetFilter | List[int] | Set[int] | slice | Pair[int, int]]):
         if allowed_events is None:
             self._event_codes = None
         elif isinstance(allowed_events, SetFilter):
             self._event_codes = allowed_events
         elif isinstance(allowed_events, list) or isinstance(allowed_events, set):
             self._event_codes = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(allowed_events))
-
-    @staticmethod
-    def MakeEventCodeFilter(minimum:Optional[int]=None, maximum:Optional[int]=None, exact_codes:Optional[List[int] | Set[int]]=None) -> Filter:
-        """Convenience function to set up an event code filter for use with EventFilterCollection.
-
-        This simply adds some type hinting and logic for picking the appropriate type of filter subclass.
-        It will choose the most specific type, as follows:
-        1. If `exact_codes` is set, use it to create a `SetFilter`, *even if empty*, ignoring `minimum` and `maximum`.
-        2. If `minimum` and `maximum` are both set, use them to create a `MinMaxFilter`.
-        3. If only one of `minimum` and `maximum` is set, use it to create a `MinFilter` or `MaxFilter`, respectively.
-        4. If none of the inputs are set, create a `NoFilter`.
-
-        :param minimum: _description_, defaults to None
-        :type minimum: Optional[int], optional
-        :param maximum: _description_, defaults to None
-        :type maximum: Optional[int], optional
-        :param exact_codes: _description_, defaults to None
-        :type exact_codes: Optional[List[int]  |  Set[int]], optional
-        :return: _description_
-        :rtype: Filter
-        """
-        # Only check if exact_codes is not None. If it's empty, we'll assume filter wants to remove all events.
-        if exact_codes is not None:
-                return SetFilter(mode=FilterMode.INCLUDE, set_elements=exact_codes)
-        elif minimum is not None and maximum is not None:
-            return MinMaxFilter(mode=FilterMode.INCLUDE, minimum=minimum, maximum=maximum)
-        elif minimum is not None:
-            return MinFilter(mode=FilterMode.INCLUDE, minimum=minimum)
-        elif maximum is not None:
-            return MaxFilter(mode=FilterMode.INCLUDE, maximum=maximum)
-        else:
-            return NoFilter()
+        elif isinstance(allowed_events, slice):
+            self._event_codes = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, slice=allowed_events)
+        elif isinstance(allowed_events, tuple):
+            self._event_codes = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_events[0], maximum=allowed_events[1])
 
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***
-
-    def _asDict(self) -> Dict[str, Filter]:
-        return {
-            "event_name": self.EventNameFilter,
-            "event_code": self.EventCodeFilter
-        }

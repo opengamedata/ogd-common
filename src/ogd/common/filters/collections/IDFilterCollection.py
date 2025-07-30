@@ -4,8 +4,6 @@ from typing import Dict, List, Optional, Set
 from ogd.common.filters import *
 from ogd.common.models.enums.FilterMode import FilterMode
 
-type IDFilter = SetFilter | NoFilter
-
 class IDFilterCollection:
     """Dumb struct to hold filters for versioning information
     """
