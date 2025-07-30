@@ -1,19 +1,31 @@
 import json
 import logging
-from datetime import datetime, date
+from dataclasses import dataclass
+from datetime import datetime, timezone
 from google.cloud import bigquery
 from google.api_core.exceptions import BadRequest
-from typing import Dict, Final, List, Tuple, Optional
+from itertools import chain
+from typing import Dict, Final, List, LiteralString, Optional, Tuple
 # import locals
+from ogd.common.filters import *
 from ogd.common.filters.collections import *
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
+from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.models.enums.IDMode import IDMode
+from ogd.common.models.enums.FilterMode import FilterMode
+from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.storage.connectors.BigQueryConnector import BigQueryConnector
 from ogd.common.utils.Logger import Logger
 
 AQUALAB_MIN_VERSION : Final[float] = 6.2
+
+type BigQueryParameter = bigquery.ScalarQueryParameter | bigquery.ArrayQueryParameter | bigquery.RangeQueryParameter
+@dataclass
+class ParamaterizedClause:
+    clause: LiteralString
+    params: List[BigQueryParameter]
 
 class BigQueryInterface(Interface):
 
@@ -54,22 +66,25 @@ class BigQueryInterface(Interface):
         ret_val = []
 
         if self.Connector.Client:
-            id_col = "session_id" if mode==IDMode.SESSION else "user_id"
-            suffix = self._generateSuffixClause(date_filter=date_filter)
-            where_clause = f"WHERE {suffix}" if suffix else ""
+            # 1. Create query & config
+            id_col : LiteralString       = "session_id" if mode==IDMode.SESSION else "user_id"
+            suffix : ParamaterizedClause = self._generateSuffixClause(date_filter=date_filter)
             query = f"""
                 SELECT DISTINCT {id_col}
                 FROM `{self.DBPath}`
-                {where_clause}
+                {suffix.clause}
             """
-            Logger.Log(f"Running query for all ids:\n{query}", logging.DEBUG, depth=3)
+            cfg = bigquery.QueryJobConfig(query_parameters=suffix.params)
+
+            # 2. Actually run the thing
+            Logger.Log(f"Running query for all {mode} ids:\n{query}", logging.DEBUG, depth=3)
             try:
-                data = self.Connector.Client.query(query)
+                data = self.Connector.Client.query(query, cfg)
             except BadRequest as err:
                 Logger.Log(f"In _availableIDs, got a BadRequest error when trying to retrieve data from BigQuery, defaulting to empty result!\n{err}")
             else:
                 ret_val = [str(row[id_col]) for row in data]
-                Logger.Log(f"Found {len(ret_val)} ids. {ret_val if len(ret_val) <= 5 else ''}", logging.DEBUG, depth=3)
+                Logger.Log(f"Found {len(ret_val)} {mode} ids. {ret_val if len(ret_val) <= 5 else ''}", logging.DEBUG, depth=3)
         else:
             Logger.Log(f"Can't retrieve list of {mode} IDs from {self.Connector.ResourceName}, the storage connection client is null!", logging.WARNING, depth=3)
         return ret_val
@@ -78,26 +93,19 @@ class BigQueryInterface(Interface):
         ret_val : Dict[str, datetime] = {}
 
         if self.Connector.Client:
-            sess_clause = None
-            users_clause = None
-            if id_filter.SessionFilter:
-                sess_string = ','.join([f"'{x}'" for x in id_filter.SessionFilter.AsSet])
-                sess_clause = f"session_id IN ({sess_string})"
-            if id_filter.PlayerFilter:
-                users_string = ','.join([f"'{x}'" for x in id_filter.PlayerFilter.AsSet])
-                users_clause = f"session_id IN ({users_string})"
-            clause_collection = [clause for clause in [sess_clause, users_clause] if clause is not None]
-            where_clause = f"WHERE {' AND '.join(clause_collection)}" if len(clause_collection) > 0 else ""
-
+            # 1. Create query & config
+            where_clause = self._generateWhereClause(id_filter=id_filter, date_filter=TimingFilterCollection(None, None), version_filter=version_filter, event_filter=EventFilterCollection(None, None))
             query = f"""
                 SELECT MIN(server_time), MAX(server_time)
                 FROM `{self.DBPath}`
-                {where_clause}
+                {where_clause.clause}
             """
-            Logger.Log(f"Running query for full date range:\n{query}", logging.DEBUG, depth=3)
+            cfg = bigquery.QueryJobConfig(query_parameters=where_clause.params)
 
+            # 2. Actually run the thing
+            Logger.Log(f"Running query for full date range:\n{query}", logging.DEBUG, depth=3)
             try:
-                data = list(self.Connector.Client.query(query))
+                data = list(self.Connector.Client.query(query, job_config=cfg))
                 Logger.Log(f"...Query yielded results:\n{data}", logging.DEBUG, depth=3)
             except BadRequest as err:
                 Logger.Log(f"In _availableDates, got a BadRequest error when trying to retrieve data from BigQuery, defaulting to empty result!\n{err}")
@@ -118,18 +126,59 @@ class BigQueryInterface(Interface):
             Logger.Log(f"Can't retrieve available dates from {self.Connector.ResourceName}, the storage connection client is null!", logging.WARNING, depth=3)
         return ret_val
 
-    def _rowsFromIDs(self, id_list:List[str], id_mode:IDMode=IDMode.SESSION, versions:Optional[List[int]] = None, exclude_rows:Optional[List[str]]=None) -> List[Tuple]:
-        # 2) Set up clauses to select based on Session ID or Player ID.
+    def _availableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:TimingFilterCollection) -> List[SemanticVersion | str]:
+        ret_val : List[SemanticVersion | str] = []
+
+        if self.Connector.Client:
+            # 1. Create query & config
+            version_col  : LiteralString       = "log_version" if mode==VersionType.LOG else "app_version" if mode==VersionType.APP else "app_branch"
+            where_clause : ParamaterizedClause = self._generateWhereClause(id_filter=id_filter, date_filter=date_filter, version_filter=VersioningFilterCollection(None, None), event_filter=EventFilterCollection(None, None))
+            query = f"""
+                SELECT DISTINCT {version_col}
+                FROM `{self.DBPath}`
+                {where_clause.clause}
+            """
+            cfg = bigquery.QueryJobConfig(query_parameters=where_clause.params)
+
+            # 2. Actually run the thing
+            Logger.Log(f"Running query for distinct {mode} versions:\n{query}", logging.DEBUG, depth=3)
+            try:
+                data = self.Connector.Client.query(query, job_config=cfg)
+            except BadRequest as err:
+                Logger.Log(f"In _availableVersions, got a BadRequest error when trying to retrieve data from BigQuery, defaulting to empty result!\n{err}")
+            else:
+                ret_val = [str(row[version_col]) for row in data]
+                Logger.Log(f"Found {len(ret_val)} {mode} versions. {ret_val if len(ret_val) <= 5 else ''}", logging.DEBUG, depth=3)
+        else:
+            Logger.Log(f"Can't retrieve list of {mode} versions from {self.Connector.ResourceName}, the storage connection client is null!", logging.WARNING, depth=3)
+        return ret_val
+
+    def _getEventRows(self, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
         ret_val = []
-        if self._client != None:
-            query = self._generateRowFromIDQuery(id_list=id_list, id_mode=id_mode, exclude_rows=exclude_rows)
+
+        if self.Connector.Client:
+            # 1. Create query & config
+            where_clause : ParamaterizedClause = self._generateWhereClause(id_filter=id_filter, date_filter=date_filter, version_filter=version_filter, event_filter=event_filter)
+            # TODO Order by user_id, and by timestamp within that.
+            # Note that this could prove to be wonky when we have more games without user ids,
+            # will need to really rethink this when we start using new system.
+            # Still, not a huge deal because most of these will be rewritten at that time anyway.
+            query = f"""
+                SELECT *
+                FROM `{self.DBPath}`
+                {where_clause.clause}
+                ORDER BY `user_id`, `session_id`, `event_sequence_index` ASC
+            """
+            cfg = bigquery.QueryJobConfig(query_parameters=where_clause.params)
+
+            # 2. Actually run the thing
             Logger.Log(f"Running query for rows from IDs:\n{query}", logging.DEBUG, depth=3)
             try:
-                data = self._client.query(query)
-                Logger.Log(f"...Query yielded results, with query in state: {data.state}", logging.DEBUG, depth=3)
+                data = self.Connector.Client.query(query, job_config=cfg)
             except BadRequest as err:
                 Logger.Log(f"In _rowsFromIDs, got a BadRequest error when trying to retrieve data from BigQuery, defaulting to empty result!\n{err}")
             else:
+                Logger.Log(f"...Query yielded results, with query in state: {data.state}", logging.DEBUG, depth=3)
                 for row in data:
                     items = tuple(row.items())
                     event = []
@@ -143,7 +192,13 @@ class BigQueryInterface(Interface):
                             case _:
                                 event.append(item[1])
                     ret_val.append(tuple(event))
+        else:
+            Logger.Log(f"Can't retrieve collection of events from {self.Connector.ResourceName}, the storage connection client is null!", logging.WARNING, depth=3)
+
         return ret_val
+
+    def _getFeatureRows(self, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[Tuple]:
+        return []
 
     # *** PUBLIC STATICS ***
 
@@ -151,44 +206,205 @@ class BigQueryInterface(Interface):
 
     # *** PRIVATE STATICS ***
 
-    # *** PRIVATE METHODS ***
-
     @staticmethod
-    def _generateSuffixClause(date_filter:TimingFilterCollection) -> Optional[str]:
-        ret_val = None
+    def _generateSuffixClause(date_filter:TimingFilterCollection) -> ParamaterizedClause:
+        clause = ""
+        params = []
         
         if date_filter.TimestampFilter and date_filter.TimestampFilter.Min and date_filter.TimestampFilter.Max:
             str_min, str_max = date_filter.TimestampFilter.Min.strftime("%Y%m%d"), date_filter.TimestampFilter.Max.strftime("%Y%m%d")
-            ret_val = f"_TABLE_SUFFIX BETWEEN '{str_min}' AND '{str_max}'"
+            clause = "WHERE _TABLE_SUFFIX BETWEEN @suffixrange"
+            params.append(
+                bigquery.RangeQueryParameter(range_element_type="STRING", start=str_min, end=str_max, name="suffixrange")
+            )
         
-        return ret_val
+        return ParamaterizedClause(clause=clause, params=params)
 
-    def _generateRowFromIDQuery(self, id_list:List[str], id_mode:IDMode, exclude_rows:Optional[List[str]]=None) -> str:
-        id_clause : str = ""
-        id_string = ','.join([f"'{x}'" for x in id_list])
-        match id_mode:
-            case IDMode.SESSION:
-                id_clause = f"session_id IN ({id_string})"
-            case IDMode.USER:
-                id_clause  = f"user_id IN ({id_string})"
-            case _:
-                Logger.Log(f"Invalid ID mode given (name={id_mode.name}, val={id_mode.value}), defaulting to session mode.", logging.WARNING, depth=3)
-                id_clause = f"session_id IN ({id_string})"
-        # 3) Set up WHERE clause based on whether we need Aqualab min version or not.
-        where_clause = f" WHERE {id_clause}"
-        if exclude_rows is not None:
-            exclude_string = ','.join([f"'{x}'" for x in exclude_rows])
-            where_clause += f" AND event_name not in ({exclude_string})"
+    @staticmethod
+    def _generateWhereClause(id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> ParamaterizedClause:
+        exclude : LiteralString
 
-        # 4) Set up actual query
-        # TODO Order by user_id, and by timestamp within that.
-        # Note that this could prove to be wonky when we have more games without user ids,
-        # will need to really rethink this when we start using new system.
-        # Still, not a huge deal because most of these will be rewritten at that time anyway.
-        query = f"""
-            SELECT *
-            FROM `{self.DBPath()}`
-            {where_clause}
-            ORDER BY `user_id`, `session_id`, `event_sequence_index` ASC
-        """
-        return query
+        sess_clause : Optional[LiteralString] = None
+        sess_param  : List[bigquery.ArrayQueryParameter] = []
+        if id_filter.SessionFilter and len(id_filter.SessionFilter.AsSet) > 0:
+            exclude = "NOT" if id_filter.SessionFilter.FilterMode == FilterMode.EXCLUDE else ""
+            sess_clause = f"`session_id` {exclude} IN @session_list"
+            sess_param.append(
+                bigquery.ArrayQueryParameter(name="session_list", array_type="STRING", values=id_filter.SessionFilter.AsList)
+            )
+
+        users_clause : Optional[LiteralString] = None
+        users_param  : List[bigquery.ArrayQueryParameter] = []
+        if id_filter.PlayerFilter and len(id_filter.PlayerFilter.AsSet) > 0:
+            exclude = "NOT" if id_filter.PlayerFilter.FilterMode == FilterMode.EXCLUDE else ""
+            users_clause = f"`user_id` {exclude} IN @user_list"
+            users_param.append(
+                bigquery.ArrayQueryParameter(name="user_list", array_type="STRING", values=id_filter.PlayerFilter.AsList)
+            )
+
+        times_clause : Optional[LiteralString] = None
+        times_param  : List[bigquery.RangeQueryParameter | bigquery.ScalarQueryParameter] = []
+        if date_filter.TimestampFilter:
+            if date_filter.TimestampFilter.Min and date_filter.TimestampFilter.Max:
+                exclude = "NOT" if date_filter.TimestampFilter.FilterMode == FilterMode.EXCLUDE else ""
+                times_clause = f"`client_time` {exclude} BETWEEN @timestamp_range"
+                times_param.append(
+                    bigquery.RangeQueryParameter(name="timestamp_range", range_element_type="TIMESTAMP", start=date_filter.TimestampFilter.Min, end=date_filter.TimestampFilter.Max)
+                )
+            elif date_filter.TimestampFilter.Min:
+                exclude = "<" if date_filter.TimestampFilter.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
+                times_clause = f"`client_time` {exclude} @timestamp_min"
+                times_param.append(
+                    bigquery.ScalarQueryParameter(name="timestamp_min", type_="TIMESTAMP", value=date_filter.TimestampFilter.Min)
+                )
+            else: # date_filter.TimestampFilter.Max is not None
+                exclude = ">" if date_filter.TimestampFilter.FilterMode == FilterMode.EXCLUDE else "<" # > if we're excluding this max, or < if we're including this max
+                times_clause = f"`client_time` {exclude} @timestamp_max"
+                times_param.append(
+                    bigquery.ScalarQueryParameter(name="timestamp_max", type_="TIMESTAMP", value=date_filter.TimestampFilter.Max)
+                )
+
+        indices_clause : Optional[LiteralString] = None
+        indices_param  : List[bigquery.ArrayQueryParameter] = []
+        if date_filter.SessionIndexFilter and len(date_filter.SessionIndexFilter.AsSet) > 0:
+            exclude = "NOT" if date_filter.SessionIndexFilter.FilterMode == FilterMode.EXCLUDE else ""
+            indices_clause = f"`event_session_index` {exclude} IN @sess_index_list"
+            indices_param.append(
+                bigquery.ArrayQueryParameter(name="sess_index_list", array_type="INT64", values=date_filter.SessionIndexFilter.AsList)
+            )
+
+        log_clause : Optional[LiteralString] = None
+        log_param  : List[BigQueryParameter] = []
+        if version_filter.LogVersionFilter:
+            if isinstance(version_filter.LogVersionFilter, SetFilter) and len(version_filter.LogVersionFilter.AsSet) > 0:
+                exclude = "NOT" if version_filter.LogVersionFilter.FilterMode == FilterMode.EXCLUDE else ""
+                log_clause = f"`log_version` {exclude} IN @log_versions"
+                log_param.append(
+                    bigquery.ArrayQueryParameter(name="log_versions", array_type="INT64", values=version_filter.LogVersionFilter.AsList)
+                )
+            elif isinstance(version_filter.LogVersionFilter, RangeFilter):
+                if version_filter.LogVersionFilter.Min and version_filter.LogVersionFilter.Max:
+                    exclude = "NOT" if version_filter.LogVersionFilter.FilterMode == FilterMode.EXCLUDE else ""
+                    log_clause = f"`log_version` {exclude} BETWEEN @log_version_range"
+                    log_param.append(
+                        bigquery.RangeQueryParameter(name="log_version_range", range_element_type="INT64", start=version_filter.LogVersionFilter.Min, end=version_filter.LogVersionFilter.Max)
+                    )
+                elif version_filter.LogVersionFilter.Min:
+                    exclude = "<" if version_filter.LogVersionFilter.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
+                    log_clause = f"`log_version` {exclude} @log_version_min"
+                    log_param.append(
+                        bigquery.ScalarQueryParameter(name="log_version_min", type_="STRING", value=str(version_filter.LogVersionFilter.Min))
+                    )
+                else: # version_filter.LogVersionFilter.Max is not None
+                    exclude = ">" if version_filter.LogVersionFilter.FilterMode == FilterMode.EXCLUDE else "<" # > if we're excluding this max, or < if we're including this max
+                    log_clause = f"`log_version` {exclude} @log_version_max"
+                    log_param.append(
+                        bigquery.ScalarQueryParameter(name="log_version_max", type_="STRING", value=str(version_filter.LogVersionFilter.Max))
+                    )
+
+        app_clause : Optional[LiteralString] = None
+        app_param  : List[BigQueryParameter] = []
+        if version_filter.AppVersionFilter:
+            if isinstance(version_filter.AppVersionFilter, SetFilter) and len(version_filter.AppVersionFilter.AsSet) > 0:
+                exclude = "NOT" if version_filter.AppVersionFilter.FilterMode == FilterMode.EXCLUDE else ""
+                app_clause = f"`app_version` {exclude} IN @app_versions"
+                app_param.append(
+                    bigquery.ArrayQueryParameter(name="app_versions", array_type="INT64", values=version_filter.AppVersionFilter.AsList)
+                )
+            elif isinstance(version_filter.AppVersionFilter, RangeFilter):
+                if version_filter.AppVersionFilter.Min and version_filter.AppVersionFilter.Max:
+                    exclude = "NOT" if version_filter.AppVersionFilter.FilterMode == FilterMode.EXCLUDE else ""
+                    app_clause = f"`app_version` {exclude} BETWEEN @app_version_range"
+                    app_param.append(
+                        bigquery.RangeQueryParameter(name="app_version_range", range_element_type="INT64", start=version_filter.AppVersionFilter.Min, end=version_filter.AppVersionFilter.Max)
+                    )
+                elif version_filter.AppVersionFilter.Min:
+                    exclude = "<" if version_filter.AppVersionFilter.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
+                    app_clause = f"`app_version` {exclude} @app_version_min"
+                    app_param.append(
+                        bigquery.ScalarQueryParameter(name="app_version_min", type_="STRING", value=str(version_filter.AppVersionFilter.Min))
+                    )
+                else: # version_filter.AppVersionFilter.Max is not None
+                    exclude = ">" if version_filter.AppVersionFilter.FilterMode == FilterMode.EXCLUDE else "<" # > if we're excluding this max, or < if we're including this max
+                    app_clause = f"`app_version` {exclude} @app_version_max"
+                    app_param.append(
+                        bigquery.ScalarQueryParameter(name="app_version_max", type_="STRING", value=str(version_filter.AppVersionFilter.Max))
+                    )
+
+        branch_clause : Optional[LiteralString] = None
+        branch_param  : List[BigQueryParameter] = []
+        if version_filter.AppBranchFilter:
+            if isinstance(version_filter.AppBranchFilter, SetFilter) and len(version_filter.AppBranchFilter.AsSet) > 0:
+                exclude = "NOT" if version_filter.AppBranchFilter.FilterMode == FilterMode.EXCLUDE else ""
+                app_clause = f"`app_branch` {exclude} IN @app_branchs"
+                app_param.append(
+                    bigquery.ArrayQueryParameter(name="app_branchs", array_type="INT64", values=version_filter.AppBranchFilter.AsList)
+                )
+            elif isinstance(version_filter.AppBranchFilter, RangeFilter):
+                if version_filter.AppBranchFilter.Min and version_filter.AppBranchFilter.Max:
+                    exclude = "NOT" if version_filter.AppBranchFilter.FilterMode == FilterMode.EXCLUDE else ""
+                    branch_clause = f"`app_branch` {exclude} BETWEEN @app_branch_range"
+                    branch_param.append(
+                        bigquery.RangeQueryParameter(name="app_branch_range", range_element_type="INT64", start=version_filter.AppBranchFilter.Min, end=version_filter.AppBranchFilter.Max)
+                    )
+                elif version_filter.AppBranchFilter.Min:
+                    exclude = "<" if version_filter.AppBranchFilter.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
+                    branch_clause = f"`app_branch` {exclude} @app_branch_min"
+                    branch_param.append(
+                        bigquery.ScalarQueryParameter(name="app_branch_min", type_="STRING", value=str(version_filter.AppBranchFilter.Min))
+                    )
+                else: # version_filter.AppBranchFilter.Max is not None
+                    exclude = ">" if version_filter.AppBranchFilter.FilterMode == FilterMode.EXCLUDE else "<" # > if we're excluding this max, or < if we're including this max
+                    branch_clause = f"`app_branch` {exclude} @app_branch_max"
+                    branch_param.append(
+                        bigquery.ScalarQueryParameter(name="app_branch_max", type_="STRING", value=str(version_filter.AppBranchFilter.Max))
+                    )
+
+        events_clause : Optional[LiteralString] = None
+        events_param  : List[bigquery.ArrayQueryParameter] = []
+        if event_filter.EventNameFilter and len(event_filter.EventNameFilter.AsSet) > 0:
+            exclude = "NOT" if event_filter.EventNameFilter.FilterMode == FilterMode.EXCLUDE else ""
+            events_clause = f"`event_name` {exclude} IN @event_name_list"
+            events_param.append(
+                bigquery.ArrayQueryParameter(name="event_name_list", array_type="STRING", values=event_filter.EventNameFilter.AsList)
+            )
+
+        codes_clause : Optional[LiteralString] = None
+        codes_param  : List[BigQueryParameter] = []
+        if event_filter.EventCodeFilter:
+            if isinstance(event_filter.EventCodeFilter, SetFilter) and len(event_filter.EventCodeFilter.AsSet) > 0:
+                exclude = "NOT" if event_filter.EventCodeFilter.FilterMode == FilterMode.EXCLUDE else ""
+                codes_clause = f"`app_branch` {exclude} IN @app_branchs"
+                codes_param.append(
+                    bigquery.ArrayQueryParameter(name="app_branchs", array_type="INT64", values=event_filter.EventCodeFilter.AsList)
+                )
+            elif isinstance(event_filter.EventCodeFilter, RangeFilter):
+                if event_filter.EventCodeFilter.Min and event_filter.EventCodeFilter.Max:
+                    exclude = "NOT" if event_filter.EventCodeFilter.FilterMode == FilterMode.EXCLUDE else ""
+                    codes_clause = f"`app_branch` {exclude} BETWEEN @event_codes_range"
+                    codes_param.append(
+                        bigquery.RangeQueryParameter(name="event_codes_range", range_element_type="INT64", start=event_filter.EventCodeFilter.Min, end=event_filter.EventCodeFilter.Max)
+                    )
+                elif event_filter.EventCodeFilter.Min:
+                    exclude = "<" if event_filter.EventCodeFilter.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
+                    codes_clause = f"`app_branch` {exclude} @event_codes_min"
+                    codes_param.append(
+                        bigquery.ScalarQueryParameter(name="event_codes_min", type_="STRING", value=str(event_filter.EventCodeFilter.Min))
+                    )
+                else: # event_filter.EventCodeFilter.Max is not None
+                    exclude = ">" if event_filter.EventCodeFilter.FilterMode == FilterMode.EXCLUDE else "<" # > if we're excluding this max, or < if we're including this max
+                    codes_clause = f"`app_branch` {exclude} @event_codes_max"
+                    codes_param.append(
+                        bigquery.ScalarQueryParameter(name="event_codes_max", type_="STRING", value=str(event_filter.EventCodeFilter.Max))
+                    )
+
+        clause_list_raw : List[Optional[LiteralString]] = [sess_clause, users_clause, times_clause, indices_clause, log_clause, app_clause, branch_clause, events_clause, codes_clause]
+        clause_list     : List[LiteralString]           = [clause for clause in clause_list_raw if clause is not None]
+        where_clause    : LiteralString                 = f"WHERE {'\nAND '.join(clause_list)}" if len(clause_list) > 0 else ""
+
+        params_collection = [sess_param, users_param, times_param, indices_param, log_param, app_param, branch_param, events_param, codes_param]
+        params = list(chain.from_iterable(params_collection))
+
+        return ParamaterizedClause(clause=where_clause, params=params)
+
+    # *** PRIVATE METHODS ***
