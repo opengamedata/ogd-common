@@ -1,6 +1,6 @@
 ## import standard libraries
 import logging
-from typing import Optional
+from typing import Optional, Set
 # import local files
 from ogd.common.filters.Filter import Filter
 from ogd.common.models.enums.FilterMode import FilterMode
@@ -38,6 +38,10 @@ class RangeFilter(Filter[ComparableType]):
     
     def __repr__(self) -> str:
         return f"<class {type(self).__name__} {self.FilterMode}:{self.Min}-{self.Max}>"
+
+    @property
+    def AsSet(self) -> Set[ComparableType]:
+        return set()
 
     @property
     def Min(self) -> Optional[ComparableType]:
