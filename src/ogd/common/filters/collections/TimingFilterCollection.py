@@ -2,8 +2,8 @@
 from datetime import date, datetime
 from typing import Dict, List, Optional, Set
 # import local files
-from ogd.common.connectors.filters import *
-from ogd.common.connectors.filters.collections.FilterCollection import FilterCollection
+from ogd.common.filters import *
+from ogd.common.filters.collections.FilterCollection import FilterCollection
 from ogd.common.models.enums.FilterMode import FilterMode
 
 class TimingFilterCollection(FilterCollection):

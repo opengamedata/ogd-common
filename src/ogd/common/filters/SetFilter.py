@@ -3,10 +3,10 @@ import logging
 from typing import Any
 # import local files
 from ogd.common.utils.Logger import Logger
-from ogd.filters.Filter import Filter
+from ogd.common.filters.Filter import Filter
 from ogd.common.models.enums.FilterMode import FilterMode
 
-class SetFilter(Filter):
+class SetFilter(Filter[Any]):
     def __init__(self, mode:FilterMode, set_elements:Any):
         super().__init__(mode=mode)
         if len(set_elements) == 0:

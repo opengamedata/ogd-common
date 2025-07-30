@@ -2,7 +2,7 @@
 import logging
 from typing import Optional, Set
 # import local files
-from ogd.filters.Filter import Filter
+from ogd.common.filters.Filter import Filter
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ComparableType
