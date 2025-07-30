@@ -1,6 +1,6 @@
 ## import standard libraries
 import logging
-from typing import Any
+from typing import Any, Set
 # import local files
 from ogd.common.utils.Logger import Logger
 from ogd.common.filters.Filter import Filter
@@ -18,10 +18,18 @@ class SetFilter(Filter[Any]):
         return f"{_exclude_clause}set of {len(self._set)} elements"
     
     def __repr__(self) -> str:
-        _types = set(type(elem).__name__ for elem in self.Set)
+        _types = set(type(elem).__name__ for elem in self.AsSet)
         _type_str = " | ".join(_types)
-        return f"<class {type(self).__name__} {self.FilterMode}:Set[{_type_str}] with {len(self.Set)} elements>"
+        return f"<class {type(self).__name__} {self.FilterMode}:Set[{_type_str}] with {len(self.AsSet)} elements>"
 
     @property
-    def Set(self):
+    def AsSet(self) -> Set[Any]:
         return self._set
+
+    @property
+    def Min(self) -> None:
+        return None
+
+    @property
+    def Max(self) -> None:
+        return None
