@@ -1,7 +1,6 @@
 import logging
 import os
 from google.cloud import bigquery
-from google.api_core.exceptions import BadRequest
 from typing import Final, Optional
 # import locals
 from ogd.common.storage.connectors.StorageConnector import StorageConnector
