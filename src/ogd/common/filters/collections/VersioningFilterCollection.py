@@ -1,5 +1,5 @@
 ## import standard libraries
-from typing import List, Optional, Set
+from typing import Dict, List, Optional, Set
 # import local files
 from ogd.common.filters import *
 from ogd.common.models.SemanticVersion import SemanticVersion
@@ -49,6 +49,19 @@ class VersioningFilterCollection:
             _bnc_str = f"app branch(es) {self.AppBranchFilter}"  if self.AppBranchFilter else None
             _ver_strs = " ^ ".join([elem for elem in [_log_str, _app_str, _bnc_str] if elem is not None])
             ret_val = f"<class {type(self).__name__} {_ver_strs}>"
+        return ret_val
+
+    @property
+    def AsDict(self) -> Dict[str, Filter]:
+        ret_val = {}
+
+        if self.LogVersionFilter:
+            ret_val["log_versions"] = self.LogVersionFilter
+        if self.AppVersionFilter:
+            ret_val["app_versions"] = self.AppVersionFilter
+        if self.AppBranchFilter:
+            ret_val["app_branches"] = self.AppBranchFilter
+        
         return ret_val
 
     @property
