@@ -1,5 +1,6 @@
 # Custom added
 .vscode/
+.pylintrc
 tests/config/t_config.py
 
 # Byte-compiled / optimized / DLL files
