@@ -54,3 +54,18 @@ class RangeFilter(Filter[ComparableType]):
     @property
     def Range(self) -> Optional[slice]:
         return slice(self.Min, self.Max)
+
+    @staticmethod
+    def FromSlice(mode:FilterMode, slice:slice) -> "RangeFilter":
+        """Create a RangeFilter based on a slice object.
+
+        This is sort of an abuse of the type, but it's a convenient way to represent a min and max where one or the other is optional.
+
+        :param mode: _description_
+        :type mode: FilterMode
+        :param slice: _description_
+        :type slice: slice
+        :return: _description_
+        :rtype: RangeFilter
+        """
+        return RangeFilter(mode=mode, minimum=slice.start, maximum=slice.stop)

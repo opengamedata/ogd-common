@@ -1,23 +1,23 @@
 import abc
-from typing import Generic, Optional, Set
+from typing import Generic, Optional, Set, TypeVar
 
-from ogd.common.utils.typing import ComparableType
 from ogd.common.models.enums.FilterMode import FilterMode
 
-class Filter(Generic[ComparableType]):
+T = TypeVar("T")
+class Filter(Generic[T]):
     @property
     @abc.abstractmethod
-    def AsSet(self) -> Set[ComparableType]:
+    def AsSet(self) -> Set[T]:
         pass
 
     @property
     @abc.abstractmethod
-    def Min(self) -> Optional[ComparableType]:
+    def Min(self) -> Optional[T]:
         pass
 
     @property
     @abc.abstractmethod
-    def Max(self) -> Optional[ComparableType]:
+    def Max(self) -> Optional[T]:
         pass
 
     def __init__(self, mode:FilterMode=FilterMode.NOFILTER):

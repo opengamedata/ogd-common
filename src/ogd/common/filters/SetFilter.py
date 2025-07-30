@@ -7,7 +7,7 @@ from ogd.common.filters.Filter import Filter
 from ogd.common.models.enums.FilterMode import FilterMode
 
 T = TypeVar("T")
-class SetFilter(Filter, Generic[T]):
+class SetFilter(Filter[T]):
     def __init__(self, mode:FilterMode, set_elements:Set[T]=set()):
         super().__init__(mode=mode)
         self._set = set(set_elements)
