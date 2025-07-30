@@ -8,7 +8,10 @@ from ogd.common.utils.typing import Pair
 class EventFilterCollection:
     """Dumb struct to hold filters for versioning information
     """
-    def __init__(self, event_name_filter:Optional[SetFilter[str]]=None, event_code_filter:Optional[SetFilter[int] | RangeFilter[int]]=None):
+    type NameFilterType = Optional[SetFilter[str]]
+    type CodeFilterType = Optional[SetFilter[int] | RangeFilter[int]]
+
+    def __init__(self, event_name_filter:NameFilterType=None, event_code_filter:CodeFilterType=None):
         """Constructor for the EventFilterCollection structure.
 
         Accepts a collection of filters to be applied on event names/codes included in the data.
@@ -41,7 +44,7 @@ class EventFilterCollection:
         return ret_val
 
     @property
-    def EventNameFilter(self) -> Optional[SetFilter]:
+    def EventNameFilter(self) -> NameFilterType:
         """Property containing the filter for event names.
 
         :return: _description_
@@ -49,7 +52,7 @@ class EventFilterCollection:
         """
         return self._event_names
     @EventNameFilter.setter
-    def EventNameFilter(self, allowed_events:Optional[SetFilter | List[str] | Set[str]]):
+    def EventNameFilter(self, allowed_events:Optional[NameFilterType | List[str] | Set[str]]):
         """Can be conveniently set from an existing filter, or collection of event names.
 
         If set this way, the filter is assumed to be an "inclusion" filter.
@@ -67,13 +70,13 @@ class EventFilterCollection:
             self._event_names = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(allowed_events))
 
     @property
-    def EventCodeFilter(self) -> Optional[SetFilter | RangeFilter]:
+    def EventCodeFilter(self) -> CodeFilterType:
         return self._event_codes
     @EventCodeFilter.setter
-    def EventCodeFilter(self, allowed_events:Optional[SetFilter | List[int] | Set[int] | slice | Pair[int, int]]):
+    def EventCodeFilter(self, allowed_events:Optional[CodeFilterType | List[int] | Set[int] | slice | Pair[int, int]]):
         if allowed_events is None:
             self._event_codes = None
-        elif isinstance(allowed_events, SetFilter):
+        elif isinstance(allowed_events, Filter):
             self._event_codes = allowed_events
         elif isinstance(allowed_events, list) or isinstance(allowed_events, set):
             self._event_codes = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(allowed_events))
