@@ -29,7 +29,7 @@ class test_BigQueryConnector(TestCase):
         _elems = {
             "DB_TYPE"    : "BIGQUERY",
             "PROJECT_ID" : "wcer-field-day-ogd-1798",
-            "PROJECT_KEY": "./config/ogd.json"
+            "PROJECT_KEY": "./tests/config/ogd.json"
         }
         config = BigQueryConfig.FromDict(name="OPENGAMEDATA_BQ", unparsed_elements=_elems)
         cls.test_connector = BigQueryConnector(config=config)
