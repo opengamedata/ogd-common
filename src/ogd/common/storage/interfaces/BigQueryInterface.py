@@ -185,12 +185,13 @@ class BigQueryInterface(Interface):
 
     # *** PUBLIC METHODS ***
 
-    def DBPath(self, date_filter:TimingFilterCollection) -> str:
+    def DBPath(self, filter:TimingFilterCollection) -> str:
         """The path of form "[projectID].[datasetID].[tableName]" used to make queries
 
         :return: The full path from project ID to table name, if properly set in configuration, else the literal string "INVALID SOURCE SCHEMA".
         :rtype: str
         """
+        
         # _current_date = datetime.now().date()
         date_wildcard = "*"
         # if min_date is not None and max_date is not None:
