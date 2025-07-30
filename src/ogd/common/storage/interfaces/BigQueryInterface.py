@@ -1,12 +1,14 @@
+# standard imports
 import json
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from google.cloud import bigquery
-from google.api_core.exceptions import BadRequest
+from datetime import datetime
 from itertools import chain
 from typing import Dict, Final, List, LiteralString, Optional, Tuple
-# import locals
+# 3rd-party imports
+from google.cloud import bigquery
+from google.api_core.exceptions import BadRequest
+# OGD imports
 from ogd.common.filters import *
 from ogd.common.filters.collections import *
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
