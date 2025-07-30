@@ -1,12 +1,12 @@
 ## import standard libraries
 import logging
-from typing import Generic, Optional, Set, TypeVar
+from typing import Any, Optional, Set, TypeVar
 # import local files
 from ogd.common.filters.Filter import Filter
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.utils.Logger import Logger
 
-T = TypeVar("T")
+T = TypeVar("T", bound=Any)
 class RangeFilter(Filter[T]):
     def __init__(self, mode:FilterMode, minimum:Optional[T], maximum:Optional[T]):
         super().__init__(mode=mode)
