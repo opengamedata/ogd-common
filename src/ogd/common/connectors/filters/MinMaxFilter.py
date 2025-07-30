@@ -1,30 +1,52 @@
 ## import standard libraries
 import logging
-from typing import Any
+from typing import Optional
 # import local files
-from ogd.common.utils.Logger import Logger
-from ogd.common.connectors.filters.Filter import Filter
+from ogd.common.filters.Filter import Filter
 from ogd.common.models.enums.FilterMode import FilterMode
+from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import ComparableType
 
-class MinMaxFilter(Filter):
-    def __init__(self, mode:FilterMode, minimum:Any, maximum:Any):
+class RangeFilter(Filter[ComparableType]):
+    def __init__(self, mode:FilterMode, minimum:Optional[ComparableType], maximum:Optional[ComparableType]):
         super().__init__(mode=mode)
-        if minimum > maximum:
+        if minimum and maximum and minimum > maximum:
             Logger.Log(f"When creating MinMaxFilter, got a minimum ({minimum}) larger than maximum ({maximum})!", level=logging.WARNING)
         self._min = minimum
         self._max = maximum
 
     def __str__(self) -> str:
-        _exclude_clause = "not from " if self.FilterMode == FilterMode.EXCLUDE else ""
-        return f"{_exclude_clause}{self.Min} to {self.Max}"
+        ret_val : str
+
+        match self.FilterMode:
+            case FilterMode.EXCLUDE:
+                if self.Min and self.Max:
+                    ret_val = f"outside {self.Min} to {self.Max}"
+                elif self.Max:
+                    ret_val = f"not under {self.Max}"
+                else: # self.Min is not None
+                    ret_val = f"not above {self.Min}"
+            case FilterMode.INCLUDE:
+                if self.Min and self.Max:
+                    ret_val = f"from {self.Min} to {self.Max}"
+                elif self.Max:
+                    ret_val = f"under {self.Max}"
+                else: # self.Min is not None
+                    ret_val = f"above {self.Min}"
+
+        return ret_val
     
     def __repr__(self) -> str:
         return f"<class {type(self).__name__} {self.FilterMode}:{self.Min}-{self.Max}>"
 
     @property
-    def Min(self):
+    def Min(self) -> Optional[ComparableType]:
         return self._min
 
     @property
-    def Max(self):
+    def Max(self) -> Optional[ComparableType]:
         return self._max
+
+    @property
+    def Range(self) -> Optional[slice]:
+        return slice(self.Min, self.Max)

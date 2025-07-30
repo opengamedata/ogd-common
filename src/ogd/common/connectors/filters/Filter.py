@@ -1,5 +1,25 @@
+import abc
+from typing import Generic, Optional, Set
+
+from ogd.common.utils.typing import ComparableType
 from ogd.common.models.enums.FilterMode import FilterMode
-class Filter:
+
+class Filter(Generic[ComparableType]):
+    @property
+    @abc.abstractmethod
+    def AsSet(self) -> Set[ComparableType]:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def Min(self) -> Optional[ComparableType]:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def Max(self) -> Optional[ComparableType]:
+        pass
+
     def __init__(self, mode:FilterMode=FilterMode.NOFILTER):
         """Constructor for base Filter class.
         By default, creates a filter equivalent to "NoFilter" class, meaning this filter will not remove any data.
