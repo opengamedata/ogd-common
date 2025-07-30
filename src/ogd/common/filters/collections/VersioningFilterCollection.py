@@ -2,13 +2,12 @@
 from typing import Dict, List, Optional, Set
 # import local files
 from ogd.common.filters import *
-from ogd.common.filters.collections.FilterCollection import FilterCollection
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.models.enums.FilterMode import FilterMode
 
 type Version = int | str | SemanticVersion
 
-class VersioningFilterCollection(FilterCollection):
+class VersioningFilterCollection:
     """Dumb struct to hold filters for versioning information
     """
     def __init__(self, log_ver_filter:Filter=NoFilter(), app_ver_filter:Filter=NoFilter(), branch_filter:Filter=NoFilter()):

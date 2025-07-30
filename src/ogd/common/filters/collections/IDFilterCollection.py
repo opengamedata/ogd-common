@@ -2,15 +2,14 @@
 from typing import Dict, List, Optional, Set
 # import local files
 from ogd.common.filters import *
-from ogd.common.filters.collections.FilterCollection import FilterCollection
 from ogd.common.models.enums.FilterMode import FilterMode
 
 type IDFilter = SetFilter | NoFilter
 
-class IDFilterCollection(FilterCollection):
+class IDFilterCollection:
     """Dumb struct to hold filters for versioning information
     """
-    def __init__(self, session_filter:IDFilter=NoFilter(), player_filter:IDFilter=NoFilter()):
+    def __init__(self, session_filter:IDFilter, player_filter:IDFilter):
         self._session_filter = session_filter
         self._player_filter = player_filter
 

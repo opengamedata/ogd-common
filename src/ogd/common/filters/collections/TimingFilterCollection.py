@@ -3,10 +3,9 @@ from datetime import date, datetime
 from typing import Dict, List, Optional, Set
 # import local files
 from ogd.common.filters import *
-from ogd.common.filters.collections.FilterCollection import FilterCollection
 from ogd.common.models.enums.FilterMode import FilterMode
 
-class TimingFilterCollection(FilterCollection):
+class TimingFilterCollection:
     """Dumb struct to hold filters for timing information
 
     For now, it just does timestamps and session index, if need be we may come back and allow filtering by timezone offset
