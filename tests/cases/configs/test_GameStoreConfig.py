@@ -52,7 +52,7 @@ class test_GameStoreConfig(TestCase):
         self.assertEqual(_str, "Game Source Schema")
 
     def test_SourceName(self):
-        _str = self.test_schema.SourceName
+        _str = self.test_schema.StoreName
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "AQUALAB_BQ")
 
@@ -76,7 +76,7 @@ class test_GameStoreConfig(TestCase):
     def test_SchemaName(self):
         """Test the correctness of TableConfig property
         """
-        _str = self.test_schema.SchemaName
+        _str = self.test_schema.TableName
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "OPENGAMEDATA_BIGQUERY")
 
@@ -113,14 +113,14 @@ class test_GameStoreConfig(TestCase):
         _schema = GameStoreConfig.FromDict(name="AQUALAB", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "AQUALAB")
-        self.assertIsInstance(_schema.SourceName, str)
-        self.assertEqual(_schema.SourceName, "AQUALAB_BQ")
+        self.assertIsInstance(_schema.StoreName, str)
+        self.assertEqual(_schema.StoreName, "AQUALAB_BQ")
         self.assertIsInstance(_schema.DatabaseName, str)
         self.assertEqual(_schema.DatabaseName, "aqualab")
         self.assertIsInstance(_schema.TableName, str)
         self.assertEqual(_schema.TableName, "aqualab_daily")
-        self.assertIsInstance(_schema.SchemaName, str)
-        self.assertEqual(_schema.SchemaName, "OPENGAMEDATA_BIGQUERY")
+        self.assertIsInstance(_schema.TableName, str)
+        self.assertEqual(_schema.TableName, "OPENGAMEDATA_BIGQUERY")
 
     def test_parseSourceName(self):
         _map = {

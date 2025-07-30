@@ -146,7 +146,7 @@ class Interface(abc.ABC):
         _events : List[Event] = []
 
         if self.Connector.IsOpen:
-            if isinstance(self.Config.Table, EventTableSchema):
+            if isinstance(self.Config.TableSchema, EventTableSchema):
                 _msg = f"Retrieving event data from {self.Connector.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
 
@@ -154,7 +154,7 @@ class Interface(abc.ABC):
                 rows = self._getEventRows(id_filter=id_filter, date_filter=date_filter, version_filter=version_filter, event_filter=event_filter)
                 for row in rows:
                     try:
-                        event = self.Config.Table.EventFromRow(row, fallbacks=fallbacks)
+                        event = self.Config.TableSchema.EventFromRow(row, fallbacks=fallbacks)
                         # in case event index was not given, we should fall back on using the order it came to us.
                     except Exception as err:
                         if self._fail_fast:
@@ -176,7 +176,7 @@ class Interface(abc.ABC):
         _features : List[Feature] = []
 
         if self.Connector.IsOpen:
-            if isinstance(self.Config.Table, FeatureTableSchema):
+            if isinstance(self.Config.TableSchema, FeatureTableSchema):
                 _msg = f"Retrieving event data from {self.Connector.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
 
@@ -184,7 +184,7 @@ class Interface(abc.ABC):
                 rows = self._getFeatureRows(id_filter=id_filter, date_filter=date_filter, version_filter=version_filter)
                 for row in rows:
                     try:
-                        event = self.Config.Table.FeatureFromRow(row, fallbacks=fallbacks)
+                        event = self.Config.TableSchema.FeatureFromRow(row, fallbacks=fallbacks)
                         # in case event index was not given, we should fall back on using the order it came to us.
                     except Exception as err:
                         if self._fail_fast:

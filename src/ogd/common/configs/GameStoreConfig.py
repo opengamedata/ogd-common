@@ -94,7 +94,7 @@ class GameStoreConfig(Schema):
         return self._game_id
 
     @property
-    def SourceName(self) -> str:
+    def StoreName(self) -> str:
         return self._source_name
 
     @property
@@ -105,7 +105,7 @@ class GameStoreConfig(Schema):
         self._config = source
 
     @property
-    def SchemaName(self) -> str:
+    def TableSchemaName(self) -> str:
         return self._schema_name
 
     @property
@@ -133,7 +133,7 @@ class GameStoreConfig(Schema):
     def AsMarkdown(self) -> str:
         ret_val : str
 
-        ret_val = f"{self.Name}: _{self.SchemaName}_ format, source {self.SourceName} : {self.TableLocation.Location}"
+        ret_val = f"{self.Name}: _{self.TableSchemaName}_ format, source {self.StoreName} : {self.TableLocation.Location}"
         return ret_val
 
     @classmethod
