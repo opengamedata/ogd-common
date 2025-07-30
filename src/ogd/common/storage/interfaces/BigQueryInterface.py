@@ -4,7 +4,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from itertools import chain
-from typing import Dict, Final, List, LiteralString, Optional, Tuple
+from typing import Dict, Final, List, LiteralString, Optional, Tuple, Union
 # 3rd-party imports
 from google.cloud import bigquery
 from google.api_core.exceptions import BadRequest
@@ -23,13 +23,15 @@ from ogd.common.utils.Logger import Logger
 
 AQUALAB_MIN_VERSION : Final[float] = 6.2
 
-type BigQueryParameter = bigquery.ScalarQueryParameter | bigquery.ArrayQueryParameter | bigquery.RangeQueryParameter
+type BigQueryParameter = Union[bigquery.ScalarQueryParameter, bigquery.ArrayQueryParameter, bigquery.RangeQueryParameter]
 @dataclass
 class ParamaterizedClause:
     clause: LiteralString
     params: List[BigQueryParameter]
 
 class BigQueryInterface(Interface):
+    """Implementation of Interface functions for BigQuery.
+    """
 
     # *** BUILT-INS & PROPERTIES ***
 
