@@ -35,7 +35,7 @@ class BigQueryInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:GameStoreConfig, fail_fast:bool, store:Optional[BigQueryConnector]):
+    def __init__(self, config:GameStoreConfig, fail_fast:bool, store:Optional[BigQueryConnector]=None):
         self._store : BigQueryConnector
 
         super().__init__(config=config, fail_fast=fail_fast)
