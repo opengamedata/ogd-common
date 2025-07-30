@@ -3,7 +3,7 @@ import logging
 from typing import Any
 # import local files
 from ogd.common.utils.Logger import Logger
-from ogd.common.connectors.filters.Filter import Filter
+from ogd.filters.Filter import Filter
 from ogd.common.models.enums.FilterMode import FilterMode
 
 class SetFilter(Filter):
