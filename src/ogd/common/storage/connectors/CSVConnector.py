@@ -29,6 +29,10 @@ class CSVConnector(StorageConnector):
     def StoreConfig(self) -> FileStoreConfig:
         return self._config
 
+    @property
+    def DataFrame(self) -> pd.DataFrame:
+        return self._data
+
     def _open(self) -> bool:
         try:
             # TODO should include option for access to the TableConfig in the interface, because obviously it should know what form the table takes.

@@ -1,97 +1,125 @@
 import logging
 import pandas as pd
 from datetime import datetime
-from pandas.io.parsers import TextFileReader
-from pathlib import Path
-from typing import Any, Dict, IO, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Union
 ## import local files
-from ogd.common.storage.interfaces.Interface import Interface
-from ogd.common.models.enums.IDMode import IDMode
+from ogd.common.filters import *
+from ogd.common.filters.collections import *
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
-from ogd.common.configs.TableConfig import TableConfig
-from ogd.common.utils.Logger import Logger
+from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
+from ogd.common.models.enums.IDMode import IDMode
+from ogd.common.models.enums.FilterMode import FilterMode
+from ogd.common.models.enums.VersionType import VersionType
+from ogd.common.models.SemanticVersion import SemanticVersion
+from ogd.common.storage.interfaces.Interface import Interface
+from ogd.common.storage.connectors.CSVConnector import CSVConnector
 
+type PDMask = Union[pd.Series, bool]
 class CSVInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, game_id:str, config:GameStoreConfig, fail_fast:bool, filepath:Path, delim:str = ','):
-        # set up data from params
-        self._filepath  : Path = filepath
-        self._delimiter : str = delim
-        super().__init__(game_id=game_id, config=config, fail_fast=fail_fast)
+    def __init__(self, config:GameStoreConfig, fail_fast:bool, delim:str = ',', store:Optional[CSVConnector]=None):
+        self._store : CSVConnector
+
+        super().__init__(config=config, fail_fast=fail_fast)
+        if store:
+            self._store = store
+        elif isinstance(self.Config.StoreConfig, FileStoreConfig):
+            self._store = CSVConnector(config=self.Config.StoreConfig, delim=delim, table=self.Config.Table)
         # set up data from file
-        self._data      : pd.DataFrame = pd.DataFrame()
-        self.Open()
+        self.Connector.Open()
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
-    def _open(self) -> bool:
-        try:
-            # TODO should include option for access to the TableConfig in the interface, because obviously it should know what form the table takes.
-            target_types = { 'session_id' : 'str' }
-            _data = pd.read_csv(filepath_or_buffer=self._filepath, delimiter=self._delimiter, dtype=target_types, parse_dates=['timestamp'])
-            # _data = pd.read_csv(filepath_or_buffer=self._filepath, delimiter=self._delimiter)
-            Logger.Log(f"Loaded from CSV, columns are: {_data.dtypes}", logging.INFO)
-            Logger.Log(f"First few rows are:\n{_data.head(n=3)}")
-            self._data = _data.where(_data.notnull(), None)
-            self._is_open = True
-            return True
-        except FileNotFoundError as err:
-            Logger.Log(f"Could not find file {self._filepath}.", logging.ERROR)
-            return False
+    @property
+    def Connector(self) -> CSVConnector:
+        return self._store
 
-    def _close(self) -> bool:
-        self._is_open = False
-        self._data = pd.DataFrame() # make new dataframe, let old data get garbage collected I assume.
-        return True
+    def _availableIDs(self, mode:IDMode, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
+        ret_val : List[str] = []
 
-    def _allIDs(self) -> List[str]:
-        return [str(id) for id in self._data['session_id'].unique().tolist()]
+        if not self.Connector.DataFrame.empty:
+            server_times = pd.to_datetime(self.Connector.DataFrame['server_time'])
+            mask = None
+            if date_filter.TimestampFilter:
+                if date_filter.TimestampFilter.Min and date_filter.TimestampFilter.Max:
+                    mask = (server_times >= date_filter.TimestampFilter.Min) & (server_times <= date_filter.TimestampFilter.Max)
+                if date_filter.TimestampFilter.Min:
+                    mask = server_times >= date_filter.TimestampFilter.Min
+                if date_filter.TimestampFilter.Min and date_filter.TimestampFilter.Max:
+                    mask = server_times <= date_filter.TimestampFilter.Max
+            # if versions is not None and versions is not []:
+            #     mask = mask & (self._data['app_version'].isin(versions))
+            data_masked = self.Connector.DataFrame.loc[mask] if mask is not None else self.Connector.DataFrame
+            ret_val = [str(id) for id in data_masked['session_id'].unique().tolist()]
 
-    def _fullDateRange(self) -> Dict[str,datetime]:
-        min_time = pd.to_datetime(self._data['timestamp'].min())
-        max_time = pd.to_datetime(self._data['timestamp'].max())
-        return {'min':min_time, 'max':max_time}
-
-    def _rowsFromIDs(self, id_list: List[str], id_mode:IDMode=IDMode.SESSION, versions:Optional[List[int]]=None, exclude_rows:Optional[List[str]]=None) -> List[Tuple]:
-        ret_val : List[Tuple] = []
-        if self.IsOpen() and not self._data.empty:
-            _data : pd.DataFrame
-            if id_mode == IDMode.SESSION:
-                _data = self._data.loc[self._data['session_id'].isin(id_list)]
-            elif id_mode == IDMode.USER:
-                _data = self._data.loc[self._data['user_id'].isin(id_list)]
-            else:
-                _data = self._data.loc[self._data['session_id'].isin(id_list)]
-            if exclude_rows is not None:
-                _mask = _data['event_name'].isin(exclude_rows)
-                _data = _data[~_mask]
-            ret_val = list(_data.itertuples(index=False, name=None))
         return ret_val
 
-    def _IDsFromDates(self, min:datetime, max:datetime, versions:Optional[List[int]]=None) -> List[str]:
-        if not self._data.empty:
-            server_times = pd.to_datetime(self._data['server_time'])
-            mask = (server_times >= pd.to_datetime(min)) & (server_times <= pd.to_datetime(max))
-            if versions is not None and versions is not []:
-                mask = mask & (self._data['app_version'].isin(versions))
-            data_masked = self._data.loc[mask]
-            return data_masked['session_id'].unique().tolist()
-        else:
-            return []
+    def _availableDates(self, id_filter:IDFilterCollection, version_filter:VersioningFilterCollection) -> Dict[str,datetime]:
+        ret_val : Dict[str,datetime] = {}
 
-    def _datesFromIDs(self, id_list:List[str], id_mode:IDMode=IDMode.SESSION, versions:Optional[List[int]]=None) -> Dict[str, datetime]:
-        if id_mode == IDMode.SESSION:
-            min_date = self._data[self._data['session_id'].isin(id_list)]['timestamp'].min()
-            max_date = self._data[self._data['session_id'].isin(id_list)]['timestamp'].max()
-        elif id_mode == IDMode.USER:
-            min_date = self._data[self._data['user_id'].isin(id_list)]['timestamp'].min()
-            max_date = self._data[self._data['user_id'].isin(id_list)]['timestamp'].max()
-        else:
-            min_date = self._data[self._data['session_id'].isin(id_list)]['timestamp'].min()
-            max_date = self._data[self._data['session_id'].isin(id_list)]['timestamp'].max()
-        return {'min':pd.to_datetime(min_date), 'max':pd.to_datetime(max_date)}
+        if self.Connector.IsOpen:
+            sess_mask : PDMask = True
+            if id_filter.SessionFilter:
+                match id_filter.SessionFilter.FilterMode:
+                    case FilterMode.INCLUDE:
+                        sess_mask = self.Connector.DataFrame['session_id'].isin(id_filter.SessionFilter.AsSet)
+                    case FilterMode.EXCLUDE:
+                        sess_mask = ~self.Connector.DataFrame['session_id'].isin(id_filter.SessionFilter.AsSet)
+            user_mask : PDMask = True
+            if id_filter.PlayerFilter:
+                match id_filter.PlayerFilter.FilterMode:
+                    case FilterMode.INCLUDE:
+                        user_mask = self.Connector.DataFrame['user_id'].isin(id_filter.PlayerFilter.AsSet)
+                    case FilterMode.EXCLUDE:
+                        user_mask = ~self.Connector.DataFrame['user_id'].isin(id_filter.PlayerFilter.AsSet)
+
+            _col  = self.Connector.DataFrame[sess_mask & user_mask]['timestamp']
+            min_date = _col.min()
+            max_date = _col.max()
+            ret_val = {'min':pd.to_datetime(min_date), 'max':pd.to_datetime(max_date)}
+
+        return ret_val
+
+    def _availableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:TimingFilterCollection) -> List[SemanticVersion | str]:
+        ret_val : List[SemanticVersion | str] = []
+
+        if self.Connector.IsOpen:
+            version_col  : str = "log_version" if mode==VersionType.LOG else "app_version" if mode==VersionType.APP else "app_branch"
+            ret_val = [SemanticVersion.FromString(str(ver)) for ver in self.Connector.DataFrame[version_col].unique().tolist()]
+
+        return ret_val
+
+
+    def _getEventRows(self, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
+        ret_val : List[Tuple] = []
+
+        if self.Connector.IsOpen and not self.Connector.DataFrame.empty:
+            sess_mask : PDMask = True
+            if id_filter.SessionFilter:
+                match id_filter.SessionFilter.FilterMode:
+                    case FilterMode.INCLUDE:
+                        sess_mask = self.Connector.DataFrame['session_id'].isin(id_filter.SessionFilter.AsSet)
+                    case FilterMode.EXCLUDE:
+                        sess_mask = ~self.Connector.DataFrame['session_id'].isin(id_filter.SessionFilter.AsSet)
+            user_mask : PDMask = True
+            if id_filter.PlayerFilter:
+                match id_filter.PlayerFilter.FilterMode:
+                    case FilterMode.INCLUDE:
+                        user_mask = self.Connector.DataFrame['user_id'].isin(id_filter.PlayerFilter.AsSet)
+                    case FilterMode.EXCLUDE:
+                        user_mask = ~self.Connector.DataFrame['user_id'].isin(id_filter.PlayerFilter.AsSet)
+            event_mask : PDMask = True
+            if event_filter.EventNameFilter:
+                match event_filter.EventNameFilter.FilterMode:
+                    case FilterMode.INCLUDE:
+                        event_mask = self.Connector.DataFrame['event_name'].isin(event_filter.EventNameFilter.AsSet)
+                    case FilterMode.EXCLUDE:
+                        event_mask = ~self.Connector.DataFrame['event_name'].isin(event_filter.EventNameFilter.AsSet)
+            _data = self.Connector.DataFrame[sess_mask & user_mask & event_mask]
+            ret_val = list(_data.itertuples(index=False, name=None))
+        return ret_val
 
     # *** PUBLIC STATICS ***
 
