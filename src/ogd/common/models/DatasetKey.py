@@ -27,7 +27,9 @@ class DatasetKey:
     # 2. Get Dates from key
         # If this _dataset_key matches the expected format,
         # i.e. split is: ["GAME", "ID", "PARTS",..., "YYYYMMDD", "to", "YYYYMMDD"]
-        # Technically, the dates 
+        # Technically, the dates aren't required, and we could have a player ID instead.
+        # In that case, we just don't have dates built into the Key.
+        # File API should be prepared to account for this.
         if len(_pieces[-3]) == 8:
             _from_year  = int(_pieces[-3][0:4])
             _from_month = int(_pieces[-3][4:6])
