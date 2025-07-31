@@ -24,16 +24,16 @@ class CSVInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:GameStoreConfig, fail_fast:bool, delim:str = ',', store:Optional[CSVConnector]=None):
+    def __init__(self, config:GameStoreConfig, fail_fast:bool, extension:str="tsv", store:Optional[CSVConnector]=None):
         self._store : CSVConnector
 
         super().__init__(config=config, fail_fast=fail_fast)
-        self._delimiter = delim
+        self._extension = extension
         self._data = pd.DataFrame()
         if store:
             self._store = store
         elif isinstance(self.Config.StoreConfig, FileStoreConfig):
-            self._store = CSVConnector(config=self.Config.StoreConfig, delim=delim, with_secondary_files=False)
+            self._store = CSVConnector(config=self.Config.StoreConfig, extension=self._extension, with_secondary_files=set())
 
         # We always just read the file right away.
         self.Connector.Open()
@@ -50,7 +50,7 @@ class CSVInterface(Interface):
 
             self._data = pd.read_csv(
                 filepath_or_buffer=self.Connector.File,
-                delimiter=self._delimiter,
+                delimiter=self.Delimiter,
                 dtype=target_types,
                 parse_dates=date_columns
             )
@@ -60,6 +60,21 @@ class CSVInterface(Interface):
     @property
     def DataFrame(self) -> pd.DataFrame:
         return self._data
+
+    @property
+    def Extension(self) -> str:
+        return self._extension
+
+    @property
+    def Delimiter(self) -> str:
+        match self.Extension:
+            case "tsv":
+                return "\t"
+            case "csv":
+                return ","
+            case _:
+                Logger.Log(f"CSVInterface has unexpected extension {self.Extension}, defaulting to comma-separation!", logging.WARN)
+                return ","
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
