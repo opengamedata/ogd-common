@@ -64,6 +64,11 @@ class FileStoreConfig(DataStoreConfig):
 
     @property
     def Filename(self) -> str:
+        """The name of the file targeted by the FileStoreConfig
+
+        :return: _description_
+        :rtype: str
+        """
         return self._location.Filename
 
     @property
@@ -81,6 +86,11 @@ class FileStoreConfig(DataStoreConfig):
 
     @property
     def Filepath(self) -> str | Path:
+        """The full path to the file targeted by the FileStoreConfig
+
+        :return: _description_
+        :rtype: str | Path
+        """
         return self.Location.Filepath
 
     @property
