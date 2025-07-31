@@ -45,7 +45,7 @@ class BigQueryInterface(Interface):
             self._store = BigQueryConnector(config=self.Config.StoreConfig)
         else:
             raise ValueError(f"BigQueryInterface config was for a connector other than BigQuery! Found config type {type(self.Config.StoreConfig)}")
-        self._store.Open()
+        self.Connector.Open()
 
     @property
     def DBPath(self) -> str:
@@ -380,40 +380,41 @@ class BigQueryInterface(Interface):
                 bigquery.ArrayQueryParameter(name="event_name_list", array_type="STRING", values=event_filter.EventNameFilter.AsList)
             )
 
-        codes_clause : Optional[LiteralString] = None
-        codes_param  : List[BigQueryParameter] = []
-        if event_filter.EventCodeFilter:
-            if isinstance(event_filter.EventCodeFilter, SetFilter) and len(event_filter.EventCodeFilter.AsSet) > 0:
-                exclude = "NOT" if event_filter.EventCodeFilter.FilterMode == FilterMode.EXCLUDE else ""
-                codes_clause = f"`app_branch` {exclude} IN @app_branchs"
-                codes_param.append(
-                    bigquery.ArrayQueryParameter(name="app_branchs", array_type="INT64", values=event_filter.EventCodeFilter.AsList)
-                )
-            elif isinstance(event_filter.EventCodeFilter, RangeFilter):
-                if event_filter.EventCodeFilter.Min and event_filter.EventCodeFilter.Max:
-                    exclude = "NOT" if event_filter.EventCodeFilter.FilterMode == FilterMode.EXCLUDE else ""
-                    codes_clause = f"`app_branch` {exclude} BETWEEN @event_codes_range"
-                    codes_param.append(
-                        bigquery.RangeQueryParameter(name="event_codes_range", range_element_type="INT64", start=event_filter.EventCodeFilter.Min, end=event_filter.EventCodeFilter.Max)
-                    )
-                elif event_filter.EventCodeFilter.Min:
-                    exclude = "<" if event_filter.EventCodeFilter.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
-                    codes_clause = f"`app_branch` {exclude} @event_codes_min"
-                    codes_param.append(
-                        bigquery.ScalarQueryParameter(name="event_codes_min", type_="STRING", value=str(event_filter.EventCodeFilter.Min))
-                    )
-                else: # event_filter.EventCodeFilter.Max is not None
-                    exclude = ">" if event_filter.EventCodeFilter.FilterMode == FilterMode.EXCLUDE else "<" # > if we're excluding this max, or < if we're including this max
-                    codes_clause = f"`app_branch` {exclude} @event_codes_max"
-                    codes_param.append(
-                        bigquery.ScalarQueryParameter(name="event_codes_max", type_="STRING", value=str(event_filter.EventCodeFilter.Max))
-                    )
+        # codes_clause : Optional[LiteralString] = None
+        # codes_param  : List[BigQueryParameter] = []
+        # if event_filter.EventCodeFilter:
+        #     if isinstance(event_filter.EventCodeFilter, SetFilter) and len(event_filter.EventCodeFilter.AsSet) > 0:
+        #         exclude = "NOT" if event_filter.EventCodeFilter.FilterMode == FilterMode.EXCLUDE else ""
+        #         codes_clause = f"`event_code` {exclude} IN @app_branchs"
+        #         codes_param.append(
+        #             bigquery.ArrayQueryParameter(name="app_branchs", array_type="INT64", values=event_filter.EventCodeFilter.AsList)
+        #         )
+        #     elif isinstance(event_filter.EventCodeFilter, RangeFilter):
+        #         if event_filter.EventCodeFilter.Min and event_filter.EventCodeFilter.Max:
+        #             exclude = "NOT" if event_filter.EventCodeFilter.FilterMode == FilterMode.EXCLUDE else ""
+        #             codes_clause = f"`event_code` {exclude} BETWEEN @event_codes_range"
+        #             codes_param.append(
+        #                 bigquery.RangeQueryParameter(name="event_codes_range", range_element_type="INT64", start=event_filter.EventCodeFilter.Min, end=event_filter.EventCodeFilter.Max)
+        #             )
+        #         elif event_filter.EventCodeFilter.Min:
+        #             exclude = "<" if event_filter.EventCodeFilter.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
+        #             codes_clause = f"`event_code` {exclude} @event_codes_min"
+        #             codes_param.append(
+        #                 bigquery.ScalarQueryParameter(name="event_codes_min", type_="STRING", value=str(event_filter.EventCodeFilter.Min))
+        #             )
+        #         else: # event_filter.EventCodeFilter.Max is not None
+        #             exclude = ">" if event_filter.EventCodeFilter.FilterMode == FilterMode.EXCLUDE else "<" # > if we're excluding this max, or < if we're including this max
+        #             codes_clause = f"`event_code` {exclude} @event_codes_max"
+        #             codes_param.append(
+        #                 bigquery.ScalarQueryParameter(name="event_codes_max", type_="STRING", value=str(event_filter.EventCodeFilter.Max))
+        #             )
 
         clause_list_raw : List[Optional[LiteralString]] = [sess_clause, users_clause, times_clause, indices_clause, log_clause, app_clause, branch_clause, events_clause, codes_clause]
         clause_list     : List[LiteralString]           = [clause for clause in clause_list_raw if clause is not None]
         where_clause    : LiteralString                 = f"WHERE {'\nAND '.join(clause_list)}" if len(clause_list) > 0 else ""
 
-        params_collection = [sess_param, users_param, times_param, indices_param, log_param, app_param, branch_param, events_param, codes_param]
+        # params_collection = [sess_param, users_param, times_param, indices_param, log_param, app_param, branch_param, events_param, codes_param]
+        params_collection = [sess_param, users_param, times_param, indices_param, log_param, app_param, branch_param, events_param]
         params = list(chain.from_iterable(params_collection))
 
         return ParamaterizedClause(clause=where_clause, params=params)
