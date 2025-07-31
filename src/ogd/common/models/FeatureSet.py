@@ -32,13 +32,13 @@ class FeatureSet:
     def FeatureLines(self) -> List[ExportRow]:
         return [feature.ColumnValues for feature in self.Features]
     @property
-    def PopulationFeatureLines(self) -> List[ExportRow]:
+    def PopulationLines(self) -> List[ExportRow]:
         return [feature.ColumnValues for feature in self.PopulationFeatures]
     @property
-    def PlayerFeatureLines(self) -> List[ExportRow]:
+    def PlayerLines(self) -> List[ExportRow]:
         return [feature.ColumnValues for feature in self.PlayerFeatures]
     @property
-    def SessionFeatureLines(self) -> List[ExportRow]:
+    def SessionLines(self) -> List[ExportRow]:
         return [feature.ColumnValues for feature in self.SessionFeatures]
 
     @property
