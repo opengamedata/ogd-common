@@ -5,13 +5,13 @@ import logging
 from typing import List, Set
 
 # import OGD files
-from ogd.common.interfaces.outerfaces.DataOuterface import DataOuterface
+from ogd.common.storage.outerfaces.Outerface import Outerface
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
 
-class DebugOuterface(DataOuterface):
+class DebugOuterface(Outerface):
     """Outerface used for debugging purposes.
 
     Its destination is standard output; all values are output via print statements.
@@ -19,25 +19,11 @@ class DebugOuterface(DataOuterface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, game_id:str, config:GameStoreConfig, export_modes:Set[ExportMode]):
-        super().__init__(game_id=game_id, export_modes=export_modes, config=config)
+    def __init__(self, config:GameStoreConfig, export_modes:Set[ExportMode]):
+        super().__init__(export_modes=export_modes, config=config)
         # self.Open()
 
-    def __del__(self):
-        self.Close()
-
     # *** IMPLEMENT ABSTRACTS ***
-
-    def _open(self) -> bool:
-        self._display(f"Using a debug outerface to view OGD output for {self._game_id}.")
-        return True
-
-    def _close(self) -> bool:
-        self._display(f"No longer using a debug outerface to view OGD output for {self._game_id}.")
-        return True
-
-    def _destination(self, mode:ExportMode) -> str:
-        return "Logger.Log"
 
     def _removeExportMode(self, mode:ExportMode):
         match mode:
