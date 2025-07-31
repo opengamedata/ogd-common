@@ -5,8 +5,9 @@ from pathlib import Path
 from typing import Dict, Optional, Self
 
 # ogd imports
-from ogd.common.schemas.Schema import Schema
+from ogd.common.filters.Filter import Filter
 from ogd.common.models.DatasetKey import DatasetKey
+from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
@@ -22,6 +23,7 @@ class DatasetSchema(Schema):
     _DEFAULT_OGD_REVISION = "UNKNOWN REVISION"
     _DEFAULT_SESSION_COUNT = None
     _DEFAULT_PLAYER_COUNT = None
+    _DEFAULT_FILTERS = {}
     _DEFAULT_RAW_FILE = None
     _DEFAULT_EVENTS_FILE = None
     _DEFAULT_EVENTS_TEMPLATE = None
@@ -34,10 +36,11 @@ class DatasetSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str,           key:DatasetKey,
-                 date_modified:Optional[date|str],   start_date:Optional[date|str],      end_date:Optional[date|str],
-                 ogd_revision:Optional[str],     session_ct:Optional[int], player_ct:Optional[int],
-                 raw_file:Optional[Path],
+    def __init__(self, name:str, key:DatasetKey,
+                 start_date:Optional[date|str],  end_date:Optional[date|str], date_modified:Optional[date|str], 
+                 ogd_revision:Optional[str],     filters:Optional[Dict[str, str | Filter]],
+                 session_ct:Optional[int],       player_ct:Optional[int],
+                 raw_file:Optional[Path],  
                  events_file:Optional[Path],     events_template:Optional[Path],
                  sessions_file:Optional[Path],   sessions_template:Optional[Path],
                  players_file:Optional[Path],    players_template:Optional[Path],
@@ -51,10 +54,11 @@ class DatasetSchema(Schema):
 
         ```
         {
-            "ogd_revision": "1234567",
             "start_date": "01/01/2025",
             "end_date": "01/31/2025",
             "date_modified": "02/02/2025",
+            "ogd_revision": "1234567",
+            "filters" : {},
             "sessions": 1234,
             "population_file": "path/to/GAME_NAME_20250101_to_20250131_1234567_population-features.zip",
             "population_template": "path/to/template",
@@ -115,6 +119,7 @@ class DatasetSchema(Schema):
         self._end_date            : date | str     = end_date            or self._parseEndDate(unparsed_elements=unparsed_elements)
     # 2. Set metadata
         self._ogd_revision        : str            = ogd_revision        or self._parseOGDRevision(unparsed_elements=unparsed_elements)
+        self._filters             : Dict[str, str | Filter] = filters    or self._parseFilters(unparsed_elements=unparsed_elements)
         self._session_ct          : Optional[int]  = session_ct          or self._parseSessionCount(unparsed_elements=unparsed_elements)
         self._player_ct           : Optional[int]  = player_ct           or self._parsePlayerCount(unparsed_elements=unparsed_elements)
     # 3. Set file/template paths
@@ -157,6 +162,9 @@ class DatasetSchema(Schema):
     @property
     def OGDRevision(self) -> str:
         return self._ogd_revision
+    @property
+    def Filters(self) -> Dict[str, str | Filter]:
+        return self._filters
     @property
     def SessionCount(self) -> Optional[int]:
         return self._session_ct
@@ -261,7 +269,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
         return DatasetSchema(name=name, key=_key,
                              date_modified=None, start_date=None, end_date=None,
-                             ogd_revision=None,   session_ct=None, player_ct=None,
+                             ogd_revision=None, filters=None,
+                             session_ct=None, player_ct=None,
                              raw_file=None,
                              events_file    =None, events_template    =None,
                              sessions_file  =None, sessions_template  =None,
@@ -278,6 +287,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             start_date          = cls._DEFAULT_START_DATE,
             end_date            = cls._DEFAULT_END_DATE,
             ogd_revision        = cls._DEFAULT_OGD_REVISION,
+            filters             = cls._DEFAULT_FILTERS,
             session_ct          = cls._DEFAULT_SESSION_COUNT,
             player_ct           = cls._DEFAULT_PLAYER_COUNT,
             raw_file            = cls._DEFAULT_RAW_FILE,
@@ -454,6 +464,16 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             valid_keys=["players"],
             to_type=int,
             default_value=DatasetSchema._DEFAULT_PLAYER_COUNT,
+            remove_target=True
+        )
+
+    @staticmethod
+    def _parseFilters(unparsed_elements:Map) -> Dict[str, Filter | str]:
+        return DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["filters"],
+            to_type=dict,
+            default_value=DatasetSchema._DEFAULT_FILTERS,
             remove_target=True
         )
 
