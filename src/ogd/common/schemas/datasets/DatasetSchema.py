@@ -2,7 +2,7 @@
 import logging
 from datetime import date, datetime
 from pathlib import Path
-from typing import Dict, Optional, Self
+from typing import Dict, List, Optional, Self
 
 # ogd imports
 from ogd.common.filters.Filter import Filter
@@ -251,6 +251,29 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 - Files: [{self.FileSet}]  
 - Templates: [{self.TemplateSet}]"""
         return ret_val
+
+    @property
+    def AsMetadata(self) -> Dict[str, Optional[int | str | List | Dict]]:
+        return {
+            "game_id"      :self.Key.GameID,
+            "dataset_id"   :str(self.Key),
+            "ogd_revision" :self.OGDRevision,
+            "filters"      :{name:str(filt) for name,filt in self.Filters.items()},
+            "start_date"   :self.StartDate.strftime("%m/%d/%Y")    if isinstance(self.StartDate, date)    else self.StartDate,
+            "end_date"     :self.EndDate.strftime("%m/%d/%Y")      if isinstance(self.EndDate, date)      else self.EndDate,
+            "date_modified":self.DateModified.strftime("%m/%d/%Y") if isinstance(self.DateModified, date) else self.DateModified,
+            "sessions"     :self.SessionCount,
+            "population_file"     : str(self.PopulationFile),
+            "population_template" : str(self.PopulationTemplate),
+            "players_file"        : str(self.PlayersFile),
+            "players_template"    : str(self.PlayersTemplate),
+            "sessions_file"       : str(self.SessionsFile),
+            "sessions_template"   : str(self.SessionsTemplate),
+            "raw_file"            : str(self.RawFile),
+            "events_template"     : str(self.EventsTemplate),
+            "events_file"         : str(self.EventsFile),
+            "all_events_template" : str(self.EventsTemplate)
+        }
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "DatasetSchema":
