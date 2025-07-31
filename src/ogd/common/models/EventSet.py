@@ -16,11 +16,18 @@ class EventSet:
         self._filters = filters
 
     def __iadd__(self, events:List[Event]):
-        self._events += events
+        self.Events += events
+
+    def __len__(self):
+        return len(self.Events)
 
     @property
     def Events(self) -> List[Event]:
         return self._events
+    @Events.setter
+    def Events(self, events:List[Event]):
+        self._events = events
+
     @property
     def GameEvents(self) -> List[Event]:
         return [event for event in self.Events if event.EventSource == EventSource.GAME]

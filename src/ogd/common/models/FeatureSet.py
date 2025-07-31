@@ -15,9 +15,19 @@ class FeatureSet:
         self._features = features
         self._filters = filters
 
+    def __iadd__(self, features:List[Feature]):
+        self.Features += features
+
+    def __len__(self):
+        return len(self.Features)
+
     @property
     def Features(self) -> List[Feature]:
         return self._features
+    @Features.setter
+    def Features(self, features:List[Feature]):
+        self._features = features
+
     @property
     def PopulationFeatures(self) -> List[Feature]:
         return [feature for feature in self.Features if feature.PlayerID == "*" and feature.SessionID == "*"]
