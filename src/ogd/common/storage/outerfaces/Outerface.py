@@ -8,10 +8,15 @@ from typing import Any, Dict, List, Set
 # import local files
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.ExportMode import ExportMode
+from ogd.common.models.GameData import GameData
+from ogd.common.models.Event import Event
+from ogd.common.models.Feature import Feature
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
+from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.storage.connectors.StorageConnector import StorageConnector
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
+from ogd.common.utils.Logger import Logger
 
 class Outerface:
     """Base class for feature and event output.
@@ -134,28 +139,44 @@ class Outerface:
         else:
             Logger.Log(f"Skipping WriteLines in {type(self).__name__}, export mode {mode} is not enabled for this outerface", depth=3)
 
-    def WriteLines(self, lines:List[ExportRow], mode:ExportMode) -> None:
-        if mode in self.ExportModes:
-            match (mode):
-                case ExportMode.EVENTS:
-                    self._writeRawEventLines(events=lines)
-                    Logger.Log(f"Wrote {len(lines)} {self.Config.GameID} events", depth=3)
-                case ExportMode.DETECTORS:
-                    self._writeProcessedEventLines(events=lines)
-                    Logger.Log(f"Wrote {len(lines)} {self.Config.GameID} processed events", depth=3)
-                case ExportMode.SESSION:
-                    self._writeSessionLines(sessions=lines)
-                    Logger.Log(f"Wrote {len(lines)} {self.Config.GameID} session lines", depth=3)
-                case ExportMode.PLAYER:
-                    self._writePlayerLines(players=lines)
-                    Logger.Log(f"Wrote {len(lines)} {self.Config.GameID} player lines", depth=3)
-                case ExportMode.POPULATION:
-                    self._writePopulationLines(populations=lines)
-                    Logger.Log(f"Wrote {len(lines)} {self.Config.GameID} population lines", depth=3)
-                case _:
-                    Logger.Log(f"Failed to write lines for unrecognized export mode {mode}!", level=logging.WARN, depth=3)
+    def WriteEvents(self, events:List[Event], mode:ExportMode) -> None:
+        if isinstance(self.Config.Table, EventTableSchema):
+            lines = [event.ColumnValues for event in events]
+            if mode in self.ExportModes:
+                match (mode):
+                    case ExportMode.EVENTS:
+                        self._writeRawEventLines(events=lines)
+                        Logger.Log(f"Wrote {len(events)} {self.Config.GameID} events", depth=3)
+                    case ExportMode.DETECTORS:
+                        self._writeProcessedEventLines(events=lines)
+                        Logger.Log(f"Wrote {len(events)} {self.Config.GameID} processed events", depth=3)
+                    case _:
+                        Logger.Log(f"Failed to write lines for unrecognized Event export mode {mode}!", level=logging.WARN, depth=3)
+            else:
+                Logger.Log(f"Skipping WriteLines in {type(self).__name__}, export mode {mode} is not enabled for this outerface", depth=3)
         else:
-            Logger.Log(f"Skipping WriteLines in {type(self).__name__}, export mode {mode} is not enabled for this outerface", depth=3)
+            Logger.Log(f"Could not write events from {type(self).__name__}, outerface was not configured for a Events table!", depth=3)
+
+    def WriteFeatures(self, features:List[Feature], mode:ExportMode) -> None:
+        if isinstance(self.Config.Table, FeatureTableSchema):
+            lines = [feature.ColumnValues for feature in features]
+            if mode in self.ExportModes:
+                match (mode):
+                    case ExportMode.SESSION:
+                        self._writeSessionLines(sessions=lines)
+                        Logger.Log(f"Wrote {len(features)} {self.Config.GameID} session lines", depth=3)
+                    case ExportMode.PLAYER:
+                        self._writePlayerLines(players=lines)
+                        Logger.Log(f"Wrote {len(features)} {self.Config.GameID} player lines", depth=3)
+                    case ExportMode.POPULATION:
+                        self._writePopulationLines(populations=lines)
+                        Logger.Log(f"Wrote {len(features)} {self.Config.GameID} population lines", depth=3)
+                    case _:
+                        Logger.Log(f"Failed to write lines for unrecognized Feature export mode {mode}!", level=logging.WARN, depth=3)
+            else:
+                Logger.Log(f"Skipping WriteLines in {type(self).__name__}, export mode {mode} is not enabled for this outerface", depth=3)
+        else:
+            Logger.Log(f"Could not write features from {type(self).__name__}, outerface was not configured for a Features table!", depth=3)
 
     # *** PROPERTIES ***
 
