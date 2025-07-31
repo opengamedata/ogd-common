@@ -6,14 +6,14 @@ import logging
 from typing import Any, Dict, List, Set
 
 # import local files
-from ogd.common.interfaces.Interface import Interface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.storage.connectors.StorageConnector import StorageConnector
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
 
-class DataOuterface(Interface):
+class Outerface:
     """Base class for feature and event output.
 
     :param Interface: _description_
@@ -24,9 +24,14 @@ class DataOuterface(Interface):
 
     # *** ABSTRACTS ***
 
+    @property
     @abc.abstractmethod
-    def _destination(self, mode:ExportMode) -> str:
+    def Connector(self) -> StorageConnector:
         pass
+
+    # @abc.abstractmethod
+    # def _destination(self, mode:ExportMode) -> str:
+    #     pass
 
     @abc.abstractmethod
     def _removeExportMode(self, mode:ExportMode) -> str:
@@ -74,14 +79,14 @@ class DataOuterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, game_id, config:GameStoreConfig, export_modes:Set[ExportMode]):
-        super().__init__(config=config)
-        self._game_id : str  = game_id
+    def __init__(self, config:GameStoreConfig, export_modes:Set[ExportMode]):
+        self._config  : GameStoreConfig = config
         self._modes   : Set[ExportMode] = export_modes
         self._session_ct : int = 0
 
-    def __del__(self):
-        self.Close()
+    @property
+    def Config(self) -> GameStoreConfig:
+        return self._config
 
     @property
     def ExportModes(self) -> Set[ExportMode]:
@@ -98,8 +103,8 @@ class DataOuterface(Interface):
 
     # *** PUBLIC METHODS ***
 
-    def Destination(self, mode:ExportMode):
-        return self._destination(mode=mode)
+    # def Destination(self, mode:ExportMode):
+    #     return self._destination(mode=mode)
 
     def RemoveExportMode(self, mode:ExportMode):
         self._removeExportMode(mode)
@@ -109,21 +114,21 @@ class DataOuterface(Interface):
     def WriteHeader(self, header:List[str], mode:ExportMode):
         if mode in self.ExportModes:
             match (mode):
-                case ExportMode.EVENTS: 
+                case ExportMode.EVENTS:
                     self._writeRawEventsHeader(header=header)
-                    Logger.Log(f"Wrote event header for {self._game_id} events", depth=3)
+                    Logger.Log(f"Wrote event header for {self.Config.GameID} events", depth=3)
                 case ExportMode.DETECTORS:
                     self._writeProcessedEventsHeader(header=header)
-                    Logger.Log(f"Wrote processed event header for {self._game_id} events", depth=3)
+                    Logger.Log(f"Wrote processed event header for {self.Config.GameID} events", depth=3)
                 case ExportMode.SESSION:
                     self._writeSessionHeader(header=header)
-                    Logger.Log(f"Wrote session feature header for {self._game_id} sessions", depth=3)
+                    Logger.Log(f"Wrote session feature header for {self.Config.GameID} sessions", depth=3)
                 case ExportMode.PLAYER:
                     self._writePlayerHeader(header=header)
-                    Logger.Log(f"Wrote player feature header for {self._game_id} players", depth=3)
+                    Logger.Log(f"Wrote player feature header for {self.Config.GameID} players", depth=3)
                 case ExportMode.POPULATION:
                     self._writePopulationHeader(header=header)
-                    Logger.Log(f"Wrote population feature header for {self._game_id} populations", depth=3)
+                    Logger.Log(f"Wrote population feature header for {self.Config.GameID} populations", depth=3)
                 case _:
                     Logger.Log(f"Failed to write header for unrecognized export mode {mode}!", level=logging.WARN, depth=3)
         else:
@@ -134,19 +139,19 @@ class DataOuterface(Interface):
             match (mode):
                 case ExportMode.EVENTS:
                     self._writeRawEventLines(events=lines)
-                    Logger.Log(f"Wrote {len(lines)} {self._game_id} events", depth=3)
+                    Logger.Log(f"Wrote {len(lines)} {self.Config.GameID} events", depth=3)
                 case ExportMode.DETECTORS:
                     self._writeProcessedEventLines(events=lines)
-                    Logger.Log(f"Wrote {len(lines)} {self._game_id} processed events", depth=3)
+                    Logger.Log(f"Wrote {len(lines)} {self.Config.GameID} processed events", depth=3)
                 case ExportMode.SESSION:
                     self._writeSessionLines(sessions=lines)
-                    Logger.Log(f"Wrote {len(lines)} {self._game_id} session lines", depth=3)
+                    Logger.Log(f"Wrote {len(lines)} {self.Config.GameID} session lines", depth=3)
                 case ExportMode.PLAYER:
                     self._writePlayerLines(players=lines)
-                    Logger.Log(f"Wrote {len(lines)} {self._game_id} player lines", depth=3)
+                    Logger.Log(f"Wrote {len(lines)} {self.Config.GameID} player lines", depth=3)
                 case ExportMode.POPULATION:
                     self._writePopulationLines(populations=lines)
-                    Logger.Log(f"Wrote {len(lines)} {self._game_id} population lines", depth=3)
+                    Logger.Log(f"Wrote {len(lines)} {self.Config.GameID} population lines", depth=3)
                 case _:
                     Logger.Log(f"Failed to write lines for unrecognized export mode {mode}!", level=logging.WARN, depth=3)
         else:
