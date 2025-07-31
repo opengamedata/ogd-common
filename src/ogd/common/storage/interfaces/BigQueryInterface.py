@@ -73,10 +73,11 @@ class BigQueryInterface(Interface):
             # 1. Create query & config
             id_col : LiteralString       = "session_id" if mode==IDMode.SESSION else "user_id"
             suffix : ParamaterizedClause = self._generateSuffixClause(date_filter=date_filter)
+            suffix_clause = f"WHERE {suffix.clause}" if suffix.clause is not None else ""
             query = f"""
                 SELECT DISTINCT {id_col}
                 FROM `{self.DBPath}`
-                {suffix.clause}
+                {suffix_clause}
             """
             cfg = bigquery.QueryJobConfig(query_parameters=suffix.params)
 
@@ -217,7 +218,7 @@ class BigQueryInterface(Interface):
         
         if date_filter.TimestampFilter and date_filter.TimestampFilter.Min and date_filter.TimestampFilter.Max:
             str_min, str_max = date_filter.TimestampFilter.Min.strftime("%Y%m%d"), date_filter.TimestampFilter.Max.strftime("%Y%m%d")
-            clause = "WHERE _TABLE_SUFFIX BETWEEN @suffixstart AND @suffixend"
+            clause = "_TABLE_SUFFIX BETWEEN @suffixstart AND @suffixend"
             params.append(
                 bigquery.ScalarQueryParameter(type_="STRING", value=str_min, name="suffixstart")
             )
