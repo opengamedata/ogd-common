@@ -1,6 +1,6 @@
 """EventTableSchema Module"""
 # import standard libraries
-from typing import Dict, Optional, Self
+from typing import Dict, List, Optional, Self
 
 # import local files
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapElement
@@ -18,7 +18,7 @@ class EventMapSchema(ColumnMapSchema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name,
-                 app_id:Optional[ColumnMapElement],      user_id:Optional[ColumnMapElement],     session_id:Optional[ColumnMapElement],
+                 app_id:Optional[str | List[str]],       user_id:Optional[str | List[str]],      session_id:Optional[str | List[str]],
                  app_version:Optional[ColumnMapElement], app_branch:Optional[ColumnMapElement],  log_version:Optional[ColumnMapElement],
                  timestamp:Optional[ColumnMapElement],   time_offset:Optional[ColumnMapElement], event_sequence_index:Optional[ColumnMapElement],
                  event_name:Optional[ColumnMapElement],  event_source:Optional[ColumnMapElement],event_data:Optional[ColumnMapElement],
@@ -84,6 +84,8 @@ class EventMapSchema(ColumnMapSchema):
         """
         unparsed_elements : Map = other_elements or {}
 
+        super().__init__(name=name, app_id=app_id, user_id=user_id, session_id=session_id,
+                         other_elements=unparsed_elements)
         self._app_version          : ColumnMapElement = app_version          or self._parseAppVersion(unparsed_elements=self._raw_map)
         self._app_branch           : ColumnMapElement = app_branch           or self._parseAppBranch(unparsed_elements=self._raw_map)
         self._log_version          : ColumnMapElement = log_version          or self._parseLogVersion(unparsed_elements=self._raw_map)
@@ -95,9 +97,6 @@ class EventMapSchema(ColumnMapSchema):
         self._event_data           : ColumnMapElement = event_data           or self._parseEventData(unparsed_elements=unparsed_elements)
         self._game_state           : ColumnMapElement = game_state           or self._parseGameState(unparsed_elements=unparsed_elements)
         self._user_data            : ColumnMapElement = user_data            or self._parseUserData(unparsed_elements=unparsed_elements)
-
-        super().__init__(name=name, app_id=app_id, user_id=user_id, session_id=session_id,
-                         other_elements=unparsed_elements)
 
     @property
     def AppVersionColumn(self) -> ColumnMapElement:

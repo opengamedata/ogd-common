@@ -217,9 +217,12 @@ class BigQueryInterface(Interface):
         
         if date_filter.TimestampFilter and date_filter.TimestampFilter.Min and date_filter.TimestampFilter.Max:
             str_min, str_max = date_filter.TimestampFilter.Min.strftime("%Y%m%d"), date_filter.TimestampFilter.Max.strftime("%Y%m%d")
-            clause = "WHERE _TABLE_SUFFIX BETWEEN @suffixrange"
+            clause = "WHERE _TABLE_SUFFIX BETWEEN @suffixstart AND @suffixend"
             params.append(
-                bigquery.RangeQueryParameter(range_element_type="STRING", start=str_min, end=str_max, name="suffixrange")
+                bigquery.ScalarQueryParameter(type_="STRING", value=str_min, name="suffixstart")
+            )
+            params.append(
+                bigquery.ScalarQueryParameter(type_="STRING", value=str_max, name="suffixend")
             )
         
         return ParamaterizedClause(clause=clause, params=params)
@@ -289,9 +292,12 @@ class BigQueryInterface(Interface):
             elif isinstance(version_filter.LogVersionFilter, RangeFilter):
                 if version_filter.LogVersionFilter.Min and version_filter.LogVersionFilter.Max:
                     exclude = "NOT" if version_filter.LogVersionFilter.FilterMode == FilterMode.EXCLUDE else ""
-                    log_clause = f"`log_version` {exclude} BETWEEN @log_version_range"
+                    log_clause = f"`log_version` {exclude} BETWEEN @log_version_min AND @log_version_max"
                     log_param.append(
-                        bigquery.RangeQueryParameter(name="log_version_range", range_element_type="INT64", start=version_filter.LogVersionFilter.Min, end=version_filter.LogVersionFilter.Max)
+                        bigquery.ScalarQueryParameter(name="log_version_min", type_="STRING", value=str(version_filter.LogVersionFilter.Min))
+                    )
+                    log_param.append(
+                        bigquery.ScalarQueryParameter(name="log_version_max", type_="STRING", value=str(version_filter.LogVersionFilter.Max))
                     )
                 elif version_filter.LogVersionFilter.Min:
                     exclude = "<" if version_filter.LogVersionFilter.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
