@@ -68,12 +68,12 @@ class DatasetKey:
         )
 
     @staticmethod
-    def FromDateRange(game_id:str, start_date:date, end_date:date):
-        return DatasetKey(raw_key=f"{game_id}_{start_date.strftime('%Y%m%d')}_to_{end_date.strftime('%Y%m%d')}")
+    def FromDateRange(game_id:Optional[str], start_date:date, end_date:date):
+        return DatasetKey(raw_key=f"{game_id or DatasetKey._DEFAULT_GAME_ID}_{start_date.strftime('%Y%m%d')}_to_{end_date.strftime('%Y%m%d')}")
 
     @staticmethod
-    def FromID(game_id:str, ID:str):
-        return DatasetKey(raw_key=f"{game_id}_{ID}")
+    def FromID(game_id:Optional[str], ID:str):
+        return DatasetKey(raw_key=f"{game_id or DatasetKey._DEFAULT_GAME_ID}_{ID}")
 
     # *** PUBLIC METHODS ***
 

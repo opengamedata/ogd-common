@@ -19,6 +19,18 @@ class FeatureDataset:
         return self._features
 
     @property
+    def PopulationFeatures(self) -> List[Feature]:
+        return [feature for feature in self.Features if feature.PlayerID == "*" and feature.SessionID == "*"]
+
+    @property
+    def PlayerFeatures(self) -> List[Feature]:
+        return [feature for feature in self.Features if feature.PlayerID != "*"]
+
+    @property
+    def SessionFeatures(self) -> List[Feature]:
+        return [feature for feature in self.Features if feature.SessionID != "*"]
+
+    @property
     def Filters(self) -> Dict[str, Filter]:
         return self._filters
 
