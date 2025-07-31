@@ -1,13 +1,10 @@
 ## import standard libraries
-import logging
-from typing import Dict, List, Optional, Set, Union
+from typing import Any, Dict, List, Optional, Set
 
 # import local files
 from ogd.common.storage.outerfaces.Outerface import Outerface
-from ogd.common.models.GameData import GameData
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
 
 type OutputDict = Dict[str, Dict[str, List[str] | List[ExportRow]]]
@@ -34,6 +31,7 @@ class DictionaryOuterface(Outerface):
         self._sess     : List[ExportRow] = []
         self._plrs     : List[ExportRow] = []
         self._pops     : List[ExportRow] = []
+        self._meta     : Dict[str, Any]  = {}
         # self.Open()
 
     # *** IMPLEMENT ABSTRACTS ***
@@ -97,6 +95,9 @@ class DictionaryOuterface(Outerface):
 
     def _writePopulationLines(self, populations:List[ExportRow]) -> None:
         self._pops += populations
+
+    def _writeMetadata(self, metadata:Dict[str, Any]):
+        self._meta = metadata
 
     # *** PUBLIC STATICS ***
 

@@ -1,8 +1,9 @@
 """Module for a debugging outerface."""
 
 # import standard libraries
+import json
 import logging
-from typing import List, Set
+from typing import Any, Dict, List, Set
 
 # import OGD files
 from ogd.common.storage.outerfaces.Outerface import Outerface
@@ -83,6 +84,9 @@ class DebugOuterface(Outerface):
         _lengths = [len(elem) for elem in populations]
         self._display(f"{len(populations)} events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
 
+    def _writeMetadata(self, metadata:Dict[str, Any]):
+        self._display("Metadata:")
+        self._display(json.dumps(metadata))
     # *** PUBLIC STATICS ***
 
     # *** PUBLIC METHODS ***
