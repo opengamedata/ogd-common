@@ -10,9 +10,9 @@ from typing import Dict, List, Optional, Tuple, Union
 # import local files
 from ogd.common.filters.collections import *
 from ogd.common.models.Event import Event
-from ogd.common.models.EventDataset import EventDataset
+from ogd.common.models.EventSet import EventSet
 from ogd.common.models.Feature import Feature
-from ogd.common.models.FeatureDataset import FeatureDataset
+from ogd.common.models.FeatureSet import FeatureSet
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.models.SemanticVersion import SemanticVersion
@@ -141,7 +141,7 @@ class Interface(abc.ABC):
             Logger.Log(f"Could not retrieve data versions from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val
 
-    def GetEventCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection(), event_filter:EventFilterCollection=EventFilterCollection()) -> EventDataset:
+    def GetEventCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection(), event_filter:EventFilterCollection=EventFilterCollection()) -> EventSet:
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict | event_filter.AsDict
         _events : List[Event] = []
 
@@ -169,9 +169,9 @@ class Interface(abc.ABC):
         else:
             Logger.Log(f"Could not retrieve Event data from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
 
-        return EventDataset(events=_events, filters=_filters)
+        return EventSet(events=_events, filters=_filters)
 
-    def GetFeatureCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection()) -> FeatureDataset:
+    def GetFeatureCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection()) -> FeatureSet:
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict
         _features : List[Feature] = []
 
@@ -184,7 +184,7 @@ class Interface(abc.ABC):
                 rows = self._getFeatureRows(id_filter=id_filter, date_filter=date_filter, version_filter=version_filter)
                 for row in rows:
                     try:
-                        event = self.Config.Table.FeatureFromRow(row, fallbacks=fallbacks)
+                        feature = self.Config.Table.FeatureFromRow(row, fallbacks=fallbacks)
                         # in case event index was not given, we should fall back on using the order it came to us.
                     except Exception as err:
                         if self._fail_fast:
@@ -193,13 +193,13 @@ class Interface(abc.ABC):
                         else:
                             Logger.Log(f"Error while converting row ({row}) to Feature! This row will be skipped.\nFull error: {err}", logging.WARNING, depth=2)
                     else:
-                        _features.append(event)
+                        _features.append(feature)
             else:
                 Logger.Log(f"Could not retrieve Feature data from {self.Connector.ResourceName}, this interface is not configured for Feature data!", logging.WARNING, depth=3)
         else:
             Logger.Log(f"Could not retrieve Feature data from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
 
-        return FeatureDataset(features=_features, filters=_filters)
+        return FeatureSet(features=_features, filters=_filters)
 
     # *** PRIVATE STATICS ***
 
