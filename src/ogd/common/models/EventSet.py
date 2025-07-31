@@ -4,6 +4,7 @@ from typing import Dict, List
 from ogd.common.filters.collections import *
 from ogd.common.filters.Filter import Filter
 from ogd.common.models.Event import Event, EventSource
+from ogd.common.utils.typing import ExportRow
 
 class EventSet:
     """Dumb struct that primarily just contains an ordered list of events.
@@ -25,6 +26,13 @@ class EventSet:
         return [event for event in self.Events if event.EventSource == EventSource.GAME]
 
     @property
+    def EventLines(self) -> List[ExportRow]:
+        return [event.ColumnValues for event in self.Events]
+    @property
+    def GameEventLines(self) -> List[ExportRow]:
+        return [event.ColumnValues for event in self.GameEvents]
+
+    @property
     def Filters(self) -> Dict[str, Filter]:
         return self._filters
 
@@ -36,3 +44,6 @@ class EventSet:
     def AsMarkdown(self):
         _filters_clause = "* ".join([f"{key} : {val}" for key,val in self.Filters.items()])
         return f"## Event Dataset\n\n{_filters_clause}"
+
+    def ClearEvents(self):
+        self._events = []
