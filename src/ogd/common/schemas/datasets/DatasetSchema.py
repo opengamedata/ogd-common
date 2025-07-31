@@ -37,6 +37,7 @@ class DatasetSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, key:DatasetKey,
+                 game_id:Optional[str],
                  start_date:Optional[date|str],  end_date:Optional[date|str], date_modified:Optional[date|str], 
                  ogd_revision:Optional[str],     filters:Optional[Dict[str, str | Filter]],
                  session_ct:Optional[int],       player_ct:Optional[int],
@@ -112,7 +113,7 @@ class DatasetSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._key                 : DatasetKey     = key
+        self._key                 : DatasetKey     = key                 or DatasetKey.FromDateRange(game_id=game_id, start_date=start_date, end_date=end_date)
     # 1. Set dates
         self._date_modified       : date | str     = date_modified       or self._parseDateModified(unparsed_elements=unparsed_elements)
         self._start_date          : date | str     = start_date          or self._parseStartDate(unparsed_elements=unparsed_elements)
@@ -142,6 +143,7 @@ class DatasetSchema(Schema):
     @property
     def Key(self) -> DatasetKey:
         return self._key
+
     @property
     def DateModified(self) -> date | str:
         return self._date_modified
@@ -153,24 +155,43 @@ class DatasetSchema(Schema):
         else:
             ret_val = self._date_modified
         return ret_val
+
     @property
     def StartDate(self) -> date | str:
         return self._start_date
+    @StartDate.setter
+    def StartDate(self, val:date | str):
+        self._start_date = val
+
     @property
     def EndDate(self) -> date | str:
         return self._end_date
+    @EndDate.setter
+    def EndDate(self, val:date | str):
+        self._end_date = val
+
     @property
     def OGDRevision(self) -> str:
         return self._ogd_revision
+
     @property
     def Filters(self) -> Dict[str, str | Filter]:
         return self._filters
+
     @property
     def SessionCount(self) -> Optional[int]:
         return self._session_ct
+    @SessionCount.setter
+    def SessionCount(self, val:Optional[int]):
+        self._session_ct = val
+
     @property
     def PlayerCount(self) -> Optional[int]:
         return self._player_ct
+    @PlayerCount.setter
+    def PlayerCount(self, val:Optional[int]):
+        self._player_ct = val
+
     @property
     def RawFile(self) -> Optional[Path]:
         return self._raw_file
@@ -291,6 +312,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         _key                 : DatasetKey     = DatasetKey(raw_key=name)
 
         return DatasetSchema(name=name, key=_key,
+                             game_id=None,
                              date_modified=None, start_date=None, end_date=None,
                              ogd_revision=None, filters=None,
                              session_ct=None, player_ct=None,
@@ -306,6 +328,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return DatasetSchema(
             name="DefaultDatasetSchema",
             key=DatasetKey.Default(),
+            game_id             = DatasetKey._DEFAULT_GAME_ID,
             date_modified       = cls._DEFAULT_DATE_MODIFIED,
             start_date          = cls._DEFAULT_START_DATE,
             end_date            = cls._DEFAULT_END_DATE,
