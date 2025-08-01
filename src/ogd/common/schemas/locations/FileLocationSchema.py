@@ -20,6 +20,7 @@ class FileLocationSchema(LocationSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_folder_path", "_filename"]
     def __init__(self, name:str, folder_path:Path | str, filename:str, other_elements:Optional[Map]=None):
         """Constructor for the `FileLocationSchema` class.
         

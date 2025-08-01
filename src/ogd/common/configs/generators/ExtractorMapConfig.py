@@ -22,6 +22,7 @@ class ExtractorMapConfig(Config):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_legacy_mode", "_legacy_extractors", "_iterated_extractors", "_aggregate_feats"]
     def __init__(self, name:str, legacy_mode:Optional[bool],        legacy_perlevel_extractors:Optional[Dict[str, IteratedConfig]],
                  iterated_extractors:Optional[Dict[str, IteratedConfig]], aggregate_extractors:Optional[Dict[str, AggregateConfig]],
                  other_elements:Optional[Map]=None):

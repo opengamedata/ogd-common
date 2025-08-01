@@ -38,6 +38,13 @@ class DatasetSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_key", "_date_modified", "_start_date", "_end_date",
+                 "_ogd_revision", "_filters", "_session_ct", "_player_ct",
+                 "_game_events_file", "_all_events_file", "_events_template",
+                 "_all_features_file", "_all_features_template",
+                 "_sessions_file", "_sessions_template",
+                 "_players_file", "_players_template",
+                 "_population_file", "_population_template"]
     def __init__(self, name:str, key:DatasetKey,
                  game_id:Optional[str],
                  start_date:Optional[date|str],  end_date:Optional[date|str], date_modified:Optional[date|str], 

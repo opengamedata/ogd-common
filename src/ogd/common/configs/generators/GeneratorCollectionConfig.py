@@ -40,6 +40,7 @@ class GeneratorCollectionConfig(Config):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_game_id", "_detector_map", "_extractor_map", "_subunit_range", "_other_ranges"]
     def __init__(self, name:str, game_id:str,
                  detector_map:Optional[DetectorMapConfig], extractor_map:Optional[ExtractorMapConfig],
                  subunit_range:Optional[range], other_ranges:Dict[str, range],
