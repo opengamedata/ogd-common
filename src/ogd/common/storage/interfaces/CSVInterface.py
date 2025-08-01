@@ -34,9 +34,11 @@ class CSVInterface(Interface):
             self._store = store
         elif isinstance(self.Config.StoreConfig, FileStoreConfig):
             self._store = CSVConnector(config=self.Config.StoreConfig, extension=self._extension, with_secondary_files=set())
+        else:
+            raise ValueError(f"CSVInterface config was for a connector other than CSV/TSV files! Found config type {type(self.Config.StoreConfig)}")
+        self.Connector.Open()
 
         # We always just read the file right away.
-        self.Connector.Open()
         if self.Connector.IsOpen and self.Connector.File:
             # TODO should include option for access to the TableConfig in the interface, because obviously it should know what form the table takes.
             target_types = defaultdict(str, {
