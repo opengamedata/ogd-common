@@ -13,8 +13,10 @@ from ogd.common.utils.Logger import Logger
 class CSVConnector(StorageConnector):
 
     # *** BUILT-INS & PROPERTIES ***
-    _VALID_SECONDARY_FILES = [ ExportMode.EVENTS, ExportMode.SESSION, ExportMode.PLAYER, ExportMode.POPULATION ]
-    _SECONDARY_FILE_SUFFIXES = {ExportMode.EVENTS.name:"events", ExportMode.SESSION.name:"session-features", ExportMode.PLAYER.name:"player-features", ExportMode.POPULATION.name:"population-features"}
+    _VALID_SECONDARY_FILES = [ ExportMode.EVENTS, ExportMode.DETECTORS, ExportMode.FEATURES, ExportMode.SESSION, ExportMode.PLAYER, ExportMode.POPULATION ]
+    _SECONDARY_FILE_SUFFIXES = {ExportMode.EVENTS.name:"game-events", ExportMode.DETECTORS:"all-events",
+                                ExportMode.FEATURES:"all-features", ExportMode.SESSION.name:"session-features",
+                                ExportMode.PLAYER.name:"player-features", ExportMode.POPULATION.name:"population-features"}
 
     def __init__(self, config:FileStoreConfig, extension:str = ',',
                  with_secondary_files:Set[ExportMode]=set(), with_zipping:bool=False,
