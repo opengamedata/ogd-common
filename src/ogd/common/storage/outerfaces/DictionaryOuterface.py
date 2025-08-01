@@ -58,10 +58,10 @@ class DictionaryOuterface(Outerface):
                 self._pops = []
                 self._out['populations'] = { "cols" : [], "vals" : self._pops }
 
-    def _writeRawEventsHeader(self, header:List[str]) -> None:
+    def _writeGameEventsHeader(self, header:List[str]) -> None:
         self._out['raw_events']['cols'] = header
 
-    def _writeProcessedEventsHeader(self, header:List[str]) -> None:
+    def _writeAllEventsHeader(self, header:List[str]) -> None:
         self._out['all_events']['cols'] = header
 
     def _writeSessionHeader(self, header:List[str]) -> None:
@@ -73,14 +73,14 @@ class DictionaryOuterface(Outerface):
     def _writePopulationHeader(self, header:List[str]) -> None:
         self._out['populations']['cols'] = header
 
-    def _writeRawEventLines(self, events:List[ExportRow]) -> None:
+    def _writeGameEventLines(self, events:List[ExportRow]) -> None:
         # I'm always a bit fuzzy on when Python will copy vs. store reference,
         # but tests indicate if we just update self._evts, self._out is updated automatically
         # since it maps to self._evts.
         # Similar for the other functions here.
         self._raw_evts += events
 
-    def _writeProcessedEventLines(self, events:List[ExportRow]) -> None:
+    def _writeAllEventLines(self, events:List[ExportRow]) -> None:
         # I'm always a bit fuzzy on when Python will copy vs. store reference,
         # but tests indicate if we just update self._evts, self._out is updated automatically
         # since it maps to self._evts.

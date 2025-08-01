@@ -41,11 +41,11 @@ class Outerface:
         pass
 
     @abc.abstractmethod
-    def _writeRawEventsHeader(self, header:List[str]) -> None:
+    def _writeGameEventsHeader(self, header:List[str]) -> None:
         pass
 
     @abc.abstractmethod
-    def _writeProcessedEventsHeader(self, header:List[str]) -> None:
+    def _writeAllEventsHeader(self, header:List[str]) -> None:
         pass
 
     @abc.abstractmethod
@@ -61,11 +61,11 @@ class Outerface:
         pass
 
     @abc.abstractmethod
-    def _writeRawEventLines(self, events:List[ExportRow]) -> None:
+    def _writeGameEventLines(self, events:List[ExportRow]) -> None:
         pass
 
     @abc.abstractmethod
-    def _writeProcessedEventLines(self, events:List[ExportRow]) -> None:
+    def _writeAllEventLines(self, events:List[ExportRow]) -> None:
         pass
 
     @abc.abstractmethod
@@ -121,10 +121,10 @@ class Outerface:
         if mode in self.ExportModes:
             match (mode):
                 case ExportMode.EVENTS:
-                    self._writeRawEventsHeader(header=header)
+                    self._writeGameEventsHeader(header=header)
                     Logger.Log(f"Wrote event header for {self.Config.GameID} events", depth=3)
                 case ExportMode.DETECTORS:
-                    self._writeProcessedEventsHeader(header=header)
+                    self._writeAllEventsHeader(header=header)
                     Logger.Log(f"Wrote processed event header for {self.Config.GameID} events", depth=3)
                 case ExportMode.SESSION:
                     self._writeSessionHeader(header=header)
@@ -145,10 +145,10 @@ class Outerface:
             if mode in self.ExportModes:
                 match (mode):
                     case ExportMode.EVENTS:
-                        self._writeRawEventLines(events=events.GameEventLines)
+                        self._writeGameEventLines(events=events.GameEventLines)
                         Logger.Log(f"Wrote {len(events.GameEventLines)} {self.Config.GameID} events", depth=3)
                     case ExportMode.DETECTORS:
-                        self._writeProcessedEventLines(events=events.EventLines)
+                        self._writeAllEventLines(events=events.EventLines)
                         Logger.Log(f"Wrote {len(events)} {self.Config.GameID} processed events", depth=3)
                     case _:
                         Logger.Log(f"Failed to write lines for unrecognized Event export mode {mode}!", level=logging.WARN, depth=3)
