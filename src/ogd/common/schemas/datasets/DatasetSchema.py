@@ -27,6 +27,8 @@ class DatasetSchema(Schema):
     _DEFAULT_RAW_FILE = None
     _DEFAULT_EVENTS_FILE = None
     _DEFAULT_EVENTS_TEMPLATE = None
+    _DEFAULT_ALL_FEATS_FILE = None
+    _DEFAULT_ALL_FEATS_TEMPLATE = None
     _DEFAULT_SESSIONS_FILE = None
     _DEFAULT_SESSIONS_TEMPLATE = None
     _DEFAULT_PLAYERS_FILE = None
@@ -43,6 +45,7 @@ class DatasetSchema(Schema):
                  session_ct:Optional[int],       player_ct:Optional[int],
                  raw_file:Optional[Path],  
                  events_file:Optional[Path],     events_template:Optional[Path],
+                 all_feats_file:Optional[Path],  all_feats_template:Optional[Path],
                  sessions_file:Optional[Path],   sessions_template:Optional[Path],
                  players_file:Optional[Path],    players_template:Optional[Path],
                  population_file:Optional[Path], population_template:Optional[Path],
@@ -124,15 +127,17 @@ class DatasetSchema(Schema):
         self._session_ct          : Optional[int]  = session_ct          or self._parseSessionCount(unparsed_elements=unparsed_elements)
         self._player_ct           : Optional[int]  = player_ct           or self._parsePlayerCount(unparsed_elements=unparsed_elements)
     # 3. Set file/template paths
-        self._game_events_file            : Optional[Path] = raw_file            or self._parseGameEventsFile(unparsed_elements=unparsed_elements)
-        self._all_events_file         : Optional[Path] = events_file         or self._parseAllEventsFile(unparsed_elements=unparsed_elements)
-        self._events_template     : Optional[Path] = events_template     or self._parseEventsTemplate(unparsed_elements=unparsed_elements)
-        self._sessions_file       : Optional[Path] = sessions_file       or self._parseSessionsFile(unparsed_elements=unparsed_elements)
-        self._sessions_template   : Optional[Path] = sessions_template   or self._parseSessionsTemplate(unparsed_elements=unparsed_elements)
-        self._players_file        : Optional[Path] = players_file        or self._parsePlayersFile(unparsed_elements=unparsed_elements)
-        self._players_template    : Optional[Path] = players_template    or self._parsePlayersTemplate(unparsed_elements=unparsed_elements)
-        self._population_file     : Optional[Path] = population_file     or self._parsePopulationFile(unparsed_elements=unparsed_elements)
-        self._population_template : Optional[Path] = population_template or self._parsePopulationTemplate(unparsed_elements=unparsed_elements)
+        self._all_events_file       : Optional[Path] = events_file         or self._parseAllEventsFile(unparsed_elements=unparsed_elements)
+        self._game_events_file      : Optional[Path] = raw_file            or self._parseGameEventsFile(unparsed_elements=unparsed_elements)
+        self._events_template       : Optional[Path] = events_template     or self._parseEventsTemplate(unparsed_elements=unparsed_elements)
+        self._all_features_file     : Optional[Path] = all_feats_file      or self._parseAllFeaturesFile(unparsed_elements=unparsed_elements)
+        self._all_features_template : Optional[Path] = all_feats_template  or self._parseAllFeaturesTemplate(unparsed_elements=unparsed_elements)
+        self._sessions_file         : Optional[Path] = sessions_file       or self._parseSessionsFile(unparsed_elements=unparsed_elements)
+        self._sessions_template     : Optional[Path] = sessions_template   or self._parseSessionsTemplate(unparsed_elements=unparsed_elements)
+        self._players_file          : Optional[Path] = players_file        or self._parsePlayersFile(unparsed_elements=unparsed_elements)
+        self._players_template      : Optional[Path] = players_template    or self._parsePlayersTemplate(unparsed_elements=unparsed_elements)
+        self._population_file       : Optional[Path] = population_file     or self._parsePopulationFile(unparsed_elements=unparsed_elements)
+        self._population_template   : Optional[Path] = population_template or self._parsePopulationTemplate(unparsed_elements=unparsed_elements)
         super().__init__(name=name, other_elements=other_elements)
 
     def __str__(self) -> str:
@@ -199,31 +204,82 @@ class DatasetSchema(Schema):
     def GameEventsFile(self) -> Optional[Path]:
         return self._game_events_file
     @property
+    def RawEventsFile(self) -> Optional[Path]:
+        """Alias for GameEventsFile
+
+        :return: _description_
+        :rtype: Optional[Path]
+        """
+        return self.GameEventsFile
+    @property
     def GameEventsTemplate(self) -> Optional[Path]:
-        return self._events_template
+        """Alias for EventsTemplate
+        
+        There is no difference between event templates
+
+        :return: _description_
+        :rtype: Optional[Path]
+        """
+        return self.EventsTemplate
+
     @property
     def AllEventsFile(self) -> Optional[Path]:
         return self._all_events_file
     @property
     def AllEventsTemplate(self) -> Optional[Path]:
-        """Alias for GameEventsTemplate, there is no difference between event templates
+        """Alias for EventsTemplate
+        
+        There is no difference between event templates
 
         :return: _description_
         :rtype: Optional[Path]
         """
+        return self.EventsTemplate
+    @property
+    def EventsFile(self) -> Optional[Path]:
+        """Alias for AllEventsFile
+
+        Since this is the main events file with all available events in it, we can just call it the "Events" file.
+
+        :return: _description_
+        :rtype: Optional[Path]
+        """
+        return self.AllEventsFile
+    @property
+    def EventsTemplate(self) -> Optional[Path]:
         return self._events_template
+
+    @property
+    def FeaturesFile(self) -> Optional[Path]:
+        """Alias for AllFeaturesFile
+        
+        Since this is the main base feature file, we can just call it the "Features" file.
+
+        :return: _description_
+        :rtype: Optional[Path]
+        """
+        return self._all_features_file
+    @property
+    def AllFeaturesFile(self) -> Optional[Path]:
+        return self._all_features_file
+    @property
+    def AllFeaturesTemplate(self) -> Optional[Path]:
+        return self._all_features_template
+    
     @property
     def SessionsFile(self) -> Optional[Path]:
         return self._sessions_file
     @property
     def SessionsTemplate(self) -> Optional[Path]:
         return self._sessions_template
+
     @property
     def PlayersFile(self) -> Optional[Path]:
         return self._players_file
     @property
     def PlayersTemplate(self) -> Optional[Path]:
         return self._players_template
+
     @property
     def PopulationFile(self) -> Optional[Path]:
         return self._population_file
@@ -238,6 +294,7 @@ class DatasetSchema(Schema):
 
         r -> Raw events file (no generated events)
         e -> All events file (with generated events)
+        f -> All features file
         s -> Session features file
         p -> Player features file
         P -> Popoulation features file
@@ -248,6 +305,7 @@ class DatasetSchema(Schema):
         _fset = [
            "r" if self.GameEventsFile is not None else "",
            "e" if self.AllEventsFile is not None else "",
+           "f" if self.AllFeaturesFile is not None else "",
            "s" if self.SessionsFile is not None else "",
            "p" if self.PlayersFile is not None else "",
            "P" if self.PopulationFile is not None else ""
@@ -260,6 +318,7 @@ class DatasetSchema(Schema):
         The list of template files associated with the dataset.
 
         e -> Events template
+        f -> All-Features template
         s -> Session features template
         p -> Player features template
         P -> Popoulation features template
@@ -269,6 +328,7 @@ class DatasetSchema(Schema):
         """
         _tset = [
            "e" if self.GameEventsTemplate is not None else "",
+           "f" if self.AllFeaturesTemplate is not None else "",
            "s" if self.SessionsTemplate is not None else "",
            "p" if self.PlayersTemplate is not None else "",
            "P" if self.PopulationTemplate is not None else ""
@@ -295,16 +355,18 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             "end_date"     :self.EndDate.strftime("%m/%d/%Y")      if isinstance(self.EndDate, date)      else self.EndDate,
             "date_modified":self.DateModified.strftime("%m/%d/%Y") if isinstance(self.DateModified, date) else self.DateModified,
             "sessions"     :self.SessionCount,
-            "population_file"     : str(self.PopulationFile),
-            "population_template" : str(self.PopulationTemplate),
-            "players_file"        : str(self.PlayersFile),
-            "players_template"    : str(self.PlayersTemplate),
-            "sessions_file"       : str(self.SessionsFile),
-            "sessions_template"   : str(self.SessionsTemplate),
-            "events_file"         : str(self.GameEventsFile),
-            "events_template"     : str(self.GameEventsTemplate),
-            "all_events_file"     : str(self.AllEventsFile),
-            "all_events_template" : str(self.GameEventsTemplate)
+            "all_features_file"     : str(self.PopulationFile),
+            "all_features_template" : str(self.PopulationTemplate),
+            "population_file"       : str(self.PopulationFile),
+            "population_template"   : str(self.PopulationTemplate),
+            "players_file"          : str(self.PlayersFile),
+            "players_template"      : str(self.PlayersTemplate),
+            "sessions_file"         : str(self.SessionsFile),
+            "sessions_template"     : str(self.SessionsTemplate),
+            "events_file"           : str(self.GameEventsFile),
+            "events_template"       : str(self.GameEventsTemplate),
+            "all_events_file"       : str(self.AllEventsFile),
+            "all_events_template"   : str(self.GameEventsTemplate)
         }
 
     @classmethod
@@ -329,6 +391,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
                              session_ct=None, player_ct=None,
                              raw_file=None,
                              events_file    =None, events_template    =None,
+                             all_feats_file =None, all_feats_template =None,
                              sessions_file  =None, sessions_template  =None,
                              players_file   =None, players_template   =None,
                              population_file=None, population_template=None,
@@ -350,6 +413,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             raw_file            = cls._DEFAULT_RAW_FILE,
             events_file         = cls._DEFAULT_EVENTS_FILE,
             events_template     = cls._DEFAULT_EVENTS_TEMPLATE,
+            all_feats_file      = cls._DEFAULT_ALL_FEATS_FILE,
+            all_feats_template  = cls._DEFAULT_ALL_FEATS_TEMPLATE,
             sessions_file       = cls._DEFAULT_SESSIONS_FILE,
             sessions_template   = cls._DEFAULT_SESSIONS_TEMPLATE,
             players_file        = cls._DEFAULT_PLAYERS_FILE,
@@ -577,6 +642,27 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
+    def _parseAllFeaturesFile(unparsed_elements:Map) -> Optional[Path]:
+        ret_val : Optional[Path]
+
+        feats_val : Path | str = DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["all_features_file", "features_file"],
+            to_type=[Path, str],
+            default_value=DatasetSchema._DEFAULT_ALL_FEATS_FILE,
+            remove_target=True
+        )
+        if isinstance(feats_val, Path):
+            ret_val = feats_val
+        elif isinstance(feats_val, str):
+            ret_val = Path(feats_val)
+        else:
+            ret_val = None
+            Logger.Log(f"Invalid all-features file path for dataset schema, expected a path, but got {str(feats_val)}, using {ret_val} instead")
+
+        return ret_val
+
+    @staticmethod
     def _parseSessionsFile(unparsed_elements:Map) -> Optional[Path]:
         ret_val : Optional[Path]
 
@@ -658,6 +744,27 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         else:
             ret_val = None
             Logger.Log(f"Invalid events template path for dataset schema, expected a path, but got {str(events_tplate)}, using {ret_val} instead")
+
+        return ret_val
+
+    @staticmethod
+    def _parseAllFeaturesTemplate(unparsed_elements:Map) -> Optional[Path]:
+        ret_val : Optional[Path]
+
+        all_feats_tplate : Path | str = DatasetSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["all_features_template", "features_template"],
+            to_type=[Path, str],
+            default_value=DatasetSchema._DEFAULT_ALL_FEATS_TEMPLATE,
+            remove_target=True
+        )
+        if isinstance(all_feats_tplate, Path):
+            ret_val = all_feats_tplate
+        elif isinstance(all_feats_tplate, str):
+            ret_val = Path(all_feats_tplate)
+        else:
+            ret_val = None
+            Logger.Log(f"Invalid sessions template path for dataset schema, expected a path, but got {str(all_feats_tplate)}, using {ret_val} instead")
 
         return ret_val
 
