@@ -37,7 +37,7 @@ class GameStoreConfig(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    __slots__ = ["_game_id", "_source_name", "_schema_name", "_table_location"]
+    __slots__ = ["_game_id", "_source_name", "_schema_name", "_table_location", "_config", "_schema"]
     def __init__(self, name:str, game_id:Optional[str],
                  source_name:Optional[str],
                  schema_name:Optional[str],
