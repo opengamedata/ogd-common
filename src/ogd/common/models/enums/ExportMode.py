@@ -5,8 +5,9 @@ class ExportMode(IntEnum):
     SESSION = 1
     PLAYER = 2
     POPULATION = 3
-    EVENTS = 4
-    DETECTORS = 5
+    FEATURES = 4
+    EVENTS = 5
+    DETECTORS = 6
 
     def __str__(self):
         return self.name
