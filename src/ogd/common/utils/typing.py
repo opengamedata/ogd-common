@@ -1,4 +1,5 @@
 ## import standard libraries
+import abc
 import builtins
 import datetime
 import json
@@ -7,14 +8,24 @@ import pathlib
 import re
 import typing
 from json.decoder import JSONDecodeError
-from typing import Any, Dict, List, Optional, TypeAlias, Type
+from typing import Any, Dict, List, Optional, TypeVar, Tuple, Type, TypeVarTuple
 ## import 3rd-party libraries
 from dateutil import parser
 ## import local files
 from ogd.common.utils.Logger import Logger
 
-Map       : TypeAlias = Dict[str, Any] # type alias: we'll call any dict using string keys a "Map"
-ExportRow : TypeAlias = List[Any]
+type Map        = Dict[str, Any] # type alias: we'll call any dict using string keys a "Map"
+type ExportRow  = List[Any]
+type Pair[A, B] = Tuple[A, B]
+
+class Comparable:
+    @abc.abstractmethod
+    def __lt__(self, other:Any) -> bool:
+        pass
+    @abc.abstractmethod
+    def __gt__(self, other:Any) -> bool:
+        pass
+ComparableType = TypeVar("ComparableType", bound=Comparable)
 
 class conversions:
     """Utility class with simple, "common-sense" parsing and warning logs for converting between types.

@@ -1,6 +1,8 @@
 # Custom added
 .vscode/
+.pylintrc
 tests/config/t_config.py
+tests/config/*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

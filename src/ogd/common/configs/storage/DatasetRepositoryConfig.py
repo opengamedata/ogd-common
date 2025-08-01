@@ -56,8 +56,6 @@ class DatasetRepositoryConfig(DataStoreConfig):
                  files_base:Optional[BaseLocation],
                  templates_base:Optional[BaseLocation],
                  datasets:Optional[Dict[str, DatasetCollectionSchema]],
-                 # params for parent
-                 store_type:Optional[str]=None,
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):

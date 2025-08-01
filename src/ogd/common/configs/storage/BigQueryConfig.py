@@ -1,4 +1,5 @@
 # import standard libraries
+from pathlib import Path
 from typing import Dict, Optional, Self
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
@@ -15,7 +16,10 @@ class BigQueryConfig(DataStoreConfig):
         table_name=None,
         other_elements=None
     )
-    _DEFAULT_CREDENTIAL = KeyCredential.Default()
+    _DEFAULT_CREDENTIAL = KeyCredential(
+        name="DefaultBQKeyCredential",
+        location=FileLocationSchema(name="DefaultBQKeyFile", folder_path=Path("./config/"), filename="ogd.json"),
+    )
 
     # *** BUILT-INS & PROPERTIES ***
 

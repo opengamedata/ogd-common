@@ -27,7 +27,9 @@ class DatasetKey:
     # 2. Get Dates from key
         # If this _dataset_key matches the expected format,
         # i.e. split is: ["GAME", "ID", "PARTS",..., "YYYYMMDD", "to", "YYYYMMDD"]
-        # Technically, the dates 
+        # Technically, the dates aren't required, and we could have a player ID instead.
+        # In that case, we just don't have dates built into the Key.
+        # File API should be prepared to account for this.
         if len(_pieces[-3]) == 8:
             _from_year  = int(_pieces[-3][0:4])
             _from_month = int(_pieces[-3][4:6])
@@ -51,10 +53,10 @@ class DatasetKey:
     def GameID(self) -> str:
         return self._game_id
     @property
-    def FromDate(self) -> Optional[date]:
+    def DateFrom(self) -> Optional[date]:
         return self._from_date
     @property
-    def ToDate(self) -> Optional[date]:
+    def DateTo(self) -> Optional[date]:
         return self._to_date
 
     # *** PUBLIC STATICS ***
@@ -65,6 +67,13 @@ class DatasetKey:
             raw_key=cls._DEFAULT_KEY,
         )
 
+    @staticmethod
+    def FromDateRange(game_id:Optional[str], start_date:date, end_date:date):
+        return DatasetKey(raw_key=f"{game_id or DatasetKey._DEFAULT_GAME_ID}_{start_date.strftime('%Y%m%d')}_to_{end_date.strftime('%Y%m%d')}")
+
+    @staticmethod
+    def FromID(game_id:Optional[str], ID:str):
+        return DatasetKey(raw_key=f"{game_id or DatasetKey._DEFAULT_GAME_ID}_{ID}")
 
     # *** PUBLIC METHODS ***
 
