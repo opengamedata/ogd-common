@@ -107,7 +107,7 @@ class TableSchema(Schema):
         if isinstance(ret_val, TableSchema):
             return ret_val
         else:
-            raise ValueError("TableSchema's call to _fromFile yielded a Schema of different type!")
+            raise ValueError(f"TableSchema's call to _fromFile yielded a Schema of different type ({type(ret_val)})!")
 
     # *** PUBLIC METHODS ***
 

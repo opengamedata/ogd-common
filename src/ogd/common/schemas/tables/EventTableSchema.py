@@ -70,6 +70,9 @@ class EventTableSchema(TableSchema):
         unparsed_elements : Map = other_elements or {}
 
         self._column_map : EventMapSchema = column_map or self._parseColumnMap(unparsed_elements=unparsed_elements)
+        # a couple other vars used in the row->event conversion
+        self._latest_session : Optional[str] = None
+        self._next_index     : int           = 0
         super().__init__(name=name, columns=columns, other_elements=unparsed_elements)
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -162,6 +165,8 @@ class EventTableSchema(TableSchema):
         :return: _description_
         :rtype: Event
         """
+        ret_val : Event
+
         if not isinstance(self.ColumnMap, EventMapSchema):
             raise TypeError(f"{self.Name} contains a mapping for Features, not Events!")
 
@@ -207,10 +212,13 @@ class EventTableSchema(TableSchema):
                 Logger.Log(_msg, logging.WARN)
             self._conversion_warnings["sess_id"] += 1
             sess_id = str(sess_id)
+        if self._latest_session != sess_id:
+            self._latest_session = sess_id
+            self._next_index = 0
 
         # 2. Get versioning data
         idx = self._indexFromMapping(self.ColumnMap.AppVersionColumn)
-        app_ver = self._valueFromRow(row=row, indices=idx,  concatenator=concatenator, fallback=fallbacks.get('app_version', "0"))
+        app_ver = self._valueFromRow(row=row, indices=idx,  concatenator=concatenator, fallback=fallbacks.get('app_version'))
         if not isinstance(app_ver, str):
             if "app_ver" not in self._conversion_warnings:
                 _msg = f"{self.Name} event table schema set app_version as {type(app_ver)}, but app_version should be a string"
@@ -258,13 +266,13 @@ class EventTableSchema(TableSchema):
             offset = timezone(offset)
 
         idx = self._indexFromMapping(self.ColumnMap.EventSequenceIndexColumn)
-        event_index = self._valueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=fallbacks.get('event_sequence_index'))
-        if event_index is not None and not isinstance(event_index, int):
+        event_index = self._valueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=fallbacks.get('event_sequence_index', self._next_index))
+        if not isinstance(event_index, int):
             if "index" not in self._conversion_warnings:
                 _msg = f"{self.Name} event table schema set event_sequence_index as {type(event_index)}, but event_sequence_index should be an int"
                 Logger.Log(_msg, logging.WARN)
             self._conversion_warnings["index"] += 1
-            event_index = int(event_index)
+            event_index = int(event_index or self._next_index)
 
         # 4. Get event-specific data
         idx = self._indexFromMapping(self.ColumnMap.EventNameColumn)
@@ -297,12 +305,16 @@ class EventTableSchema(TableSchema):
         idx = self._indexFromMapping(self.ColumnMap.GameStateColumn)
         state   = self._valueFromRow(row=row, indices=idx,   concatenator=concatenator, fallback=fallbacks.get('game_state'))
 
-        return Event(app_id=app_id, user_id=user_id, session_id=sess_id,
-                     timestamp=tstamp, time_offset=offset, event_sequence_index=event_index,
-                     event_name=ename, event_source=esrc, event_data=edata,
-                     app_version=app_ver, app_branch=app_br, log_version=log_ver,
-                     user_data=udata,
-                     game_state=state, )
+        ret_val = Event(app_id=app_id, user_id=user_id, session_id=sess_id,
+                        timestamp=tstamp, time_offset=offset, event_sequence_index=event_index,
+                        event_name=ename, event_source=esrc, event_data=edata,
+                        app_version=app_ver, app_branch=app_br, log_version=log_ver,
+                        user_data=udata,
+                        game_state=state, )
+        ret_val.FallbackDefaults(index=self._next_index)
+        self._next_index = (event_index or self._next_index) + 1
+
+        return ret_val
 
     # *** PRIVATE STATICS ***
 

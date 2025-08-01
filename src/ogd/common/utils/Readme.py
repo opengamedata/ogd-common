@@ -6,16 +6,16 @@ from pathlib import Path
 # import local files
 from ogd.common.configs.generators.GeneratorCollectionConfig import GeneratorCollectionConfig
 from ogd.common.schemas.events.LoggingSpecificationSchema import LoggingSpecificationSchema
-from ogd.common.configs.TableConfig import TableConfig
+from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.utils.Logger import Logger
 
 class Readme:
     def __init__(self, event_collection:LoggingSpecificationSchema,
                  generator_collection:GeneratorCollectionConfig,
-                 table_schema:TableConfig):
+                 table_schema:TableSchema):
         self._event_collection     : LoggingSpecificationSchema = event_collection
         self._generator_collection : GeneratorCollectionConfig  = generator_collection
-        self._table_schema         : TableConfig                = table_schema
+        self._table_schema         : TableSchema                = table_schema
         self._custom_src           : str                        = self._getCustomSrc()
         self._dataset_meta         : str                        = self._getDatasetMetadata()
         self._changelog            : str                        = self._getDatabaseChangelog()
@@ -36,7 +36,7 @@ class Readme:
     def DatasetChangelog(self) -> str:
         return self._changelog
 
-    def GenerateReadme(self, path:Path = Path("./")):
+    def ToFile(self, path:Path = Path("./")):
         try:
             os.makedirs(name=path, exist_ok=True)
             with open(path / "README.md", "w") as readme:

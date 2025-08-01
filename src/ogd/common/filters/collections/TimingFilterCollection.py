@@ -1,12 +1,12 @@
 ## import standard libraries
 from datetime import date, datetime
-from typing import Dict, List, Optional, Set
+from typing import Dict, Optional
 # import local files
 from ogd.common.filters import *
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.utils.typing import Pair
 
-type TimestampFilterType = Optional[RangeFilter[datetime]]
+type TimestampFilterType = Optional[RangeFilter[datetime | date]]
 type IndicesFilterType   = Optional[SetFilter[int] | RangeFilter[int]]
 
 class TimingFilterCollection:
@@ -46,6 +46,17 @@ class TimingFilterCollection:
             _idxes_str = f"event index(s) {self.SessionIndexFilter}" if self.SessionIndexFilter else None
             _ver_strs = ", ".join([elem for elem in [_times_str, _idxes_str] if elem is not None])
             ret_val = f"<class {type(self).__name__} {_ver_strs}>"
+        return ret_val
+
+    @property
+    def AsDict(self) -> Dict[str, Filter]:
+        ret_val = {}
+
+        if self.TimestampFilter:
+            ret_val["timestamps"] = self.TimestampFilter
+        if self.SessionIndexFilter:
+            ret_val["session_indices"] = self.SessionIndexFilter
+        
         return ret_val
 
     @property

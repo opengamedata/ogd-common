@@ -1,5 +1,5 @@
 ## import standard libraries
-from typing import List, Optional, Set
+from typing import Dict, List, Optional, Set
 # import local files
 from ogd.common.filters import *
 from ogd.common.models.enums.FilterMode import FilterMode
@@ -30,6 +30,17 @@ class IDFilterCollection:
             _ply_str = f"player(s) {self.PlayerFilter}" if self.PlayerFilter else None
             _ver_strs = " ^ ".join([elem for elem in [_sess_str, _ply_str] if elem is not None])
             ret_val = f"<class {type(self).__name__} {_ver_strs}>"
+        return ret_val
+
+    @property
+    def AsDict(self) -> Dict[str, Filter]:
+        ret_val = {}
+
+        if self.SessionFilter:
+            ret_val["session_ids"] = self.SessionFilter
+        if self.PlayerFilter:
+            ret_val["player_ids"] = self.PlayerFilter
+        
         return ret_val
 
     @property

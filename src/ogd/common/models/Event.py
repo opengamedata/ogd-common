@@ -143,6 +143,7 @@ class Event(GameData):
                 "log_version", "offset",        "user_id",    "user_data",
                 "game_state",  "index"]
 
+    @property
     def ColumnValues(self) -> List[Union[str, datetime, timezone, Map, int, None]]:
         """A list of all values for the row, in order they appear in the `ColumnNames` function.
 

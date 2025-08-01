@@ -2,6 +2,8 @@
 from typing import Dict, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
+from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
+from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
 from ogd.common.utils.typing import Map
 
@@ -36,9 +38,11 @@ class GameStoreConfig(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, game_id:Optional[str],
-                 source_name:Optional[str], schema_name:Optional[str],
+                 source_name:Optional[str],
+                 schema_name:Optional[str],
                  table_location:Optional[DatabaseLocationSchema],
-                 other_elements:Optional[Map]):
+                 source:Optional[DataStoreConfig]=None, schema:Optional[TableSchema]=None,
+                 other_elements:Optional[Map]=None):
         """Constructor for the `GameStoreConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
@@ -69,10 +73,12 @@ class GameStoreConfig(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._game_id        : str                    = game_id or name
-        self._source_name    : str                    = source_name    or self._parseSourceName(unparsed_elements=unparsed_elements)
-        self._schema_name    : str                    = schema_name    or self._parseSchemaName(unparsed_elements=unparsed_elements)
-        self._table_location : DatabaseLocationSchema = table_location or self._parseTableLocation(unparsed_elements=unparsed_elements)
+        self._game_id        : str                       = game_id or name
+        self._source_name    : str                       = source_name    or self._parseSourceName(unparsed_elements=unparsed_elements)
+        self._config         : Optional[DataStoreConfig] = source
+        self._schema_name    : str                       = schema_name    or self._parseSchemaName(unparsed_elements=unparsed_elements)
+        self._schema         : Optional[TableSchema]     = schema
+        self._table_location : DatabaseLocationSchema    = table_location or self._parseTableLocation(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -88,15 +94,29 @@ class GameStoreConfig(Schema):
         return self._game_id
 
     @property
-    def SourceName(self) -> str:
+    def StoreName(self) -> str:
         return self._source_name
 
     @property
-    def SchemaName(self) -> str:
+    def StoreConfig(self) -> Optional[DataStoreConfig]:
+        return self._config
+    @StoreConfig.setter
+    def StoreConfig(self, source:DataStoreConfig):
+        self._config = source
+
+    @property
+    def TableSchemaName(self) -> str:
         return self._schema_name
 
     @property
-    def Location(self) -> DatabaseLocationSchema:
+    def Table(self) -> Optional[TableSchema]:
+        return self._schema
+    @Table.setter
+    def Table(self, schema:TableSchema):
+        self._schema = schema
+
+    @property
+    def TableLocation(self) -> DatabaseLocationSchema:
         return self._table_location
 
     @property
@@ -113,7 +133,7 @@ class GameStoreConfig(Schema):
     def AsMarkdown(self) -> str:
         ret_val : str
 
-        ret_val = f"{self.Name}: _{self.SchemaName}_ format, source {self.SourceName} : {self.Location.Location}"
+        ret_val = f"{self.Name}: _{self.TableSchemaName}_ format, source {self.StoreName} : {self.TableLocation.Location}"
         return ret_val
 
     @classmethod
@@ -122,7 +142,9 @@ class GameStoreConfig(Schema):
             name="DefaultGameStoreConfig",
             game_id=cls._DEFAULT_GAME_ID,
             source_name=cls._DEFAULT_SOURCE_NAME,
+            source=None,
             schema_name=cls._DEFAULT_SCHEMA_NAME,
+            schema=None,
             table_location=cls._DEFAULT_TABLE_LOC,
             other_elements={}
         )

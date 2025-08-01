@@ -5,7 +5,7 @@ from typing import Final, List
 from unittest import TestCase
 from zipfile import ZipFile
 # import locals
-from ogd.common.connectors.interfaces.CSVInterface import CSVInterface
+from ogd.common.storage.interfaces.CSVInterface import CSVInterface
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
 
 class test_CSVInterface(TestCase):

@@ -1,5 +1,5 @@
 import abc
-from typing import Generic, Optional, Set, TypeVar
+from typing import Generic, List, Optional, Set, TypeVar
 
 from ogd.common.models.enums.FilterMode import FilterMode
 
@@ -32,3 +32,7 @@ class Filter(Generic[T]):
     @property
     def FilterMode(self) -> FilterMode:
         return self._mode
+
+    @property
+    def AsList(self) -> List[T]:
+        return list(self.AsSet)

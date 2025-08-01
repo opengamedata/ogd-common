@@ -1,11 +1,12 @@
 ## import standard libraries
-from typing import List, Optional, Set
+from typing import Any, Dict, List, Optional, Set
 # import local files
 from ogd.common.filters import *
+from ogd.common.filters.collections.FilterCollection import FilterCollection
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.utils.typing import Pair
 
-class EventFilterCollection:
+class EventFilterCollection(FilterCollection):
     """Dumb struct to hold filters for versioning information
     """
     type NameFilterType = Optional[SetFilter[str]]
@@ -41,6 +42,17 @@ class EventFilterCollection:
             _code_str = repr(self.EventCodeFilter) if self.EventCodeFilter else None
             _ver_strs = " ^ ".join([elem for elem in [_name_str, _code_str] if elem is not None])
             ret_val = f"<class {type(self).__name__} {_ver_strs}>"
+        return ret_val
+
+    @property
+    def AsDict(self) -> Dict[str, Filter]:
+        ret_val = {}
+
+        if self.EventNameFilter:
+            ret_val["event_names"] = self.EventNameFilter
+        if self.EventCodeFilter:
+            ret_val["event_codes"] = self.EventCodeFilter
+        
         return ret_val
 
     @property

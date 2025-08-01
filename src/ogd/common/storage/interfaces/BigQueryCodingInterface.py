@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple, Optional
 # import locals
 from ogd.common.models.coding.Code import Code
 from ogd.common.models.coding.Coder import Coder
-from ogd.common.connectors.interfaces.CodingInterface import CodingInterface
+from ogd.common.storage.interfaces.CodingInterface import CodingInterface
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.utils.Logger import Logger
@@ -33,8 +33,8 @@ class BigQueryCodingInterface(CodingInterface):
                 self._client = bigquery.Client()
             else:
                 credential_path : str
-                if self._settings.Source:
-                    credential_path = self._settings.Source.NonStandardElements.get("credential", default_settings["GAME_SOURCE_MAP"][self._game_id]["credential"])
+                if self._settings.StoreConfig:
+                    credential_path = self._settings.StoreConfig.NonStandardElements.get("credential", default_settings["GAME_SOURCE_MAP"][self._game_id]["credential"])
                 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credential_path
                 self._client = bigquery.Client()
             if self._client != None:

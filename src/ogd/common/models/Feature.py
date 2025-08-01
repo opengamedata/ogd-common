@@ -59,6 +59,7 @@ class Feature(GameData):
         return ["name",   "feature_type", "game_unit",  "game_unit_index", 
                 "app_id", "user_id",      "session_id", "subfeatures", "values"]
 
+    @property
     def ColumnValues(self) -> List[str | int | List[Any] | None]:
         """A list of all values for the row, in order they appear in the `ColumnNames` function.
 

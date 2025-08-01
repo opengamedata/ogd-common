@@ -78,10 +78,20 @@ class FileLocationSchema(LocationSchema):
 
     @property
     def Filename(self) -> str:
+        """The name of the file indicated by the FileLocationSchema
+
+        :return: _description_
+        :rtype: str
+        """
         return self._filename
 
     @property
     def Filepath(self) -> Path:
+        """The full path to the file indicated by the FileLocationSchema
+
+        :return: _description_
+        :rtype: Path
+        """
         return self.Folder / self.Filename
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***

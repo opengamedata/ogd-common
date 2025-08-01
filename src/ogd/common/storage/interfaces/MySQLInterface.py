@@ -8,7 +8,7 @@ from typing import Dict, Final, List, Tuple, Optional
 # import locals
 from ogd.common.filters import *
 from ogd.common.filters.collections import *
-from ogd.common.connectors.interfaces.Interface import Interface
+from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
@@ -41,18 +41,18 @@ class SQL:
         tunnel  : Optional[sshtunnel.SSHTunnelForwarder] = None
         db_conn : Optional[connection.MySQLConnection]   = None
         # Logger.Log("Preparing database connection...", logging.INFO)
-        if schema.Source is not None and isinstance(schema.Source, MySQLConfig):
-            if schema.Source.HasSSH:
-                Logger.Log(f"Preparing to connect to MySQL via SSH, on host {schema.Source.SSH.Host}", level=logging.DEBUG)
-                if (schema.Source.SSH.Host != "" and schema.Source.SSH.User != "" and schema.Source.SSH.Pass != ""):
-                    tunnel,db_conn = SQL._connectToMySQLviaSSH(sql=schema.Source, db=schema.DatabaseName)
+        if schema.StoreConfig is not None and isinstance(schema.StoreConfig, MySQLConfig):
+            if schema.StoreConfig.HasSSH:
+                Logger.Log(f"Preparing to connect to MySQL via SSH, on host {schema.StoreConfig.SSH.Host}", level=logging.DEBUG)
+                if (schema.StoreConfig.SSH.Host != "" and schema.StoreConfig.SSH.User != "" and schema.StoreConfig.SSH.Pass != ""):
+                    tunnel,db_conn = SQL._connectToMySQLviaSSH(sql=schema.StoreConfig, db=schema.DatabaseName)
                 else:
-                    Logger.Log(f"SSH login had empty data, preparing to connect to MySQL directly instead, on host {schema.Source.DBHost}", level=logging.DEBUG)
-                    db_conn = SQL._connectToMySQL(login=schema.Source, db=schema.DatabaseName)
+                    Logger.Log(f"SSH login had empty data, preparing to connect to MySQL directly instead, on host {schema.StoreConfig.DBHost}", level=logging.DEBUG)
+                    db_conn = SQL._connectToMySQL(login=schema.StoreConfig, db=schema.DatabaseName)
                     tunnel = None
             else:
-                Logger.Log(f"Preparing to connect to MySQL directly, on host {schema.Source.DBHost}", level=logging.DEBUG)
-                db_conn = SQL._connectToMySQL(login=schema.Source, db=schema.DatabaseName)
+                Logger.Log(f"Preparing to connect to MySQL directly, on host {schema.StoreConfig.DBHost}", level=logging.DEBUG)
+                db_conn = SQL._connectToMySQL(login=schema.StoreConfig, db=schema.DatabaseName)
                 tunnel = None
             # Logger.Log("Done preparing database connection.", logging.INFO)
             ret_val = (tunnel, db_conn)
