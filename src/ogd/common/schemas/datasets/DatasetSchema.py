@@ -363,8 +363,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             "players_template"      : str(self.PlayersTemplate),
             "sessions_file"         : str(self.SessionsFile),
             "sessions_template"     : str(self.SessionsTemplate),
-            "events_file"           : str(self.GameEventsFile),
-            "events_template"       : str(self.GameEventsTemplate),
+            "game_events_file"      : str(self.GameEventsFile),
+            "game_events_template"  : str(self.GameEventsTemplate),
             "all_events_file"       : str(self.AllEventsFile),
             "all_events_template"   : str(self.GameEventsTemplate)
         }
