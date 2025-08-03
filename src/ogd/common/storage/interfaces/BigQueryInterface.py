@@ -234,20 +234,20 @@ class BigQueryInterface(Interface):
 
         sess_clause : Optional[LiteralString] = None
         sess_param  : List[bigquery.ArrayQueryParameter] = []
-        if id_filter.SessionFilter and len(id_filter.SessionFilter.AsSet) > 0:
-            exclude = "NOT" if id_filter.SessionFilter.FilterMode == FilterMode.EXCLUDE else ""
+        if id_filter.Sessions and len(id_filter.Sessions.AsSet) > 0:
+            exclude = "NOT" if id_filter.Sessions.FilterMode == FilterMode.EXCLUDE else ""
             sess_clause = f"`session_id` {exclude} IN @session_list"
             sess_param.append(
-                bigquery.ArrayQueryParameter(name="session_list", array_type="STRING", values=id_filter.SessionFilter.AsList)
+                bigquery.ArrayQueryParameter(name="session_list", array_type="STRING", values=id_filter.Sessions.AsList)
             )
 
         users_clause : Optional[LiteralString] = None
         users_param  : List[bigquery.ArrayQueryParameter] = []
-        if id_filter.PlayerFilter and len(id_filter.PlayerFilter.AsSet) > 0:
-            exclude = "NOT" if id_filter.PlayerFilter.FilterMode == FilterMode.EXCLUDE else ""
+        if id_filter.Players and len(id_filter.Players.AsSet) > 0:
+            exclude = "NOT" if id_filter.Players.FilterMode == FilterMode.EXCLUDE else ""
             users_clause = f"`user_id` {exclude} IN @user_list"
             users_param.append(
-                bigquery.ArrayQueryParameter(name="user_list", array_type="STRING", values=id_filter.PlayerFilter.AsList)
+                bigquery.ArrayQueryParameter(name="user_list", array_type="STRING", values=id_filter.Players.AsList)
             )
 
         times_clause : Optional[LiteralString] = None
@@ -283,101 +283,101 @@ class BigQueryInterface(Interface):
 
         log_clause : Optional[LiteralString] = None
         log_param  : List[BigQueryParameter] = []
-        if version_filter.LogVersionFilter:
-            if isinstance(version_filter.LogVersionFilter, SetFilter) and len(version_filter.LogVersionFilter.AsSet) > 0:
-                exclude = "NOT" if version_filter.LogVersionFilter.FilterMode == FilterMode.EXCLUDE else ""
+        if version_filter.LogVersions:
+            if isinstance(version_filter.LogVersions, SetFilter) and len(version_filter.LogVersions.AsSet) > 0:
+                exclude = "NOT" if version_filter.LogVersions.FilterMode == FilterMode.EXCLUDE else ""
                 log_clause = f"`log_version` {exclude} IN @log_versions"
                 log_param.append(
-                    bigquery.ArrayQueryParameter(name="log_versions", array_type="INT64", values=version_filter.LogVersionFilter.AsList)
+                    bigquery.ArrayQueryParameter(name="log_versions", array_type="INT64", values=version_filter.LogVersions.AsList)
                 )
-            elif isinstance(version_filter.LogVersionFilter, RangeFilter):
-                if version_filter.LogVersionFilter.Min and version_filter.LogVersionFilter.Max:
-                    exclude = "NOT" if version_filter.LogVersionFilter.FilterMode == FilterMode.EXCLUDE else ""
+            elif isinstance(version_filter.LogVersions, RangeFilter):
+                if version_filter.LogVersions.Min and version_filter.LogVersions.Max:
+                    exclude = "NOT" if version_filter.LogVersions.FilterMode == FilterMode.EXCLUDE else ""
                     log_clause = f"`log_version` {exclude} BETWEEN @log_version_min AND @log_version_max"
                     log_param.append(
-                        bigquery.ScalarQueryParameter(name="log_version_min", type_="STRING", value=str(version_filter.LogVersionFilter.Min))
+                        bigquery.ScalarQueryParameter(name="log_version_min", type_="STRING", value=str(version_filter.LogVersions.Min))
                     )
                     log_param.append(
-                        bigquery.ScalarQueryParameter(name="log_version_max", type_="STRING", value=str(version_filter.LogVersionFilter.Max))
+                        bigquery.ScalarQueryParameter(name="log_version_max", type_="STRING", value=str(version_filter.LogVersions.Max))
                     )
-                elif version_filter.LogVersionFilter.Min:
-                    exclude = "<" if version_filter.LogVersionFilter.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
+                elif version_filter.LogVersions.Min:
+                    exclude = "<" if version_filter.LogVersions.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
                     log_clause = f"`log_version` {exclude} @log_version_min"
                     log_param.append(
-                        bigquery.ScalarQueryParameter(name="log_version_min", type_="STRING", value=str(version_filter.LogVersionFilter.Min))
+                        bigquery.ScalarQueryParameter(name="log_version_min", type_="STRING", value=str(version_filter.LogVersions.Min))
                     )
                 else: # version_filter.LogVersionFilter.Max is not None
-                    exclude = ">" if version_filter.LogVersionFilter.FilterMode == FilterMode.EXCLUDE else "<" # > if we're excluding this max, or < if we're including this max
+                    exclude = ">" if version_filter.LogVersions.FilterMode == FilterMode.EXCLUDE else "<" # > if we're excluding this max, or < if we're including this max
                     log_clause = f"`log_version` {exclude} @log_version_max"
                     log_param.append(
-                        bigquery.ScalarQueryParameter(name="log_version_max", type_="STRING", value=str(version_filter.LogVersionFilter.Max))
+                        bigquery.ScalarQueryParameter(name="log_version_max", type_="STRING", value=str(version_filter.LogVersions.Max))
                     )
 
         app_clause : Optional[LiteralString] = None
         app_param  : List[BigQueryParameter] = []
-        if version_filter.AppVersionFilter:
-            if isinstance(version_filter.AppVersionFilter, SetFilter) and len(version_filter.AppVersionFilter.AsSet) > 0:
-                exclude = "NOT" if version_filter.AppVersionFilter.FilterMode == FilterMode.EXCLUDE else ""
+        if version_filter.AppVersions:
+            if isinstance(version_filter.AppVersions, SetFilter) and len(version_filter.AppVersions.AsSet) > 0:
+                exclude = "NOT" if version_filter.AppVersions.FilterMode == FilterMode.EXCLUDE else ""
                 app_clause = f"`app_version` {exclude} IN @app_versions"
                 app_param.append(
-                    bigquery.ArrayQueryParameter(name="app_versions", array_type="INT64", values=version_filter.AppVersionFilter.AsList)
+                    bigquery.ArrayQueryParameter(name="app_versions", array_type="INT64", values=version_filter.AppVersions.AsList)
                 )
-            elif isinstance(version_filter.AppVersionFilter, RangeFilter):
-                if version_filter.AppVersionFilter.Min and version_filter.AppVersionFilter.Max:
-                    exclude = "NOT" if version_filter.AppVersionFilter.FilterMode == FilterMode.EXCLUDE else ""
+            elif isinstance(version_filter.AppVersions, RangeFilter):
+                if version_filter.AppVersions.Min and version_filter.AppVersions.Max:
+                    exclude = "NOT" if version_filter.AppVersions.FilterMode == FilterMode.EXCLUDE else ""
                     app_clause = f"`app_version` {exclude} BETWEEN @app_version_range"
                     app_param.append(
-                        bigquery.RangeQueryParameter(name="app_version_range", range_element_type="INT64", start=version_filter.AppVersionFilter.Min, end=version_filter.AppVersionFilter.Max)
+                        bigquery.RangeQueryParameter(name="app_version_range", range_element_type="INT64", start=version_filter.AppVersions.Min, end=version_filter.AppVersions.Max)
                     )
-                elif version_filter.AppVersionFilter.Min:
-                    exclude = "<" if version_filter.AppVersionFilter.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
+                elif version_filter.AppVersions.Min:
+                    exclude = "<" if version_filter.AppVersions.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
                     app_clause = f"`app_version` {exclude} @app_version_min"
                     app_param.append(
-                        bigquery.ScalarQueryParameter(name="app_version_min", type_="STRING", value=str(version_filter.AppVersionFilter.Min))
+                        bigquery.ScalarQueryParameter(name="app_version_min", type_="STRING", value=str(version_filter.AppVersions.Min))
                     )
                 else: # version_filter.AppVersionFilter.Max is not None
-                    exclude = ">" if version_filter.AppVersionFilter.FilterMode == FilterMode.EXCLUDE else "<" # > if we're excluding this max, or < if we're including this max
+                    exclude = ">" if version_filter.AppVersions.FilterMode == FilterMode.EXCLUDE else "<" # > if we're excluding this max, or < if we're including this max
                     app_clause = f"`app_version` {exclude} @app_version_max"
                     app_param.append(
-                        bigquery.ScalarQueryParameter(name="app_version_max", type_="STRING", value=str(version_filter.AppVersionFilter.Max))
+                        bigquery.ScalarQueryParameter(name="app_version_max", type_="STRING", value=str(version_filter.AppVersions.Max))
                     )
 
         branch_clause : Optional[LiteralString] = None
         branch_param  : List[BigQueryParameter] = []
-        if version_filter.AppBranchFilter:
-            if isinstance(version_filter.AppBranchFilter, SetFilter) and len(version_filter.AppBranchFilter.AsSet) > 0:
-                exclude = "NOT" if version_filter.AppBranchFilter.FilterMode == FilterMode.EXCLUDE else ""
+        if version_filter.AppBranches:
+            if isinstance(version_filter.AppBranches, SetFilter) and len(version_filter.AppBranches.AsSet) > 0:
+                exclude = "NOT" if version_filter.AppBranches.FilterMode == FilterMode.EXCLUDE else ""
                 app_clause = f"`app_branch` {exclude} IN @app_branchs"
                 app_param.append(
-                    bigquery.ArrayQueryParameter(name="app_branchs", array_type="INT64", values=version_filter.AppBranchFilter.AsList)
+                    bigquery.ArrayQueryParameter(name="app_branchs", array_type="INT64", values=version_filter.AppBranches.AsList)
                 )
-            elif isinstance(version_filter.AppBranchFilter, RangeFilter):
-                if version_filter.AppBranchFilter.Min and version_filter.AppBranchFilter.Max:
-                    exclude = "NOT" if version_filter.AppBranchFilter.FilterMode == FilterMode.EXCLUDE else ""
+            elif isinstance(version_filter.AppBranches, RangeFilter):
+                if version_filter.AppBranches.Min and version_filter.AppBranches.Max:
+                    exclude = "NOT" if version_filter.AppBranches.FilterMode == FilterMode.EXCLUDE else ""
                     branch_clause = f"`app_branch` {exclude} BETWEEN @app_branch_range"
                     branch_param.append(
-                        bigquery.RangeQueryParameter(name="app_branch_range", range_element_type="INT64", start=version_filter.AppBranchFilter.Min, end=version_filter.AppBranchFilter.Max)
+                        bigquery.RangeQueryParameter(name="app_branch_range", range_element_type="INT64", start=version_filter.AppBranches.Min, end=version_filter.AppBranches.Max)
                     )
-                elif version_filter.AppBranchFilter.Min:
-                    exclude = "<" if version_filter.AppBranchFilter.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
+                elif version_filter.AppBranches.Min:
+                    exclude = "<" if version_filter.AppBranches.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
                     branch_clause = f"`app_branch` {exclude} @app_branch_min"
                     branch_param.append(
-                        bigquery.ScalarQueryParameter(name="app_branch_min", type_="STRING", value=str(version_filter.AppBranchFilter.Min))
+                        bigquery.ScalarQueryParameter(name="app_branch_min", type_="STRING", value=str(version_filter.AppBranches.Min))
                     )
                 else: # version_filter.AppBranchFilter.Max is not None
-                    exclude = ">" if version_filter.AppBranchFilter.FilterMode == FilterMode.EXCLUDE else "<" # > if we're excluding this max, or < if we're including this max
+                    exclude = ">" if version_filter.AppBranches.FilterMode == FilterMode.EXCLUDE else "<" # > if we're excluding this max, or < if we're including this max
                     branch_clause = f"`app_branch` {exclude} @app_branch_max"
                     branch_param.append(
-                        bigquery.ScalarQueryParameter(name="app_branch_max", type_="STRING", value=str(version_filter.AppBranchFilter.Max))
+                        bigquery.ScalarQueryParameter(name="app_branch_max", type_="STRING", value=str(version_filter.AppBranches.Max))
                     )
 
         events_clause : Optional[LiteralString] = None
         events_param  : List[bigquery.ArrayQueryParameter] = []
-        if event_filter.EventNameFilter and len(event_filter.EventNameFilter.AsSet) > 0:
-            exclude = "NOT" if event_filter.EventNameFilter.FilterMode == FilterMode.EXCLUDE else ""
+        if event_filter.EventNames and len(event_filter.EventNames.AsSet) > 0:
+            exclude = "NOT" if event_filter.EventNames.FilterMode == FilterMode.EXCLUDE else ""
             events_clause = f"`event_name` {exclude} IN @event_name_list"
             events_param.append(
-                bigquery.ArrayQueryParameter(name="event_name_list", array_type="STRING", values=event_filter.EventNameFilter.AsList)
+                bigquery.ArrayQueryParameter(name="event_name_list", array_type="STRING", values=event_filter.EventNames.AsList)
             )
 
         # codes_clause : Optional[LiteralString] = None

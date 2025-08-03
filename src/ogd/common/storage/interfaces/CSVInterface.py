@@ -109,19 +109,19 @@ class CSVInterface(Interface):
 
         if self.Connector.IsOpen:
             sess_mask : PDMask = True
-            if id_filter.SessionFilter:
-                match id_filter.SessionFilter.FilterMode:
+            if id_filter.Sessions:
+                match id_filter.Sessions.FilterMode:
                     case FilterMode.INCLUDE:
-                        sess_mask = self.DataFrame['session_id'].isin(id_filter.SessionFilter.AsSet)
+                        sess_mask = self.DataFrame['session_id'].isin(id_filter.Sessions.AsSet)
                     case FilterMode.EXCLUDE:
-                        sess_mask = ~self.DataFrame['session_id'].isin(id_filter.SessionFilter.AsSet)
+                        sess_mask = ~self.DataFrame['session_id'].isin(id_filter.Sessions.AsSet)
             user_mask : PDMask = True
-            if id_filter.PlayerFilter:
-                match id_filter.PlayerFilter.FilterMode:
+            if id_filter.Players:
+                match id_filter.Players.FilterMode:
                     case FilterMode.INCLUDE:
-                        user_mask = self.DataFrame['user_id'].isin(id_filter.PlayerFilter.AsSet)
+                        user_mask = self.DataFrame['user_id'].isin(id_filter.Players.AsSet)
                     case FilterMode.EXCLUDE:
-                        user_mask = ~self.DataFrame['user_id'].isin(id_filter.PlayerFilter.AsSet)
+                        user_mask = ~self.DataFrame['user_id'].isin(id_filter.Players.AsSet)
 
             _col  = self.DataFrame[sess_mask & user_mask]['timestamp']
             min_date = _col.min()
@@ -145,26 +145,26 @@ class CSVInterface(Interface):
 
         if self.Connector.IsOpen and not self.DataFrame.empty:
             sess_mask : PDMask = True
-            if id_filter.SessionFilter:
-                match id_filter.SessionFilter.FilterMode:
+            if id_filter.Sessions:
+                match id_filter.Sessions.FilterMode:
                     case FilterMode.INCLUDE:
-                        sess_mask = self.DataFrame['session_id'].isin(id_filter.SessionFilter.AsSet)
+                        sess_mask = self.DataFrame['session_id'].isin(id_filter.Sessions.AsSet)
                     case FilterMode.EXCLUDE:
-                        sess_mask = ~self.DataFrame['session_id'].isin(id_filter.SessionFilter.AsSet)
+                        sess_mask = ~self.DataFrame['session_id'].isin(id_filter.Sessions.AsSet)
             user_mask : PDMask = True
-            if id_filter.PlayerFilter:
-                match id_filter.PlayerFilter.FilterMode:
+            if id_filter.Players:
+                match id_filter.Players.FilterMode:
                     case FilterMode.INCLUDE:
-                        user_mask = self.DataFrame['user_id'].isin(id_filter.PlayerFilter.AsSet)
+                        user_mask = self.DataFrame['user_id'].isin(id_filter.Players.AsSet)
                     case FilterMode.EXCLUDE:
-                        user_mask = ~self.DataFrame['user_id'].isin(id_filter.PlayerFilter.AsSet)
+                        user_mask = ~self.DataFrame['user_id'].isin(id_filter.Players.AsSet)
             event_mask : PDMask = True
-            if event_filter.EventNameFilter:
-                match event_filter.EventNameFilter.FilterMode:
+            if event_filter.EventNames:
+                match event_filter.EventNames.FilterMode:
                     case FilterMode.INCLUDE:
-                        event_mask = self.DataFrame['event_name'].isin(event_filter.EventNameFilter.AsSet)
+                        event_mask = self.DataFrame['event_name'].isin(event_filter.EventNames.AsSet)
                     case FilterMode.EXCLUDE:
-                        event_mask = ~self.DataFrame['event_name'].isin(event_filter.EventNameFilter.AsSet)
+                        event_mask = ~self.DataFrame['event_name'].isin(event_filter.EventNames.AsSet)
             _data = self.DataFrame[sess_mask & user_mask & event_mask]
             ret_val = list(_data.itertuples(index=False, name=None))
         return ret_val

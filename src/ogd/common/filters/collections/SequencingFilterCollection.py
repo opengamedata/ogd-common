@@ -32,27 +32,27 @@ class SequencingFilterCollection:
 
     def __str__(self) -> str:
         ret_val = "no timestamp filters"
-        if self.TimestampFilter or self.SessionIndexFilter:
-            _times_str = f"time(s) {self.TimestampFilter}" if self.TimestampFilter else None
-            _idxes_str = f"event index(s) {self.SessionIndexFilter}" if self.SessionIndexFilter else None
+        if self.Timestamps or self.SessionIndices:
+            _times_str = f"time(s) {self.Timestamps}" if self.Timestamps else None
+            _idxes_str = f"event index(s) {self.SessionIndices}" if self.SessionIndices else None
             _ver_strs = ", ".join([elem for elem in [_times_str, _idxes_str] if elem is not None])
             ret_val = f"timestamp filters: {_ver_strs}"
         return ret_val
 
     def __repr__(self) -> str:
         ret_val = f"<class {type(self).__name__} no filters>"
-        if self.TimestampFilter or self.SessionIndexFilter:
-            _times_str = f"time(s) {self.TimestampFilter}" if self.TimestampFilter else None
-            _idxes_str = f"event index(s) {self.SessionIndexFilter}" if self.SessionIndexFilter else None
+        if self.Timestamps or self.SessionIndices:
+            _times_str = f"time(s) {self.Timestamps}" if self.Timestamps else None
+            _idxes_str = f"event index(s) {self.SessionIndices}" if self.SessionIndices else None
             _ver_strs = ", ".join([elem for elem in [_times_str, _idxes_str] if elem is not None])
             ret_val = f"<class {type(self).__name__} {_ver_strs}>"
         return ret_val
 
     @property
-    def TimestampFilter(self) -> TimestampFilterType:
+    def Timestamps(self) -> TimestampFilterType:
         return self._timestamp_filter
-    @TimestampFilter.setter
-    def TimestampFilter(self, allowed_times:Optional[TimestampFilterType | slice | Pair]) -> None:
+    @Timestamps.setter
+    def Timestamps(self, allowed_times:Optional[TimestampFilterType | slice | Pair]) -> None:
         if allowed_times is None:
             self._timestamp_filter = None
         elif isinstance(allowed_times, RangeFilter):
@@ -63,10 +63,10 @@ class SequencingFilterCollection:
             self._timestamp_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_times[0], maximum=allowed_times[1])
 
     @property
-    def SessionIndexFilter(self) -> IndicesFilterType:
+    def SessionIndices(self) -> IndicesFilterType:
         return self._session_index_filter
-    @SessionIndexFilter.setter
-    def SessionIndexFilter(self, allowed_times:Optional[IndicesFilterType | slice | Pair]) -> None:
+    @SessionIndices.setter
+    def SessionIndices(self, allowed_times:Optional[IndicesFilterType | slice | Pair]) -> None:
         if allowed_times is None:
             self._session_index_filter = None
         elif isinstance(allowed_times, Filter):
