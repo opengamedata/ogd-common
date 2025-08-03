@@ -1,8 +1,5 @@
 ## import standard libraries
-import abc
-from typing import Any, Dict
 # import local files
-from ogd.common.filters.Filter import Filter
 from ogd.common.filters.collections.EventFilterCollection import EventFilterCollection
 from ogd.common.filters.collections.IDFilterCollection import IDFilterCollection
 from ogd.common.filters.collections.SequencingFilterCollection import SequencingFilterCollection

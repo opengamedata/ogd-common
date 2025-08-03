@@ -1,6 +1,6 @@
 ## import standard libraries
 from datetime import date, datetime
-from typing import Dict, Optional
+from typing import Optional
 # import local files
 from ogd.common.filters import *
 from ogd.common.models.enums.FilterMode import FilterMode
