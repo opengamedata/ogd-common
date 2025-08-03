@@ -49,17 +49,6 @@ class SequencingFilterCollection:
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Filter]:
-        ret_val = {}
-
-        if self.TimestampFilter:
-            ret_val["timestamps"] = self.TimestampFilter
-        if self.SessionIndexFilter:
-            ret_val["session_indices"] = self.SessionIndexFilter
-        
-        return ret_val
-
-    @property
     def TimestampFilter(self) -> TimestampFilterType:
         return self._timestamp_filter
     @TimestampFilter.setter

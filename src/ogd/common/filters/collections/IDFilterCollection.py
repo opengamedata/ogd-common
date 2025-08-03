@@ -33,17 +33,6 @@ class IDFilterCollection:
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Filter]:
-        ret_val = {}
-
-        if self.SessionFilter:
-            ret_val["session_ids"] = self.SessionFilter
-        if self.PlayerFilter:
-            ret_val["player_ids"] = self.PlayerFilter
-        
-        return ret_val
-
-    @property
     def SessionFilter(self) -> SessionFilterType:
         return self._session_filter
     @SessionFilter.setter

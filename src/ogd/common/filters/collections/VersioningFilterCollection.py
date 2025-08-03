@@ -52,19 +52,6 @@ class VersioningFilterCollection:
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Filter]:
-        ret_val = {}
-
-        if self.LogVersionFilter:
-            ret_val["log_versions"] = self.LogVersionFilter
-        if self.AppVersionFilter:
-            ret_val["app_versions"] = self.AppVersionFilter
-        if self.AppBranchFilter:
-            ret_val["app_branches"] = self.AppBranchFilter
-        
-        return ret_val
-
-    @property
     def LogVersionFilter(self) -> LogFilterType:
         return self._log_filter
     @LogVersionFilter.setter
