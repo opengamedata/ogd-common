@@ -84,7 +84,7 @@ class CSVInterface(Interface):
     def Connector(self) -> CSVConnector:
         return self._store
 
-    def _availableIDs(self, mode:IDMode, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
+    def _availableIDs(self, mode:IDMode, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
         ret_val : List[str] = []
 
         if not self.DataFrame.empty:
@@ -130,7 +130,7 @@ class CSVInterface(Interface):
 
         return ret_val
 
-    def _availableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:TimingFilterCollection) -> List[SemanticVersion | str]:
+    def _availableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection) -> List[SemanticVersion | str]:
         ret_val : List[SemanticVersion | str] = []
 
         if self.Connector.IsOpen:
@@ -140,7 +140,7 @@ class CSVInterface(Interface):
         return ret_val
 
 
-    def _getEventRows(self, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
+    def _getEventRows(self, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
         ret_val : List[Tuple] = []
 
         if self.Connector.IsOpen and not self.DataFrame.empty:

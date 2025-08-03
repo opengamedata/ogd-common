@@ -28,7 +28,7 @@ class BQFirebaseInterface(BigQueryInterface):
 
     # *** RE-IMPLEMENT ABSTRACT FUNCTIONS ***
 
-    def _availableIDs(self, mode:IDMode, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
+    def _availableIDs(self, mode:IDMode, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
         ret_val = []
 
         if self.Connector.Client:
@@ -61,7 +61,7 @@ class BQFirebaseInterface(BigQueryInterface):
         ret_val : Dict[str, datetime] = {}
 
         if self.Connector.Client:
-            where_clause = self._generateWhereClause(id_filter=id_filter, date_filter=TimingFilterCollection(None, None), version_filter=version_filter, event_filter=EventFilterCollection(None, None))
+            where_clause = self._generateWhereClause(id_filter=id_filter, date_filter=SequencingFilterCollection(None, None), version_filter=version_filter, event_filter=EventFilterCollection(None, None))
             query = f"""
                 WITH datetable AS
                 (
@@ -81,7 +81,7 @@ class BQFirebaseInterface(BigQueryInterface):
             ret_val = {'min':data[0][0], 'max':data[0][1]}
         return ret_val
 
-    def _availableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:TimingFilterCollection) -> List[SemanticVersion | str]:
+    def _availableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection) -> List[SemanticVersion | str]:
         return []
 
     def _rowsFromIDs(self, id_list:List[str], id_mode:IDMode=IDMode.SESSION, versions:Optional[List[int]] = None, exclude_rows:Optional[List[str]]=None) -> List[Tuple]:
@@ -233,7 +233,7 @@ class BQFirebaseInterface(BigQueryInterface):
         return query
 
     @staticmethod
-    def _generateWhereClause(id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> ParamaterizedClause:
+    def _generateWhereClause(id_filter:IDFilterCollection, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> ParamaterizedClause:
         exclude : LiteralString
 
         sess_clause : Optional[LiteralString] = None

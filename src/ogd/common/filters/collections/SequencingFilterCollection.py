@@ -9,7 +9,7 @@ from ogd.common.utils.typing import Pair
 type TimestampFilterType = Optional[RangeFilter[datetime | date]]
 type IndicesFilterType   = Optional[SetFilter[int] | RangeFilter[int]]
 
-class TimingFilterCollection:
+class SequencingFilterCollection:
     """Dumb struct to hold filters for timing information
 
     For now, it just does timestamps and session index, if need be we may come back and allow filtering by timezone offset

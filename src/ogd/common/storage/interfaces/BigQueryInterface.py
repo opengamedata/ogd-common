@@ -66,7 +66,7 @@ class BigQueryInterface(Interface):
     def Connector(self) -> BigQueryConnector:
         return self._store
 
-    def _availableIDs(self, mode:IDMode, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
+    def _availableIDs(self, mode:IDMode, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
         ret_val = []
 
         if self.Connector.Client:
@@ -99,7 +99,7 @@ class BigQueryInterface(Interface):
 
         if self.Connector.Client:
             # 1. Create query & config
-            where_clause = self._generateWhereClause(id_filter=id_filter, date_filter=TimingFilterCollection(None, None), version_filter=version_filter, event_filter=EventFilterCollection(None, None))
+            where_clause = self._generateWhereClause(id_filter=id_filter, date_filter=SequencingFilterCollection(None, None), version_filter=version_filter, event_filter=EventFilterCollection(None, None))
             query = f"""
                 SELECT MIN(server_time), MAX(server_time)
                 FROM `{self.DBPath}`
@@ -131,7 +131,7 @@ class BigQueryInterface(Interface):
             Logger.Log(f"Can't retrieve available dates from {self.Connector.ResourceName}, the storage connection client is null!", logging.WARNING, depth=3)
         return ret_val
 
-    def _availableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:TimingFilterCollection) -> List[SemanticVersion | str]:
+    def _availableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection) -> List[SemanticVersion | str]:
         ret_val : List[SemanticVersion | str] = []
 
         if self.Connector.Client:
@@ -158,7 +158,7 @@ class BigQueryInterface(Interface):
             Logger.Log(f"Can't retrieve list of {mode} versions from {self.Connector.ResourceName}, the storage connection client is null!", logging.WARNING, depth=3)
         return ret_val
 
-    def _getEventRows(self, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
+    def _getEventRows(self, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
         ret_val = []
 
         if self.Connector.Client:
@@ -202,7 +202,7 @@ class BigQueryInterface(Interface):
 
         return ret_val
 
-    def _getFeatureRows(self, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[Tuple]:
+    def _getFeatureRows(self, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection) -> List[Tuple]:
         return []
 
     # *** PUBLIC STATICS ***
@@ -212,7 +212,7 @@ class BigQueryInterface(Interface):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _generateSuffixClause(date_filter:TimingFilterCollection) -> ParamaterizedClause:
+    def _generateSuffixClause(date_filter:SequencingFilterCollection) -> ParamaterizedClause:
         clause = ""
         params = []
         
@@ -229,7 +229,7 @@ class BigQueryInterface(Interface):
         return ParamaterizedClause(clause=clause, params=params)
 
     @staticmethod
-    def _generateWhereClause(id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> ParamaterizedClause:
+    def _generateWhereClause(id_filter:IDFilterCollection, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> ParamaterizedClause:
         exclude : LiteralString
 
         sess_clause : Optional[LiteralString] = None

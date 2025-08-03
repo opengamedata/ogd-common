@@ -36,7 +36,7 @@ class Interface(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def _availableIDs(self, mode:IDMode, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
+    def _availableIDs(self, mode:IDMode, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
         """Private implementation of the logic to retrieve all IDs of given mode from the connected storage.
 
         :param mode: The type of ID to be listed.
@@ -56,15 +56,15 @@ class Interface(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def _availableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:TimingFilterCollection) -> List[SemanticVersion | str]:
+    def _availableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection) -> List[SemanticVersion | str]:
         pass
 
     @abc.abstractmethod
-    def _getEventRows(self, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
+    def _getEventRows(self, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
         pass
 
     @abc.abstractmethod
-    def _getFeatureRows(self, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[Tuple]:
+    def _getFeatureRows(self, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection) -> List[Tuple]:
         pass
 
     # *** BUILT-INS & PROPERTIES ***
@@ -82,7 +82,7 @@ class Interface(abc.ABC):
 
     # *** PUBLIC METHODS ***
 
-    def AvailableIDs(self, mode:IDMode, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> Optional[List[str]]:
+    def AvailableIDs(self, mode:IDMode, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection) -> Optional[List[str]]:
         """Retrieve all IDs of given mode from the connected storage.
 
         :param mode: The type of ID to be listed.
@@ -120,7 +120,7 @@ class Interface(abc.ABC):
         return ret_val
 
 
-    def AvailableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:TimingFilterCollection) -> List[SemanticVersion | str]:
+    def AvailableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection) -> List[SemanticVersion | str]:
         """Get a list of all versions of given type in the connected storage, subject to ID and date filters.
 
         :param mode: _description_
@@ -141,7 +141,7 @@ class Interface(abc.ABC):
             Logger.Log(f"Could not retrieve data versions from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val
 
-    def GetEventCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection(), event_filter:EventFilterCollection=EventFilterCollection()) -> EventSet:
+    def GetEventCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:SequencingFilterCollection=SequencingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection(), event_filter:EventFilterCollection=EventFilterCollection()) -> EventSet:
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict | event_filter.AsDict
         _events : List[Event] = []
 
@@ -171,7 +171,7 @@ class Interface(abc.ABC):
 
         return EventSet(events=_events, filters=_filters)
 
-    def GetFeatureCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:TimingFilterCollection=TimingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection()) -> FeatureSet:
+    def GetFeatureCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:SequencingFilterCollection=SequencingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection()) -> FeatureSet:
         _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict
         _features : List[Feature] = []
 
