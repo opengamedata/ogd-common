@@ -2,10 +2,12 @@ __all__ = [
     "EventFilterCollection",
     "IDFilterCollection",
     "SequencingFilterCollection",
-    "VersioningFilterCollection"
+    "VersioningFilterCollection",
+    "DatasetFilterCollection"
 ]
 
 from .EventFilterCollection import EventFilterCollection
 from .IDFilterCollection import IDFilterCollection
-from .TimingFilterCollection import SequencingFilterCollection
+from .SequencingFilterCollection import SequencingFilterCollection
 from .VersioningFilterCollection import VersioningFilterCollection
+from .DatasetFilterCollection import DatasetFilterCollection
