@@ -60,11 +60,11 @@ class Interface(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def _getEventRows(self, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
+    def _getEventRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
         pass
 
     @abc.abstractmethod
-    def _getFeatureRows(self, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection) -> List[Tuple]:
+    def _getFeatureRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
         pass
 
     # *** BUILT-INS & PROPERTIES ***
@@ -141,8 +141,7 @@ class Interface(abc.ABC):
             Logger.Log(f"Could not retrieve data versions from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val
 
-    def GetEventCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:SequencingFilterCollection=SequencingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection(), event_filter:EventFilterCollection=EventFilterCollection()) -> EventSet:
-        _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict | event_filter.AsDict
+    def GetEventCollection(self, filters:DatasetFilterCollection) -> EventSet:
         _events : List[Event] = []
 
         if self.Connector.IsOpen:
@@ -151,7 +150,7 @@ class Interface(abc.ABC):
                 Logger.Log(_msg, logging.INFO, depth=3)
 
                 fallbacks = {"app_id":self.Config.GameID}
-                rows = self._getEventRows(id_filter=id_filter, date_filter=date_filter, version_filter=version_filter, event_filter=event_filter)
+                rows = self._getEventRows(filters=filters)
                 for row in rows:
                     try:
                         event = self.Config.Table.EventFromRow(row, fallbacks=fallbacks)
@@ -169,10 +168,9 @@ class Interface(abc.ABC):
         else:
             Logger.Log(f"Could not retrieve Event data from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
 
-        return EventSet(events=_events, filters=_filters)
+        return EventSet(events=_events, filters=filters)
 
-    def GetFeatureCollection(self, id_filter:IDFilterCollection=IDFilterCollection(), date_filter:SequencingFilterCollection=SequencingFilterCollection(), version_filter:VersioningFilterCollection=VersioningFilterCollection()) -> FeatureSet:
-        _filters = id_filter.AsDict | date_filter.AsDict | version_filter.AsDict
+    def GetFeatureCollection(self, filters:DatasetFilterCollection) -> FeatureSet:
         _features : List[Feature] = []
 
         if self.Connector.IsOpen:
@@ -181,7 +179,7 @@ class Interface(abc.ABC):
                 Logger.Log(_msg, logging.INFO, depth=3)
 
                 fallbacks = {"app_id":self.Config.GameID}
-                rows = self._getFeatureRows(id_filter=id_filter, date_filter=date_filter, version_filter=version_filter)
+                rows = self._getFeatureRows(filters=filters)
                 for row in rows:
                     try:
                         feature = self.Config.Table.FeatureFromRow(row, fallbacks=fallbacks)
@@ -199,7 +197,7 @@ class Interface(abc.ABC):
         else:
             Logger.Log(f"Could not retrieve Feature data from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
 
-        return FeatureSet(features=_features, filters=_filters)
+        return FeatureSet(features=_features, filters=filters)
 
     # *** PRIVATE STATICS ***
 
