@@ -6,15 +6,14 @@ from ogd.common.filters import *
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.utils.typing import Pair
 
-type TimestampFilterType = Optional[RangeFilter[datetime | date]]
-type IndicesFilterType   = Optional[SetFilter[int] | RangeFilter[int]]
-
 class SequencingFilterCollection:
     """Dumb struct to hold filters for timing information
 
     For now, it just does timestamps and session index, if need be we may come back and allow filtering by timezone offset
     """
-    def __init__(self, timestamp_filter:TimestampFilterType=None, session_index_filter:IndicesFilterType=None):
+    def __init__(self,
+                 timestamp_filter     : RangeFilter[datetime | date] | NoFilter      = NoFilter(),
+                 session_index_filter : SetFilter[int] | RangeFilter[int] | NoFilter = NoFilter()):
         """Constructor for the TimingFilterCollection structure.
 
         Accepts a collection of filters to be applied on timing of data.
@@ -27,8 +26,8 @@ class SequencingFilterCollection:
         :param branch_filter: The filter to apply to app branch, defaults to NoFilter()
         :type branch_filter: Filter, optional
         """
-        self._timestamp_filter     : TimestampFilterType = timestamp_filter
-        self._session_index_filter : IndicesFilterType   = session_index_filter
+        self._timestamp_filter     : RangeFilter[datetime | date] | NoFilter      = timestamp_filter
+        self._session_index_filter : SetFilter[int] | RangeFilter[int] | NoFilter = session_index_filter
 
     def __str__(self) -> str:
         ret_val = "no timestamp filters"
@@ -49,12 +48,12 @@ class SequencingFilterCollection:
         return ret_val
 
     @property
-    def Timestamps(self) -> TimestampFilterType:
+    def Timestamps(self) -> Filter[datetime | date]:
         return self._timestamp_filter
     @Timestamps.setter
-    def Timestamps(self, allowed_times:Optional[TimestampFilterType | slice | Pair]) -> None:
-        if allowed_times is None:
-            self._timestamp_filter = None
+    def Timestamps(self, allowed_times:Optional[RangeFilter[datetime | date] | NoFilter | slice | Pair]) -> None:
+        if allowed_times is None or isinstance(allowed_times, NoFilter):
+            self._timestamp_filter = NoFilter()
         elif isinstance(allowed_times, RangeFilter):
             self._timestamp_filter = allowed_times
         elif isinstance(allowed_times, slice):
@@ -63,12 +62,12 @@ class SequencingFilterCollection:
             self._timestamp_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_times[0], maximum=allowed_times[1])
 
     @property
-    def SessionIndices(self) -> IndicesFilterType:
+    def SessionIndices(self) -> Filter[int]:
         return self._session_index_filter
     @SessionIndices.setter
-    def SessionIndices(self, allowed_times:Optional[IndicesFilterType | slice | Pair]) -> None:
-        if allowed_times is None:
-            self._session_index_filter = None
+    def SessionIndices(self, allowed_times:Optional[SetFilter[int] | RangeFilter[int] | NoFilter | slice | Pair]) -> None:
+        if allowed_times is None or isinstance(allowed_times, NoFilter):
+            self._session_index_filter = NoFilter()
         elif isinstance(allowed_times, Filter):
             self._session_index_filter = allowed_times
         elif isinstance(allowed_times, slice):

@@ -6,15 +6,16 @@ from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.utils.typing import Pair
 
+# TODO : move to utils.typing
 type Version = int | str | SemanticVersion
-type LogFilterType     = Optional[SetFilter[Version] | RangeFilter[Version]]
-type VersionFilterType = Optional[SetFilter[Version] | RangeFilter[Version]]
-type BranchFilterType  = Optional[SetFilter[Version]]
 
 class VersioningFilterCollection:
     """Dumb struct to hold filters for versioning information
     """
-    def __init__(self, log_ver_filter:LogFilterType=None, app_ver_filter:VersionFilterType=None, branch_filter:BranchFilterType=None):
+    def __init__(self,
+                 log_ver_filter : SetFilter[Version] | RangeFilter[Version] | NoFilter = NoFilter(),
+                 app_ver_filter : SetFilter[Version] | RangeFilter[Version] | NoFilter = NoFilter(),
+                 branch_filter  : SetFilter[Version] | NoFilter                        = NoFilter()):
         """Constructor for the VersioningFilter structure.
 
         Accepts a collection of filters to be applied on versioning of data.
@@ -27,9 +28,9 @@ class VersioningFilterCollection:
         :param branch_filter: The filter to apply to app branch, defaults to NoFilter()
         :type branch_filter: BranchFilterType
         """
-        self._log_filter = log_ver_filter
-        self._app_filter = app_ver_filter
-        self._branch_filter = branch_filter
+        self._log_filter    : SetFilter[Version] | RangeFilter[Version] | NoFilter = log_ver_filter
+        self._app_filter    : SetFilter[Version] | RangeFilter[Version] | NoFilter = app_ver_filter
+        self._branch_filter : SetFilter[Version] | NoFilter                        = branch_filter
 
     def __str__(self) -> str:
         ret_val = "no versioning filters"
@@ -52,12 +53,12 @@ class VersioningFilterCollection:
         return ret_val
 
     @property
-    def LogVersions(self) -> LogFilterType:
+    def LogVersions(self) -> SetFilter[Version] | RangeFilter[Version] | NoFilter:
         return self._log_filter
     @LogVersions.setter
-    def LogVersions(self, allowed_versions:Optional[LogFilterType | List[Version] | Set[Version] | slice | Pair[Version, Version]]) -> None:
-        if allowed_versions is None:
-            self._log_filter = None
+    def LogVersions(self, allowed_versions:Optional[SetFilter[Version] | RangeFilter[Version] | NoFilter | List[Version] | Set[Version] | slice | Pair[Version, Version]]) -> None:
+        if allowed_versions is None or isinstance(allowed_versions, NoFilter):
+            self._log_filter = NoFilter()
         elif isinstance(allowed_versions, Filter):
             self._log_filter = allowed_versions
         elif isinstance(allowed_versions, list) or isinstance(allowed_versions, set):
@@ -68,12 +69,12 @@ class VersioningFilterCollection:
             self._log_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_versions[0], maximum=allowed_versions[1])
 
     @property
-    def AppVersions(self) -> VersionFilterType:
+    def AppVersions(self) -> SetFilter[Version] | RangeFilter[Version] | NoFilter:
         return self._app_filter
     @AppVersions.setter
-    def AppVersions(self, allowed_versions:Optional[VersionFilterType | List[Version] | Set[Version] | slice | Pair[Version, Version]]) -> None:
-        if allowed_versions is None:
-            self._app_filter = None
+    def AppVersions(self, allowed_versions:Optional[SetFilter[Version] | RangeFilter[Version] | NoFilter | List[Version] | Set[Version] | slice | Pair[Version, Version]]) -> None:
+        if allowed_versions is None or isinstance(allowed_versions, NoFilter):
+            self._app_filter = NoFilter()
         elif isinstance(allowed_versions, Filter):
             self._app_filter = allowed_versions
         elif isinstance(allowed_versions, list) or isinstance(allowed_versions, set):
@@ -84,12 +85,12 @@ class VersioningFilterCollection:
             self._app_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_versions[0], maximum=allowed_versions[1])
 
     @property
-    def AppBranches(self) -> BranchFilterType:
+    def AppBranches(self) -> SetFilter[Version] | NoFilter:
         return self._branch_filter
     @AppBranches.setter
-    def AppBranches(self, allowed_branches:Optional[BranchFilterType | List[Version] | Set[Version]]) -> None:
-        if allowed_branches is None:
-            self._branch_filter = None
+    def AppBranches(self, allowed_branches:Optional[SetFilter[Version] | NoFilter | List[Version] | Set[Version]]) -> None:
+        if allowed_branches is None or isinstance(allowed_branches, NoFilter):
+            self._branch_filter = NoFilter()
         elif isinstance(allowed_branches, SetFilter):
             self._branch_filter = allowed_branches
         elif isinstance(allowed_branches, list) or isinstance(allowed_branches, set):
