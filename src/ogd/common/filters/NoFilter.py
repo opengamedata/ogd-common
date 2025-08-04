@@ -1,12 +1,10 @@
 ## import standard libraries
-import logging
-from typing import Any, Optional, Set, TypeVar
+from typing import Any
 # import local files
 from ogd.common.filters.Filter import Filter
 from ogd.common.models.enums.FilterMode import FilterMode
-from ogd.common.utils.Logger import Logger
 
-class NoFilter(Filter[None]):
+class NoFilter(Filter[Any]):
     def __init__(self):
         super().__init__(mode=FilterMode.NOFILTER)
 
