@@ -28,6 +28,10 @@ class Filter(Generic[T]):
         :type mode: FilterMode, optional
         """
         self._mode = mode
+
+    @property
+    def Active(self) -> bool:
+        return self.FilterMode != FilterMode.NOFILTER
     
     @property
     def FilterMode(self) -> FilterMode:
