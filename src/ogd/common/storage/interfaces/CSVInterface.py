@@ -1,5 +1,4 @@
 import logging
-import pandas as pd
 from collections import defaultdict
 from datetime import datetime
 from typing import Dict, List, Tuple, Optional, Union

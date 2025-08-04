@@ -1,8 +1,7 @@
 ## import standard libraries
-from typing import Dict, List
+from typing import List
 # import local files
 from ogd.common.filters.collections import *
-from ogd.common.filters.Filter import Filter
 from ogd.common.models.Feature import Feature
 from ogd.common.utils.typing import ExportRow
 
