@@ -26,7 +26,7 @@ from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.schemas.events.LoggingSpecificationSchema import LoggingSpecificationSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
-from ogd.common.storage.connectors.cores.CSVConnector import CSVConnector
+from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.storage.outerfaces.Outerface import Outerface
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger

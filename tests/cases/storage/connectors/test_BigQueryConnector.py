@@ -7,7 +7,7 @@ from google.cloud import bigquery
 # import ogd libraries.
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.configs.TestConfig import TestConfig
-from ogd.common.storage.connectors.cores.BigQueryConnector import BigQueryConnector
+from ogd.common.storage.connectors.BigQueryConnector import BigQueryConnector
 from ogd.common.utils.Logger import Logger
 # import locals
 from tests.config.t_config import settings

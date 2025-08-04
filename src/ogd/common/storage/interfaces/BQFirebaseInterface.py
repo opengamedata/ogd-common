@@ -12,7 +12,7 @@ from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.storage.interfaces.BigQueryInterface import BigQueryInterface, ParamaterizedClause
-from ogd.common.storage.connectors.cores.BigQueryConnector import BigQueryConnector
+from ogd.common.storage.connectors.BigQueryConnector import BigQueryConnector
 from ogd.common.utils.Logger import Logger
 
 AQUALAB_MIN_VERSION : Final[float] = 6.2

@@ -16,7 +16,7 @@ from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.storage.interfaces.Interface import Interface
-from ogd.common.storage.connectors.cores.CSVConnector import CSVConnector
+from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.utils.Logger import Logger
 
 type PDMask = Union[pd.Series, bool]

@@ -3,7 +3,7 @@ import os
 from google.cloud import bigquery
 from typing import Final, Optional
 # import locals
-from ogd.common.storage.connectors.cores.StorageConnector import StorageConnector
+from ogd.common.storage.connectors.StorageConnector import StorageConnector
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.utils.Logger import Logger
 
