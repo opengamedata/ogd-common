@@ -281,7 +281,7 @@ class MySQLInterface(Interface):
         self._is_open = False
         return True
 
-    def _availableIDs(self, mode:IDMode, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
+    def _availableIDs(self, mode:IDMode, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
         if self._db_cursor is not None and isinstance(self.GameStoreConfig.Source, MySQLConfig):
             _db_name     : str = self.GameStoreConfig.DatabaseName
             _table_name  : str = self.GameStoreConfig.TableName
@@ -400,10 +400,10 @@ class MySQLInterface(Interface):
     #         Logger.Log(f"Could not get date range for {len(id_list)} sessions, MySQL connection is not open.", logging.WARN)
     #     return ret_val
 
-    def _availableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:TimingFilterCollection) -> List[SemanticVersion | str]:
+    def _availableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection) -> List[SemanticVersion | str]:
         return []
 
-    def _getEventRows(self, id_filter:IDFilterCollection, date_filter:TimingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
+    def _getEventRows(self, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
         ret_val = []
         # grab data for the given session range. Sort by event time, so
         if self._db_cursor is not None and isinstance(self.GameStoreConfig.Source, MySQLConfig):

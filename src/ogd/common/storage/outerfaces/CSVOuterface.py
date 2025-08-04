@@ -19,6 +19,8 @@ import pandas as pd
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.configs.IndexingConfig import FileIndexingConfig
 from ogd.common.configs.generators.GeneratorCollectionConfig import GeneratorCollectionConfig
+from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
+from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.configs.storage.LocalDatasetRepositoryConfig import LocalDatasetRepositoryConfig
 from ogd.common.models.DatasetKey import DatasetKey
@@ -218,7 +220,18 @@ class CSVOuterface(Outerface):
         else:
             self._ensureReadmeExists()
             self._writeMetadataFile(meta=metadata)
-            self._updateFileExportList(num_sess=self.SessionCount)
+            if isinstance(self._repository.Location, DirectoryLocationSchema):
+                _local_dir = self._repository.Location
+                _remote_url = None
+            else: # we got a URL base
+                _local_dir = None
+                _remote_url = self._repository.Location
+            _file_index = FileIndexingConfig(name="IndexingConfig",
+                                             local_dir=_local_dir,
+                                             remote_url=_remote_url,
+                                             templates_url=URLLocationSchema.FromDict(name="TemplateURL", unparsed_elements={"URL" : self._repository.TemplatesBase.Location})
+            )
+            self._updateFileExportList(file_indexing=_file_index, dataset_schema=metadata)
 
     # *** PUBLIC STATICS ***
 

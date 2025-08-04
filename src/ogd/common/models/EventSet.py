@@ -11,7 +11,7 @@ class EventSet:
        It also contains information on any filters used to define the dataset, such as a date range or set of versions.
     """
 
-    def __init__(self, events:List[Event], filters:Dict[str, Filter]) -> None:
+    def __init__(self, events:List[Event], filters:DatasetFilterCollection) -> None:
         self._events = events
         self._filters = filters
 
@@ -40,7 +40,7 @@ class EventSet:
         return [event.ColumnValues for event in self.GameEvents]
 
     @property
-    def Filters(self) -> Dict[str, Filter]:
+    def Filters(self) -> DatasetFilterCollection:
         return self._filters
 
     @property
@@ -49,7 +49,7 @@ class EventSet:
 
     @property
     def AsMarkdown(self):
-        _filters_clause = "* ".join([f"{key} : {val}" for key,val in self.Filters.items()])
+        _filters_clause = "* ".join([f"{key} : {val}" for key,val in self.Filters.AsDict.items()])
         return f"## Event Dataset\n\n{_filters_clause}"
 
     def ClearEvents(self):

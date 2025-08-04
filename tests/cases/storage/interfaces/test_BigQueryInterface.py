@@ -57,12 +57,12 @@ class test_BigQueryInterface(TestCase):
     def test_AvailableIDs_sessions(self):
         _start_date = datetime(year=2025, month=7, day=1, hour=0, minute=0, second=0)
         _end_date = datetime(year=2025, month=7, day=1, hour=23, minute=59, second=59)
-        _date_filt = TimingFilterCollection(
+        _date_filt = SequencingFilterCollection(
             timestamp_filter=RangeFilter(mode=FilterMode.INCLUDE, minimum=_start_date, maximum=_end_date),
             session_index_filter=None
         )
         _ver_filt = VersioningFilterCollection(None, None, None)
-        session_ids = self.test_interface.AvailableIDs(mode=IDMode.SESSION, date_filter=_date_filt, version_filter=_ver_filt)
+        session_ids = self.test_interface.AvailableIDs(mode=IDMode.SESSION, filters=DatasetFilterCollection(sequence_filters=_date_filt, version_filters=_ver_filt))
         self.assertIsNotNone(session_ids)
         self.assertIsInstance(session_ids, list)
         if session_ids is not None:
@@ -81,12 +81,12 @@ class test_BigQueryInterface(TestCase):
     def test_AvailableIDs_users(self):
         _start_date = datetime(year=2025, month=7, day=1, hour=0, minute=0, second=0)
         _end_date = datetime(year=2025, month=7, day=1, hour=23, minute=59, second=59)
-        _date_filt = TimingFilterCollection(
+        _date_filt = SequencingFilterCollection(
             timestamp_filter=RangeFilter(mode=FilterMode.INCLUDE, minimum=_start_date, maximum=_end_date),
             session_index_filter=None
         )
         _ver_filt = VersioningFilterCollection(None, None, None)
-        session_ids = self.test_interface.AvailableIDs(mode=IDMode.USER, date_filter=_date_filt, version_filter=_ver_filt)
+        session_ids = self.test_interface.AvailableIDs(mode=IDMode.USER, filters=DatasetFilterCollection(sequence_filters=_date_filt, version_filters=_ver_filt))
         self.assertIsNotNone(session_ids)
         self.assertIsInstance(session_ids, list)
         if session_ids is not None:
@@ -104,10 +104,12 @@ class test_BigQueryInterface(TestCase):
             player_filter=SetFilter(mode=filter_mode, set_elements={"a", "b", "c"})
         )
         where_clause = self.test_interface._generateWhereClause(
-            id_filter=id_filter,
-            date_filter=TimingFilterCollection(None, None),
-            version_filter=VersioningFilterCollection(None, None, None),
-            event_filter=EventFilterCollection(None, None)
+            filters=DatasetFilterCollection(
+                id_filters=id_filter,
+                sequence_filters=SequencingFilterCollection(None, None),
+                version_filters=VersioningFilterCollection(None, None, None),
+                event_filters=EventFilterCollection(None, None)
+            )
         )
 
         self.assertIsInstance(where_clause, ParamaterizedClause)

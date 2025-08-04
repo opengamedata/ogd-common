@@ -1,5 +1,5 @@
 ## import standard libraries
-from typing import Dict, List, Optional, Set
+from typing import List, Optional, Set
 # import local files
 from ogd.common.filters import *
 from ogd.common.models.SemanticVersion import SemanticVersion
@@ -33,42 +33,29 @@ class VersioningFilterCollection:
 
     def __str__(self) -> str:
         ret_val = "no versioning filters"
-        if self.LogVersionFilter or self.AppVersionFilter or self.AppBranchFilter:
-            _log_str = f"log version(s) {self.LogVersionFilter}" if self.LogVersionFilter else None
-            _app_str = f"app version(s) {self.AppVersionFilter}" if self.AppVersionFilter else None
-            _bnc_str = f"app branch(es) {self.AppBranchFilter}"  if self.AppBranchFilter else None
+        if self.LogVersions or self.AppVersions or self.AppBranches:
+            _log_str = f"log version(s) {self.LogVersions}" if self.LogVersions else None
+            _app_str = f"app version(s) {self.AppVersions}" if self.AppVersions else None
+            _bnc_str = f"app branch(es) {self.AppBranches}"  if self.AppBranches else None
             _ver_strs = ", ".join([elem for elem in [_log_str, _app_str, _bnc_str] if elem is not None])
             ret_val = f"versioning filters: {_ver_strs}"
         return ret_val
 
     def __repr__(self) -> str:
         ret_val = f"<class {type(self).__name__} no filters>"
-        if self.LogVersionFilter or self.AppVersionFilter or self.AppBranchFilter:
-            _log_str = f"log version(s) {self.LogVersionFilter}" if self.LogVersionFilter else None
-            _app_str = f"app version(s) {self.AppVersionFilter}" if self.AppVersionFilter else None
-            _bnc_str = f"app branch(es) {self.AppBranchFilter}"  if self.AppBranchFilter else None
+        if self.LogVersions or self.AppVersions or self.AppBranches:
+            _log_str = f"log version(s) {self.LogVersions}" if self.LogVersions else None
+            _app_str = f"app version(s) {self.AppVersions}" if self.AppVersions else None
+            _bnc_str = f"app branch(es) {self.AppBranches}"  if self.AppBranches else None
             _ver_strs = " ^ ".join([elem for elem in [_log_str, _app_str, _bnc_str] if elem is not None])
             ret_val = f"<class {type(self).__name__} {_ver_strs}>"
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Filter]:
-        ret_val = {}
-
-        if self.LogVersionFilter:
-            ret_val["log_versions"] = self.LogVersionFilter
-        if self.AppVersionFilter:
-            ret_val["app_versions"] = self.AppVersionFilter
-        if self.AppBranchFilter:
-            ret_val["app_branches"] = self.AppBranchFilter
-        
-        return ret_val
-
-    @property
-    def LogVersionFilter(self) -> LogFilterType:
+    def LogVersions(self) -> LogFilterType:
         return self._log_filter
-    @LogVersionFilter.setter
-    def LogVersionFilter(self, allowed_versions:Optional[LogFilterType | List[Version] | Set[Version] | slice | Pair[Version, Version]]) -> None:
+    @LogVersions.setter
+    def LogVersions(self, allowed_versions:Optional[LogFilterType | List[Version] | Set[Version] | slice | Pair[Version, Version]]) -> None:
         if allowed_versions is None:
             self._log_filter = None
         elif isinstance(allowed_versions, Filter):
@@ -81,10 +68,10 @@ class VersioningFilterCollection:
             self._log_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_versions[0], maximum=allowed_versions[1])
 
     @property
-    def AppVersionFilter(self) -> VersionFilterType:
+    def AppVersions(self) -> VersionFilterType:
         return self._app_filter
-    @AppVersionFilter.setter
-    def AppVersionFilter(self, allowed_versions:Optional[VersionFilterType | List[Version] | Set[Version] | slice | Pair[Version, Version]]) -> None:
+    @AppVersions.setter
+    def AppVersions(self, allowed_versions:Optional[VersionFilterType | List[Version] | Set[Version] | slice | Pair[Version, Version]]) -> None:
         if allowed_versions is None:
             self._app_filter = None
         elif isinstance(allowed_versions, Filter):
@@ -97,10 +84,10 @@ class VersioningFilterCollection:
             self._app_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_versions[0], maximum=allowed_versions[1])
 
     @property
-    def AppBranchFilter(self) -> BranchFilterType:
+    def AppBranches(self) -> BranchFilterType:
         return self._branch_filter
-    @AppBranchFilter.setter
-    def AppBranchFilter(self, allowed_branches:Optional[BranchFilterType | List[Version] | Set[Version]]) -> None:
+    @AppBranches.setter
+    def AppBranches(self, allowed_branches:Optional[BranchFilterType | List[Version] | Set[Version]]) -> None:
         if allowed_branches is None:
             self._branch_filter = None
         elif isinstance(allowed_branches, SetFilter):
