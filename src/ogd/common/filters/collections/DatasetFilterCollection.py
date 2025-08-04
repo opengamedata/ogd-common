@@ -31,3 +31,10 @@ class DatasetFilterCollection:
     @property
     def Events(self):
         return self._event_filters
+
+    @property
+    def AsDict(self):
+        return {
+            "session_id" : self.IDFilters.Sessions,
+            "player_id" : self.IDFilters.Players
+        }
