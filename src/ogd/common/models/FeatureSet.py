@@ -11,7 +11,7 @@ class FeatureSet:
        It also contains information on any filters used to define the dataset, such as a date range or set of versions.
     """
 
-    def __init__(self, features:List[Feature], filters:Dict[str, Filter]) -> None:
+    def __init__(self, features:List[Feature], filters:DatasetFilterCollection) -> None:
         self._features = features
         self._filters = filters
 
@@ -52,12 +52,12 @@ class FeatureSet:
         return [feature.ColumnValues for feature in self.SessionFeatures]
 
     @property
-    def Filters(self) -> Dict[str, Filter]:
+    def Filters(self) -> DatasetFilterCollection:
         return self._filters
 
     @property
     def AsMarkdown(self):
-        _filters_clause = "* ".join([f"{key} : {val}" for key,val in self._filters.items()])
+        _filters_clause = "* ".join([f"{key} : {val}" for key,val in self.Filters.AsDict.items()])
         return f"## Feature Dataset\n\n{_filters_clause}"
 
     def ClearFeatures(self):
