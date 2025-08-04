@@ -12,7 +12,7 @@ from ogd.common.models.FeatureSet import FeatureSet
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
-from ogd.common.storage.connectors.StorageConnector import StorageConnector
+from ogd.common.storage.connectors.cores.StorageConnector import StorageConnector
 from ogd.common.utils.typing import ExportRow
 from ogd.common.utils.Logger import Logger
 

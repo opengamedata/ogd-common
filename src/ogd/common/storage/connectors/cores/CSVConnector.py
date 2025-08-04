@@ -7,7 +7,7 @@ from typing import Dict, Optional, IO, Set
 ## import local files
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.models.enums.ExportMode import ExportMode
-from ogd.common.storage.connectors.StorageConnector import StorageConnector
+from ogd.common.storage.connectors.cores.StorageConnector import StorageConnector
 from ogd.common.utils.Logger import Logger
 
 class CSVConnector(StorageConnector):
