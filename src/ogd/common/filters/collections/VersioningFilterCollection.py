@@ -2,12 +2,8 @@
 from typing import List, Optional, Set
 # import local files
 from ogd.common.filters import *
-from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.models.enums.FilterMode import FilterMode
-from ogd.common.utils.typing import Pair
-
-# TODO : move to utils.typing
-type Version = int | str | SemanticVersion
+from ogd.common.utils.typing import Pair, Version
 
 class VersioningFilterCollection:
     """Dumb struct to hold filters for versioning information

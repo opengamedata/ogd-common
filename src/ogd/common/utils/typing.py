@@ -13,10 +13,12 @@ from typing import Any, Dict, List, Optional, TypeVar, Tuple, Type, TypeVarTuple
 from dateutil import parser
 ## import local files
 from ogd.common.utils.Logger import Logger
+from ogd.common.models.SemanticVersion import SemanticVersion
 
 type Map        = Dict[str, Any] # type alias: we'll call any dict using string keys a "Map"
 type ExportRow  = List[Any]
 type Pair[A, B] = Tuple[A, B]
+type Version = int | str | SemanticVersion
 
 class Comparable:
     @abc.abstractmethod
