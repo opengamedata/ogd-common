@@ -36,7 +36,7 @@ class Interface(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def _availableIDs(self, mode:IDMode, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
+    def _availableIDs(self, mode:IDMode, filters:DatasetFilterCollection) -> List[str]:
         """Private implementation of the logic to retrieve all IDs of given mode from the connected storage.
 
         :param mode: The type of ID to be listed.
@@ -47,7 +47,7 @@ class Interface(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def _availableDates(self, id_filter:IDFilterCollection, version_filter:VersioningFilterCollection) -> Dict[str,datetime]:
+    def _availableDates(self, filters:DatasetFilterCollection) -> Dict[str,datetime]:
         """Private implementation of the logic to retrieve the full range of dates/times from the connected storage.
 
         :return: A dict mapping `min` and `max` to the minimum and maximum datetimes
@@ -56,7 +56,7 @@ class Interface(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def _availableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection) -> List[SemanticVersion | str]:
+    def _availableVersions(self, mode:VersionType, filters:DatasetFilterCollection) -> List[SemanticVersion | str]:
         pass
 
     @abc.abstractmethod
@@ -82,7 +82,7 @@ class Interface(abc.ABC):
 
     # *** PUBLIC METHODS ***
 
-    def AvailableIDs(self, mode:IDMode, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection) -> Optional[List[str]]:
+    def AvailableIDs(self, mode:IDMode, filters:DatasetFilterCollection) -> Optional[List[str]]:
         """Retrieve all IDs of given mode from the connected storage.
 
         :param mode: The type of ID to be listed.
@@ -92,14 +92,14 @@ class Interface(abc.ABC):
         """
         ret_val = None
         if self.Connector.IsOpen:
-            _msg = f"Retrieving IDs with {mode} ID mode on date(s) {date_filter} with version(s) {version_filter} from {self.Connector.ResourceName}."
+            _msg = f"Retrieving IDs with {mode} ID mode on date(s) {filters.Sequences} with version(s) {filters.Versions} from {self.Connector.ResourceName}."
             Logger.Log(_msg, logging.INFO, depth=3)
-            ret_val = self._availableIDs(mode=mode, date_filter=date_filter, version_filter=version_filter)
+            ret_val = self._availableIDs(mode=mode, filters=filters)
         else:
             Logger.Log(f"Can't retrieve list of {mode} IDs from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val
 
-    def AvailableDates(self, id_filter:IDFilterCollection, version_filter:VersioningFilterCollection) -> Union[Dict[str,datetime], Dict[str,None]]:
+    def AvailableDates(self, filters:DatasetFilterCollection) -> Union[Dict[str,datetime], Dict[str,None]]:
         """Retrieve the full range of dates/times covered by data in the connected storage, subject to given filters.
 
         Note, this is different from listing the exact dates in which the data exists.
@@ -112,15 +112,15 @@ class Interface(abc.ABC):
         """
         ret_val = {'min':None, 'max':None}
         if self.Connector.IsOpen:
-            _msg = f"Retrieving range of event/feature dates with version(s) {version_filter} from {self.Connector.ResourceName}."
+            _msg = f"Retrieving range of event/feature dates with version(s) {filters.Versions} from {self.Connector.ResourceName}."
             Logger.Log(_msg, logging.INFO, depth=3)
-            ret_val = self._availableDates(id_filter=id_filter, version_filter=version_filter)
+            ret_val = self._availableDates(filters=filters)
         else:
             Logger.Log(f"Could not get full date range from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val
 
 
-    def AvailableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection) -> List[SemanticVersion | str]:
+    def AvailableVersions(self, mode:VersionType, filters:DatasetFilterCollection) -> List[SemanticVersion | str]:
         """Get a list of all versions of given type in the connected storage, subject to ID and date filters.
 
         :param mode: _description_
@@ -134,9 +134,9 @@ class Interface(abc.ABC):
         """
         ret_val = []
         if self.Connector.IsOpen:
-            _msg = f"Retrieving data versions on date(s) {date_filter} from {self.Connector.ResourceName}."
+            _msg = f"Retrieving data versions on date(s) {filters.Sequences} from {self.Connector.ResourceName}."
             Logger.Log(_msg, logging.INFO, depth=3)
-            ret_val = self._availableVersions(mode=mode, id_filter=id_filter, date_filter=date_filter)
+            ret_val = self._availableVersions(mode=mode, filters=filters)
         else:
             Logger.Log(f"Could not retrieve data versions from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val

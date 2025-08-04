@@ -84,19 +84,19 @@ class CSVInterface(Interface):
     def Connector(self) -> CSVConnector:
         return self._store
 
-    def _availableIDs(self, mode:IDMode, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
+    def _availableIDs(self, mode:IDMode, filters:DatasetFilterCollection) -> List[str]:
         ret_val : List[str] = []
 
         if not self.DataFrame.empty:
             server_times = pd.to_datetime(self.DataFrame['server_time'])
             mask = None
-            if date_filter.TimestampFilter:
-                if date_filter.TimestampFilter.Min and date_filter.TimestampFilter.Max:
-                    mask = (server_times >= date_filter.TimestampFilter.Min) & (server_times <= date_filter.TimestampFilter.Max)
-                if date_filter.TimestampFilter.Min:
-                    mask = server_times >= date_filter.TimestampFilter.Min
-                if date_filter.TimestampFilter.Min and date_filter.TimestampFilter.Max:
-                    mask = server_times <= date_filter.TimestampFilter.Max
+            if filters.Sequences.Timestamps:
+                if filters.Sequences.Timestamps.Min and filters.Sequences.Timestamps.Max:
+                    mask = (server_times >= filters.Sequences.Timestamps.Min) & (server_times <= filters.Sequences.Timestamps.Max)
+                if filters.Sequences.Timestamps.Min:
+                    mask = server_times >= filters.Sequences.Timestamps.Min
+                if filters.Sequences.Timestamps.Min and filters.Sequences.Timestamps.Max:
+                    mask = server_times <= filters.Sequences.Timestamps.Max
             # if versions is not None and versions is not []:
             #     mask = mask & (self._data['app_version'].isin(versions))
             data_masked = self.DataFrame.loc[mask] if mask is not None else self.DataFrame
@@ -104,24 +104,24 @@ class CSVInterface(Interface):
 
         return ret_val
 
-    def _availableDates(self, id_filter:IDFilterCollection, version_filter:VersioningFilterCollection) -> Dict[str,datetime]:
+    def _availableDates(self, filters:DatasetFilterCollection) -> Dict[str,datetime]:
         ret_val : Dict[str,datetime] = {}
 
         if self.Connector.IsOpen:
             sess_mask : PDMask = True
-            if id_filter.Sessions:
-                match id_filter.Sessions.FilterMode:
+            if filters.IDFilters.Sessions:
+                match filters.IDFilters.Sessions.FilterMode:
                     case FilterMode.INCLUDE:
-                        sess_mask = self.DataFrame['session_id'].isin(id_filter.Sessions.AsSet)
+                        sess_mask = self.DataFrame['session_id'].isin(filters.IDFilters.Sessions.AsSet)
                     case FilterMode.EXCLUDE:
-                        sess_mask = ~self.DataFrame['session_id'].isin(id_filter.Sessions.AsSet)
+                        sess_mask = ~self.DataFrame['session_id'].isin(filters.IDFilters.Sessions.AsSet)
             user_mask : PDMask = True
-            if id_filter.Players:
-                match id_filter.Players.FilterMode:
+            if filters.IDFilters.Players:
+                match filters.IDFilters.Players.FilterMode:
                     case FilterMode.INCLUDE:
-                        user_mask = self.DataFrame['user_id'].isin(id_filter.Players.AsSet)
+                        user_mask = self.DataFrame['user_id'].isin(filters.IDFilters.Players.AsSet)
                     case FilterMode.EXCLUDE:
-                        user_mask = ~self.DataFrame['user_id'].isin(id_filter.Players.AsSet)
+                        user_mask = ~self.DataFrame['user_id'].isin(filters.IDFilters.Players.AsSet)
 
             _col  = self.DataFrame[sess_mask & user_mask]['timestamp']
             min_date = _col.min()
@@ -130,7 +130,7 @@ class CSVInterface(Interface):
 
         return ret_val
 
-    def _availableVersions(self, mode:VersionType, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection) -> List[SemanticVersion | str]:
+    def _availableVersions(self, mode:VersionType, filters:DatasetFilterCollection) -> List[SemanticVersion | str]:
         ret_val : List[SemanticVersion | str] = []
 
         if self.Connector.IsOpen:
@@ -140,34 +140,37 @@ class CSVInterface(Interface):
         return ret_val
 
 
-    def _getEventRows(self, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
+    def _getEventRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
         ret_val : List[Tuple] = []
 
         if self.Connector.IsOpen and not self.DataFrame.empty:
             sess_mask : PDMask = True
-            if id_filter.Sessions:
-                match id_filter.Sessions.FilterMode:
+            if filters.IDFilters.Sessions:
+                match filters.IDFilters.Sessions.FilterMode:
                     case FilterMode.INCLUDE:
-                        sess_mask = self.DataFrame['session_id'].isin(id_filter.Sessions.AsSet)
+                        sess_mask = self.DataFrame['session_id'].isin(filters.IDFilters.Sessions.AsSet)
                     case FilterMode.EXCLUDE:
-                        sess_mask = ~self.DataFrame['session_id'].isin(id_filter.Sessions.AsSet)
+                        sess_mask = ~self.DataFrame['session_id'].isin(filters.IDFilters.Sessions.AsSet)
             user_mask : PDMask = True
-            if id_filter.Players:
-                match id_filter.Players.FilterMode:
+            if filters.IDFilters.Players:
+                match filters.IDFilters.Players.FilterMode:
                     case FilterMode.INCLUDE:
-                        user_mask = self.DataFrame['user_id'].isin(id_filter.Players.AsSet)
+                        user_mask = self.DataFrame['user_id'].isin(filters.IDFilters.Players.AsSet)
                     case FilterMode.EXCLUDE:
-                        user_mask = ~self.DataFrame['user_id'].isin(id_filter.Players.AsSet)
+                        user_mask = ~self.DataFrame['user_id'].isin(filters.IDFilters.Players.AsSet)
             event_mask : PDMask = True
-            if event_filter.EventNames:
-                match event_filter.EventNames.FilterMode:
+            if filters.Events.EventNames:
+                match filters.Events.EventNames.FilterMode:
                     case FilterMode.INCLUDE:
-                        event_mask = self.DataFrame['event_name'].isin(event_filter.EventNames.AsSet)
+                        event_mask = self.DataFrame['event_name'].isin(filters.Events.EventNames.AsSet)
                     case FilterMode.EXCLUDE:
-                        event_mask = ~self.DataFrame['event_name'].isin(event_filter.EventNames.AsSet)
+                        event_mask = ~self.DataFrame['event_name'].isin(filters.Events.EventNames.AsSet)
             _data = self.DataFrame[sess_mask & user_mask & event_mask]
             ret_val = list(_data.itertuples(index=False, name=None))
         return ret_val
+
+    def _getFeatureRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
+        return []
 
     # *** PUBLIC STATICS ***
 
