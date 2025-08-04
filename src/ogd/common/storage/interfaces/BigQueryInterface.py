@@ -222,7 +222,7 @@ class BigQueryInterface(Interface):
         clause = ""
         params = []
         
-        if date_filter.Timestamps and date_filter.Timestamps.Min and date_filter.Timestamps.Max:
+        if date_filter.Timestamps.Min and date_filter.Timestamps.Max:
             str_min, str_max = date_filter.Timestamps.Min.strftime("%Y%m%d"), date_filter.Timestamps.Max.strftime("%Y%m%d")
             clause = "_TABLE_SUFFIX BETWEEN @suffixstart AND @suffixend"
             params.append(
@@ -240,7 +240,7 @@ class BigQueryInterface(Interface):
 
         sess_clause : Optional[LiteralString] = None
         sess_param  : List[bigquery.ArrayQueryParameter] = []
-        if filters.IDFilters.Sessions and len(filters.IDFilters.Sessions.AsSet) > 0:
+        if filters.IDFilters.Sessions.Active and len(filters.IDFilters.Sessions.AsSet) > 0:
             exclude = "NOT" if filters.IDFilters.Sessions.FilterMode == FilterMode.EXCLUDE else ""
             sess_clause = f"`session_id` {exclude} IN @session_list"
             sess_param.append(
@@ -249,7 +249,7 @@ class BigQueryInterface(Interface):
 
         users_clause : Optional[LiteralString] = None
         users_param  : List[bigquery.ArrayQueryParameter] = []
-        if filters.IDFilters.Players and len(filters.IDFilters.Players.AsSet) > 0:
+        if filters.IDFilters.Players.Active and len(filters.IDFilters.Players.AsSet) > 0:
             exclude = "NOT" if filters.IDFilters.Players.FilterMode == FilterMode.EXCLUDE else ""
             users_clause = f"`user_id` {exclude} IN @user_list"
             users_param.append(
@@ -258,7 +258,7 @@ class BigQueryInterface(Interface):
 
         times_clause : Optional[LiteralString] = None
         times_param  : List[bigquery.RangeQueryParameter | bigquery.ScalarQueryParameter] = []
-        if filters.Sequences.Timestamps:
+        if filters.Sequences.Timestamps.Active:
             if filters.Sequences.Timestamps.Min and filters.Sequences.Timestamps.Max:
                 exclude = "NOT" if filters.Sequences.Timestamps.FilterMode == FilterMode.EXCLUDE else ""
                 times_clause = f"`client_time` {exclude} BETWEEN @timestamp_range"
@@ -280,7 +280,7 @@ class BigQueryInterface(Interface):
 
         indices_clause : Optional[LiteralString] = None
         indices_param  : List[bigquery.ArrayQueryParameter] = []
-        if filters.Sequences.SessionIndices and len(filters.Sequences.SessionIndices.AsSet) > 0:
+        if filters.Sequences.SessionIndices.Active and len(filters.Sequences.SessionIndices.AsSet) > 0:
             exclude = "NOT" if filters.Sequences.SessionIndices.FilterMode == FilterMode.EXCLUDE else ""
             indices_clause = f"`event_session_index` {exclude} IN @sess_index_list"
             indices_param.append(
@@ -289,7 +289,7 @@ class BigQueryInterface(Interface):
 
         log_clause : Optional[LiteralString] = None
         log_param  : List[BigQueryParameter] = []
-        if filters.Versions.LogVersions:
+        if filters.Versions.LogVersions.Active:
             if isinstance(filters.Versions.LogVersions, SetFilter) and len(filters.Versions.LogVersions.AsSet) > 0:
                 exclude = "NOT" if filters.Versions.LogVersions.FilterMode == FilterMode.EXCLUDE else ""
                 log_clause = f"`log_version` {exclude} IN @log_versions"
@@ -321,7 +321,7 @@ class BigQueryInterface(Interface):
 
         app_clause : Optional[LiteralString] = None
         app_param  : List[BigQueryParameter] = []
-        if filters.Versions.AppVersions:
+        if filters.Versions.AppVersions.Active:
             if isinstance(filters.Versions.AppVersions, SetFilter) and len(filters.Versions.AppVersions.AsSet) > 0:
                 exclude = "NOT" if filters.Versions.AppVersions.FilterMode == FilterMode.EXCLUDE else ""
                 app_clause = f"`app_version` {exclude} IN @app_versions"
@@ -350,7 +350,7 @@ class BigQueryInterface(Interface):
 
         branch_clause : Optional[LiteralString] = None
         branch_param  : List[BigQueryParameter] = []
-        if filters.Versions.AppBranches:
+        if filters.Versions.AppBranches.Active:
             if isinstance(filters.Versions.AppBranches, SetFilter) and len(filters.Versions.AppBranches.AsSet) > 0:
                 exclude = "NOT" if filters.Versions.AppBranches.FilterMode == FilterMode.EXCLUDE else ""
                 app_clause = f"`app_branch` {exclude} IN @app_branchs"
@@ -379,7 +379,7 @@ class BigQueryInterface(Interface):
 
         events_clause : Optional[LiteralString] = None
         events_param  : List[bigquery.ArrayQueryParameter] = []
-        if filters.Events.EventNames and len(filters.Events.EventNames.AsSet) > 0:
+        if filters.Events.EventNames.Active and len(filters.Events.EventNames.AsSet) > 0:
             exclude = "NOT" if filters.Events.EventNames.FilterMode == FilterMode.EXCLUDE else ""
             events_clause = f"`event_name` {exclude} IN @event_name_list"
             events_param.append(
