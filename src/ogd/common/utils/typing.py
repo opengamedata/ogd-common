@@ -19,6 +19,7 @@ type Map        = Dict[str, Any] # type alias: we'll call any dict using string 
 type ExportRow  = List[Any]
 type Pair[A, B] = Tuple[A, B]
 type Version = int | str | SemanticVersion
+type Date = datetime.datetime | datetime.date
 
 class Comparable:
     @abc.abstractmethod
