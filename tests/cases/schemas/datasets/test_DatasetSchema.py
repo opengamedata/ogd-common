@@ -27,7 +27,7 @@ class test_DatasetSchema(TestCase):
 
         # 2. Set up local instance of testing class
         cls.test_schema = DatasetSchema(
-            name="DatasetSchema", key=DatasetKey(raw_key="GAME_NAME_20250101_to_202050131"),
+            name="DatasetSchema", key=DatasetKey(raw_key="GAME_NAME_20250101_to_20250131"),
             game_id="GAME_NAME",
             start_date=date(year=2025, month=1, day=1), end_date=date(year=2025, month=1, day=31), date_modified=date(year=2025, month=2, day=2),
             ogd_revision="123456", filters={}, # TODO : add filters, maybe after this becomes a DatasetFilteringCollection or whatever
