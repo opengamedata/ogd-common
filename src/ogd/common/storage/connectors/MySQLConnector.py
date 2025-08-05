@@ -1,7 +1,7 @@
 from datetime import datetime
 import logging
 import traceback
-from typing import Final, Optional, Tuple
+from typing import Final, Optional
 # 3rd-party imports
 import sshtunnel
 from mysql.connector import connection, cursor
@@ -117,7 +117,7 @@ class MySQLConnector(StorageConnector):
             _connection = connection.MySQLConnection(host     = config.DBHost,    port    = config.DBPort,
                                                  user     = config.DBUser,    password= config.DBPass,
                                                  charset = 'utf8')
-            Logger.Log(f"Connected.", logging.DEBUG)
+            Logger.Log("Connected.", logging.DEBUG)
         #except MySQLdb.connections.Error as err:
         except Exception as err:
             msg = f"""Could not connect to the MySql database.
@@ -158,7 +158,7 @@ class MySQLConnector(StorageConnector):
                 )
                 _tunnel.start()
                 connected_ssh = True
-                Logger.Log(f"Connected.", logging.DEBUG)
+                Logger.Log("Connected.", logging.DEBUG)
             except Exception as err:
                 msg = f"Could not connect via SSH: {type(err)} {str(err)}"
                 Logger.Log(msg, logging.ERROR)
@@ -172,7 +172,7 @@ class MySQLConnector(StorageConnector):
                 _connection = connection.MySQLConnection(host     = config.DBHost,    port    = _tunnel.local_bind_port,
                                                      user     = config.DBUser,    password= config.DBPass,
                                                      charset ='utf8')
-                Logger.Log(f"Connected", logging.DEBUG)
+                Logger.Log("Connected", logging.DEBUG)
                 return (_connection, _tunnel)
             except Exception as err:
                 msg = f"Could not connect to the MySql database: {type(err)} {str(err)}"
