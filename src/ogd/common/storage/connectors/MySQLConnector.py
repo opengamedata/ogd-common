@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 import traceback
 from typing import Final, Optional, Tuple
@@ -8,6 +9,7 @@ from mysql.connector import connection, cursor
 from ogd.common.storage.connectors.StorageConnector import StorageConnector
 from ogd.common.configs.storage.MySQLConfig import MySQLConfig
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Pair
 
 AQUALAB_MIN_VERSION : Final[float] = 6.2
 
@@ -17,8 +19,9 @@ class MySQLConnector(StorageConnector):
 
     def __init__(self, config:MySQLConfig):
         self._config = config
-        self._tunnel : Optional[sshtunnel.SSHTunnelForwarder] = None
+        self._tunnel     : Optional[sshtunnel.SSHTunnelForwarder] = None
         self._connection : Optional[connection.MySQLConnection] = None
+        self._cursor     : Optional[cursor.MySQLCursor] = None
         super().__init__()
 
     @property
@@ -31,7 +34,7 @@ class MySQLConnector(StorageConnector):
     def StoreConfig(self) -> MySQLConfig:
         return self._config
 
-    def _open(self, force_reopen: bool = False) -> bool:
+    def _open(self) -> bool:
         """
         Function to set up a connection to a database, via an ssh tunnel if available.
 
@@ -43,25 +46,17 @@ class MySQLConnector(StorageConnector):
         :rtype: Tuple[Optional[sshtunnel.SSHTunnelForwarder], Optional[connection.MySQLConnection]]
         """
         Logger.Log("Preparing database connection...", logging.DEBUG)
-        if force_reopen and self.Connection is not None:
-            Logger.Log("Forced prior DB connection to close", logging.INFO)
-            self.Connection.close()
         if self.StoreConfig is not None and isinstance(self.StoreConfig, MySQLConfig):
-            if self.StoreConfig.HasSSH:
-                Logger.Log(f"Preparing to connect to MySQL via SSH, on host {self.StoreConfig.SSH.Host}", level=logging.DEBUG)
-                if (self.StoreConfig.SSH.Host is not None and self.StoreConfig.SSH.Host != ""
-                and self.StoreConfig.SSH.User is not None and self.StoreConfig.SSH.User != ""
-                and self.StoreConfig.SSH.Pass is not None and self.StoreConfig.SSH.Pass != ""):
-                    self._tunnel,self._connection = self._connectToMySQLviaSSH(sql=self.StoreConfig)
-                else:
-                    Logger.Log(f"SSH login had empty data, preparing to connect to MySQL directly instead, on host {self.StoreConfig.DBHost}", level=logging.DEBUG)
-                    self._connection = self._connectToMySQL(login=self.StoreConfig)
-            else:
-                Logger.Log(f"Preparing to connect to MySQL directly, on host {self.StoreConfig.DBHost}", level=logging.DEBUG)
-                self._connection = self._connectToMySQL(login=self.StoreConfig)
+            start = datetime.now()
+            self._connection, self._tunnel = self._connectToMySQL(config=self.StoreConfig)
+            if self.Connection is not None:
+                self._cursor = self.Connection.cursor()
             Logger.Log("Done preparing database connection.", logging.DEBUG)
+            time_delta = datetime.now() - start
+            Logger.Log(f"Database Connection Time: {time_delta}", logging.INFO)
         else:
             Logger.Log("Unable to connect to MySQL, game source schema does not have a valid MySQL config!", level=logging.ERROR)
+            self.Close() # make sure we don't leave anything connected.
 
         return self.Connection is not None and self.Connection.is_connected()
 
@@ -76,6 +71,7 @@ class MySQLConnector(StorageConnector):
             Logger.Log("Stopped MySQL tunnel connection", logging.DEBUG)
         else:
             Logger.Log("No MySQL tunnel to stop", logging.DEBUG)
+        self._is_open = False
         return True
 
     # *** PUBLIC STATICS ***
@@ -95,7 +91,7 @@ class MySQLConnector(StorageConnector):
 
     # Function to help connect to a mySQL server.
     @staticmethod
-    def _connectToMySQL(login:MySQLConfig) -> Optional[connection.MySQLConnection]:
+    def _connectToMySQL(config:MySQLConfig) -> Pair[Optional[connection.MySQLConnection], Optional[sshtunnel.SSHTunnelForwarder]]:
         """Function to help connect to a mySQL server.
 
         Simply tries to make a connection, and prints an error in case of failure.
@@ -104,25 +100,36 @@ class MySQLConnector(StorageConnector):
         :return: If successful, a MySQLConnection object, otherwise None.
         :rtype: Optional[connection.MySQLConnection]
         """
+        _tunnel     : Optional[sshtunnel.SSHTunnelForwarder] = None
+        _connection : Optional[connection.MySQLConnection]   = None
+        if config.HasSSH:
+            Logger.Log(f"Preparing to connect to MySQL via SSH, on host {config.SSH.Host}", level=logging.DEBUG)
+            if (config.SSH.Host is not None and config.SSH.Host != ""
+            and config.SSH.User is not None and config.SSH.User != ""
+            and config.SSH.Pass is not None and config.SSH.Pass != ""):
+                _connection,_tunnel = MySQLConnector._connectToMySQLviaSSH(config=config)
+            else:
+                Logger.Log(f"SSH login had empty data, preparing to connect to MySQL directly instead, on host {config.DBHost}", level=logging.DEBUG)
+        else:
+            Logger.Log(f"Preparing to connect to MySQL directly, on host {config.DBHost}", level=logging.DEBUG)
         try:
-            Logger.Log(f"Connecting to SQL (no SSH) at {login.AsConnectionInfo}...", logging.DEBUG)
-            db_conn = connection.MySQLConnection(host     = login.DBHost,    port    = login.DBPort,
-                                                 user     = login.DBUser,    password= login.DBPass,
+            Logger.Log(f"Connecting to SQL (no SSH) at {config.AsConnectionInfo}...", logging.DEBUG)
+            _connection = connection.MySQLConnection(host     = config.DBHost,    port    = config.DBPort,
+                                                 user     = config.DBUser,    password= config.DBPass,
                                                  charset = 'utf8')
             Logger.Log(f"Connected.", logging.DEBUG)
-            return db_conn
         #except MySQLdb.connections.Error as err:
         except Exception as err:
             msg = f"""Could not connect to the MySql database.
-            Login info: {login.AsConnectionInfo} w/port type={type(login.DBPort)}.
+            Login info: {config.AsConnectionInfo} w/port type={type(config.DBPort)}.
             Full error: {type(err)} {str(err)}"""
             Logger.Log(msg, logging.ERROR)
             traceback.print_tb(err.__traceback__)
-            return None
+        return _connection, _tunnel
 
     ## Function to help connect to a mySQL server over SSH.
     @staticmethod
-    def _connectToMySQLviaSSH(sql:MySQLConfig) -> Tuple[Optional[sshtunnel.SSHTunnelForwarder], Optional[connection.MySQLConnection]]:
+    def _connectToMySQLviaSSH(config:MySQLConfig) -> Pair[Optional[connection.MySQLConnection], Optional[sshtunnel.SSHTunnelForwarder]]:
         """Function to help connect to a mySQL server over SSH.
 
         Simply tries to make a connection, and prints an error in case of failure.
@@ -133,8 +140,8 @@ class MySQLConnector(StorageConnector):
         :return: An open connection to the database if successful, otherwise None.
         :rtype: Tuple[Optional[sshtunnel.SSHTunnelForwarder], Optional[connection.MySQLConnection]]
         """
-        tunnel    : Optional[sshtunnel.SSHTunnelForwarder] = None
-        db_conn   : Optional[connection.MySQLConnection] = None
+        _tunnel     : Optional[sshtunnel.SSHTunnelForwarder] = None
+        _connection : Optional[connection.MySQLConnection]   = None
         MAX_TRIES : Final[int] = 5
         tries : int = 0
         connected_ssh : bool = False
@@ -144,12 +151,12 @@ class MySQLConnector(StorageConnector):
             if tries > 0:
                 Logger.Log("Re-attempting to connect to SSH.", logging.INFO)
             try:
-                Logger.Log(f"Connecting to SSH at {sql.SSHConf.AsConnectionInfo}...", logging.DEBUG)
-                tunnel = sshtunnel.SSHTunnelForwarder(
-                    (sql.SSH.Host, sql.SSH.Port), ssh_username=sql.SSH.User, ssh_password=sql.SSH.Pass,
-                    remote_bind_address=(sql.DBHost, sql.DBPort), logger=Logger.std_logger
+                Logger.Log(f"Connecting to SSH at {config.SSHConf.AsConnectionInfo}...", logging.DEBUG)
+                _tunnel = sshtunnel.SSHTunnelForwarder(
+                    (config.SSH.Host, config.SSH.Port), ssh_username=config.SSH.User, ssh_password=config.SSH.Pass,
+                    remote_bind_address=(config.DBHost, config.DBPort), logger=Logger.std_logger
                 )
-                tunnel.start()
+                _tunnel.start()
                 connected_ssh = True
                 Logger.Log(f"Connected.", logging.DEBUG)
             except Exception as err:
@@ -158,26 +165,24 @@ class MySQLConnector(StorageConnector):
                 Logger.Print(msg, logging.ERROR)
                 traceback.print_tb(err.__traceback__)
                 tries = tries + 1
-        if connected_ssh == True and tunnel is not None:
+        if connected_ssh == True and _tunnel is not None:
             # Then, connect to MySQL
             try:
-                Logger.Log(f"Connecting to SQL (via SSH) at {sql.DBUser}@{sql.DBHost}:{tunnel.local_bind_port}...", logging.DEBUG)
-                db_conn = connection.MySQLConnection(host     = sql.DBHost,    port    = tunnel.local_bind_port,
-                                                     user     = sql.DBUser,    password= sql.DBPass,
+                Logger.Log(f"Connecting to SQL (via SSH) at {config.DBUser}@{config.DBHost}:{_tunnel.local_bind_port}...", logging.DEBUG)
+                _connection = connection.MySQLConnection(host     = config.DBHost,    port    = _tunnel.local_bind_port,
+                                                     user     = config.DBUser,    password= config.DBPass,
                                                      charset ='utf8')
                 Logger.Log(f"Connected", logging.DEBUG)
-                return (tunnel, db_conn)
+                return (_connection, _tunnel)
             except Exception as err:
                 msg = f"Could not connect to the MySql database: {type(err)} {str(err)}"
                 Logger.Log(msg, logging.ERROR)
                 Logger.Print(msg, logging.ERROR)
                 traceback.print_tb(err.__traceback__)
-                if tunnel is not None:
-                    tunnel.stop()
+                if _tunnel is not None:
+                    _tunnel.stop()
                 return (None, None)
         else:
             return (None, None)
-
-
 
     # *** PRIVATE METHODS ***
