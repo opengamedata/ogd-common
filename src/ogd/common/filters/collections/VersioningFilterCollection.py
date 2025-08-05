@@ -49,7 +49,7 @@ class VersioningFilterCollection:
         return ret_val
 
     @property
-    def LogVersions(self) -> SetFilter[Version] | RangeFilter[Version] | NoFilter:
+    def LogVersions(self) -> Filter[Version]:
         return self._log_filter
     @LogVersions.setter
     def LogVersions(self, allowed_versions:Optional[SetFilter[Version] | RangeFilter[Version] | NoFilter | List[Version] | Set[Version] | slice | Pair[Version, Version]]) -> None:
@@ -65,7 +65,7 @@ class VersioningFilterCollection:
             self._log_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_versions[0], maximum=allowed_versions[1])
 
     @property
-    def AppVersions(self) -> SetFilter[Version] | RangeFilter[Version] | NoFilter:
+    def AppVersions(self) -> Filter[Version]:
         return self._app_filter
     @AppVersions.setter
     def AppVersions(self, allowed_versions:Optional[SetFilter[Version] | RangeFilter[Version] | NoFilter | List[Version] | Set[Version] | slice | Pair[Version, Version]]) -> None:
@@ -81,7 +81,7 @@ class VersioningFilterCollection:
             self._app_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_versions[0], maximum=allowed_versions[1])
 
     @property
-    def AppBranches(self) -> SetFilter[Version] | NoFilter:
+    def AppBranches(self) -> Filter[Version]:
         return self._branch_filter
     @AppBranches.setter
     def AppBranches(self, allowed_branches:Optional[SetFilter[Version] | NoFilter | List[Version] | Set[Version]]) -> None:
