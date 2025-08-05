@@ -54,6 +54,8 @@ class ColumnSchema(Schema):
 
     def __eq__(self, other:"ColumnSchema"):
         if not isinstance(other, ColumnSchema):
+            if isinstance(other, dict):
+                return self == ColumnSchema.FromDict(name=self.Name, unparsed_elements=other)
             return False
         return self.Name         == other.Name \
            and self.ReadableName == other.ReadableName \
