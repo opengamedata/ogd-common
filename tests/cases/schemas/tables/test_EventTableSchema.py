@@ -5,13 +5,12 @@ from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
+from ogd.common.schemas.tables.EventMapSchema import EventMapSchema
+from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 # import locals
 from src.ogd.common.schemas.tables.EventTableSchema import EventTableSchema
-from src.ogd.common.schemas.tables.EventMapSchema import EventMapSchema
-from src.ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from tests.config.t_config import settings
 
-@unittest.skip("Not implemented")
 class test_EventTableSchema(TestCase):
     """Testbed for the GameStoreConfig class.
 
@@ -139,13 +138,12 @@ class test_EventTableSchema(TestCase):
     def RunAll():
         pass
 
-    @unittest.skip("Not implemented")
     def test_Name(self):
         _str = self.test_schema.Name
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "TestTableSchema")
 
-    @unittest.skip("Not implemented")
+    # @unittest.skip("Not implemented")
     def test_FromDict(self):
         """Test case for whether the FromDict function is working properly.
         """
@@ -256,6 +254,15 @@ class test_EventTableSchema(TestCase):
         _schema = EventTableSchema.FromDict(name="EventTableSchema", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "EventTableSchema")
+        self.assertEqual(_schema.ColumnMap, self.test_schema.ColumnMap)
+        self.assertEqual(_schema.Columns, self.test_schema.Columns)
+
+    def test_FromFile_preset(self):
+        # try to load from default location
+        _schema = EventTableSchema.FromFile(schema_name="OGD_EVENT_FILE", schema_path=None)
+        self.assertIsInstance(_schema, EventTableSchema)
+        self.assertIsInstance(_schema.Name, str)
+        self.assertEqual(_schema.Name, "OGD_EVENT_FILE")
         self.assertEqual(_schema.ColumnMap, self.test_schema.ColumnMap)
         self.assertEqual(_schema.Columns, self.test_schema.Columns)
 
