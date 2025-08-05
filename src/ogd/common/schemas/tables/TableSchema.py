@@ -101,7 +101,7 @@ class TableSchema(Schema):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, schema_name:str, schema_path:str | Path=_DEFAULT_SCHEMA_PATH, search_templates:bool=False) -> "TableSchema":
+    def FromFile(cls, schema_name:str, schema_path:str | Path=_DEFAULT_SCHEMA_PATH) -> "TableSchema":
         ret_val : Schema
 
         schema_path = schema_path
