@@ -1,3 +1,8 @@
+"""OGD-Common Typing Utilities
+
+This module contains several typedefs for convenience when type-hinting within other modules.
+It also contains a `conversions` class that works to reasonably robustly convert various data types among each other using standard Python approaches.
+"""
 ## import standard libraries
 import abc
 import builtins
@@ -8,7 +13,7 @@ import pathlib
 import re
 import typing
 from json.decoder import JSONDecodeError
-from typing import Any, Dict, List, Optional, TypeVar, Tuple, Type, TypeVarTuple
+from typing import Any, Dict, List, Optional, TypeVar, Tuple, Type
 ## import 3rd-party libraries
 from dateutil import parser
 ## import local files
@@ -18,7 +23,8 @@ from ogd.common.models.SemanticVersion import SemanticVersion
 type Map        = Dict[str, Any] # type alias: we'll call any dict using string keys a "Map"
 type ExportRow  = List[Any]
 type Pair[A, B] = Tuple[A, B]
-type Version = int | str | SemanticVersion
+type Version    = int | str | SemanticVersion
+type Date       = datetime.datetime | datetime.date
 
 class Comparable:
     @abc.abstractmethod
