@@ -53,6 +53,8 @@ class ColumnSchema(Schema):
         return self.Name
 
     def __eq__(self, other:"ColumnSchema"):
+        if not isinstance(other, ColumnSchema):
+            return False
         return self.Name         == other.Name \
            and self.ReadableName == other.ReadableName \
            and self.ValueType    == other.ValueType \
