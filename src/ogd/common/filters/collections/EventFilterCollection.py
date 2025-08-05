@@ -44,7 +44,7 @@ class EventFilterCollection:
         return ret_val
 
     @property
-    def EventNames(self) -> SetFilter[str] | NoFilter:
+    def EventNames(self) -> Filter[str]:
         """Property containing the filter for event names.
 
         :return: _description_
@@ -70,7 +70,7 @@ class EventFilterCollection:
             self._event_names = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(allowed_events))
 
     @property
-    def EventCodes(self) -> SetFilter[int] | RangeFilter[int] | NoFilter:
+    def EventCodes(self) -> Filter[int]:
         return self._event_codes
     @EventCodes.setter
     def EventCodes(self, allowed_events:Optional[SetFilter[int] | RangeFilter[int] | NoFilter | List[int] | Set[int] | slice | Pair[int, int]]):
