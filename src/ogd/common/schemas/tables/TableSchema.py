@@ -102,7 +102,7 @@ class TableSchema(Schema):
     def FromFile(cls, schema_name:str, schema_path:Optional[str | Path], search_templates:bool=False) -> "TableSchema":
         ret_val : Schema
 
-        schema_path = schema_path or Path(presets.__file__).parent / "presets"
+        schema_path = schema_path or Path(presets.__file__).parent
         ret_val = cls._fromFile(schema_name=schema_name, schema_path=Path(schema_path))
         if isinstance(ret_val, TableSchema):
             return ret_val
