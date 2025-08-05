@@ -52,6 +52,12 @@ class ColumnSchema(Schema):
     def __repr__(self):
         return self.Name
 
+    def __eq__(self, other:"ColumnSchema"):
+        return self.Name         == other.Name \
+           and self.ReadableName == other.ReadableName \
+           and self.ValueType    == other.ValueType \
+           and self.Description  == other.Description
+
     @property
     def ReadableName(self) -> str:
         return self._name
