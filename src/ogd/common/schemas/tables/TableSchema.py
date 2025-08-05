@@ -21,6 +21,8 @@ class TableSchema(Schema):
         and a mapping of those columns to the corresponding elements of a formal OGD structure.
     """
 
+    _DEFAULT_SCHEMA_PATH = Path(presets.__file__).parent
+
     # *** ABSTRACTS ***
 
     @property
@@ -99,10 +101,10 @@ class TableSchema(Schema):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Optional[str | Path], search_templates:bool=False) -> "TableSchema":
+    def FromFile(cls, schema_name:str, schema_path:str | Path=_DEFAULT_SCHEMA_PATH, search_templates:bool=False) -> "TableSchema":
         ret_val : Schema
 
-        schema_path = schema_path or Path(presets.__file__).parent
+        schema_path = schema_path
         ret_val = cls._fromFile(schema_name=schema_name, schema_path=Path(schema_path))
         if isinstance(ret_val, TableSchema):
             return ret_val
