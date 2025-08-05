@@ -34,45 +34,10 @@ class MySQLInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, schema:GameStoreConfig, fail_fast:bool):
-        self._tunnel    : Optional[sshtunnel.SSHTunnelForwarder] = None
-        self._db        : Optional[connection.MySQLConnection] = None
-        self._db_cursor : Optional[cursor.MySQLCursor] = None
-        super().__init__(schema=schema, fail_fast=fail_fast)
-        self.Open()
+    def __init__(self, config:GameStoreConfig, fail_fast:bool):
+        super().__init__(config=config, fail_fast=fail_fast)
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
-
-    def _open(self, force_reopen:bool = False) -> bool:
-        if force_reopen:
-            self.Close()
-            self.Open(force_reopen=False)
-        if not self._is_open:
-            start = datetime.now()
-            if isinstance(self.GameStoreConfig.Source, MySQLConfig):
-                self._tunnel, self._db = SQL.ConnectDB(schema=self.GameStoreConfig)
-                if self._db is not None:
-                    self._db_cursor = self._getCursor()
-                    self._is_open = True
-                    time_delta = datetime.now() - start
-                    Logger.Log(f"Database Connection Time: {time_delta}", logging.INFO)
-                    return True
-                else:
-                    Logger.Log(f"Unable to open MySQL interface.", logging.ERROR)
-                    SQL.disconnectMySQL(tunnel=self._tunnel, db=self._db)
-                    return False
-            else:
-                Logger.Log(f"Unable to open MySQL interface, the game source schema has invalid type {type(self.GameStoreConfig)}", logging.ERROR)
-                SQL.disconnectMySQL(tunnel=self._tunnel, db=self._db)
-                return False
-        else:
-            return True
-
-    def _close(self) -> bool:
-        SQL.disconnectMySQL(tunnel=self._tunnel, db=self._db)
-        Logger.Log("Closed connection to MySQL.", logging.DEBUG)
-        self._is_open = False
-        return True
 
     def _availableIDs(self, mode:IDMode, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
         if self._db_cursor is not None and isinstance(self.GameStoreConfig.Source, MySQLConfig):
@@ -313,14 +278,3 @@ class MySQLInterface(Interface):
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***
-
-    def _getCursor(self) -> Optional[cursor.MySQLCursor]:
-        ret_val : Optional[cursor.MySQLCursor] = None
-
-        if self._db is not None:
-            _cursor = self._db.cursor()
-            if isinstance(_cursor, cursor.MySQLCursor):
-                ret_val = _cursor
-            else:
-                Logger.Log(f"db.cursor() call returned a cursor of unexpected type {type(ret_val)}, can not access the database!", logging.ERROR)
-        return ret_val
