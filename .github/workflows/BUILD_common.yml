@@ -29,7 +29,7 @@ jobs:
       cancel-in-progress: true
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get Dependencies
       uses: opengamedata/actions-setup-ogd-py-dependencies@v1.2
       with:
@@ -48,7 +48,7 @@ jobs:
     - name: Cache Build for Publishing
       if: inputs.with_caching == true
       id: cache-build
-      uses: actions/cache/save@v3
+      uses: actions/cache/save@v4
       with:
         key: opengamedata-common-build-${{ github.run_id }}-${{ github.run_attempt }}
         path: ./dist/
