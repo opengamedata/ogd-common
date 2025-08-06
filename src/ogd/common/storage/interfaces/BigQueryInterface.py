@@ -353,16 +353,16 @@ class BigQueryInterface(Interface):
         if filters.Versions.AppBranches.Active:
             if isinstance(filters.Versions.AppBranches, SetFilter) and len(filters.Versions.AppBranches.AsSet) > 0:
                 exclude = "NOT" if filters.Versions.AppBranches.FilterMode == FilterMode.EXCLUDE else ""
-                branch_clause = f"`app_branch` {exclude} IN @app_branchs"
+                branch_clause = f"`app_branch` {exclude} IN @app_branches"
                 branch_param.append(
-                    bigquery.ArrayQueryParameter(name="app_branchs", array_type="INT64", values=filters.Versions.AppBranches.AsList)
+                    bigquery.ArrayQueryParameter(name="app_branches", array_type="STRING", values=filters.Versions.AppBranches.AsList)
                 )
             elif isinstance(filters.Versions.AppBranches, RangeFilter):
                 if filters.Versions.AppBranches.Min and filters.Versions.AppBranches.Max:
                     exclude = "NOT" if filters.Versions.AppBranches.FilterMode == FilterMode.EXCLUDE else ""
                     branch_clause = f"`app_branch` {exclude} BETWEEN @app_branch_range"
                     branch_param.append(
-                        bigquery.RangeQueryParameter(name="app_branch_range", range_element_type="INT64", start=filters.Versions.AppBranches.Min, end=filters.Versions.AppBranches.Max)
+                        bigquery.RangeQueryParameter(name="app_branch_range", range_element_type="STRING", start=filters.Versions.AppBranches.Min, end=filters.Versions.AppBranches.Max)
                     )
                 elif filters.Versions.AppBranches.Min:
                     exclude = "<" if filters.Versions.AppBranches.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
