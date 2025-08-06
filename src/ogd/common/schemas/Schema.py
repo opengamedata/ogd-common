@@ -98,7 +98,7 @@ class Schema(abc.ABC):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Path, search_templates:bool=False) -> Self:
+    def FromFile(cls, schema_name:str, schema_path:Path | str, search_templates:bool=False) -> Self:
         """_summary_
 
         :param schema_name: _description_
@@ -175,32 +175,33 @@ class Schema(abc.ABC):
     # *** PRIVATE STATICS ***
 
     @classmethod
-    def _fromFile(cls, schema_name:str, schema_path:Path, search_templates:bool=False) -> Self:
+    def _fromFile(cls, schema_name:str, schema_path:Path | str, search_templates:bool=False) -> Self:
         ret_val : Schema
         _formatted_name : str = schema_name
+        _schema_path = Path(schema_path)
 
         # 1. make sure the name and path are in the right form.
         if not _formatted_name.lower().endswith(".json"):
             _formatted_name += ".json"
         # 2. try to actually load the contents of the file.
         try:
-            schema_contents = fileio.loadJSONFile(filename=_formatted_name, path=schema_path)
+            schema_contents = fileio.loadJSONFile(filename=_formatted_name, path=_schema_path)
         except (ModuleNotFoundError, FileNotFoundError) as err:
             # Case 1: Didn't find module, nothing else to try
             if isinstance(err, ModuleNotFoundError):
-                Logger.Log(f"Unable to load schema at {schema_path / schema_name}, module ({schema_path}) does not exist! Using default schema instead", logging.ERROR, depth=1)
+                Logger.Log(f"Unable to load schema at {_schema_path / schema_name}, module ({schema_path}) does not exist! Using default schema instead", logging.ERROR, depth=1)
                 ret_val = cls.Default()
             # Case 2a: Didn't find file, search for template
             elif search_templates:
-                Logger.Log(f"Unable to load schema at {schema_path / schema_name}, {schema_name} does not exist! Trying to load from json template instead...", logging.WARNING, depth=1)
-                ret_val = cls._schemaFromTemplate(schema_path=schema_path, schema_name=schema_name)
+                Logger.Log(f"Unable to load schema at {_schema_path / schema_name}, {schema_name} does not exist! Trying to load from json template instead...", logging.WARNING, depth=1)
+                ret_val = cls._schemaFromTemplate(schema_path=_schema_path, schema_name=schema_name)
             # Case 2b: Didn't find file, don't search for template
             else:
-                Logger.Log(f"Unable to load schema at {schema_path / schema_name}, {schema_name} does not exist! Using default schema instead", logging.ERROR, depth=1)
+                Logger.Log(f"Unable to load schema at {_schema_path / schema_name}, {schema_name} does not exist! Using default schema instead", logging.ERROR, depth=1)
                 ret_val = cls.Default()
         else:
             if schema_contents is None:
-                Logger.Log(f"Could not load schema at {schema_path / schema_name}, the file was empty! Using default schema instead", logging.ERROR, depth=1)
+                Logger.Log(f"Could not load schema at {_schema_path / schema_name}, the file was empty! Using default schema instead", logging.ERROR, depth=1)
                 ret_val = cls.Default()
             else:
                 ret_val = cls._fromDict(name=schema_name, unparsed_elements=schema_contents)

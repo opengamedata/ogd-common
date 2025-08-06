@@ -98,6 +98,25 @@ class EventMapSchema(ColumnMapSchema):
         self._game_state           : ColumnMapElement = game_state           or self._parseGameState(unparsed_elements=unparsed_elements)
         self._user_data            : ColumnMapElement = user_data            or self._parseUserData(unparsed_elements=unparsed_elements)
 
+    def __eq__(self, other:"EventMapSchema"):
+        if not isinstance(other, EventMapSchema):
+            return False
+        else:
+            return self.AppIDColumn == other.AppIDColumn \
+               and self.UserIDColumn == other.UserIDColumn \
+               and self.SessionIDColumn == other.SessionIDColumn \
+               and self.AppVersionColumn == other.AppVersionColumn \
+               and self.AppBranchColumn == other.AppBranchColumn \
+               and self.LogVersionColumn == other.LogVersionColumn \
+               and self.TimestampColumn == other.TimestampColumn \
+               and self.TimeOffsetColumn == other.TimeOffsetColumn \
+               and self.EventSequenceIndexColumn == other.EventSequenceIndexColumn \
+               and self.EventNameColumn == other.EventNameColumn \
+               and self.EventSourceColumn == other.EventSourceColumn \
+               and self.EventDataColumn == other.EventDataColumn \
+               and self.GameStateColumn == other.GameStateColumn \
+               and self.UserDataColumn == other.UserDataColumn
+
     @property
     def AppVersionColumn(self) -> ColumnMapElement:
         return self._app_version

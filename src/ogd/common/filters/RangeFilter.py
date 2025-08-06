@@ -8,7 +8,7 @@ from ogd.common.utils.Logger import Logger
 
 T = TypeVar("T", bound=Any)
 class RangeFilter(Filter[T]):
-    def __init__(self, mode:FilterMode, minimum:Optional[T], maximum:Optional[T]):
+    def __init__(self, mode:FilterMode=FilterMode.NOFILTER, minimum:Optional[T]=None, maximum:Optional[T]=None):
         super().__init__(mode=mode)
         if minimum and maximum and minimum > maximum:
             Logger.Log(f"When creating MinMaxFilter, got a minimum ({minimum}) larger than maximum ({maximum})!", level=logging.WARNING)
@@ -33,6 +33,8 @@ class RangeFilter(Filter[T]):
                     ret_val = f"under {self.Max}"
                 else: # self.Min is not None
                     ret_val = f"above {self.Min}"
+            case FilterMode.NOFILTER:
+                ret_val = "unfiltered"
 
         return ret_val
     
@@ -40,20 +42,20 @@ class RangeFilter(Filter[T]):
         return f"<class {type(self).__name__} {self.FilterMode}:{self.Min}-{self.Max}>"
 
     @property
-    def AsSet(self) -> Set[T]:
-        return set()
+    def AsSet(self) -> None:
+        return None
 
     @property
     def Min(self) -> Optional[T]:
-        return self._min
+        return self._min if self.FilterMode != FilterMode.NOFILTER else None
 
     @property
     def Max(self) -> Optional[T]:
-        return self._max
+        return self._max if self.FilterMode != FilterMode.NOFILTER else None
 
     @property
     def Range(self) -> Optional[slice]:
-        return slice(self.Min, self.Max)
+        return slice(self.Min, self.Max) if self.FilterMode != FilterMode.NOFILTER else None
 
     @staticmethod
     def FromSlice(mode:FilterMode, slice:slice) -> "RangeFilter":

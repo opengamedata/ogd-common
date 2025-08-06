@@ -7,7 +7,7 @@ T = TypeVar("T")
 class Filter(Generic[T]):
     @property
     @abc.abstractmethod
-    def AsSet(self) -> Set[T]:
+    def AsSet(self) -> Optional[Set[T]]:
         pass
 
     @property
@@ -28,11 +28,15 @@ class Filter(Generic[T]):
         :type mode: FilterMode, optional
         """
         self._mode = mode
+
+    @property
+    def Active(self) -> bool:
+        return self.FilterMode != FilterMode.NOFILTER
     
     @property
     def FilterMode(self) -> FilterMode:
         return self._mode
 
     @property
-    def AsList(self) -> List[T]:
-        return list(self.AsSet)
+    def AsList(self) -> Optional[List[T]]:
+        return list(self.AsSet) if self.AsSet is not None else None

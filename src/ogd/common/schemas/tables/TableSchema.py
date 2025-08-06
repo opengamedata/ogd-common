@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, TypeAlias
 ## import local files
-from ogd.common import schemas
+from ogd.common.schemas.tables import presets
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapElement
@@ -20,6 +20,8 @@ class TableSchema(Schema):
         In particular, it contains an ordered list of columns in the data source table,
         and a mapping of those columns to the corresponding elements of a formal OGD structure.
     """
+
+    _DEFAULT_SCHEMA_PATH = Path(presets.__file__).parent
 
     # *** ABSTRACTS ***
 
@@ -67,7 +69,7 @@ class TableSchema(Schema):
 
         :param schema_name: The filename for the table schema JSON.
         :type schema_name: str
-        :param schema_path: Path to find the given table schema file, defaults to "./schemas/table_schemas/"
+        :param schema_path: Path to find the given table schema file, defaults to "./schemas/tables/presets/"
         :type schema_path: str, optional
         :param is_legacy: [description], defaults to False
         :type is_legacy: bool, optional
@@ -99,10 +101,10 @@ class TableSchema(Schema):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Optional[str | Path], search_templates:bool=False) -> "TableSchema":
+    def FromFile(cls, schema_name:str, schema_path:str | Path=_DEFAULT_SCHEMA_PATH) -> "TableSchema":
         ret_val : Schema
 
-        schema_path = schema_path or Path(schemas.__file__).parent / "table_schemas"
+        schema_path = schema_path
         ret_val = cls._fromFile(schema_name=schema_name, schema_path=Path(schema_path))
         if isinstance(ret_val, TableSchema):
             return ret_val

@@ -1,18 +1,17 @@
 ## import standard libraries
-from typing import Any, Dict, List, Optional, Set
+from typing import List, Optional, Set
 # import local files
 from ogd.common.filters import *
-from ogd.common.filters.collections.FilterCollection import FilterCollection
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.utils.typing import Pair
 
-class EventFilterCollection(FilterCollection):
+class EventFilterCollection:
     """Dumb struct to hold filters for versioning information
     """
-    type NameFilterType = Optional[SetFilter[str]]
-    type CodeFilterType = Optional[SetFilter[int] | RangeFilter[int]]
 
-    def __init__(self, event_name_filter:NameFilterType=None, event_code_filter:CodeFilterType=None):
+    def __init__(self,
+                 event_name_filter : SetFilter[str] | NoFilter                    = NoFilter(),
+                 event_code_filter : SetFilter[int] | RangeFilter[int] | NoFilter = NoFilter()):
         """Constructor for the EventFilterCollection structure.
 
         Accepts a collection of filters to be applied on event names/codes included in the data.
@@ -23,48 +22,37 @@ class EventFilterCollection(FilterCollection):
         :param event_code_filter: The filter to apply to event codes, defaults to NoFilter()
         :type event_code_filter: Filter, optional
         """
-        self._event_names : Optional[SetFilter[str]] = event_name_filter
-        self._event_codes = event_code_filter
+        self._event_names : SetFilter[str] | NoFilter                    = event_name_filter
+        self._event_codes : SetFilter[int] | RangeFilter[int] | NoFilter = event_code_filter
 
     def __str__(self) -> str:
         ret_val = "no versioning filters"
-        if self.EventNameFilter or self.EventCodeFilter:
-            _name_str = f"event name(s) {self.EventCodeFilter}" if self.EventNameFilter else None
-            _code_str = f"event code(s) {self.EventCodeFilter}" if self.EventCodeFilter else None
+        if self.EventNames or self.EventCodes:
+            _name_str = f"event name(s) {self.EventCodes}" if self.EventNames else None
+            _code_str = f"event code(s) {self.EventCodes}" if self.EventCodes else None
             _ver_strs = ", ".join([elem for elem in [_name_str, _code_str] if elem is not None])
             ret_val = f"versioning filters: {_ver_strs}"
         return ret_val
 
     def __repr__(self) -> str:
         ret_val = f"<class {type(self).__name__} no filters>"
-        if self.EventNameFilter is not None or self.EventCodeFilter is not None:
-            _name_str = repr(self.EventNameFilter) if self.EventNameFilter else None
-            _code_str = repr(self.EventCodeFilter) if self.EventCodeFilter else None
+        if self.EventNames is not None or self.EventCodes is not None:
+            _name_str = repr(self.EventNames) if self.EventNames else None
+            _code_str = repr(self.EventCodes) if self.EventCodes else None
             _ver_strs = " ^ ".join([elem for elem in [_name_str, _code_str] if elem is not None])
             ret_val = f"<class {type(self).__name__} {_ver_strs}>"
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Filter]:
-        ret_val = {}
-
-        if self.EventNameFilter:
-            ret_val["event_names"] = self.EventNameFilter
-        if self.EventCodeFilter:
-            ret_val["event_codes"] = self.EventCodeFilter
-        
-        return ret_val
-
-    @property
-    def EventNameFilter(self) -> NameFilterType:
+    def EventNames(self) -> Filter[str]:
         """Property containing the filter for event names.
 
         :return: _description_
         :rtype: Optional[SetFilter]
         """
         return self._event_names
-    @EventNameFilter.setter
-    def EventNameFilter(self, allowed_events:Optional[NameFilterType | List[str] | Set[str]]):
+    @EventNames.setter
+    def EventNames(self, allowed_events:Optional[SetFilter[str] | NoFilter | List[str] | Set[str]]):
         """Can be conveniently set from an existing filter, or collection of event names.
 
         If set this way, the filter is assumed to be an "inclusion" filter.
@@ -74,20 +62,20 @@ class EventFilterCollection(FilterCollection):
         :return: _description_
         :rtype: Filter
         """
-        if allowed_events is None:
-            self._event_names = None
+        if allowed_events is None or isinstance(allowed_events, NoFilter):
+            self._event_names = NoFilter()
         elif isinstance(allowed_events, SetFilter):
             self._event_names = allowed_events
         elif isinstance(allowed_events, list) or isinstance(allowed_events, set):
             self._event_names = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(allowed_events))
 
     @property
-    def EventCodeFilter(self) -> CodeFilterType:
+    def EventCodes(self) -> Filter[int]:
         return self._event_codes
-    @EventCodeFilter.setter
-    def EventCodeFilter(self, allowed_events:Optional[CodeFilterType | List[int] | Set[int] | slice | Pair[int, int]]):
-        if allowed_events is None:
-            self._event_codes = None
+    @EventCodes.setter
+    def EventCodes(self, allowed_events:Optional[SetFilter[int] | RangeFilter[int] | NoFilter | List[int] | Set[int] | slice | Pair[int, int]]):
+        if allowed_events is None or isinstance(allowed_events, NoFilter):
+            self._event_codes = NoFilter()
         elif isinstance(allowed_events, Filter):
             self._event_codes = allowed_events
         elif isinstance(allowed_events, list) or isinstance(allowed_events, set):

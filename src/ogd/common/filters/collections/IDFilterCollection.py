@@ -1,67 +1,55 @@
 ## import standard libraries
-from typing import Dict, List, Optional, Set
+from typing import List, Optional, Set
 # import local files
 from ogd.common.filters import *
 from ogd.common.models.enums.FilterMode import FilterMode
 
 class IDFilterCollection:
-    type SessionFilterType = Optional[SetFilter[str]]
-    type PlayerFilterType  = Optional[SetFilter[str]]
-
     """Dumb struct to hold filters for versioning information
     """
-    def __init__(self, session_filter:SessionFilterType=None, player_filter:PlayerFilterType=None):
-        self._session_filter = session_filter
-        self._player_filter = player_filter
+    def __init__(self,
+                 session_filter: SetFilter[str] | NoFilter = NoFilter(),
+                 player_filter : SetFilter[str] | NoFilter = NoFilter()):
+        self._session_filter : SetFilter[str] | NoFilter = session_filter
+        self._player_filter  : SetFilter[str] | NoFilter = player_filter
 
     def __str__(self) -> str:
         ret_val = "no versioning filters"
-        if self.SessionFilter or self.PlayerFilter:
-            _sess_str = f"session(s) {self.SessionFilter}" if self.SessionFilter else None
-            _ply_str = f"player(s) {self.PlayerFilter}" if self.PlayerFilter else None
+        if self.Sessions or self.Players:
+            _sess_str = f"session(s) {self.Sessions}" if self.Sessions else None
+            _ply_str = f"player(s) {self.Players}" if self.Players else None
             _ver_strs = ", ".join([elem for elem in [_sess_str, _ply_str] if elem is not None])
             ret_val = f"event filters: {_ver_strs}"
         return ret_val
 
     def __repr__(self) -> str:
         ret_val = f"<class {type(self).__name__} no filters>"
-        if self.SessionFilter or self.PlayerFilter:
-            _sess_str = f"session(s) {self.SessionFilter}" if self.SessionFilter else None
-            _ply_str = f"player(s) {self.PlayerFilter}" if self.PlayerFilter else None
+        if self.Sessions or self.Players:
+            _sess_str = f"session(s) {self.Sessions}" if self.Sessions else None
+            _ply_str = f"player(s) {self.Players}" if self.Players else None
             _ver_strs = " ^ ".join([elem for elem in [_sess_str, _ply_str] if elem is not None])
             ret_val = f"<class {type(self).__name__} {_ver_strs}>"
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Filter]:
-        ret_val = {}
-
-        if self.SessionFilter:
-            ret_val["session_ids"] = self.SessionFilter
-        if self.PlayerFilter:
-            ret_val["player_ids"] = self.PlayerFilter
-        
-        return ret_val
-
-    @property
-    def SessionFilter(self) -> SessionFilterType:
+    def Sessions(self) -> Filter[str]:
         return self._session_filter
-    @SessionFilter.setter
-    def SessionFilter(self, included_sessions:Optional[SessionFilterType | List[str] | Set[str]]) -> None:
+    @Sessions.setter
+    def Sessions(self, included_sessions:Optional[SetFilter | List[str] | Set[str]]) -> None:
         if included_sessions is None:
-            self._session_filter = None
+            self._session_filter = NoFilter()
         elif isinstance(included_sessions, SetFilter):
             self._session_filter = included_sessions
         elif isinstance(included_sessions, list) or isinstance(included_sessions, set):
             self._session_filter = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(included_sessions))
 
     @property
-    def PlayerFilter(self) -> PlayerFilterType:
+    def Players(self) -> Filter[str]:
         return self._player_filter
-    @PlayerFilter.setter
-    def PlayerFilter(self, included_players:Optional[PlayerFilterType | List[str] | Set[str]]) -> None:
+    @Players.setter
+    def Players(self, included_players:Optional[SetFilter | List[str] | Set[str]]) -> None:
         if included_players is None:
-            self._player_filter = None
+            self._player_filter = NoFilter()
         elif isinstance(included_players, SetFilter):
             self._player_filter = included_players
         elif isinstance(included_players, list) or isinstance(included_players, set):

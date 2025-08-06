@@ -25,7 +25,8 @@ class FileStoreConfig(DataStoreConfig):
     __slots__ = ["_location", "_credential"]
     def __init__(self, name:str,
                  # params for class
-                 location:Optional[FileLocationSchema], file_credential:Optional[FileCredential],
+                 location:Optional[FileLocationSchema | Path],
+                 file_credential:Optional[FileCredential],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
@@ -59,7 +60,13 @@ class FileStoreConfig(DataStoreConfig):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._location    : FileLocationSchema = location        or self._parseLocation(unparsed_elements=unparsed_elements)
+        self._location    : FileLocationSchema
+        if isinstance(location, FileLocationSchema):
+            self._location = location
+        elif isinstance(location, Path):
+            self._location = FileLocationSchema.FromPath(name=f"{name}Location", fullpath=location)
+        else:
+            self._location = self._parseLocation(unparsed_elements=unparsed_elements)
         self._credential  : FileCredential     = file_credential or self._parseCredential(unparsed_elements=unparsed_elements)
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=unparsed_elements)
 
