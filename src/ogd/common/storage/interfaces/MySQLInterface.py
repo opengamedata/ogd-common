@@ -18,21 +18,6 @@ from ogd.common.configs.storage.MySQLConfig import MySQLConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Pair
 
-class MySQLFilters:
-    @staticmethod
-    def FilterToMySQL(filter:Filter, column_name:str):
-        if isinstance(filter, NoFilter):
-            return ""
-        elif isinstance(filter, MinFilter):
-            return f"{column_name} > {filter.Min}" if filter.FilterMode == FilterMode.INCLUDE else f"{column_name} < {filter.Min}"
-        elif isinstance(filter, MaxFilter):
-            return f"{column_name} < {filter.Max}" if filter.FilterMode == FilterMode.INCLUDE else f"{column_name} > {filter.Max}"
-        elif isinstance(filter, MinMaxFilter):
-            return f"{filter.Min} < {column_name} AND {column_name} < {filter.Max}" if filter.FilterMode == FilterMode.INCLUDE else f"{filter.Min} > {column_name} AND {column_name} > {filter.Max}"
-        elif isinstance(filter, SetFilter):
-            set_str = ','.join(filter.Set)
-            return f"{column_name} IN ({set_str})" if filter.FilterMode == FilterMode.INCLUDE else f"{column_name} NOT IN ({set_str})"
-
 class MySQLInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
