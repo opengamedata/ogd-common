@@ -21,6 +21,7 @@ class SSHConfig(DataStoreConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_location", "_credential"]
     def __init__(self, name:str,
                  # params for class
                  location:Optional[URLLocationSchema], ssh_credential:Optional[PasswordCredential],

@@ -20,6 +20,7 @@ class DatasetCollectionSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_datasets"]
     def __init__(self, name:str, datasets:Optional[Dict[str, DatasetSchema]], other_elements:Dict[str, Any]):
         """Constructor for the `DatasetCollectionSchema` class.
         

@@ -14,6 +14,9 @@ class EventSource(IntEnum):
 
 ## @class Event
 class Event(GameData):
+    __slots__ = ["timestamp", "time_offset", "event_sequence_index",
+                 "event_name", "event_source", "event_data",
+                 "game_state", "user_data"]
     """
     Completely dumb struct that enforces a particular structure for the data we get from a source.
     Basically, whenever we fetch data, the TableConfig will be used to map columns to the required elements of an Event.

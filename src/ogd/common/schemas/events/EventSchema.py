@@ -18,6 +18,7 @@ class EventSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_description", "_event_data"]
     def __init__(self, name:str, description:Optional[str], event_data:Optional[Dict[str, DataElementSchema]], other_elements:Optional[Map]=None):
         """Constructor for the `EventSchema` class.
         

@@ -17,6 +17,7 @@ class DirectoryLocationSchema(LocationSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_folder_path"]
     def __init__(self, name:str, folder_path:Optional[Path], other_elements:Optional[Map]=None):
         """Constructor for the `DirectoryLocationSchema` class.
         
