@@ -131,6 +131,9 @@ class MySQLInterface(Interface):
             Logger.Log(f"Could not get data for {len(filters.IDFilters.Sessions.AsList or [])} requested sessions, MySQL connection is not open or config was not for MySQL.", logging.WARN)
         return ret_val
 
+    def _getFeatureRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
+        return []
+
     # *** PUBLIC STATICS ***
 
     @staticmethod
