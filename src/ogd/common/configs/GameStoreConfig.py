@@ -1,5 +1,5 @@
 # import standard libraries
-from typing import Dict, Optional, Self
+from typing import Dict, Final, LiteralString, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
@@ -24,12 +24,12 @@ class GameStoreConfig(Schema):
     TODO : Implement and use a smart Load(...) function of TableConfig to load schema from given name, rather than FromFile.
     """
 
-    _DEFAULT_GAME_ID       = "UNKNOWN GAME"
-    _DEFAULT_SOURCE_NAME   = "OPENGAMEDATA_BQ"
-    _DEFAULT_SCHEMA_NAME   = "OPENGAMEDATA_BIGQUERY"
-    _DEFAULT_DB_NAME       = "UNKNOWN GAME"
-    _DEFAULT_TABLE_NAME    = "_daily"
-    _DEFAULT_TABLE_LOC     = DatabaseLocationSchema(
+    _DEFAULT_GAME_ID     : Final[LiteralString] = "UNKNOWN GAME"
+    _DEFAULT_SOURCE_NAME : Final[LiteralString] = "OPENGAMEDATA_BQ"
+    _DEFAULT_SCHEMA_NAME : Final[LiteralString] = "OPENGAMEDATA_BIGQUERY"
+    _DEFAULT_DB_NAME     : Final[LiteralString] = "UNKNOWN GAME"
+    _DEFAULT_TABLE_NAME  : Final[LiteralString] = "_daily"
+    _DEFAULT_TABLE_LOC   : Final[DatabaseLocationSchema] = DatabaseLocationSchema(
         name="DefaultTableLocation",
         database_name=_DEFAULT_DB_NAME,
         table_name=_DEFAULT_TABLE_NAME
