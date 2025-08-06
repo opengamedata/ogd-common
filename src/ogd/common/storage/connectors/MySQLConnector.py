@@ -28,6 +28,10 @@ class MySQLConnector(StorageConnector):
     def Connection(self) -> Optional[connection.MySQLConnection]:
         return self._connection
 
+    @property
+    def Cursor(self) -> Optional[cursor.MySQLCursor]:
+        return self._cursor
+
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
