@@ -6,5 +6,16 @@ settings = {
         "SCHEMAS":True,
         "UTILS":True
     },
-    "REMOTE_ADDRESS" : "address_placeholder"
+    "REMOTE_ADDRESS" : "address_placeholder",
+    "MYSQL_TEST_CONFIG" : {
+            "DB_TYPE" : "MySQL",
+            "DB_HOST" : "127.0.0.1",
+            "DB_PORT" : 3306,
+            "DB_USER" : "username",
+            "DB_PW"   : "password",
+            "SSH_HOST": "host.site.com",
+            "SSH_USER": "username",
+            "SSH_PASS": "password",
+            "SSH_PORT": 22
+        },
 }

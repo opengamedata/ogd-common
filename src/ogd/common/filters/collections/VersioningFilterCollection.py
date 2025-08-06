@@ -11,7 +11,7 @@ class VersioningFilterCollection:
     def __init__(self,
                  log_ver_filter : SetFilter[Version] | RangeFilter[Version] | NoFilter = NoFilter(),
                  app_ver_filter : SetFilter[Version] | RangeFilter[Version] | NoFilter = NoFilter(),
-                 branch_filter  : SetFilter[Version] | NoFilter                        = NoFilter()):
+                 branch_filter  : SetFilter[str] | NoFilter                            = NoFilter()):
         """Constructor for the VersioningFilter structure.
 
         Accepts a collection of filters to be applied on versioning of data.
@@ -26,7 +26,7 @@ class VersioningFilterCollection:
         """
         self._log_filter    : SetFilter[Version] | RangeFilter[Version] | NoFilter = log_ver_filter
         self._app_filter    : SetFilter[Version] | RangeFilter[Version] | NoFilter = app_ver_filter
-        self._branch_filter : SetFilter[Version] | NoFilter                        = branch_filter
+        self._branch_filter : SetFilter[str] | NoFilter                            = branch_filter
 
     def __str__(self) -> str:
         ret_val = "no versioning filters"
@@ -81,10 +81,10 @@ class VersioningFilterCollection:
             self._app_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_versions[0], maximum=allowed_versions[1])
 
     @property
-    def AppBranches(self) -> Filter[Version]:
+    def AppBranches(self) -> Filter[str]:
         return self._branch_filter
     @AppBranches.setter
-    def AppBranches(self, allowed_branches:Optional[SetFilter[Version] | NoFilter | List[Version] | Set[Version]]) -> None:
+    def AppBranches(self, allowed_branches:Optional[SetFilter[str] | NoFilter | List[str] | Set[str]]) -> None:
         if allowed_branches is None or isinstance(allowed_branches, NoFilter):
             self._branch_filter = NoFilter()
         elif isinstance(allowed_branches, SetFilter):

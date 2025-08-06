@@ -65,15 +65,15 @@ class SequencingFilterCollection:
     def SessionIndices(self) -> Filter[int]:
         return self._session_index_filter
     @SessionIndices.setter
-    def SessionIndices(self, allowed_times:Optional[SetFilter[int] | RangeFilter[int] | NoFilter | slice | Pair]) -> None:
-        if allowed_times is None or isinstance(allowed_times, NoFilter):
+    def SessionIndices(self, allowed_indices:Optional[SetFilter[int] | RangeFilter[int] | NoFilter | slice | Pair[int, int]]) -> None:
+        if allowed_indices is None or isinstance(allowed_indices, NoFilter):
             self._session_index_filter = NoFilter()
-        elif isinstance(allowed_times, Filter):
-            self._session_index_filter = allowed_times
-        elif isinstance(allowed_times, slice):
-            self._session_index_filter = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, slice=allowed_times)
-        elif isinstance(allowed_times, tuple):
-            self._session_index_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_times[0], maximum=allowed_times[1])
+        elif isinstance(allowed_indices, Filter):
+            self._session_index_filter = allowed_indices
+        elif isinstance(allowed_indices, slice):
+            self._session_index_filter = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, slice=allowed_indices)
+        elif isinstance(allowed_indices, tuple):
+            self._session_index_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_indices[0], maximum=allowed_indices[1])
 
     # *** PRIVATE STATICS ***
 
