@@ -2,7 +2,7 @@
 import logging
 from datetime import datetime
 from itertools import chain
-from typing import Dict, List, LiteralString, Tuple, Optional
+from typing import Dict, List, LiteralString, Optional, Tuple
 # 3rd-party imports
 from mysql.connector import connection, cursor
 # import locals
@@ -22,34 +22,36 @@ class MySQLInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:GameStoreConfig, fail_fast:bool):
+    def __init__(self, config:GameStoreConfig, fail_fast:bool, store:Optional[MySQLConnector]=None):
         super().__init__(config=config, fail_fast=fail_fast)
+        if store:
+            self._store = store
+        elif isinstance(self.Config.StoreConfig, MySQLConfig):
+            self._store = MySQLConnector(config=self.Config.StoreConfig)
+        else:
+            raise ValueError(f"MySQLInterface config was for a connector other than MySQL! Found config type {type(self.Config.StoreConfig)}")
+        self.Connector.Open()
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
-    def _availableIDs(self, mode:IDMode, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection) -> List[str]:
-        if self._db_cursor is not None and isinstance(self.GameStoreConfig.Source, MySQLConfig):
-            _db_name     : str = self.GameStoreConfig.DatabaseName
-            _table_name  : str = self.GameStoreConfig.TableName
+    @property
+    def Connector(self) -> MySQLConnector:
+        return self._store
 
-            sess_id_col  : str = self.GameStoreConfig.SchemaName.SessionIDColumn or "session_id"
-
-            filters : List[str] = []
-            params  : List[str] = []
+    def _availableIDs(self, mode:IDMode, filters:DatasetFilterCollection) -> List[str]:
+        if self.Connector.Cursor is not None and isinstance(self.Config.StoreConfig, MySQLConfig):
+            id_col : LiteralString       = "session_id" if mode==IDMode.SESSION else "user_id"
             # 1. If we're in shared table, then need to filter on game ID
-            if _table_name != self.GameStoreConfig.GameID:
-                filters.append(f"`app_id`=%s")
-                params.append(self.GameStoreConfig.GameID)
-            # 2. Sort out filters from date_filter
-
-            # 3. Sort out filters from version_filter
-
-            # 4. Combine filters & execute
-            filter_clause = " AND ".join(filters)
-            
-            data = SQL.SELECT(cursor =self._db_cursor, db_name=_db_name,      table   =_table_name,
-                              columns=[sess_id_col],   filter =filter_clause, distinct=True,
-                              params =tuple(params))
+            where_clause, params = self._generateWhereClause(filters=filters)
+            if self.Config.TableName != self.Config.GameID:
+                where_clause += "\nAND `app_id`=%s"
+                params.append(self.Config.GameID)
+            query = f"""
+                SELECT DISTINCT(`{id_col}`)
+                FROM `{self.Config.TableLocation.Location}`
+                {where_clause}
+            """
+            data = MySQLInterface.Query(cursor=self.Connector.Cursor, query=query, params=tuple(params))
             return [str(id[0]) for id in data] if data != None else []
         else:
             Logger.Log(f"Could not get list of all session ids, MySQL connection is not open.", logging.WARN)
@@ -197,55 +199,56 @@ class MySQLInterface(Interface):
     # *** PUBLIC STATICS ***
 
     # Function to build and execute SELECT statements on a database connection.
-    @staticmethod
-    def SELECT(cursor        :cursor.MySQLCursor,          db_name        : str,                   table    : str,
-               columns       :List[str]           = [],    filter         : Optional[str] = None,
-               sort_columns  :Optional[List[str]] = None,  sort_direction : str           = "ASC", grouping : Optional[str] = None,
-               distinct      :bool                = False, offset         : int           = 0,     limit    : int           = -1,
-               fetch_results :bool                = True,  params         : Tuple         = tuple()) -> Optional[List[Tuple]]:
-        """Function to build and execute SELECT statements on a database connection.
+    # @staticmethod
+    # def SELECT(cursor        : cursor.MySQLCursor,
+    #            db_name       : str,                                  table          : str,
+    #            columns       : List[LiteralString]           = [],   where_clause   : LiteralString = "",
+    #            sort_columns  : Optional[List[LiteralString]] = None, sort_direction : LiteralString = "ASC",
+    #            grouping      : Optional[LiteralString]       = None, distinct       : bool          = False, 
+    #            offset        : int                           = 0,    limit          : int           = -1,
+    #            fetch_results : bool                          = True, params         : Tuple         = tuple()) -> Optional[List[Tuple]]:
+    #     """Function to build and execute SELECT statements on a database connection.
 
-        :param cursor: A database cursor, retrieved from the active connection.
-        :type cursor: cursor.MySQLCursor
-        :param db_name: The name of the database to which we are connected.
-        :type db_name: str
-        :param table: The name of the table from which we want to make a selection.
-        :type table: str
-        :param columns: A list of columns to be selected. If empty (or None), all columns will be used (SELECT * FROM ...). Defaults to None
-        :type columns: List[str], optional
-        :param filter: A string giving the constraints for a WHERE clause (The "WHERE" term itself should not be part of the filter string), defaults to None
-        :type filter: str, optional
-        :param sort_columns: A list of columns to sort results on. The order of columns in the list is the order given to SQL. Defaults to None
-        :type sort_columns: List[str], optional
-        :param sort_direction: The "direction" of sorting, either ascending or descending., defaults to "ASC"
-        :type sort_direction: str, optional
-        :param grouping: A column name to group results on. Subject to SQL rules for grouping, defaults to None
-        :type grouping: str, optional
-        :param distinct: A bool to determine whether to select only rows with distinct values in the column, defaults to False
-        :type distinct: bool, optional
-        :param limit: The maximum number of rows to be selected. Use -1 for no limit., defaults to -1
-        :type limit: int, optional
-        :param fetch_results: A bool to determine whether all results should be fetched and returned, defaults to True
-        :type fetch_results: bool, optional
-        :return: A collection of all rows from the selection, if fetch_results is true, otherwise None.
-        :rtype: Optional[List[Tuple]]
-        """
-        d          = "DISTINCT" if distinct else ""
-        cols       = ",".join([f"{col}" for col in columns]) if len(columns) > 0 else "*"
-        sort_cols  = ",".join([f"`{col}`" for col in sort_columns]) if sort_columns is not None and len(sort_columns) > 0 else None
-        table_path = db_name + "." + str(table)
+    #     :param cursor: A database cursor, retrieved from the active connection.
+    #     :type cursor: cursor.MySQLCursor
+    #     :param db_name: The name of the database to which we are connected.
+    #     :type db_name: str
+    #     :param table: The name of the table from which we want to make a selection.
+    #     :type table: str
+    #     :param columns: A list of columns to be selected. If empty (or None), all columns will be used (SELECT * FROM ...). Defaults to None
+    #     :type columns: List[str], optional
+    #     :param filter: A string giving the constraints for a WHERE clause (The "WHERE" term itself should not be part of the filter string), defaults to None
+    #     :type filter: str, optional
+    #     :param sort_columns: A list of columns to sort results on. The order of columns in the list is the order given to SQL. Defaults to None
+    #     :type sort_columns: List[str], optional
+    #     :param sort_direction: The "direction" of sorting, either ascending or descending., defaults to "ASC"
+    #     :type sort_direction: str, optional
+    #     :param grouping: A column name to group results on. Subject to SQL rules for grouping, defaults to None
+    #     :type grouping: str, optional
+    #     :param distinct: A bool to determine whether to select only rows with distinct values in the column, defaults to False
+    #     :type distinct: bool, optional
+    #     :param limit: The maximum number of rows to be selected. Use -1 for no limit., defaults to -1
+    #     :type limit: int, optional
+    #     :param fetch_results: A bool to determine whether all results should be fetched and returned, defaults to True
+    #     :type fetch_results: bool, optional
+    #     :return: A collection of all rows from the selection, if fetch_results is true, otherwise None.
+    #     :rtype: Optional[List[Tuple]]
+    #     """
+    #     d          = "DISTINCT" if distinct else ""
+    #     cols       = ",".join([f"{col}" for col in columns]) if len(columns) > 0 else "*"
+    #     sort_cols  = ",".join([f"`{col}`" for col in sort_columns]) if sort_columns is not None and len(sort_columns) > 0 else None
+    #     table_path = db_name + "." + str(table)
 
-        sel_clause = f"SELECT {d} {cols} FROM {table_path}"
-        where_clause = "" if filter    is None else f"WHERE {filter}"
-        group_clause = "" if grouping  is None else f"GROUP BY {grouping}"
-        sort_clause  = "" if sort_cols is None else f"ORDER BY {sort_cols} {sort_direction}"
-        lim_clause   = "" if limit < 0         else f"LIMIT {str(max(offset, 0))}, {str(limit)}" # don't use a negative for offset
-        query = f"{sel_clause} {where_clause} {group_clause} {sort_clause} {lim_clause};"
-        return SQL.Query(cursor=cursor, query=query, params=params, fetch_results=fetch_results)
+    #     sel_clause = f"SELECT {d} {cols} FROM {table_path}"
+    #     group_clause = "" if grouping  is None else f"GROUP BY {grouping}"
+    #     sort_clause  = "" if sort_cols is None else f"ORDER BY {sort_cols} {sort_direction}"
+    #     lim_clause   = "" if limit < 0         else f"LIMIT {str(max(offset, 0))}, {str(limit)}" # don't use a negative for offset
+    #     query = f"{sel_clause} {where_clause} {group_clause} {sort_clause} {lim_clause};"
+    #     return SQL.Query(cursor=cursor, query=query, params=params, fetch_results=fetch_results)
 
     @staticmethod
     def Query(cursor:cursor.MySQLCursor, query:str, params:Optional[Tuple], fetch_results: bool = True) -> Optional[List[Tuple]]:
-        result : Optional[List[Tuple]] = None
+        ret_val : Optional[List[Tuple]] = None
         # first, we do the query.
         Logger.Log(f"Running query: {query}\nWith params: {params}", logging.DEBUG, depth=3)
         start = datetime.now()
@@ -254,10 +257,10 @@ class MySQLInterface(Interface):
         Logger.Log(f"Query execution completed, time to execute: {time_delta}", logging.DEBUG)
         # second, we get the results.
         if fetch_results:
-            result = cursor.fetchall()
+            ret_val = cursor.fetchall()
             time_delta = datetime.now()-start
-            Logger.Log(f"Query fetch completed, total query time:    {time_delta} to get {len(result) if result is not None else 0:d} rows", logging.DEBUG)
-        return result
+            Logger.Log(f"Query fetch completed, total query time:    {time_delta} to get {len(ret_val) if ret_val is not None else 0:d} rows", logging.DEBUG)
+        return ret_val
 
     # *** PUBLIC METHODS ***
 
