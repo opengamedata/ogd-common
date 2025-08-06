@@ -353,8 +353,8 @@ class BigQueryInterface(Interface):
         if filters.Versions.AppBranches.Active:
             if isinstance(filters.Versions.AppBranches, SetFilter) and len(filters.Versions.AppBranches.AsSet) > 0:
                 exclude = "NOT" if filters.Versions.AppBranches.FilterMode == FilterMode.EXCLUDE else ""
-                app_clause = f"`app_branch` {exclude} IN @app_branchs"
-                app_param.append(
+                branch_clause = f"`app_branch` {exclude} IN @app_branchs"
+                branch_param.append(
                     bigquery.ArrayQueryParameter(name="app_branchs", array_type="INT64", values=filters.Versions.AppBranches.AsList)
                 )
             elif isinstance(filters.Versions.AppBranches, RangeFilter):
