@@ -106,49 +106,29 @@ class MySQLInterface(Interface):
             Logger.Log(f"Could not get available versions, MySQL connection is not open or config was not for MySQL.", logging.WARN)
         return ret_val
 
-    def _getEventRows(self, id_filter:IDFilterCollection, date_filter:SequencingFilterCollection, version_filter:VersioningFilterCollection, event_filter:EventFilterCollection) -> List[Tuple]:
+    def _getEventRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
         ret_val = []
         # grab data for the given session range. Sort by event time, so
         if self.Connector.Cursor is not None and isinstance(self.Config.StoreConfig, MySQLConfig):
             # filt = f"app_id='{self._game_id}' AND (session_id  BETWEEN '{next_slice[0]}' AND '{next_slice[-1]}'){ver_filter}"
-            _db_name     : str = self.GameStoreConfig.DatabaseName
-            _table_name  : str = self.GameStoreConfig.TableName
 
-            sess_id_col = self.GameStoreConfig.SchemaName.SessionIDColumn or 'session_id'
-            play_id_col = self.GameStoreConfig.SchemaName.UserIDColumn or 'player_id'
-            seq_idx_col = self.GameStoreConfig.SchemaName.EventSequenceIndexColumn or 'session_n'
-            evt_nam_col = self.GameStoreConfig.SchemaName.EventNameColumn or "event_name"
+            where_clause, params = self._generateWhereClause(filters=filters)
+            if self.Config.TableName != self.Config.GameID:
+                where_clause += "\nAND `app_id`=%s"
+                params.append(self.Config.GameID)
 
-            filters = []
-            params = []
-            if _table_name != self.GameStoreConfig.GameID:
-                filters.append(f"`app_id`=%s")
-                params.append(self.GameStoreConfig.GameID)
-            # if versions is not None and versions is not []:
-            #     filters.append(f"app_version in ({','.join([str(version) for version in versions])})")
-            id_param_string = ",".join( [f"%s"]*len(id_list) )
-            if id_mode == IDMode.SESSION:
-                filters.append(f"`{sess_id_col}` IN ({id_param_string})")
-                params += [str(id) for id in id_list]
-            elif id_mode == IDMode.USER:
-                filters.append(f"`{play_id_col}` IN ({id_param_string})")
-                params += [str(id) for id in id_list]
-            else:
-                raise ValueError("Invalid IDMode in MySQLInterface!")
-            if exclude_rows is not None:
-                evt_name_param_string = ",".join( ["%s"]*len(exclude_rows) )
-                filters.append(f"`{evt_nam_col}` not in ({evt_name_param_string})")
-                params += [str(name) for name in exclude_rows]
-            filter_clause = " AND ".join(filters)
-
-            data = SQL.SELECT(cursor=self._db_cursor, db_name=_db_name,                        table=_table_name,
-                              filter=filter_clause,   sort_columns=[sess_id_col, seq_idx_col], sort_direction="ASC",
-                              params=tuple(params))
+            query = f"""
+                SELECT *
+                FROM `{self.Config.TableLocation.Location}`
+                {where_clause}
+                ORDER BY `user_id`, `session_id`, `event_sequence_index` ASC
+            """
+            data = MySQLInterface.Query(cursor=self.Connector.Cursor, query=query, params=tuple(params))
             if data is not None:
                 ret_val = data
             # self._select_queries.append(select_query) # this doesn't appear to be used???
         else:
-            Logger.Log(f"Could not get data for {len(id_list)} sessions, MySQL connection is not open or config was not for MySQL.", logging.WARN)
+            Logger.Log(f"Could not get data for {len(filters.IDFilters.Sessions.AsList or [])} requested sessions, MySQL connection is not open or config was not for MySQL.", logging.WARN)
         return ret_val
 
     # *** PUBLIC STATICS ***
