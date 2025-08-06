@@ -198,54 +198,6 @@ class MySQLInterface(Interface):
 
     # *** PUBLIC STATICS ***
 
-    # Function to build and execute SELECT statements on a database connection.
-    # @staticmethod
-    # def SELECT(cursor        : cursor.MySQLCursor,
-    #            db_name       : str,                                  table          : str,
-    #            columns       : List[LiteralString]           = [],   where_clause   : LiteralString = "",
-    #            sort_columns  : Optional[List[LiteralString]] = None, sort_direction : LiteralString = "ASC",
-    #            grouping      : Optional[LiteralString]       = None, distinct       : bool          = False, 
-    #            offset        : int                           = 0,    limit          : int           = -1,
-    #            fetch_results : bool                          = True, params         : Tuple         = tuple()) -> Optional[List[Tuple]]:
-    #     """Function to build and execute SELECT statements on a database connection.
-
-    #     :param cursor: A database cursor, retrieved from the active connection.
-    #     :type cursor: cursor.MySQLCursor
-    #     :param db_name: The name of the database to which we are connected.
-    #     :type db_name: str
-    #     :param table: The name of the table from which we want to make a selection.
-    #     :type table: str
-    #     :param columns: A list of columns to be selected. If empty (or None), all columns will be used (SELECT * FROM ...). Defaults to None
-    #     :type columns: List[str], optional
-    #     :param filter: A string giving the constraints for a WHERE clause (The "WHERE" term itself should not be part of the filter string), defaults to None
-    #     :type filter: str, optional
-    #     :param sort_columns: A list of columns to sort results on. The order of columns in the list is the order given to SQL. Defaults to None
-    #     :type sort_columns: List[str], optional
-    #     :param sort_direction: The "direction" of sorting, either ascending or descending., defaults to "ASC"
-    #     :type sort_direction: str, optional
-    #     :param grouping: A column name to group results on. Subject to SQL rules for grouping, defaults to None
-    #     :type grouping: str, optional
-    #     :param distinct: A bool to determine whether to select only rows with distinct values in the column, defaults to False
-    #     :type distinct: bool, optional
-    #     :param limit: The maximum number of rows to be selected. Use -1 for no limit., defaults to -1
-    #     :type limit: int, optional
-    #     :param fetch_results: A bool to determine whether all results should be fetched and returned, defaults to True
-    #     :type fetch_results: bool, optional
-    #     :return: A collection of all rows from the selection, if fetch_results is true, otherwise None.
-    #     :rtype: Optional[List[Tuple]]
-    #     """
-    #     d          = "DISTINCT" if distinct else ""
-    #     cols       = ",".join([f"{col}" for col in columns]) if len(columns) > 0 else "*"
-    #     sort_cols  = ",".join([f"`{col}`" for col in sort_columns]) if sort_columns is not None and len(sort_columns) > 0 else None
-    #     table_path = db_name + "." + str(table)
-
-    #     sel_clause = f"SELECT {d} {cols} FROM {table_path}"
-    #     group_clause = "" if grouping  is None else f"GROUP BY {grouping}"
-    #     sort_clause  = "" if sort_cols is None else f"ORDER BY {sort_cols} {sort_direction}"
-    #     lim_clause   = "" if limit < 0         else f"LIMIT {str(max(offset, 0))}, {str(limit)}" # don't use a negative for offset
-    #     query = f"{sel_clause} {where_clause} {group_clause} {sort_clause} {lim_clause};"
-    #     return SQL.Query(cursor=cursor, query=query, params=params, fetch_results=fetch_results)
-
     @staticmethod
     def Query(cursor:cursor.MySQLCursor, query:str, params:Optional[Tuple], fetch_results: bool = True) -> Optional[List[Tuple]]:
         ret_val : Optional[List[Tuple]] = None
