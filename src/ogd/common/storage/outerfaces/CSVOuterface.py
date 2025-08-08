@@ -5,15 +5,11 @@ import os
 import re
 import shutil
 import sys
-import traceback
-from datetime import datetime
 from git.repo import Repo
 from git.exc import InvalidGitRepositoryError, NoSuchPathError
 from pathlib import Path
 from typing import Any, Dict, IO, List, Optional, Set
 # 3rd-party imports
-import numpy as np
-import pandas as pd
 # import local files
 # from ogd import games
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
@@ -210,7 +206,7 @@ class CSVOuterface(Outerface):
             Logger.Log("No population file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(_pop_lines))
 
-    def _writeMetadata(self, metadata:Dict[str, Any]):
+    def _writeMetadata(self, metadata:DatasetSchema | Dict[str, Any]):
         game_dir = self._repository.FilesBase.FolderPath / self.Config.GameID
         try:
             game_dir.mkdir(exist_ok=True, parents=True)
