@@ -82,7 +82,7 @@ class Outerface:
         pass
 
     @abc.abstractmethod
-    def _writeMetadata(self, metadata:DatasetSchema | Dict[str, Any]):
+    def _writeMetadata(self, dataset_schema:DatasetSchema):
         pass
 
     # *** BUILT-INS & PROPERTIES ***
@@ -178,9 +178,9 @@ class Outerface:
         else:
             Logger.Log(f"Could not write features from {type(self).__name__}, outerface was not configured for a Features table!", depth=3)
 
-    def WriteMetadata(self, metadata:DatasetSchema | Dict[str, Any]):
+    def WriteMetadata(self, dataset_schema:DatasetSchema):
         
-        self._writeMetadata(metadata=metadata)
+        self._writeMetadata(dataset_schema=dataset_schema)
 
     # *** PROPERTIES ***
 

@@ -206,7 +206,7 @@ class CSVOuterface(Outerface):
             Logger.Log("No population file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(_pop_lines))
 
-    def _writeMetadata(self, metadata:DatasetSchema | Dict[str, Any]):
+    def _writeMetadata(self, dataset_schema:DatasetSchema | Dict[str, Any]):
         game_dir = self._repository.FilesBase.FolderPath / self.Config.GameID
         try:
             game_dir.mkdir(exist_ok=True, parents=True)
@@ -214,7 +214,7 @@ class CSVOuterface(Outerface):
             msg = f"Could not set up folder {game_dir}. {type(err)} {str(err)}"
             Logger.Log(msg, logging.WARNING)
         else:
-            self._writeMetadataFile(meta=metadata)
+            self._writeMetadataFile(dataset_schema=dataset_schema)
             if isinstance(self._repository.Location, DirectoryLocationSchema):
                 _local_dir = self._repository.Location
                 _remote_url = None
@@ -226,7 +226,7 @@ class CSVOuterface(Outerface):
                                              remote_url=_remote_url,
                                              templates_url=URLLocationSchema.FromDict(name="TemplateURL", unparsed_elements={"URL" : self._repository.TemplatesBase.Location})
             )
-            self._updateFileExportList(file_indexing=_file_index, dataset_schema=metadata)
+            self._updateFileExportList(file_indexing=_file_index, dataset_schema=dataset_schema)
 
     # *** PUBLIC STATICS ***
 
@@ -250,7 +250,7 @@ class CSVOuterface(Outerface):
     #  deriving file metadata, this simply outputs a new file_name.meta file.
     #  @param date_range    The range of dates included in the exported data.
     #  @param num_sess      The number of sessions included in the recent export.
-    def _writeMetadataFile(self, meta:Dict[str, Any]) -> None:
+    def _writeMetadataFile(self, dataset_schema:DatasetSchema | Dict[str, Any]) -> None:
         game_dir = self._repository.FilesBase.FolderPath / self.Config.GameID
         match_string = f"{self._dataset_id}_\\w*\\.meta"
         old_metas = [f for f in os.listdir(game_dir) if re.match(match_string, f)]
@@ -265,7 +265,8 @@ class CSVOuterface(Outerface):
         # calculate the path and name of the metadata file, and open/make it.
         meta_file_path : Path = game_dir / f"{self._dataset_id}_{self._generateHash()}.meta"
         with open(meta_file_path, "w", encoding="utf-8") as meta_file :
-            meta_file.write(json.dumps(meta, indent=4))
+            metadata = dataset_schema.AsMetadata if isinstance(dataset_schema, DatasetSchema) else dataset_schema
+            meta_file.write(json.dumps(metadata, indent=4))
             meta_file.close()
 
     # ******* STUFF THAT GOES UP TO PROCESSING LEVEL *********
