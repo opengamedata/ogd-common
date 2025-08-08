@@ -6,13 +6,14 @@ from ogd.common.configs.storage.credentials.CredentialConfig import CredentialCo
 from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
+from typing import Final
 
 class KeyCredential(CredentialConfig):
     """Dumb struct to contain data pertaining to loading a key credential
     """
-    _DEFAULT_PATH = Path("./")
-    _DEFAULT_FILE = "key.txt"
-    _DEFAULT_LOCATION = FileLocationSchema(
+    _DEFAULT_PATH     : Final[Path]               = Path("./")
+    _DEFAULT_FILE     : Final[str]                = "key.txt"
+    _DEFAULT_LOCATION : Final[FileLocationSchema] = FileLocationSchema(
         name="KeyCredentialDefaultLocation",
         folder_path=_DEFAULT_PATH,
         filename=_DEFAULT_FILE,

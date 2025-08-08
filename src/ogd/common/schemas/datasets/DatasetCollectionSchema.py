@@ -1,5 +1,5 @@
 # standard imports
-from typing import Any, Dict, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 
 # ogd imports
 from ogd.common.schemas.Schema import Schema
@@ -16,7 +16,7 @@ class DatasetCollectionSchema(Schema):
     in turn, a map of game IDs to these collections.
     It's obviously more convenient code-wise not to have a dict of dicts of datasets directly in `DatasetCollectionSchema`.
     """
-    _DEFAULT_DATASETS = {}
+    _DEFAULT_DATASETS : Final[Dict[str, DatasetSchema]] = {}
 
     # *** BUILT-INS & PROPERTIES ***
 

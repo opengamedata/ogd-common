@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Dict, Optional, Self
+from typing import Dict, Final, Optional, Self
 # import local files
 from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
@@ -14,7 +14,7 @@ class GameStateSchema(Schema):
     These essentially are just a set of elements in the GameState attribute of the game's Events.
     """
 
-    _DEFAULT_GAME_STATE = {}
+    _DEFAULT_GAME_STATE : Final[Dict[str, DataElementSchema]] = {}
 
     # *** BUILT-INS & PROPERTIES ***
 

@@ -6,10 +6,11 @@ from ogd.common.configs.storage.credentials.PasswordCredentialConfig import Pass
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.utils.typing import Map
+from typing import Final
 
 class SSHConfig(DataStoreConfig):
     _STORE_TYPE = "SSH"
-    _DEFAULT_LOCATION = URLLocationSchema(
+    _DEFAULT_LOCATION: Final[URLLocationSchema] = URLLocationSchema(
         name="DefaultSSHLocation",
         url=ParseResult(
             scheme="http",
@@ -17,7 +18,7 @@ class SSHConfig(DataStoreConfig):
             path="", params="", query="", fragment=""
         )
     )
-    _DEFAULT_CREDENTIAL = PasswordCredential.Default()
+    _DEFAULT_CREDENTIAL: Final[PasswordCredential] = PasswordCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
 

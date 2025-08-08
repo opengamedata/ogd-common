@@ -2,7 +2,7 @@
 import logging
 from datetime import date, datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Self
+from typing import Dict, Final, List, Optional, Self
 
 # ogd imports
 from ogd.common.filters.Filter import Filter
@@ -17,24 +17,24 @@ class DatasetSchema(Schema):
     TODO : Fill in description
     TODO : Add a _parseKey function, rather than having logic for that part sit naked in FromDict
     """
-    _DEFAULT_DATE_MODIFIED = "UNKNOWN DATE"
-    _DEFAULT_START_DATE = "UNKNOWN DATE"
-    _DEFAULT_END_DATE = "UNKNOWN DATE"
-    _DEFAULT_OGD_REVISION = "UNKNOWN REVISION"
-    _DEFAULT_SESSION_COUNT = None
-    _DEFAULT_PLAYER_COUNT = None
-    _DEFAULT_FILTERS = {}
-    _DEFAULT_RAW_FILE = None
-    _DEFAULT_EVENTS_FILE = None
-    _DEFAULT_EVENTS_TEMPLATE = None
-    _DEFAULT_ALL_FEATS_FILE = None
-    _DEFAULT_ALL_FEATS_TEMPLATE = None
-    _DEFAULT_SESSIONS_FILE = None
-    _DEFAULT_SESSIONS_TEMPLATE = None
-    _DEFAULT_PLAYERS_FILE = None
-    _DEFAULT_PLAYERS_TEMPLATE = None
-    _DEFAULT_POPULATION_FILE = None
-    _DEFAULT_POPULATION_TEMPLATE = None
+    _DEFAULT_DATE_MODIFIED       : Final[str]                     = "UNKNOWN DATE"
+    _DEFAULT_START_DATE          : Final[str]                     = "UNKNOWN DATE"
+    _DEFAULT_END_DATE            : Final[str]                     = "UNKNOWN DATE"
+    _DEFAULT_OGD_REVISION        : Final[str]                     = "UNKNOWN REVISION"
+    _DEFAULT_SESSION_COUNT       : Final[None]                    = None
+    _DEFAULT_PLAYER_COUNT        : Final[None]                    = None
+    _DEFAULT_FILTERS             : Final[Dict[str, str | Filter]] = {}
+    _DEFAULT_RAW_FILE            : Final[None]                    = None
+    _DEFAULT_EVENTS_FILE         : Final[None]                    = None
+    _DEFAULT_EVENTS_TEMPLATE     : Final[None]                    = None
+    _DEFAULT_ALL_FEATS_FILE      : Final[None]                    = None
+    _DEFAULT_ALL_FEATS_TEMPLATE  : Final[None]                    = None
+    _DEFAULT_SESSIONS_FILE       : Final[None]                    = None
+    _DEFAULT_SESSIONS_TEMPLATE   : Final[None]                    = None
+    _DEFAULT_PLAYERS_FILE        : Final[None]                    = None
+    _DEFAULT_PLAYERS_TEMPLATE    : Final[None]                    = None
+    _DEFAULT_POPULATION_FILE     : Final[None]                    = None
+    _DEFAULT_POPULATION_TEMPLATE : Final[None]                    = None
 
     # *** BUILT-INS & PROPERTIES ***
 

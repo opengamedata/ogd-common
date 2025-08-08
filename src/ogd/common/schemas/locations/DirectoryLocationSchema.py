@@ -1,6 +1,6 @@
 ## import standard libraries
 from pathlib import Path
-from typing import Dict, List, Optional, Self
+from typing import Dict, Final, List, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import Map
@@ -13,7 +13,7 @@ class DirectoryLocationSchema(LocationSchema):
     while DatabaseLocation refers to the location of a specific database or table within such a system.
     """
 
-    _DEFAULT_PATH = Path("./")
+    _DEFAULT_PATH : Final[Path] = Path("./")
 
     # *** BUILT-INS & PROPERTIES ***
 

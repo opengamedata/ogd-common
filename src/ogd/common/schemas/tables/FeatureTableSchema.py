@@ -1,16 +1,14 @@
 ## import standard libraries
 import logging
 from collections import Counter
-from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Tuple, Optional, Self
+from typing import Any, Dict, Final, List, Tuple, Optional, Self
 ## import local files
 from ogd.common.models.Feature import Feature
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.tables.FeatureMapSchema import FeatureMapSchema
-from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map, conversions
+from ogd.common.utils.typing import Map
 
 ## @class TableSchema
 class FeatureTableSchema(TableSchema):
@@ -21,7 +19,7 @@ class FeatureTableSchema(TableSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    _DEFAULT_COLUMNS = []
+    _DEFAULT_COLUMNS : Final[List[ColumnSchema]] = []
 
     def __init__(self, name,
                  column_map:Optional[FeatureMapSchema],

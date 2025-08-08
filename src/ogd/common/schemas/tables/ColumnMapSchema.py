@@ -1,5 +1,5 @@
 ## import standard libraries
-from typing import Dict, List, Optional, TypeAlias
+from typing import Dict, Final, List, Optional, TypeAlias
 ## import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.typing import Map
@@ -11,7 +11,7 @@ class ColumnMapSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    _DEFAULT_COLUMNS = []
+    _DEFAULT_COLUMNS : Final[List] = []
 
     def __init__(self, name,
                  app_id:Optional[str | List[str]],

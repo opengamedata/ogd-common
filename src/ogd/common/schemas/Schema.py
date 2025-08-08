@@ -3,13 +3,15 @@ import abc
 import logging
 from pathlib import Path
 from shutil import copyfile
-from typing import Any, Dict, List, Optional, Self, Type
+from typing import Any, Dict, Final, List, Optional, Self, Type
 # import local files
 from ogd.common.utils.typing import conversions, Map
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 
 class Schema(abc.ABC):
+
+    _DEFAULT_SCHEMA_NAME :Final[str] = "DefaultSchemaName"
 
     # *** ABSTRACTS ***
 
@@ -51,8 +53,6 @@ class Schema(abc.ABC):
         pass
 
     # *** BUILT-INS & PROPERTIES ***
-
-    _DEFAULT_SCHEMA_NAME = "DefaultSchemaName"
 
     def __init__(self, name:str, other_elements:Optional[Map]=None):
         self._name : str           = name or Schema._DEFAULT_SCHEMA_NAME
