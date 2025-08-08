@@ -8,28 +8,23 @@ import sys
 from git.repo import Repo
 from git.exc import InvalidGitRepositoryError, NoSuchPathError
 from pathlib import Path
-from typing import Any, Dict, IO, List, Optional, Set
+from typing import Any, List, Optional, override, Set
 # 3rd-party imports
 # import local files
 # from ogd import games
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
 from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
-from ogd.common.configs.generators.GeneratorCollectionConfig import GeneratorCollectionConfig
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.configs.storage.LocalDatasetRepositoryConfig import LocalDatasetRepositoryConfig
-from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.models.enums.ExportMode import ExportMode
-from ogd.common.schemas.events.LoggingSpecificationSchema import LoggingSpecificationSchema
-from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.storage.outerfaces.Outerface import Outerface
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
-from ogd.common.utils.Readme import Readme
 
 class CSVOuterface(Outerface):
 
@@ -59,7 +54,7 @@ class CSVOuterface(Outerface):
         try:
             file_directory = fileio.loadJSONFile(filename="file_list.json", path=self._repository.FilesBase.FolderPath)
             existing_datasets = file_directory.get(self.Config.GameID, {})
-        except FileNotFoundError as err:
+        except FileNotFoundError:
             Logger.Log("file_list.json does not exist.", logging.WARNING)
         except json.decoder.JSONDecodeError as err:
             Logger.Log(f"file_list.json has invalid format: {str(err)}.", logging.WARNING)
@@ -206,7 +201,8 @@ class CSVOuterface(Outerface):
             Logger.Log("No population file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(_pop_lines))
 
-    def _writeMetadata(self, dataset_schema:DatasetSchema | Dict[str, Any]):
+    @override
+    def _writeMetadata(self, dataset_schema:DatasetSchema):
         game_dir = self._repository.FilesBase.FolderPath / self.Config.GameID
         try:
             game_dir.mkdir(exist_ok=True, parents=True)
@@ -250,7 +246,7 @@ class CSVOuterface(Outerface):
     #  deriving file metadata, this simply outputs a new file_name.meta file.
     #  @param date_range    The range of dates included in the exported data.
     #  @param num_sess      The number of sessions included in the recent export.
-    def _writeMetadataFile(self, dataset_schema:DatasetSchema | Dict[str, Any]) -> None:
+    def _writeMetadataFile(self, dataset_schema:DatasetSchema) -> None:
         game_dir = self._repository.FilesBase.FolderPath / self.Config.GameID
         match_string = f"{self._dataset_id}_\\w*\\.meta"
         old_metas = [f for f in os.listdir(game_dir) if re.match(match_string, f)]
@@ -301,13 +297,13 @@ class CSVOuterface(Outerface):
         existing_datasets = {}
         try:
             file_index = fileio.loadJSONFile(filename="file_list.json", path=self._repository.FilesBase.FolderPath)
-        except FileNotFoundError as err:
+        except FileNotFoundError:
             Logger.Log("file_list.json does not exist.", logging.WARNING)
         except json.decoder.JSONDecodeError as err:
             Logger.Log(f"file_list.json has invalid format: {str(err)}.", logging.WARNING)
         finally:
             if not "CONFIG" in file_index.keys():
-                Logger.Log(f"No CONFIG found in file_list.json, adding default CONFIG...", logging.WARNING)
+                Logger.Log("No CONFIG found in file_list.json, adding default CONFIG...", logging.WARNING)
                 file_index["CONFIG"] = {
                     "files_base" : file_indexing.RemoteURL,
                     "templates_base" : file_indexing.TemplatesURL
@@ -335,7 +331,7 @@ class CSVOuterface(Outerface):
             if src.exists():
                 shutil.copyfile(src=src, dst=dest)
             else:
-                Logger.Log(f"Could not back up file_list.json, because it does not exist!", logging.WARN)
+                Logger.Log("Could not back up file_list.json, because it does not exist!", logging.WARN)
         except Exception as err:
             msg = f"{type(err)} {str(err)}"
             Logger.Log(f"Could not back up file_list.json. Got the following error: {msg}", logging.ERROR)
