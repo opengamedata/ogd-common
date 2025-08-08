@@ -1,13 +1,13 @@
 # import standard libraries
-from typing import Dict, Optional, Self
+from typing import Dict, Final, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.typing import Map
 
 class ColumnSchema(Schema):
-    _DEFAULT_READABLE = "Default Column Schema Name"
-    _DEFAULT_VALUE_TYPE = "TYPE NOT GIVEN"
-    _DEFAULT_DESCRIPTION = "NO DESCRIPTION GIVEN"
+    _DEFAULT_READABLE    : Final[str] = "Default Column Schema Name"
+    _DEFAULT_VALUE_TYPE  : Final[str] = "TYPE NOT GIVEN"
+    _DEFAULT_DESCRIPTION : Final[str] = "NO DESCRIPTION GIVEN"
 
     # *** BUILT-INS & PROPERTIES ***
 
