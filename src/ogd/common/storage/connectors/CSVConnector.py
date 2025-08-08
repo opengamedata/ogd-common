@@ -142,6 +142,7 @@ class CSVConnector(StorageConnector):
                 Logger.Log(msg, logging.ERROR)
                 traceback.print_tb(err.__traceback__)
         # for each file, try to save out the csv/tsv to a file - if it's one that should be exported, that is.
+        readme_path = self.StoreConfig.Folder / "README.md"
         for mode in self._VALID_SECONDARY_FILES:
             z_path = self._zip_paths[mode.name]
             if z_path is not None:
@@ -155,11 +156,14 @@ class CSVConnector(StorageConnector):
                             zip_file=zip_file,
                             path_in_zip=Path(dataset_id) / file_name
                         )
-                        self._addToZip(
-                            path=self.StoreConfig.Folder / "README.md",
-                            zip_file=zip_file,
-                            path_in_zip=Path(dataset_id) / "README.md"
-                        )
+                        if readme_path.is_file():
+                            self._addToZip(
+                                path=self.StoreConfig.Folder / "README.md",
+                                zip_file=zip_file,
+                                path_in_zip=Path(dataset_id) / "README.md"
+                            )
+                        else:
+                            Logger.Log(f"Missing readme in {self.StoreConfig.Folder}, consider generating readme...", logging.WARNING, depth=1)
                         zip_file.close()
                         os.remove(self.StoreConfig.Folder / file_name)
                     except FileNotFoundError as err:
@@ -173,11 +177,14 @@ class CSVConnector(StorageConnector):
                     zip_file=zip_file,
                     path_in_zip=Path(dataset_id) / self.StoreConfig.Filename
                 )
-                self._addToZip(
-                    path=self.StoreConfig.Folder / "README.md",
-                    zip_file=zip_file,
-                    path_in_zip=Path(dataset_id) / "README.md"
-                )
+                if readme_path.is_file():
+                    self._addToZip(
+                        path=self.StoreConfig.Folder / "README.md",
+                        zip_file=zip_file,
+                        path_in_zip=Path(dataset_id) / "README.md"
+                    )
+                else:
+                    Logger.Log(f"Missing readme in {self.StoreConfig.Folder}, consider generating readme...", logging.WARNING, depth=1)
                 zip_file.close()
                 os.remove(self.StoreConfig.Filepath)
             except FileNotFoundError as err:

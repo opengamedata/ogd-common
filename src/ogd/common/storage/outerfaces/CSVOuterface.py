@@ -214,7 +214,6 @@ class CSVOuterface(Outerface):
             msg = f"Could not set up folder {game_dir}. {type(err)} {str(err)}"
             Logger.Log(msg, logging.WARNING)
         else:
-            self._ensureReadmeExists()
             self._writeMetadataFile(meta=metadata)
             if isinstance(self._repository.Location, DirectoryLocationSchema):
                 _local_dir = self._repository.Location
@@ -245,25 +244,6 @@ class CSVOuterface(Outerface):
         return vals
 
     # *** PRIVATE METHODS ***
-
-    def _ensureReadmeExists(self) -> None:
-        game_dir = self._repository.FilesBase.FolderPath / self.Config.GameID
-        try:
-            # before we zip stuff up, let's check if the readme is in place:
-            readme = open(game_dir / "README.md", mode='r')
-        except FileNotFoundError:
-            # if not in place, generate the readme
-            Logger.Log(f"Missing readme for {self.Config.GameID}, generating new readme...", logging.WARNING, depth=1)
-            from ogd import games
-            _games_path  = Path(games.__file__) if Path(games.__file__).is_dir() else Path(games.__file__).parent
-            event_collection     : LoggingSpecificationSchema = LoggingSpecificationSchema.FromFile(schema_name=self.Config.GameID.upper(), schema_path=_games_path / self.Config.GameID / "schemas")
-            generator_collection : GeneratorCollectionConfig  = GeneratorCollectionConfig.FromFile(schema_name=self.Config.GameID.upper(), schema_path=_games_path / self.Config.GameID / "schemas")
-            readme = Readme(event_collection=event_collection, generator_collection=generator_collection, table_schema=self.Config.Table or TableSchema.Default())
-            readme.ToFile(path=game_dir)
-        else:
-            # otherwise, readme is there, so just close it and move on.
-            readme.close()
-            Logger.Log(f"Successfully found, opened, and closed the README.md", logging.DEBUG, depth=1)
 
     ## Public function to write out a tiny metadata file for indexing OGD data files.
     #  Using the paths of the exported files, and given some other variables for
