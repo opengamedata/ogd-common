@@ -63,18 +63,18 @@ class CSVConnector(StorageConnector):
                 if mode in self._with_secondary_files:
                     suffix = self._SECONDARY_FILE_SUFFIXES[mode.name]
                     file = self.StoreConfig.Folder / f"{base_file_name}_{suffix}.{self._extension}"
-                    zip  = self.StoreConfig.Folder / f"{base_file_name}_{suffix}.zip"
+                    _zip  = self.StoreConfig.Folder / f"{base_file_name}_{suffix}.zip"
                     try:
                         self._secondary_files[mode.name] = open(file, "w+", encoding="utf-8")
                     except FileNotFoundError:
                         Logger.Log(f"Could not find file {file}.", logging.ERROR)
                     else:
-                        self._zip_paths[mode.name] = zip
+                        self._zip_paths[mode.name] = _zip
 
         return ret_val
 
     def _close(self) -> bool:
-        Logger.Log(f"Closing TSV connector...")
+        Logger.Log("Closing TSV connector...")
         if self.File:
             self.File.close()
             self._closeSecondaryFiles()
