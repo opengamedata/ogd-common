@@ -1,12 +1,11 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Optional, Self
+from typing import Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
-from typing import Final
 
 class KeyCredential(CredentialConfig):
     """Dumb struct to contain data pertaining to loading a key credential

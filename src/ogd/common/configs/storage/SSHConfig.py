@@ -1,12 +1,11 @@
 # import standard libraries
-from typing import Dict, Optional, Self
+from typing import Dict, Final, Optional, Self
 from urllib.parse import ParseResult
 # import local files
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.utils.typing import Map
-from typing import Final
 
 class SSHConfig(DataStoreConfig):
     _STORE_TYPE = "SSH"
