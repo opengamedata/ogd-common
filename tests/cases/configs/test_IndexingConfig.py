@@ -10,7 +10,7 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 # import locals
-from src.ogd.common.configs.IndexingConfig import FileIndexingConfig
+from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
 from tests.config.t_config import settings
 
 class test_IndexingConfig(TestCase):
@@ -25,7 +25,7 @@ class test_IndexingConfig(TestCase):
         Logger.std_logger.setLevel(_level)
 
         # 2. Set up local instance of testing class
-        cls.test_schema = FileIndexingConfig(
+        cls.test_schema = RepositoryIndexingConfig(
             name="Indexing Schema",
             local_dir=DirectoryLocationSchema(name="LocalDir", folder_path=Path("./data")),
             remote_url=URLLocationSchema(name="RemoteURL", url=urlparse("https://fieldday-web.ad.education.wisc.edu/opengamedata/")),
@@ -80,7 +80,7 @@ class test_IndexingConfig(TestCase):
             "REMOTE_URL"    : "https://fieldday-web.ad.education.wisc.edu/opengamedata/",
             "TEMPLATES_URL" : "https://github.com/opengamedata/opengamedata-samples"
         }
-        _schema = FileIndexingConfig.FromDict(name="FILE_INDEXING", unparsed_elements=_dict)
+        _schema = RepositoryIndexingConfig.FromDict(name="FILE_INDEXING", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "FILE_INDEXING")
         self.assertIsInstance(_schema.LocalDirectory, DirectoryLocationSchema)
@@ -92,7 +92,7 @@ class test_IndexingConfig(TestCase):
 
     def test_parseLocalDir(self):
         unparsed_elements = { "LOCAL_DIR" : "./data/" }
-        result = FileIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
         self.assertIsInstance(result, DirectoryLocationSchema)
         self.assertEqual(result.FolderPath, Path("./data"))
 

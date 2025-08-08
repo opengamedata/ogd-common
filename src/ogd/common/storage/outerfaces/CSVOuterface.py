@@ -17,7 +17,7 @@ import pandas as pd
 # import local files
 # from ogd import games
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
-from ogd.common.configs.IndexingConfig import FileIndexingConfig
+from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
 from ogd.common.configs.generators.GeneratorCollectionConfig import GeneratorCollectionConfig
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
@@ -226,7 +226,7 @@ class CSVOuterface(Outerface):
             else: # we got a URL base
                 _local_dir = None
                 _remote_url = self._repository.Location
-            _file_index = FileIndexingConfig(name="IndexingConfig",
+            _file_index = RepositoryIndexingConfig(name="IndexingConfig",
                                              local_dir=_local_dir,
                                              remote_url=_remote_url,
                                              templates_url=URLLocationSchema.FromDict(name="TemplateURL", unparsed_elements={"URL" : self._repository.TemplatesBase.Location})
@@ -318,7 +318,7 @@ class CSVOuterface(Outerface):
     #  list of files.
     #  @param date_range    The range of dates included in the exported data.
     #  @param num_sess      The number of sessions included in the recent export.
-    def _updateFileExportList(self, file_indexing:FileIndexingConfig, dataset_schema:DatasetSchema) -> None:
+    def _updateFileExportList(self, file_indexing:RepositoryIndexingConfig, dataset_schema:DatasetSchema) -> None:
         CSVOuterface._backupFileExportList(self._repository.FilesBase.FolderPath)
         file_index = {}
         existing_datasets = {}
