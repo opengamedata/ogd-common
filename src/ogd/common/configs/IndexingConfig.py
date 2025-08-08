@@ -8,7 +8,7 @@ from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocati
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.utils.typing import Map
 
-class FileIndexingConfig(Config):
+class RepositoryIndexingConfig(Config):
     _DEFAULT_LOCAL_DIR    : Final[DirectoryLocationSchema] = DirectoryLocationSchema(name="DefaultLocalDir", folder_path=Path("./data/"), other_elements={})
     _DEFAULT_REMOTE_RAW   : Final[ParseResult]             = ParseResult(scheme="https", netloc="opengamedata.fielddaylab.wisc.edu", path="opengamedata", params="", query="", fragment="")
     _DEFAULT_REMOTE_URL   : Final[URLLocationSchema]       = URLLocationSchema(name="DefaultRemoteURL", url=_DEFAULT_REMOTE_RAW)
@@ -65,8 +65,8 @@ class FileIndexingConfig(Config):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @classmethod
-    def Default(cls) -> "FileIndexingConfig":
-        return FileIndexingConfig(
+    def Default(cls) -> "RepositoryIndexingConfig":
+        return RepositoryIndexingConfig(
             name            = "DefaultFileIndexingConfig",
             local_dir       = cls._DEFAULT_LOCAL_DIR,
             remote_url      = cls._DEFAULT_REMOTE_URL,
@@ -75,7 +75,7 @@ class FileIndexingConfig(Config):
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "FileIndexingConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "RepositoryIndexingConfig":
         """Create a file indexing Configuration from a dict.
 
         Expects dictionary to have the following form:
@@ -94,7 +94,7 @@ class FileIndexingConfig(Config):
         :return: _description_
         :rtype: FileIndexingConfig
         """
-        return FileIndexingConfig(name=name, local_dir=None, remote_url=None, templates_url=None, other_elements=unparsed_elements)
+        return RepositoryIndexingConfig(name=name, local_dir=None, remote_url=None, templates_url=None, other_elements=unparsed_elements)
 
 
     @property
@@ -116,7 +116,7 @@ class FileIndexingConfig(Config):
             name="LocalDir",
             unparsed_elements=unparsed_elements,
             key_overrides={"folder":"LOCAL_DIR"},
-            default_override=FileIndexingConfig._DEFAULT_LOCAL_DIR
+            default_override=RepositoryIndexingConfig._DEFAULT_LOCAL_DIR
         )
 
     @staticmethod
@@ -125,7 +125,7 @@ class FileIndexingConfig(Config):
             name="RemoteURL",
             unparsed_elements=unparsed_elements,
             key_overrides={"url":"REMOTE_URL"},
-            default_override=FileIndexingConfig._DEFAULT_REMOTE_URL
+            default_override=RepositoryIndexingConfig._DEFAULT_REMOTE_URL
         )
 
     @staticmethod
@@ -134,7 +134,7 @@ class FileIndexingConfig(Config):
             name="RemoteURL",
             unparsed_elements=unparsed_elements,
             key_overrides={"url":"TEMPLATES_URL"},
-            default_override=FileIndexingConfig._DEFAULT_TEMPLATE_URL
+            default_override=RepositoryIndexingConfig._DEFAULT_TEMPLATE_URL
         )
 
     # *** PRIVATE METHODS ***
