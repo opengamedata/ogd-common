@@ -2,7 +2,7 @@
 import logging
 from collections import Counter
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, Final, List, Tuple, Optional, Self
+from typing import Any, Dict, List, Tuple, Optional, Self
 ## import local files
 from ogd.common.models.Event import Event, EventSource
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
@@ -19,8 +19,6 @@ class EventTableSchema(TableSchema):
     """
 
     # *** BUILT-INS & PROPERTIES ***
-
-    _DEFAULT_COLUMNS : Final[List[ColumnSchema]] = []
 
     def __init__(self, name,
                  column_map:Optional[EventMapSchema],

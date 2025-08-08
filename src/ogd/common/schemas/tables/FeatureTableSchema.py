@@ -1,7 +1,7 @@
 ## import standard libraries
 import logging
 from collections import Counter
-from typing import Any, Dict, Final, List, Tuple, Optional, Self
+from typing import Any, Dict, List, Tuple, Optional, Self
 ## import local files
 from ogd.common.models.Feature import Feature
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
@@ -18,8 +18,6 @@ class FeatureTableSchema(TableSchema):
     """
 
     # *** BUILT-INS & PROPERTIES ***
-
-    _DEFAULT_COLUMNS : Final[List[ColumnSchema]] = []
 
     def __init__(self, name,
                  column_map:Optional[FeatureMapSchema],
