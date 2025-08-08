@@ -7,12 +7,12 @@
         "time_offset"          : "client_offset",
         "event_sequence_index" : "event_sequence_index",
         "event_name"           : ["event_name"],
-        "event_data"           : {"event_data":"event_data", "server_time":"server_time", "http_user_agent":"http_user_agent"},
+        "event_data"           : {"event_data":"event_data", "server_time":"server_time"},
         "event_source"         : null,
         "app_version"          : "app_version",
         "app_branch"           : "app_branch",
         "log_version"          : "log_version",
-        "user_data"            : "user_data",
+        "user_data"            : {"user_data":"user_data"},
         "game_state"           : "game_state"
     },
 
