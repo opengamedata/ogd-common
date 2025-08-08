@@ -1,7 +1,7 @@
 ## import standard libraries
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Self, Tuple
+from typing import Dict, Final, List, Optional, Self, Tuple
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.Logger import Logger
@@ -15,8 +15,8 @@ class FileLocationSchema(LocationSchema):
     while DatabaseLocation refers to the location of a specific database or table within such a system.
     """
 
-    _DEFAULT_PATH = Path("./")
-    _DEFAULT_FILENAME = "file.tsv"
+    _DEFAULT_PATH     : Final[Path] = Path("./")
+    _DEFAULT_FILENAME : Final[str]  = "file.tsv"
 
     # *** BUILT-INS & PROPERTIES ***
 

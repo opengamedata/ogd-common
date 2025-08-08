@@ -1,7 +1,7 @@
 # standard imports
 from pathlib import Path
 from urllib.parse import urlparse
-from typing import Dict, Optional, Self, TypeAlias
+from typing import Dict, Final, Optional, Self, TypeAlias
 
 # ogd imports
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
@@ -38,17 +38,17 @@ class DatasetRepositoryConfig(DataStoreConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    _DEFAULT_FILE_BASE = DirectoryLocationSchema(
+    _DEFAULT_FILE_BASE: Final[DirectoryLocationSchema] = DirectoryLocationSchema(
         name="DefaultRepositoryLocation",
         folder_path=Path("./data"),
         other_elements=None
     )
-    _DEFAULT_TEMPLATE_BASE = URLLocationSchema(
+    _DEFAULT_TEMPLATE_BASE: Final[URLLocationSchema] = URLLocationSchema(
         name="DefaultTemplatesBase",
         url=urlparse("https://github.com/opengamedata/opengamedata-samples"),
         other_elements=None
     )
-    _DEFAULT_DATASETS = {}
+    _DEFAULT_DATASETS: Final[Dict[str, DatasetCollectionSchema]] = {}
 
     def __init__(self, name:str,
                  # params for class

@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Dict, Optional, Self
+from typing import Dict, Final, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
@@ -11,9 +11,9 @@ class DataElementSchema(Schema):
     Dumb struct to contain a specification of a data element from the EventData, GameState, or UserData attributes of an Event.
     """
 
-    _DEFAULT_TYPE = "str"
-    _DEFAULT_DESCRIPTION = "Default data element generated the DataElementSchema class. Does not represent actual data."
-    _DEFAULT_DETAILS = None
+    _DEFAULT_TYPE        : Final[str]  = "str"
+    _DEFAULT_DESCRIPTION : Final[str]  = "Default data element generated the DataElementSchema class. Does not represent actual data."
+    _DEFAULT_DETAILS     : Final[None] = None
 
     # *** BUILT-INS & PROPERTIES ***
 

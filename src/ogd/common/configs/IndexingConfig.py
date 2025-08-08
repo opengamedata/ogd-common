@@ -1,6 +1,6 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Optional, Self
+from typing import Dict, Final, Optional, Self
 from urllib.parse import ParseResult
 # import local files
 from ogd.common.configs.Config import Config
@@ -9,11 +9,11 @@ from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.utils.typing import Map
 
 class FileIndexingConfig(Config):
-    _DEFAULT_LOCAL_DIR  = DirectoryLocationSchema(name="DefaultLocalDir", folder_path=Path("./data/"), other_elements={})
-    _DEFAULT_REMOTE_RAW = ParseResult(scheme="https", netloc="opengamedata.fielddaylab.wisc.edu", path="opengamedata", params="", query="", fragment="")
-    _DEFAULT_REMOTE_URL = URLLocationSchema(name="DefaultRemoteURL", url=_DEFAULT_REMOTE_RAW)
-    _DEFAULT_TEMPLATE_RAW = ParseResult(scheme="https", netloc="github.com", path="opengamedata/opengamedata-samples", params="", query="", fragment="")
-    _DEFAULT_TEMPLATE_URL = URLLocationSchema(name="DefaultTemplateURL", url=_DEFAULT_TEMPLATE_RAW)
+    _DEFAULT_LOCAL_DIR    : Final[DirectoryLocationSchema] = DirectoryLocationSchema(name="DefaultLocalDir", folder_path=Path("./data/"), other_elements={})
+    _DEFAULT_REMOTE_RAW   : Final[ParseResult]             = ParseResult(scheme="https", netloc="opengamedata.fielddaylab.wisc.edu", path="opengamedata", params="", query="", fragment="")
+    _DEFAULT_REMOTE_URL   : Final[URLLocationSchema]       = URLLocationSchema(name="DefaultRemoteURL", url=_DEFAULT_REMOTE_RAW)
+    _DEFAULT_TEMPLATE_RAW : Final[ParseResult]             = ParseResult(scheme="https", netloc="github.com", path="opengamedata/opengamedata-samples", params="", query="", fragment="")
+    _DEFAULT_TEMPLATE_URL : Final[URLLocationSchema]       = URLLocationSchema(name="DefaultTemplateURL", url=_DEFAULT_TEMPLATE_RAW)
 
     # *** BUILT-INS & PROPERTIES ***
 

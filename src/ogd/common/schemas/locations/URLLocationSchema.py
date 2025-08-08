@@ -1,6 +1,6 @@
 ## import standard libraries
 from urllib.parse import urlparse, urlunparse, ParseResult
-from typing import Dict, List, Optional, Self
+from typing import Dict, Final, List, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import Map
@@ -8,11 +8,11 @@ from ogd.common.utils.typing import Map
 ## @class URLLocationSchema
 class URLLocationSchema(LocationSchema):
 
-    _DEFAULT_SCHEME    = "http"
-    _DEFAULT_HOST_NAME = "DEFAULTHOST"
-    _DEFAULT_PORT      = None
-    _DEFAULT_PATH      = "/"
-    _DEFAULT_URL = ParseResult(
+    _DEFAULT_SCHEME    : Final[str]           = "http"
+    _DEFAULT_HOST_NAME : Final[str]           = "DEFAULTHOST"
+    _DEFAULT_PORT      : Final[None]          = None
+    _DEFAULT_PATH      : Final[str]           = "/"
+    _DEFAULT_URL       : Final[ParseResult]   = ParseResult(
         scheme=_DEFAULT_SCHEME,
         netloc=_DEFAULT_HOST_NAME,
         path=_DEFAULT_PATH,

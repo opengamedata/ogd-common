@@ -1,5 +1,5 @@
 # import standard libraries
-from typing import Dict, Optional, Self, TypeAlias
+from typing import Dict, Final, Optional, Self, TypeAlias
 from pathlib import Path
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
@@ -12,13 +12,13 @@ FileCredential : TypeAlias = PasswordCredential | EmptyCredential
 
 class FileStoreConfig(DataStoreConfig):
     _STORE_TYPE = "FILE"
-    _DEFAULT_LOCATION = FileLocationSchema(
+    _DEFAULT_LOCATION: Final[FileLocationSchema] = FileLocationSchema(
         name="DefaultFileStoreLocation",
         folder_path=Path('./data'),
         filename="UNKNOWN.tsv",
         other_elements=None
     )
-    _DEFAULT_CREDENTIAL = EmptyCredential.Default()
+    _DEFAULT_CREDENTIAL: Final[EmptyCredential] = EmptyCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
 

@@ -1,5 +1,5 @@
 # import standard libraries
-from typing import Dict, List, Optional, Self
+from typing import Dict, Final, List, Optional, Self
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.utils.typing import Map
@@ -10,8 +10,8 @@ class PasswordCredential(CredentialConfig):
 
     In general, a credential can have a key, or a user-password combination.
     """
-    _DEFAULT_USER = "DEFAULT USER"
-    _DEFAULT_PASS = None
+    _DEFAULT_USER : Final[str]  = "DEFAULT USER"
+    _DEFAULT_PASS : Final[None] = None
 
     def __init__(self, name:str, username:Optional[str], password:Optional[str], other_elements:Optional[Map]=None):
         """Constructor for the `IteratedConfig` class.

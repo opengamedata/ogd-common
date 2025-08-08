@@ -1,6 +1,6 @@
 # standard imports
 from datetime import date
-from typing import Optional
+from typing import Final, Optional
 
 class DatasetKey:
     """
@@ -11,8 +11,8 @@ class DatasetKey:
 
     # *** BUILT-INS & PROPERTIES ***
 
-    _DEFAULT_KEY = "DEFAULT_GAME_20000101_to_20000131"
-    _DEFAULT_GAME_ID = "UNKOWN_GAME"
+    _DEFAULT_KEY     : Final[str] = "DEFAULT_GAME_20000101_to_20000131"
+    _DEFAULT_GAME_ID : Final[str] = "UNKOWN_GAME"
 
     """Simple little class to make logic with dataset keys easier
     """

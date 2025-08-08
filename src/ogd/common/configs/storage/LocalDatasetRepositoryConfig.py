@@ -17,18 +17,6 @@ class LocalDatasetRepositoryConfig(DatasetRepositoryConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    _DEFAULT_FILE_BASE = DirectoryLocationSchema(
-        name="DefaultRepositoryLocation",
-        folder_path=Path("./data"),
-        other_elements=None
-    )
-    _DEFAULT_TEMPLATE_BASE = URLLocationSchema(
-        name="DefaultTemplatesBase",
-        url=urlparse("https://github.com/opengamedata/opengamedata-samples"),
-        other_elements=None
-    )
-    _DEFAULT_DATASETS = {}
-
     def __init__(self, name:str,
                  # params for class
                  files_base:Optional[DirectoryLocationSchema],

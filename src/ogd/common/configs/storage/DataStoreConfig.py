@@ -1,6 +1,6 @@
 # import standard libraries
 import abc
-from typing import Optional
+from typing import Final, Optional
 # import local files
 from ogd.common.configs.Config import Config
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
@@ -17,7 +17,7 @@ class DataStoreConfig(Config):
     - A resource "location" for use by the StorageConnector (such as a filename, cloud project name, or database host)
     """
 
-    _DEFAULT_TYPE = "UNKNOWN STORE TYPE"
+    _DEFAULT_TYPE : Final[str] = "UNKNOWN STORE TYPE"
 
     # *** ABSTRACTS ***
 
