@@ -261,8 +261,7 @@ class CSVOuterface(Outerface):
         # calculate the path and name of the metadata file, and open/make it.
         meta_file_path : Path = game_dir / f"{self._dataset_id}_{self._generateHash()}.meta"
         with open(meta_file_path, "w", encoding="utf-8") as meta_file :
-            metadata = dataset_schema.AsMetadata if isinstance(dataset_schema, DatasetSchema) else dataset_schema
-            meta_file.write(json.dumps(metadata, indent=4))
+            meta_file.write(json.dumps(dataset_schema.AsMetadata, indent=4))
             meta_file.close()
 
     # ******* STUFF THAT GOES UP TO PROCESSING LEVEL *********
