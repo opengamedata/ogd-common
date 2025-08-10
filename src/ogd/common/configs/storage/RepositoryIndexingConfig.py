@@ -10,7 +10,7 @@ from ogd.common.utils.typing import Map
 
 class RepositoryIndexingConfig(Config):
     _DEFAULT_LOCAL_DIR    : Final[DirectoryLocationSchema] = DirectoryLocationSchema(name="DefaultLocalDir", folder_path=Path("./data/"), other_elements={})
-    _DEFAULT_REMOTE_RAW   : Final[str]                     = "https://opengamedata.fielddaylab.wisc.edu/opengamedata"
+    _DEFAULT_REMOTE_RAW   : Final[str]                     = "https://opengamedata.fielddaylab.wisc.edu/"
     _DEFAULT_REMOTE_URL   : Final[URLLocationSchema]       = URLLocationSchema.FromString(name="DefaultRemoteURL", raw_url=_DEFAULT_REMOTE_RAW)
     _DEFAULT_TEMPLATE_RAW : Final[str]                     = "https://github.com/opengamedata/opengamedata-samples"
     _DEFAULT_TEMPLATE_URL : Final[URLLocationSchema]       = URLLocationSchema.FromString(name="DefaultTemplateURL", raw_url=_DEFAULT_TEMPLATE_RAW)
@@ -45,9 +45,9 @@ class RepositoryIndexingConfig(Config):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._local_dir     : DirectoryLocationSchema = local_dir     or self._parseLocalDir(unparsed_elements=unparsed_elements)
-        self._remote_url    : URLLocationSchema       = remote_url    or self._parseRemoteURL(unparsed_elements=unparsed_elements)
-        self._templates_url : URLLocationSchema       = templates_url or self._parseTemplatesURL(unparsed_elements=unparsed_elements)
+        self._local_dir     : DirectoryLocationSchema     = local_dir     or self._parseLocalDir(unparsed_elements=unparsed_elements)
+        self._remote_url    : Optional[URLLocationSchema] = remote_url    or self._parseRemoteURL(unparsed_elements=unparsed_elements)
+        self._templates_url : URLLocationSchema           = templates_url or self._parseTemplatesURL(unparsed_elements=unparsed_elements)
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -55,7 +55,7 @@ class RepositoryIndexingConfig(Config):
         return self._local_dir
 
     @property
-    def RemoteURL(self) -> URLLocationSchema:
+    def RemoteURL(self) -> Optional[URLLocationSchema]:
         return self._remote_url
 
     @property
@@ -120,12 +120,12 @@ class RepositoryIndexingConfig(Config):
         )
 
     @staticmethod
-    def _parseRemoteURL(unparsed_elements:Map) -> URLLocationSchema:
+    def _parseRemoteURL(unparsed_elements:Map) -> Optional[URLLocationSchema]:
         return URLLocationSchema.FromDict(
             name="RemoteURL",
             unparsed_elements=unparsed_elements,
             key_overrides={"url":"REMOTE_URL"},
-            default_override=RepositoryIndexingConfig._DEFAULT_REMOTE_URL
+            default_override=None
         )
 
     @staticmethod
