@@ -159,7 +159,11 @@ class FileLocationSchema(LocationSchema):
     # *** PUBLIC STATICS ***
 
     @staticmethod
-    def FromPath(name:str, fullpath:Path):
+    def FromString(name:str, fullpath:str) -> "FileLocationSchema":
+        return FileLocationSchema.FromPath(name=name, fullpath=Path(fullpath))
+
+    @staticmethod
+    def FromPath(name:str, fullpath:Path) -> "FileLocationSchema":
         if fullpath:
             if not fullpath.is_file():
                 raise ValueError(f"FileLocationSchema was given a path '{fullpath}' which is not a valid file!", logging.WARNING)
