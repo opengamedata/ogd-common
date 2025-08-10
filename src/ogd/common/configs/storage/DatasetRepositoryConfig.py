@@ -196,6 +196,11 @@ class DatasetRepositoryConfig(DataStoreConfig):
                 key : DatasetCollectionSchema.FromDict(name=key, unparsed_elements=datasets if isinstance(datasets, dict) else {})
                 for key, datasets in _data_elems.items()
             }
+        elif len(unparsed_elements) > 0:
+            ret_val = {
+                key : DatasetCollectionSchema.FromDict(name=key, unparsed_elements=datasets if isinstance(datasets, dict) else {})
+                for key, datasets in unparsed_elements.items()
+            }
         else:
             ret_val = DatasetRepositoryConfig._DEFAULT_DATASETS
 
