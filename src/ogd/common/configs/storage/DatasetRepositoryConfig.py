@@ -6,6 +6,7 @@ from typing import Dict, Final, Optional, Self, TypeAlias
 # ogd imports
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
+from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.schemas.datasets.DatasetCollectionSchema import DatasetCollectionSchema
@@ -52,35 +53,47 @@ class DatasetRepositoryConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 files_base:Optional[BaseLocation],
-                 templates_base:Optional[BaseLocation],
+                 indexing:Optional[RepositoryIndexingConfig],
                  datasets:Optional[Dict[str, DatasetCollectionSchema]],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
         unparsed_elements : Map = other_elements or {}
 
-        self._files_base     : BaseLocation = files_base     or self._parseFilesBase(unparsed_elements=unparsed_elements)
-        self._templates_base : BaseLocation = templates_base or self._parseTemplatesBase(unparsed_elements=unparsed_elements)
-        self._datasets       : Dict[str, DatasetCollectionSchema] = datasets or self._parseDatasets(unparsed_elements=unparsed_elements)
+        self._indexing : RepositoryIndexingConfig           = indexing or self._parseIndexingConfig(unparsed_elements=unparsed_elements)
+        self._datasets : Dict[str, DatasetCollectionSchema] = datasets or self._parseDatasets(unparsed_elements=unparsed_elements)
         super().__init__(name=name, store_type="Repository", other_elements=other_elements)
 
     def __str__(self) -> str:
         return str(self.Name)
 
     @property
-    def FilesBase(self) -> BaseLocation:
+    def LocalDirectory(self) -> DirectoryLocationSchema:
         """Property for the base 'path' to a set of dataset files.
         May be an actual path, or a base URL for accessing from a file server.
 
         :return: _description_
         :rtype: Optional[str]
         """
-        return self._files_base
+        return self.Indexing.LocalDirectory
 
     @property
-    def TemplatesBase(self) -> BaseLocation:
-        return self._templates_base
+    def RemoteURL(self) -> Optional[URLLocationSchema]:
+        """Property for the base 'path' to a set of dataset files.
+        May be an actual path, or a base URL for accessing from a file server.
+
+        :return: _description_
+        :rtype: Optional[str]
+        """
+        return self.Indexing.RemoteURL
+
+    @property
+    def TemplatesBase(self) -> URLLocationSchema:
+        return self.Indexing.TemplatesURL
+
+    @property
+    def Indexing(self) -> RepositoryIndexingConfig:
+        return self._indexing
 
     @property
     def Games(self) -> Dict[str, DatasetCollectionSchema]:
@@ -95,7 +108,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
 
     @property
     def Location(self) -> BaseLocation:
-        return self.FilesBase
+        return self.LocalDirectory
 
     @property
     def Credential(self) -> EmptyCredential:
@@ -118,7 +131,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         :return: _description_
         :rtype: DatasetRepositoryConfig
         """
-        return DatasetRepositoryConfig(name=name, files_base=None, templates_base=None, datasets=None, other_elements=unparsed_elements)
+        return DatasetRepositoryConfig(name=name, indexing=None, datasets=None, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 
@@ -137,47 +150,18 @@ class DatasetRepositoryConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseFilesBase(unparsed_elements:Map) -> BaseLocation:
-        ret_val : BaseLocation
+    def _parseIndexingConfig(unparsed_elmeents:Map) -> RepositoryIndexingConfig:
+        ret_val : RepositoryIndexingConfig
 
-        raw_base = DatasetRepositoryConfig.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["files_base"],
-            to_type=str,
+        raw_config = DatasetRepositoryConfig.ParseElement(
+            unparsed_elements=unparsed_elmeents,
+            valid_keys=["CONFIG", "INDEXING", "FILE_INDEXING"],
+            to_type=dict,
             default_value=None,
             remove_target=True
         )
-        if raw_base:
-            as_url = urlparse(raw_base)
-            if as_url.scheme not in {"", "file"}:
-                ret_val = URLLocationSchema(name="RepositoryFilesBase", url=as_url)
-            else:
-                ret_val = DirectoryLocationSchema(name="RepositoryFilesBase", folder_path=Path(raw_base))
-        else:
-            ret_val = DatasetRepositoryConfig._DEFAULT_FILE_BASE
+        ret_val = RepositoryIndexingConfig.FromDict(name="RepositoryIndex", unparsed_elements=raw_config)
 
-        return ret_val
-
-    @staticmethod
-    def _parseTemplatesBase(unparsed_elements:Map) -> BaseLocation:
-        ret_val : BaseLocation
-
-        raw_base = DatasetRepositoryConfig.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["templates_base"],
-            to_type=str,
-            default_value=None,
-            remove_target=True
-        )
-        if raw_base:
-            as_url = urlparse(raw_base)
-            if as_url.scheme not in {"", "file"}:
-                ret_val = URLLocationSchema(name="RepositoryTemplatesBase", url=as_url)
-            else:
-                ret_val = DirectoryLocationSchema(name="RepositoryTemplatesBase", folder_path=Path(raw_base))
-        else:
-            ret_val = DatasetRepositoryConfig._DEFAULT_TEMPLATE_BASE
-        
         return ret_val
 
     @staticmethod
@@ -199,7 +183,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         elif len(unparsed_elements) > 0:
             ret_val = {
                 key : DatasetCollectionSchema.FromDict(name=key, unparsed_elements=datasets if isinstance(datasets, dict) else {})
-                for key, datasets in unparsed_elements.items()
+                for key, datasets in unparsed_elements.items() if key.upper() != "CONFIG"
             }
         else:
             ret_val = DatasetRepositoryConfig._DEFAULT_DATASETS
