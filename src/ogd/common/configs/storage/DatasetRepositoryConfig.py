@@ -39,17 +39,8 @@ class DatasetRepositoryConfig(DataStoreConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    _DEFAULT_FILE_BASE: Final[DirectoryLocationSchema] = DirectoryLocationSchema(
-        name="DefaultRepositoryLocation",
-        folder_path=Path("./data"),
-        other_elements=None
-    )
-    _DEFAULT_TEMPLATE_BASE: Final[URLLocationSchema] = URLLocationSchema(
-        name="DefaultTemplatesBase",
-        url=urlparse("https://github.com/opengamedata/opengamedata-samples"),
-        other_elements=None
-    )
-    _DEFAULT_DATASETS: Final[Dict[str, DatasetCollectionSchema]] = {}
+    _DEFAULT_INDEXING : Final[RepositoryIndexingConfig] = RepositoryIndexingConfig.Default()
+    _DEFAULT_DATASETS : Final[Dict[str, DatasetCollectionSchema]] = {}
 
     def __init__(self, name:str,
                  # params for class
@@ -139,8 +130,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
     def Default(cls) -> "DatasetRepositoryConfig":
         return DatasetRepositoryConfig(
             name="CONFIG NOT FOUND",
-            files_base=cls._DEFAULT_FILE_BASE,
-            templates_base=cls._DEFAULT_TEMPLATE_BASE,
+            indexing=cls._DEFAULT_INDEXING,
             datasets=cls._DEFAULT_DATASETS,
             other_elements={}
         )
@@ -150,11 +140,11 @@ class DatasetRepositoryConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseIndexingConfig(unparsed_elmeents:Map) -> RepositoryIndexingConfig:
+    def _parseIndexingConfig(unparsed_elements:Map) -> RepositoryIndexingConfig:
         ret_val : RepositoryIndexingConfig
 
         raw_config = DatasetRepositoryConfig.ParseElement(
-            unparsed_elements=unparsed_elmeents,
+            unparsed_elements=unparsed_elements,
             valid_keys=["CONFIG", "INDEXING", "FILE_INDEXING"],
             to_type=dict,
             default_value=None,
