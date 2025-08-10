@@ -10,10 +10,10 @@ from ogd.common.utils.typing import Map
 
 class RepositoryIndexingConfig(Config):
     _DEFAULT_LOCAL_DIR    : Final[DirectoryLocationSchema] = DirectoryLocationSchema(name="DefaultLocalDir", folder_path=Path("./data/"), other_elements={})
-    _DEFAULT_REMOTE_RAW   : Final[ParseResult]             = ParseResult(scheme="https", netloc="opengamedata.fielddaylab.wisc.edu", path="opengamedata", params="", query="", fragment="")
-    _DEFAULT_REMOTE_URL   : Final[URLLocationSchema]       = URLLocationSchema(name="DefaultRemoteURL", url=_DEFAULT_REMOTE_RAW)
-    _DEFAULT_TEMPLATE_RAW : Final[ParseResult]             = ParseResult(scheme="https", netloc="github.com", path="opengamedata/opengamedata-samples", params="", query="", fragment="")
-    _DEFAULT_TEMPLATE_URL : Final[URLLocationSchema]       = URLLocationSchema(name="DefaultTemplateURL", url=_DEFAULT_TEMPLATE_RAW)
+    _DEFAULT_REMOTE_RAW   : Final[str]                     = "https://opengamedata.fielddaylab.wisc.edu/opengamedata"
+    _DEFAULT_REMOTE_URL   : Final[URLLocationSchema]       = URLLocationSchema.FromString(name="DefaultRemoteURL", raw_url=_DEFAULT_REMOTE_RAW)
+    _DEFAULT_TEMPLATE_RAW : Final[str]                     = "https://github.com/opengamedata/opengamedata-samples"
+    _DEFAULT_TEMPLATE_URL : Final[URLLocationSchema]       = URLLocationSchema.FromString(name="DefaultTemplateURL", raw_url=_DEFAULT_TEMPLATE_RAW)
 
     # *** BUILT-INS & PROPERTIES ***
 
