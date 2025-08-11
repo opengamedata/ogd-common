@@ -1,7 +1,7 @@
 # import standard libraries
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Self
+from typing import Any, Dict, Final, List, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.events.DataElementSchema import DataElementSchema
@@ -19,12 +19,12 @@ class LoggingSpecificationSchema(Schema):
     (i.e. sets of valid string values for a particular key in `game_state`, `user_data`, or `event_data`)
     And finally, it specifies which logging version of the game is so documented, as well as the folder where the particular game's schema folder resides.
     """
-    _DEFAULT_ENUMS = {}
-    _DEFAULT_GAME_STATE = {}
-    _DEFAULT_USER_DATA = {}
-    _DEFAULT_EVENT_LIST = []
-    _DEFAULT_LOG_VERSION = 0
-    _DEFAULT_GAME_FOLDER = Path("./") / "ogd" / "games"
+    _DEFAULT_ENUMS       : Final[Dict[str, List[str]]] = {}
+    _DEFAULT_GAME_STATE  : Final[Map]                  = {}
+    _DEFAULT_USER_DATA   : Final[Map]                  = {}
+    _DEFAULT_EVENT_LIST  : Final[List[EventSchema]]    = []
+    _DEFAULT_LOG_VERSION : Final[int]                  = 0
+    _DEFAULT_GAME_FOLDER : Final[Path]                 = Path("./") / "ogd" / "games"
 
     # *** BUILT-INS & PROPERTIES ***
 

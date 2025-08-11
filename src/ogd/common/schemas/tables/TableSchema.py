@@ -3,7 +3,7 @@ import abc
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, TypeAlias
+from typing import Any, Dict, Final, List, Optional, Tuple, TypeAlias
 ## import local files
 from ogd.common.schemas.tables import presets
 from ogd.common.schemas.Schema import Schema
@@ -21,7 +21,8 @@ class TableSchema(Schema):
         and a mapping of those columns to the corresponding elements of a formal OGD structure.
     """
 
-    _DEFAULT_SCHEMA_PATH = Path(presets.__file__).parent
+    _DEFAULT_SCHEMA_PATH : Final[Path] = Path(presets.__file__).parent
+    _DEFAULT_COLUMNS     : Final[List[ColumnSchema]] = []
 
     # *** ABSTRACTS ***
 
@@ -31,8 +32,6 @@ class TableSchema(Schema):
         pass
 
     # *** BUILT-INS & PROPERTIES ***
-
-    _DEFAULT_COLUMNS = []
 
     def __init__(self, name,
                  columns:Optional[List[ColumnSchema]],

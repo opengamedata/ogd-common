@@ -3,12 +3,13 @@
 # import standard libraries
 import json
 import logging
-from typing import Any, Dict, List, Set
+from typing import List, override, Set
 
 # import OGD files
-from ogd.common.storage.outerfaces.Outerface import Outerface
-from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.models.enums.ExportMode import ExportMode
+from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
+from ogd.common.storage.outerfaces.Outerface import Outerface
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
 
@@ -84,9 +85,10 @@ class DebugOuterface(Outerface):
         _lengths = [len(elem) for elem in populations]
         self._display(f"{len(populations)} events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
 
-    def _writeMetadata(self, metadata:Dict[str, Any]):
+    @override
+    def _writeMetadata(self, dataset_schema:DatasetSchema):
         self._display("Metadata:")
-        self._display(json.dumps(metadata))
+        self._display(json.dumps(dataset_schema.AsMetadata))
     # *** PUBLIC STATICS ***
 
     # *** PUBLIC METHODS ***

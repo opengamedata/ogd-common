@@ -1,5 +1,5 @@
 ## import standard libraries
-from typing import Dict, List, Optional, Self
+from typing import Dict, Final, List, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import Map
@@ -12,8 +12,8 @@ class DatabaseLocationSchema(LocationSchema):
     while DatabaseLocation refers to the location of a specific database or table within such a system.
     """
 
-    _DEFAULT_DB_NAME = "DEFAULT_DB"
-    _DEFAULT_TABLE_NAME = None
+    _DEFAULT_DB_NAME    : Final[str]  = "DEFAULT_DB"
+    _DEFAULT_TABLE_NAME : Final[None] = None
 
     # *** BUILT-INS & PROPERTIES ***
 

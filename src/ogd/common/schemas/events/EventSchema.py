@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Any, Dict, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
@@ -13,8 +13,8 @@ class EventSchema(Schema):
 
     These essentially are just a description of the event, and a set of elements in the EventData attribute of the Event.
     """
-    _DEFAULT_DESCRIPTION = "Default event schema object. Does not relate to any actual data."
-    _DEFAULT_EVENT_DATA = {}
+    _DEFAULT_DESCRIPTION : Final[str] = "Default event schema object. Does not relate to any actual data."
+    _DEFAULT_EVENT_DATA  : Final[Dict[str, DataElementSchema]] = {}
 
     # *** BUILT-INS & PROPERTIES ***
 

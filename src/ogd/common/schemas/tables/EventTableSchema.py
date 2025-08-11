@@ -8,7 +8,6 @@ from ogd.common.models.Event import Event, EventSource
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.tables.EventMapSchema import EventMapSchema
-from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
 
@@ -20,8 +19,6 @@ class EventTableSchema(TableSchema):
     """
 
     # *** BUILT-INS & PROPERTIES ***
-
-    _DEFAULT_COLUMNS = []
 
     def __init__(self, name,
                  column_map:Optional[EventMapSchema],

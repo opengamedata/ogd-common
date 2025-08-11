@@ -7,7 +7,7 @@ and a listing of `"ENABLED"` tests.
 """
 
 # import standard libraries
-from typing import Dict, Optional, Self
+from typing import Dict, Final, Optional, Self
 
 # import 3rd-party libraries
 
@@ -18,8 +18,8 @@ from ogd.common.utils.typing import Map, conversions
 # import local files
 
 class TestConfig(Config):
-    _DEFAULT_VERBOSE       = False
-    _DEFAULT_ENABLED_TESTS = {}
+    _DEFAULT_VERBOSE       : Final[bool]            = False
+    _DEFAULT_ENABLED_TESTS : Final[Dict[str, bool]] = {}
 
     # *** BUILT-INS & PROPERTIES ***
 

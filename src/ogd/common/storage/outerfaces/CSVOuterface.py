@@ -5,42 +5,33 @@ import os
 import re
 import shutil
 import sys
-import traceback
-from datetime import datetime
 from git.repo import Repo
 from git.exc import InvalidGitRepositoryError, NoSuchPathError
 from pathlib import Path
-from typing import Any, Dict, IO, List, Optional, Set
+from typing import Any, List, Optional, override, Set
 # 3rd-party imports
-import numpy as np
-import pandas as pd
 # import local files
 # from ogd import games
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
-from ogd.common.configs.IndexingConfig import FileIndexingConfig
-from ogd.common.configs.generators.GeneratorCollectionConfig import GeneratorCollectionConfig
+from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
-from ogd.common.configs.storage.LocalDatasetRepositoryConfig import LocalDatasetRepositoryConfig
-from ogd.common.models.DatasetKey import DatasetKey
+from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
 from ogd.common.models.enums.ExportMode import ExportMode
-from ogd.common.schemas.events.LoggingSpecificationSchema import LoggingSpecificationSchema
-from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.storage.outerfaces.Outerface import Outerface
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
-from ogd.common.utils.Readme import Readme
 
 class CSVOuterface(Outerface):
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, config:GameStoreConfig, export_modes:Set[ExportMode],
-                 repository:LocalDatasetRepositoryConfig, dataset_id:str,
+                 repository:DatasetRepositoryConfig, dataset_id:str,
                  extension:str="tsv", with_separate_feature_files:bool=True, with_zipping:bool=True,
                  store:Optional[CSVConnector]=None):
         self._store : CSVConnector
@@ -61,9 +52,9 @@ class CSVOuterface(Outerface):
 
         existing_datasets = {}
         try:
-            file_directory = fileio.loadJSONFile(filename="file_list.json", path=self._repository.FilesBase.FolderPath)
+            file_directory = fileio.loadJSONFile(filename="file_list.json", path=self._repository.LocalDirectory.FolderPath)
             existing_datasets = file_directory.get(self.Config.GameID, {})
-        except FileNotFoundError as err:
+        except FileNotFoundError:
             Logger.Log("file_list.json does not exist.", logging.WARNING)
         except json.decoder.JSONDecodeError as err:
             Logger.Log(f"file_list.json has invalid format: {str(err)}.", logging.WARNING)
@@ -210,28 +201,28 @@ class CSVOuterface(Outerface):
             Logger.Log("No population file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(_pop_lines))
 
-    def _writeMetadata(self, metadata:Dict[str, Any]):
-        game_dir = self._repository.FilesBase.FolderPath / self.Config.GameID
+    @override
+    def _writeMetadata(self, dataset_schema:DatasetSchema):
+        game_dir = self._repository.LocalDirectory.FolderPath / self.Config.GameID
         try:
             game_dir.mkdir(exist_ok=True, parents=True)
         except Exception as err:
             msg = f"Could not set up folder {game_dir}. {type(err)} {str(err)}"
             Logger.Log(msg, logging.WARNING)
         else:
-            self._ensureReadmeExists()
-            self._writeMetadataFile(meta=metadata)
+            self._writeMetadataFile(dataset_schema=dataset_schema)
             if isinstance(self._repository.Location, DirectoryLocationSchema):
                 _local_dir = self._repository.Location
                 _remote_url = None
             else: # we got a URL base
                 _local_dir = None
                 _remote_url = self._repository.Location
-            _file_index = FileIndexingConfig(name="IndexingConfig",
+            _file_index = RepositoryIndexingConfig(name="IndexingConfig",
                                              local_dir=_local_dir,
                                              remote_url=_remote_url,
                                              templates_url=URLLocationSchema.FromDict(name="TemplateURL", unparsed_elements={"URL" : self._repository.TemplatesBase.Location})
             )
-            self._updateFileExportList(file_indexing=_file_index, dataset_schema=metadata)
+            self._updateFileExportList(file_indexing=_file_index, dataset_schema=dataset_schema)
 
     # *** PUBLIC STATICS ***
 
@@ -250,32 +241,13 @@ class CSVOuterface(Outerface):
 
     # *** PRIVATE METHODS ***
 
-    def _ensureReadmeExists(self) -> None:
-        game_dir = self._repository.FilesBase.FolderPath / self.Config.GameID
-        try:
-            # before we zip stuff up, let's check if the readme is in place:
-            readme = open(game_dir / "README.md", mode='r')
-        except FileNotFoundError:
-            # if not in place, generate the readme
-            Logger.Log(f"Missing readme for {self.Config.GameID}, generating new readme...", logging.WARNING, depth=1)
-            from ogd import games
-            _games_path  = Path(games.__file__) if Path(games.__file__).is_dir() else Path(games.__file__).parent
-            event_collection     : LoggingSpecificationSchema = LoggingSpecificationSchema.FromFile(schema_name=self.Config.GameID.upper(), schema_path=_games_path / self.Config.GameID / "schemas")
-            generator_collection : GeneratorCollectionConfig  = GeneratorCollectionConfig.FromFile(schema_name=self.Config.GameID.upper(), schema_path=_games_path / self.Config.GameID / "schemas")
-            readme = Readme(event_collection=event_collection, generator_collection=generator_collection, table_schema=self.Config.Table or TableSchema.Default())
-            readme.ToFile(path=game_dir)
-        else:
-            # otherwise, readme is there, so just close it and move on.
-            readme.close()
-            Logger.Log(f"Successfully found, opened, and closed the README.md", logging.DEBUG, depth=1)
-
     ## Public function to write out a tiny metadata file for indexing OGD data files.
     #  Using the paths of the exported files, and given some other variables for
     #  deriving file metadata, this simply outputs a new file_name.meta file.
     #  @param date_range    The range of dates included in the exported data.
     #  @param num_sess      The number of sessions included in the recent export.
-    def _writeMetadataFile(self, meta:Dict[str, Any]) -> None:
-        game_dir = self._repository.FilesBase.FolderPath / self.Config.GameID
+    def _writeMetadataFile(self, dataset_schema:DatasetSchema) -> None:
+        game_dir = self._repository.LocalDirectory.FolderPath / self.Config.GameID
         match_string = f"{self._dataset_id}_\\w*\\.meta"
         old_metas = [f for f in os.listdir(game_dir) if re.match(match_string, f)]
         for old_meta in old_metas:
@@ -289,7 +261,7 @@ class CSVOuterface(Outerface):
         # calculate the path and name of the metadata file, and open/make it.
         meta_file_path : Path = game_dir / f"{self._dataset_id}_{self._generateHash()}.meta"
         with open(meta_file_path, "w", encoding="utf-8") as meta_file :
-            meta_file.write(json.dumps(meta, indent=4))
+            meta_file.write(json.dumps(dataset_schema.AsMetadata, indent=4))
             meta_file.close()
 
     # ******* STUFF THAT GOES UP TO PROCESSING LEVEL *********
@@ -318,19 +290,19 @@ class CSVOuterface(Outerface):
     #  list of files.
     #  @param date_range    The range of dates included in the exported data.
     #  @param num_sess      The number of sessions included in the recent export.
-    def _updateFileExportList(self, file_indexing:FileIndexingConfig, dataset_schema:DatasetSchema) -> None:
-        CSVOuterface._backupFileExportList(self._repository.FilesBase.FolderPath)
+    def _updateFileExportList(self, file_indexing:RepositoryIndexingConfig, dataset_schema:DatasetSchema) -> None:
+        CSVOuterface._backupFileExportList(self._repository.LocalDirectory.FolderPath)
         file_index = {}
         existing_datasets = {}
         try:
-            file_index = fileio.loadJSONFile(filename="file_list.json", path=self._repository.FilesBase.FolderPath)
-        except FileNotFoundError as err:
+            file_index = fileio.loadJSONFile(filename="file_list.json", path=self._repository.LocalDirectory.FolderPath)
+        except FileNotFoundError:
             Logger.Log("file_list.json does not exist.", logging.WARNING)
         except json.decoder.JSONDecodeError as err:
             Logger.Log(f"file_list.json has invalid format: {str(err)}.", logging.WARNING)
         finally:
             if not "CONFIG" in file_index.keys():
-                Logger.Log(f"No CONFIG found in file_list.json, adding default CONFIG...", logging.WARNING)
+                Logger.Log("No CONFIG found in file_list.json, adding default CONFIG...", logging.WARNING)
                 file_index["CONFIG"] = {
                     "files_base" : file_indexing.RemoteURL,
                     "templates_base" : file_indexing.TemplatesURL
@@ -338,7 +310,7 @@ class CSVOuterface(Outerface):
             if not dataset_schema.Key.GameID in file_index.keys():
                 file_index[dataset_schema.Key.GameID] = {}
             existing_datasets  = file_index[dataset_schema.Key.GameID]
-            with open(self._repository.FilesBase.FolderPath / "file_list.json", "w") as existing_csv_file:
+            with open(self._repository.LocalDirectory.FolderPath / "file_list.json", "w") as existing_csv_file:
                 Logger.Log(f"Opened file list for writing at {existing_csv_file.name}", logging.INFO)
                 existing_metadata = existing_datasets.get(dataset_schema.DatasetID, {})
                 new_meta = dataset_schema.AsMetadata
@@ -358,7 +330,7 @@ class CSVOuterface(Outerface):
             if src.exists():
                 shutil.copyfile(src=src, dst=dest)
             else:
-                Logger.Log(f"Could not back up file_list.json, because it does not exist!", logging.WARN)
+                Logger.Log("Could not back up file_list.json, because it does not exist!", logging.WARN)
         except Exception as err:
             msg = f"{type(err)} {str(err)}"
             Logger.Log(f"Could not back up file_list.json. Got the following error: {msg}", logging.ERROR)

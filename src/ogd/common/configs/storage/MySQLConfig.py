@@ -1,6 +1,6 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Optional, Self
+from typing import Dict, Final, Optional, Self
 from urllib.parse import ParseResult
 # import local files
 from ogd.common.configs.storage.SSHConfig import SSHConfig
@@ -13,7 +13,7 @@ from ogd.common.utils.typing import Map
 class MySQLConfig(DataStoreConfig):
     _STORE_TYPE = "MYSQL"
 
-    _DEFAULT_LOCATION = URLLocationSchema(
+    _DEFAULT_LOCATION: Final[URLLocationSchema] = URLLocationSchema(
         name="DefaultMySQLLocation",
         url=ParseResult(
             scheme="",
@@ -21,7 +21,7 @@ class MySQLConfig(DataStoreConfig):
             path="", params="", query="", fragment=""
         )
     )
-    _DEFAULT_DB_CREDENTIAL = PasswordCredential.Default()
+    _DEFAULT_DB_CREDENTIAL: Final[PasswordCredential] = PasswordCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
 

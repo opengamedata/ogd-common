@@ -1,6 +1,6 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Optional, Self
+from typing import Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.KeyCredentialConfig import KeyCredential
@@ -9,14 +9,14 @@ from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
 from ogd.common.utils.typing import Map
 
 class BigQueryConfig(DataStoreConfig):
-    _STORE_TYPE = "BIGQUERY"
-    _DEFAULT_LOCATION = DatabaseLocationSchema(
+    _STORE_TYPE       : Final[str] = "BIGQUERY"
+    _DEFAULT_LOCATION : Final[DatabaseLocationSchema] = DatabaseLocationSchema(
         name="DefaultBQLocation",
         database_name="wcer-field-day-ogd-1798",
         table_name=None,
         other_elements=None
     )
-    _DEFAULT_CREDENTIAL = KeyCredential(
+    _DEFAULT_CREDENTIAL : Final[KeyCredential] = KeyCredential(
         name="DefaultBQKeyCredential",
         location=FileLocationSchema(name="DefaultBQKeyFile", folder_path=Path("./config/"), filename="ogd.json"),
     )

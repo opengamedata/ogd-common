@@ -3,13 +3,14 @@
 ## import standard libraries
 import abc
 import logging
-from typing import Any, Dict, List, Set
+from typing import List, Set
 
 # import local files
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.models.EventSet import EventSet
 from ogd.common.models.FeatureSet import FeatureSet
 from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.storage.connectors.StorageConnector import StorageConnector
@@ -81,7 +82,7 @@ class Outerface:
         pass
 
     @abc.abstractmethod
-    def _writeMetadata(self, metadata:Dict[str, Any]):
+    def _writeMetadata(self, dataset_schema:DatasetSchema):
         pass
 
     # *** BUILT-INS & PROPERTIES ***
@@ -177,8 +178,9 @@ class Outerface:
         else:
             Logger.Log(f"Could not write features from {type(self).__name__}, outerface was not configured for a Features table!", depth=3)
 
-    def WriteMetadata(self, metadata:Dict[str, Any]):
-        self._writeMetadata(metadata=metadata)
+    def WriteMetadata(self, dataset_schema:DatasetSchema):
+        
+        self._writeMetadata(dataset_schema=dataset_schema)
 
     # *** PROPERTIES ***
 
