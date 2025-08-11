@@ -1,6 +1,4 @@
 # standard imports
-from pathlib import Path
-from urllib.parse import urlparse
 from typing import Dict, Final, Optional, Self, TypeAlias
 
 # ogd imports
@@ -42,6 +40,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
     _DEFAULT_INDEXING : Final[RepositoryIndexingConfig] = RepositoryIndexingConfig.Default()
     _DEFAULT_DATASETS : Final[Dict[str, DatasetCollectionSchema]] = {}
 
+    __slots__ = ["_indexing", "_datasets"]
     def __init__(self, name:str,
                  # params for class
                  indexing:Optional[RepositoryIndexingConfig],

@@ -22,6 +22,7 @@ class LocationSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = []
     def __init__(self, name:str, other_elements:Optional[Map]=None):
         super().__init__(name=name, other_elements=other_elements)
 

@@ -38,6 +38,7 @@ class DataStoreConfig(Config):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_store_type"]
     def __init__(self, name:str, store_type:Optional[str], other_elements:Optional[Map]=None):
         """Constructor for the `DataStoreConfig` class.
         

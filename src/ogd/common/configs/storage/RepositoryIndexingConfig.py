@@ -16,6 +16,7 @@ class RepositoryIndexingConfig(Config):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_local_dir", "_remote_url", "_templates_url"]
     def __init__(self, name:str, local_dir:Optional[DirectoryLocationSchema], remote_url:Optional[URLLocationSchema], templates_url:Optional[URLLocationSchema], other_elements:Optional[Map]=None):
         """Constructor for the `IndexingConfig` class.
         

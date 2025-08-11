@@ -10,6 +10,10 @@ class Feature(GameData):
     :param GameData: _description_
     :type GameData: _type_
     """
+
+    __slots__ = ["_name", "_feature_type",
+                 "_game_unit", "_game_unit_index"
+                 "_subfeatures", "_values"]
     def __init__(self, name:str, feature_type:str,
                  game_unit:Optional[str], game_unit_index:Optional[int],
                  app_id:str, user_id:Optional[str], session_id:str,

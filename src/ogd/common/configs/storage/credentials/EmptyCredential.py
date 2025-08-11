@@ -12,6 +12,7 @@ class EmptyCredential(Config):
     # @overload
     # def __init__(self, name:str, other_elements:Dict[str, Any]): ...
 
+    __slots__ = []
     def __init__(self, name:str, other_elements:Dict[str, Any] | Any):
         super().__init__(name=name, other_elements=other_elements)
 

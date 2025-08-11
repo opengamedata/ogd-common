@@ -13,6 +13,7 @@ class PasswordCredential(CredentialConfig):
     _DEFAULT_USER : Final[str]  = "DEFAULT USER"
     _DEFAULT_PASS : Final[None] = None
 
+    __slots__ = ["_user", "_pass"]
     def __init__(self, name:str, username:Optional[str], password:Optional[str], other_elements:Optional[Map]=None):
         """Constructor for the `IteratedConfig` class.
         

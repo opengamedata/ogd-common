@@ -18,6 +18,7 @@ class GameStateSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    __slots__ = ["_game_state"]
     def __init__(self, name:str, game_state:Optional[Dict[str, DataElementSchema]], other_elements:Optional[Map]=None):
         """Constructor for the `GameStateSchema` class.
         
