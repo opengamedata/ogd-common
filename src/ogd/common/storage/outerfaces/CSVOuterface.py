@@ -17,7 +17,7 @@ from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexi
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
-from ogd.common.configs.storage.LocalDatasetRepositoryConfig import LocalDatasetRepositoryConfig
+from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.storage.connectors.CSVConnector import CSVConnector
@@ -31,7 +31,7 @@ class CSVOuterface(Outerface):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, config:GameStoreConfig, export_modes:Set[ExportMode],
-                 repository:LocalDatasetRepositoryConfig, dataset_id:str,
+                 repository:DatasetRepositoryConfig, dataset_id:str,
                  extension:str="tsv", with_separate_feature_files:bool=True, with_zipping:bool=True,
                  store:Optional[CSVConnector]=None):
         self._store : CSVConnector
@@ -52,7 +52,7 @@ class CSVOuterface(Outerface):
 
         existing_datasets = {}
         try:
-            file_directory = fileio.loadJSONFile(filename="file_list.json", path=self._repository.FilesBase.FolderPath)
+            file_directory = fileio.loadJSONFile(filename="file_list.json", path=self._repository.LocalDirectory.FolderPath)
             existing_datasets = file_directory.get(self.Config.GameID, {})
         except FileNotFoundError:
             Logger.Log("file_list.json does not exist.", logging.WARNING)
@@ -203,7 +203,7 @@ class CSVOuterface(Outerface):
 
     @override
     def _writeMetadata(self, dataset_schema:DatasetSchema):
-        game_dir = self._repository.FilesBase.FolderPath / self.Config.GameID
+        game_dir = self._repository.LocalDirectory.FolderPath / self.Config.GameID
         try:
             game_dir.mkdir(exist_ok=True, parents=True)
         except Exception as err:
@@ -247,7 +247,7 @@ class CSVOuterface(Outerface):
     #  @param date_range    The range of dates included in the exported data.
     #  @param num_sess      The number of sessions included in the recent export.
     def _writeMetadataFile(self, dataset_schema:DatasetSchema) -> None:
-        game_dir = self._repository.FilesBase.FolderPath / self.Config.GameID
+        game_dir = self._repository.LocalDirectory.FolderPath / self.Config.GameID
         match_string = f"{self._dataset_id}_\\w*\\.meta"
         old_metas = [f for f in os.listdir(game_dir) if re.match(match_string, f)]
         for old_meta in old_metas:
@@ -291,11 +291,11 @@ class CSVOuterface(Outerface):
     #  @param date_range    The range of dates included in the exported data.
     #  @param num_sess      The number of sessions included in the recent export.
     def _updateFileExportList(self, file_indexing:RepositoryIndexingConfig, dataset_schema:DatasetSchema) -> None:
-        CSVOuterface._backupFileExportList(self._repository.FilesBase.FolderPath)
+        CSVOuterface._backupFileExportList(self._repository.LocalDirectory.FolderPath)
         file_index = {}
         existing_datasets = {}
         try:
-            file_index = fileio.loadJSONFile(filename="file_list.json", path=self._repository.FilesBase.FolderPath)
+            file_index = fileio.loadJSONFile(filename="file_list.json", path=self._repository.LocalDirectory.FolderPath)
         except FileNotFoundError:
             Logger.Log("file_list.json does not exist.", logging.WARNING)
         except json.decoder.JSONDecodeError as err:
@@ -310,7 +310,7 @@ class CSVOuterface(Outerface):
             if not dataset_schema.Key.GameID in file_index.keys():
                 file_index[dataset_schema.Key.GameID] = {}
             existing_datasets  = file_index[dataset_schema.Key.GameID]
-            with open(self._repository.FilesBase.FolderPath / "file_list.json", "w") as existing_csv_file:
+            with open(self._repository.LocalDirectory.FolderPath / "file_list.json", "w") as existing_csv_file:
                 Logger.Log(f"Opened file list for writing at {existing_csv_file.name}", logging.INFO)
                 existing_metadata = existing_datasets.get(dataset_schema.DatasetID, {})
                 new_meta = dataset_schema.AsMetadata
