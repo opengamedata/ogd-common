@@ -2,6 +2,7 @@
 from typing import List
 # import local files
 from ogd.common.filters.collections import *
+from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.models.Feature import Feature
 from ogd.common.utils.typing import ExportRow
 
@@ -29,13 +30,13 @@ class FeatureSet:
 
     @property
     def PopulationFeatures(self) -> List[Feature]:
-        return [feature for feature in self.Features if feature.PlayerID == "*" and feature.SessionID == "*"]
+        return [feature for feature in self.Features if feature.ExportMode == ExportMode.POPULATION]
     @property
     def PlayerFeatures(self) -> List[Feature]:
-        return [feature for feature in self.Features if feature.PlayerID != "*"]
+        return [feature for feature in self.Features if feature.ExportMode == ExportMode.PLAYER]
     @property
     def SessionFeatures(self) -> List[Feature]:
-        return [feature for feature in self.Features if feature.SessionID != "*"]
+        return [feature for feature in self.Features if feature.ExportMode == ExportMode.SESSION]
 
     @property
     def FeatureLines(self) -> List[ExportRow]:
