@@ -24,7 +24,7 @@ class FeatureSet:
         else:
             return FeatureSet(features=self.Features + features.Features, filters=self.Filters)
 
-    def __iadd__(self, features:Feature | List[Feature] | "FeatureSet") -> "EventSet":
+    def __iadd__(self, features:Feature | List[Feature] | "FeatureSet") -> "FeatureSet":
         if isinstance(features, Feature):
             self.Features.append(features)
         elif isinstance(features, list):
