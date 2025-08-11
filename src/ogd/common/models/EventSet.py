@@ -1,8 +1,7 @@
 ## import standard libraries
-from typing import Dict, List
+from typing import List
 # import local files
 from ogd.common.filters.collections import *
-from ogd.common.filters.Filter import Filter
 from ogd.common.models.Event import Event, EventSource
 from ogd.common.utils.typing import ExportRow
 
@@ -15,8 +14,13 @@ class EventSet:
         self._events = events
         self._filters = filters
 
-    def __iadd__(self, events:List[Event]):
-        self.Events += events
+    def __iadd__(self, events:Event | List[Event] | "EventSet"):
+        if isinstance(events, Event):
+            self.Events.append(events)
+        elif isinstance(events, list):
+            self.Events += events
+        elif isinstance(events, EventSet):
+            self.Events += events.Events
 
     def __len__(self):
         return len(self.Events)
