@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Optional
 
+from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.models.GameData import GameData
 
 class Feature(GameData):
@@ -70,6 +71,15 @@ class Feature(GameData):
         """
         return [self.Name,  self.FeatureType, self.GameUnit,  self.GameUnitIndex,
                 self.AppID, self.UserID,      self.SessionID, self.Subfeatures, self.Values]
+
+    @property
+    def ExportMode(self) -> ExportMode:
+        if self.PlayerID == "*" and self.SessionID == "*":
+            return ExportMode.POPULATION
+        elif self.SessionID == "*":
+            return ExportMode.PLAYER
+        else:
+            return ExportMode.SESSION
 
     @property
     def Name(self) -> str:
