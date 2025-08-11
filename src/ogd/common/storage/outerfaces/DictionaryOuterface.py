@@ -26,13 +26,13 @@ class DictionaryOuterface(Outerface):
         :type out_dict: Dict[str, Dict[str, Union[List[str], List[ExportRow]]]]
         """
         super().__init__(config=config, export_modes=export_modes)
-        self._out      : OutputDict = out_dict or self._defaultOutDict()
         self._raw_evts : List[ExportRow] = []
         self._all_evts : List[ExportRow] = []
         self._sess     : List[ExportRow] = []
         self._plrs     : List[ExportRow] = []
         self._pops     : List[ExportRow] = []
         self._meta     : Dict[str, Any]  = {}
+        self._out      : OutputDict = out_dict or self._defaultOutDict()
         # self.Open()
 
     # *** IMPLEMENT ABSTRACTS ***
