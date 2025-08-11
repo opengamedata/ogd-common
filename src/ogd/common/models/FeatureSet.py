@@ -15,8 +15,13 @@ class FeatureSet:
         self._features = features
         self._filters = filters
 
-    def __iadd__(self, features:List[Feature]):
-        self.Features += features
+    def __iadd__(self, features:Feature | List[Feature] | "FeatureSet"):
+        if isinstance(features, Feature):
+            self.Features.append(features)
+        elif isinstance(features, list):
+            self.Features += features
+        else:
+            self.Features += features.Features
 
     def __len__(self):
         return len(self.Features)
