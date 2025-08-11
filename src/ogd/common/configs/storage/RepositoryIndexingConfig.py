@@ -112,29 +112,67 @@ class RepositoryIndexingConfig(Config):
 
     @staticmethod
     def _parseLocalDir(unparsed_elements:Map) -> DirectoryLocationSchema:
-        return DirectoryLocationSchema.FromDict(
-            name="LocalDir",
+        ret_val : DirectoryLocationSchema
+
+        raw_base = RepositoryIndexingConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            key_overrides={"folder":"LOCAL_DIR"},
-            default_override=RepositoryIndexingConfig._DEFAULT_LOCAL_DIR
+            valid_keys=["files_base", "local_dir", "folder", "path"],
+            to_type=[Path, str, dict],
+            default_value=None,
+            remove_target=True
         )
+        if raw_base:
+            if isinstance(raw_base, Path):
+                ret_val = DirectoryLocationSchema(name="LocalDir", folder_path=raw_base)
+            elif isinstance(raw_base, str):
+                ret_val = DirectoryLocationSchema(name="LocalDir", folder_path=Path(raw_base))
+            elif isinstance(raw_base, dict):
+                ret_val = DirectoryLocationSchema.FromDict(name="LocalDir", unparsed_elements=raw_base)
+        else:
+            ret_val = RepositoryIndexingConfig._DEFAULT_LOCAL_DIR
+
+        return ret_val
 
     @staticmethod
-    def _parseRemoteURL(unparsed_elements:Map) -> Optional[URLLocationSchema]:
-        return URLLocationSchema.FromDict(
-            name="RemoteURL",
+    def _parseRemoteURL(unparsed_elements:Map) -> URLLocationSchema:
+        ret_val : URLLocationSchema
+
+        raw_url = RepositoryIndexingConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            key_overrides={"url":"REMOTE_URL"},
-            default_override=None
+            valid_keys=["remote_url", "url"],
+            to_type=[str, dict],
+            default_value=None,
+            remove_target=True
         )
+        if raw_url:
+            if isinstance(raw_url, str):
+                ret_val = URLLocationSchema.FromString(name="RemoteURL", raw_url=raw_url)
+            elif isinstance(raw_url, dict):
+                ret_val = URLLocationSchema.FromDict(name="RemoteURL", unparsed_elements=raw_url)
+            else:
+                ret_val = RepositoryIndexingConfig._DEFAULT_REMOTE_URL
+
+        return ret_val
 
     @staticmethod
     def _parseTemplatesURL(unparsed_elements:Map) -> URLLocationSchema:
-        return URLLocationSchema.FromDict(
-            name="RemoteURL",
+        ret_val : URLLocationSchema
+
+        raw_url = RepositoryIndexingConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            key_overrides={"url":"TEMPLATES_URL"},
-            default_override=RepositoryIndexingConfig._DEFAULT_TEMPLATE_URL
+            valid_keys=["templates_url", "url"],
+            to_type=[str, dict],
+            default_value=None,
+            remove_target=True
         )
+        if raw_url:
+            if isinstance(raw_url, str):
+                ret_val = URLLocationSchema.FromString(name="TemplatesURL", raw_url=raw_url)
+            elif isinstance(raw_url, dict):
+                ret_val = URLLocationSchema.FromDict(name="TemplatesURL", unparsed_elements=raw_url)
+            else:
+                ret_val = RepositoryIndexingConfig._DEFAULT_TEMPLATE_URL
+
+        return ret_val
 
     # *** PRIVATE METHODS ***
