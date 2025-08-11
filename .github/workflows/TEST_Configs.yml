@@ -1,5 +1,5 @@
 # Workflow to test the schemas from the `config` subfolder
-name: Testbed - Config Schemas
+name: Testbed - Configs
 run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
 on:
   workflow_dispatch:
@@ -15,7 +15,7 @@ on:
     - 'tests/cases/configs/*.py'
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-ConfigSchemas
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-Configs
   cancel-in-progress: true
 
 jobs:
