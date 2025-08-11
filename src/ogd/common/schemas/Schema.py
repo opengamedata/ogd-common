@@ -193,7 +193,7 @@ class Schema(abc.ABC):
             # Case 2a: Didn't find file, search for template
             elif search_templates:
                 Logger.Log(f"Unable to load schema at {_schema_path / schema_name}, {schema_name} does not exist! Trying to load from json template instead...", logging.WARNING, depth=1)
-                ret_val = cls._schemaFromTemplate(schema_path=_schema_path, schema_name=schema_name)
+                ret_val = cls._schemaFromTemplate(schema_path=_schema_path, schema_name=_formatted_name)
             # Case 2b: Didn't find file, don't search for template
             else:
                 Logger.Log(f"Unable to load schema at {_schema_path / schema_name}, {schema_name} does not exist! Using default schema instead", logging.ERROR, depth=1)
