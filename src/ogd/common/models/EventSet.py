@@ -23,13 +23,14 @@ class EventSet:
         else:
             return EventSet(events=self.Events + events.Events, filters=self.Filters)
 
-    def __iadd__(self, events:Event | List[Event] | "EventSet"):
+    def __iadd__(self, events:Event | List[Event] | "EventSet") -> "EventSet":
         if isinstance(events, Event):
             self.Events.append(events)
         elif isinstance(events, list):
             self.Events += events
         elif isinstance(events, EventSet):
             self.Events += events.Events
+        return self
 
     def __len__(self):
         return len(self.Events)
