@@ -94,6 +94,10 @@ class DirectoryLocationSchema(LocationSchema):
 
     # *** PUBLIC STATICS ***
 
+    @staticmethod
+    def FromString(name:str, fullpath:str) -> "DirectoryLocationSchema":
+        return DirectoryLocationSchema(name=name, folder_path=Path(fullpath))
+
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***

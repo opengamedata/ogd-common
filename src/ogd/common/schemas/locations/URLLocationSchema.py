@@ -115,6 +115,11 @@ class URLLocationSchema(LocationSchema):
 
     # *** PUBLIC STATICS ***
 
+    @staticmethod
+    def FromString(name:str, raw_url:str) -> "URLLocationSchema":
+        parse_result = urlparse(url=raw_url)
+        return URLLocationSchema(name=name, url=parse_result)
+
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***

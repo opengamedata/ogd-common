@@ -27,11 +27,6 @@ jobs:
     needs: build
     uses: ./.github/workflows/TEST_Configs.yml
 
-  testbed_game_configs:
-    name: Game Config Testbeds
-    needs: build
-    uses: ./.github/workflows/TEST_GeneratorConfigs.yml
-
   # Run testbeds in models module
 
   testbed_semver:

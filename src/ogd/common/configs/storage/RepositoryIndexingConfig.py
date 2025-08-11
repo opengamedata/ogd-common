@@ -1,7 +1,6 @@
 # import standard libraries
 from pathlib import Path
 from typing import Dict, Final, Optional, Self
-from urllib.parse import ParseResult
 # import local files
 from ogd.common.configs.Config import Config
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
@@ -10,10 +9,10 @@ from ogd.common.utils.typing import Map
 
 class RepositoryIndexingConfig(Config):
     _DEFAULT_LOCAL_DIR    : Final[DirectoryLocationSchema] = DirectoryLocationSchema(name="DefaultLocalDir", folder_path=Path("./data/"), other_elements={})
-    _DEFAULT_REMOTE_RAW   : Final[ParseResult]             = ParseResult(scheme="https", netloc="opengamedata.fielddaylab.wisc.edu", path="opengamedata", params="", query="", fragment="")
-    _DEFAULT_REMOTE_URL   : Final[URLLocationSchema]       = URLLocationSchema(name="DefaultRemoteURL", url=_DEFAULT_REMOTE_RAW)
-    _DEFAULT_TEMPLATE_RAW : Final[ParseResult]             = ParseResult(scheme="https", netloc="github.com", path="opengamedata/opengamedata-samples", params="", query="", fragment="")
-    _DEFAULT_TEMPLATE_URL : Final[URLLocationSchema]       = URLLocationSchema(name="DefaultTemplateURL", url=_DEFAULT_TEMPLATE_RAW)
+    _DEFAULT_REMOTE_RAW   : Final[str]                     = "https://opengamedata.fielddaylab.wisc.edu/"
+    _DEFAULT_REMOTE_URL   : Final[URLLocationSchema]       = URLLocationSchema.FromString(name="DefaultRemoteURL", raw_url=_DEFAULT_REMOTE_RAW)
+    _DEFAULT_TEMPLATE_RAW : Final[str]                     = "https://github.com/opengamedata/opengamedata-samples"
+    _DEFAULT_TEMPLATE_URL : Final[URLLocationSchema]       = URLLocationSchema.FromString(name="DefaultTemplateURL", raw_url=_DEFAULT_TEMPLATE_RAW)
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -45,9 +44,9 @@ class RepositoryIndexingConfig(Config):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._local_dir     : DirectoryLocationSchema = local_dir     or self._parseLocalDir(unparsed_elements=unparsed_elements)
-        self._remote_url    : URLLocationSchema       = remote_url    or self._parseRemoteURL(unparsed_elements=unparsed_elements)
-        self._templates_url : URLLocationSchema       = templates_url or self._parseTemplatesURL(unparsed_elements=unparsed_elements)
+        self._local_dir     : DirectoryLocationSchema     = local_dir     or self._parseLocalDir(unparsed_elements=unparsed_elements)
+        self._remote_url    : Optional[URLLocationSchema] = remote_url    or self._parseRemoteURL(unparsed_elements=unparsed_elements)
+        self._templates_url : URLLocationSchema           = templates_url or self._parseTemplatesURL(unparsed_elements=unparsed_elements)
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -55,7 +54,7 @@ class RepositoryIndexingConfig(Config):
         return self._local_dir
 
     @property
-    def RemoteURL(self) -> URLLocationSchema:
+    def RemoteURL(self) -> Optional[URLLocationSchema]:
         return self._remote_url
 
     @property
@@ -112,29 +111,67 @@ class RepositoryIndexingConfig(Config):
 
     @staticmethod
     def _parseLocalDir(unparsed_elements:Map) -> DirectoryLocationSchema:
-        return DirectoryLocationSchema.FromDict(
-            name="LocalDir",
+        ret_val : DirectoryLocationSchema
+
+        raw_base = RepositoryIndexingConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            key_overrides={"folder":"LOCAL_DIR"},
-            default_override=RepositoryIndexingConfig._DEFAULT_LOCAL_DIR
+            valid_keys=["files_base", "local_dir", "folder", "path"],
+            to_type=[Path, str, dict],
+            default_value=None,
+            remove_target=True
         )
+        if raw_base:
+            if isinstance(raw_base, Path):
+                ret_val = DirectoryLocationSchema(name="LocalDir", folder_path=raw_base)
+            elif isinstance(raw_base, str):
+                ret_val = DirectoryLocationSchema(name="LocalDir", folder_path=Path(raw_base))
+            elif isinstance(raw_base, dict):
+                ret_val = DirectoryLocationSchema.FromDict(name="LocalDir", unparsed_elements=raw_base)
+        else:
+            ret_val = RepositoryIndexingConfig._DEFAULT_LOCAL_DIR
+
+        return ret_val
 
     @staticmethod
     def _parseRemoteURL(unparsed_elements:Map) -> URLLocationSchema:
-        return URLLocationSchema.FromDict(
-            name="RemoteURL",
+        ret_val : URLLocationSchema
+
+        raw_url = RepositoryIndexingConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            key_overrides={"url":"REMOTE_URL"},
-            default_override=RepositoryIndexingConfig._DEFAULT_REMOTE_URL
+            valid_keys=["remote_url", "url"],
+            to_type=[str, dict],
+            default_value=None,
+            remove_target=True
         )
+        if raw_url:
+            if isinstance(raw_url, str):
+                ret_val = URLLocationSchema.FromString(name="RemoteURL", raw_url=raw_url)
+            elif isinstance(raw_url, dict):
+                ret_val = URLLocationSchema.FromDict(name="RemoteURL", unparsed_elements=raw_url)
+            else:
+                ret_val = RepositoryIndexingConfig._DEFAULT_REMOTE_URL
+
+        return ret_val
 
     @staticmethod
     def _parseTemplatesURL(unparsed_elements:Map) -> URLLocationSchema:
-        return URLLocationSchema.FromDict(
-            name="RemoteURL",
+        ret_val : URLLocationSchema
+
+        raw_url = RepositoryIndexingConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            key_overrides={"url":"TEMPLATES_URL"},
-            default_override=RepositoryIndexingConfig._DEFAULT_TEMPLATE_URL
+            valid_keys=["templates_url", "url"],
+            to_type=[str, dict],
+            default_value=None,
+            remove_target=True
         )
+        if raw_url:
+            if isinstance(raw_url, str):
+                ret_val = URLLocationSchema.FromString(name="TemplatesURL", raw_url=raw_url)
+            elif isinstance(raw_url, dict):
+                ret_val = URLLocationSchema.FromDict(name="TemplatesURL", unparsed_elements=raw_url)
+            else:
+                ret_val = RepositoryIndexingConfig._DEFAULT_TEMPLATE_URL
+
+        return ret_val
 
     # *** PRIVATE METHODS ***
