@@ -15,11 +15,21 @@ class FeatureSet:
         self._features = features
         self._filters = filters
 
+    def __add__(self, features:Feature | List[Feature] | "FeatureSet") -> "FeatureSet":
+        if isinstance(features, Feature):
+            return FeatureSet(features=self.Features + [features], filters=self.Filters)
+        elif isinstance(features, list):
+            return FeatureSet(features=self.Features + features, filters=self.Filters)
+        # TODO : need to merge filters
+        else:
+            return FeatureSet(features=self.Features + features.Features, filters=self.Filters)
+
     def __iadd__(self, features:Feature | List[Feature] | "FeatureSet"):
         if isinstance(features, Feature):
             self.Features.append(features)
         elif isinstance(features, list):
             self.Features += features
+        # TODO : need to merge filters
         else:
             self.Features += features.Features
 

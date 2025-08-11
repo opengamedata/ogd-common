@@ -14,6 +14,15 @@ class EventSet:
         self._events = events
         self._filters = filters
 
+    def __add__(self, events:Event | List[Event] | "EventSet") -> "EventSet":
+        if isinstance(events, Event):
+            return EventSet(events=self.Events + [events], filters=self.Filters)
+        elif isinstance(events, list):
+            return EventSet(events=self.Events + events, filters=self.Filters)
+        # TODO : need to merge filters
+        else:
+            return EventSet(events=self.Events + events.Events, filters=self.Filters)
+
     def __iadd__(self, events:Event | List[Event] | "EventSet"):
         if isinstance(events, Event):
             self.Events.append(events)
