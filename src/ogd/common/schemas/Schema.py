@@ -23,7 +23,7 @@ class Schema(abc.ABC):
         :return: A markdown-formatted representation of the schema.
         :rtype: str
         """
-        pass
+        raise NotImplementedError(f"{self.__class__.Name} has not implemented the AsMarkdown function!")
 
     @classmethod
     @abc.abstractmethod
@@ -39,7 +39,7 @@ class Schema(abc.ABC):
         :return: _description_
         :rtype: Schema
         """
-        pass
+        raise NotImplementedError(f"{cls} has not implemented the _fromDict function!")
 
     @classmethod
     @abc.abstractmethod
@@ -50,7 +50,7 @@ class Schema(abc.ABC):
         :return: A schema with default member values.
         :rtype: Self
         """
-        pass
+        raise NotImplementedError(f"{cls} has not implemented the Default function!")
 
     # *** BUILT-INS & PROPERTIES ***
 
