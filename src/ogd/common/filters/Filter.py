@@ -8,17 +8,17 @@ class Filter(Generic[T]):
     @property
     @abc.abstractmethod
     def AsSet(self) -> Optional[Set[T]]:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the AsSet function!")
 
     @property
     @abc.abstractmethod
     def Min(self) -> Optional[T]:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the Min function!")
 
     @property
     @abc.abstractmethod
     def Max(self) -> Optional[T]:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the Max function!")
 
     def __init__(self, mode:FilterMode=FilterMode.NOFILTER):
         """Constructor for base Filter class.

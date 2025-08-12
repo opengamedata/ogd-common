@@ -23,7 +23,7 @@ class Schema(abc.ABC):
         :return: A markdown-formatted representation of the schema.
         :rtype: str
         """
-        raise NotImplementedError(f"{self.__class__.Name} has not implemented the AsMarkdown function!")
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the AsMarkdown function!")
 
     @classmethod
     @abc.abstractmethod
