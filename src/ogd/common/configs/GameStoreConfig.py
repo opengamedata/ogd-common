@@ -24,12 +24,12 @@ class GameStoreConfig(Schema):
     TODO : Implement and use a smart Load(...) function of TableConfig to load schema from given name, rather than FromFile.
     """
 
-    _DEFAULT_GAME_ID     : Final[LiteralString] = "UNKNOWN GAME"
-    _DEFAULT_SOURCE_NAME : Final[LiteralString] = "OPENGAMEDATA_BQ"
-    _DEFAULT_SCHEMA_NAME : Final[LiteralString] = "OPENGAMEDATA_BIGQUERY"
-    _DEFAULT_DB_NAME     : Final[LiteralString] = "UNKNOWN GAME"
-    _DEFAULT_TABLE_NAME  : Final[LiteralString] = "_daily"
-    _DEFAULT_TABLE_LOC   : Final[DatabaseLocationSchema] = DatabaseLocationSchema(
+    _DEFAULT_GAME_ID           : Final[LiteralString] = "UNKNOWN GAME"
+    _DEFAULT_SOURCE_NAME       : Final[LiteralString] = "OPENGAMEDATA_BQ"
+    _DEFAULT_TABLE_SCHEMA_NAME : Final[LiteralString] = "OPENGAMEDATA_BIGQUERY"
+    _DEFAULT_DB_NAME           : Final[LiteralString] = "UNKNOWN GAME"
+    _DEFAULT_TABLE_NAME        : Final[LiteralString] = "_daily"
+    _DEFAULT_TABLE_LOC         : Final[DatabaseLocationSchema] = DatabaseLocationSchema(
         name="DefaultTableLocation",
         database_name=_DEFAULT_DB_NAME,
         table_name=_DEFAULT_TABLE_NAME
@@ -143,7 +143,7 @@ class GameStoreConfig(Schema):
             game_id=cls._DEFAULT_GAME_ID,
             source_name=cls._DEFAULT_SOURCE_NAME,
             source=None,
-            schema_name=cls._DEFAULT_SCHEMA_NAME,
+            schema_name=cls._DEFAULT_TABLE_SCHEMA_NAME,
             schema=None,
             table_location=cls._DEFAULT_TABLE_LOC,
             other_elements={}
@@ -194,7 +194,7 @@ class GameStoreConfig(Schema):
             unparsed_elements=unparsed_elements,
             valid_keys=["schema"],
             to_type=str,
-            default_value=GameStoreConfig._DEFAULT_SCHEMA_NAME,
+            default_value=GameStoreConfig._DEFAULT_TABLE_SCHEMA_NAME,
             remove_target=True
         )
 
