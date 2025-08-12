@@ -3,6 +3,7 @@
 ## import standard libraries
 import abc
 import logging
+import sys
 from typing import List, Set
 
 # import local files
@@ -31,59 +32,62 @@ class Outerface:
     @property
     @abc.abstractmethod
     def Connector(self) -> StorageConnector:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     # @abc.abstractmethod
     # def _destination(self, mode:ExportMode) -> str:
-    #     pass
+        # raise NotImplementedError(f"{self.__class__.__name__} has not implemented the Location function!")
 
     @abc.abstractmethod
     def _removeExportMode(self, mode:ExportMode) -> str:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
+
 
     @abc.abstractmethod
     def _writeGameEventsHeader(self, header:List[str]) -> None:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
+
 
     @abc.abstractmethod
     def _writeAllEventsHeader(self, header:List[str]) -> None:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
+
 
     @abc.abstractmethod
     def _writeSessionHeader(self, header:List[str]) -> None:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writePlayerHeader(self, header:List[str]) -> None:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writePopulationHeader(self, header:List[str]) -> None:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writeGameEventLines(self, events:List[ExportRow]) -> None:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writeAllEventLines(self, events:List[ExportRow]) -> None:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writeSessionLines(self, sessions:List[ExportRow]) -> None:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writePlayerLines(self, players:List[ExportRow]) -> None:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writePopulationLines(self, populations:List[ExportRow]) -> None:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writeMetadata(self, dataset_schema:DatasetSchema):
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     # *** BUILT-INS & PROPERTIES ***
 
