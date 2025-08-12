@@ -24,17 +24,17 @@ class DataStoreConfig(Config):
     @property
     @abc.abstractmethod
     def Location(self) -> LocationSchema:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the Location function!")
 
     @property
     @abc.abstractmethod
     def Credential(self) -> CredentialConfig:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the Credential function!")
 
     @property
     @abc.abstractmethod
     def AsConnectionInfo(self) -> str:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the AsConnectionInfo function!")
 
     # *** BUILT-INS & PROPERTIES ***
 

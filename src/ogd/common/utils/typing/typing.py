@@ -6,6 +6,7 @@ It also contains a `conversions` class that works to reasonably robustly convert
 ## import standard libraries
 import abc
 import datetime
+import sys
 from typing import Any, Dict, List, TypeVar, Tuple
 ## import local files
 from ogd.common.models.SemanticVersion import SemanticVersion
@@ -19,8 +20,8 @@ type Date       = datetime.datetime | datetime.date
 class Comparable:
     @abc.abstractmethod
     def __lt__(self, other:Any) -> bool:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
     @abc.abstractmethod
     def __gt__(self, other:Any) -> bool:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 ComparableType = TypeVar("ComparableType", bound=Comparable)

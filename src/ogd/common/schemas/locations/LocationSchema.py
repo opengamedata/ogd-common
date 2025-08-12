@@ -18,7 +18,7 @@ class LocationSchema(Schema):
         :return: A string representation of the full location.
         :rtype: str
         """
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the Location function!")
 
     # *** BUILT-INS & PROPERTIES ***
 

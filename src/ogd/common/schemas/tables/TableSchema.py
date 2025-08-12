@@ -29,7 +29,7 @@ class TableSchema(Schema):
     @property
     @abc.abstractmethod
     def ColumnMap(self) -> ColumnMapSchema:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the ColumnMap function!")
 
     # *** BUILT-INS & PROPERTIES ***
 
