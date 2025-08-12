@@ -130,7 +130,7 @@ class Schema(abc.ABC):
         return cls._fromDict(name=name, unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
 
     @classmethod
-    def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False, optional_element:bool=False) -> Any:
+    def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False, optional_element:bool=False, schema_name:Optional[str]=None) -> Any:
         """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 
         :param all_elements: A dictionary containing all elements to search through
@@ -163,7 +163,8 @@ class Schema(abc.ABC):
                 found = True
                 break
         if not found and not optional_element:
-            _msg = f"{cls.__name__} config does not have a '{valid_keys[0]}' element; defaulting to {valid_keys[0]}={default_value}"
+            _title = f"'{schema_name}'" if schema_name else "source"
+            _msg = f"{cls.__name__} {_title} does not have a '{valid_keys[0]}' element; defaulting to {valid_keys[0]}={default_value}"
             Logger.Log(_msg, logging.WARN)
 
         # if we got empty value back from conversion, use default instead, that's more likely what we want.
