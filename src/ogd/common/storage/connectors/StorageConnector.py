@@ -21,7 +21,7 @@ class StorageConnector(abc.ABC):
     @property
     @abc.abstractmethod
     def StoreConfig(self) -> DataStoreConfig:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the StoreConfig function!")
 
     @abc.abstractmethod
     def _open(self) -> bool:
@@ -30,7 +30,7 @@ class StorageConnector(abc.ABC):
         :return: True if the connection was successful, otherwise False.
         :rtype: bool
         """
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the _open function!")
 
     @abc.abstractmethod
     def _close(self) -> bool:
@@ -39,7 +39,7 @@ class StorageConnector(abc.ABC):
         :return: True if the connection was closed successfully, otherwise False.
         :rtype: bool
         """
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the _close function!")
 
     # *** BUILT-INS & PROPERTIES ***
 

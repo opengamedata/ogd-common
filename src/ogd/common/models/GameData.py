@@ -19,7 +19,7 @@ class GameData(abc.ABC):
     @staticmethod
     @abc.abstractmethod
     def ColumnNames() -> List[str]:
-        pass
+        raise NotImplementedError("GameData has not implemented the ColumnNames function!")
 
     @abc.abstractmethod
     def ColumnValues(self) -> List[Union[str, datetime, timezone, Map, int, None]]:
@@ -31,7 +31,7 @@ class GameData(abc.ABC):
         :return: The list of values.
         :rtype: List[Union[str, datetime, timezone, Map, int, None]]
         """
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the ColumnValues function!")
 
     def __init__(self, app_id:str, user_id:Optional[str], session_id:Optional[str]):
         """Constructor for a GameData struct.

@@ -16,39 +16,39 @@ class CodingInterface(Interface):
 
     @abc.abstractmethod
     def _allCoders(self) -> Optional[List[Coder]]:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the _allCoders function!")
 
     @abc.abstractmethod
     def _createCoder(self, coder_name:str) -> bool:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the _createCoder function!")
 
     @abc.abstractmethod
     def _getCodeWordsByGame(self, game_id:str) -> Optional[List[str]]:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the _getCodeWordsByGame function!")
 
     @abc.abstractmethod
     def _getCodeWordsByCoder(self, coder_id:str) -> Optional[List[str]]:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the _getCodeWordsByCoder function!")
 
     @abc.abstractmethod
     def _getCodeWordsBySession(self, session_id:str) -> Optional[List[str]]:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the _getCodeWordsBySession function!")
 
     @abc.abstractmethod
     def _getCodesByGame(self, game_id:str) -> Optional[List[Code]]:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the _getCodesByGame function!")
 
     @abc.abstractmethod
     def _getCodesByCoder(self, coder_id:str) -> Optional[List[Code]]:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the _getCodesByCoder function!")
 
     @abc.abstractmethod
     def _getCodesBySession(self, session_id:str) -> Optional[List[Code]]:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the _getCodesBySession function!")
 
     @abc.abstractmethod
     def _createCode(self, code:str, coder_id:str, events:List[Code.EventID], notes:Optional[str]=None) -> bool:
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the _createCode function!")
 
     # *** BUILT-INS & PROPERTIES ***
 
