@@ -1,5 +1,6 @@
 # standard imports
 from datetime import date
+from pathlib import Path
 from typing import Final, Optional
 
 class DatasetKey:
@@ -74,6 +75,11 @@ class DatasetKey:
     @staticmethod
     def FromID(game_id:Optional[str], ID:str):
         return DatasetKey(raw_key=f"{game_id or DatasetKey._DEFAULT_GAME_ID}_{ID}")
+
+    @staticmethod
+    def FromFile(game_id:Optional[str], file_path:Path):
+        _game_id = game_id or DatasetKey._DEFAULT_GAME_ID
+        return DatasetKey(raw_key=f"{_game_id}_from_{file_path.name}")
 
     # *** PUBLIC METHODS ***
 
