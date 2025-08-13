@@ -8,10 +8,10 @@ class IDFilterCollection:
     """Dumb struct to hold filters for versioning information
     """
     def __init__(self,
-                 session_filter: SetFilter[str] | NoFilter = NoFilter(),
-                 player_filter : SetFilter[str] | NoFilter = NoFilter()):
-        self._session_filter : SetFilter[str] | NoFilter = session_filter
-        self._player_filter  : SetFilter[str] | NoFilter = player_filter
+                 session_filter : Optional[SetFilter[str] | NoFilter] = None,
+                 player_filter  : Optional[SetFilter[str] | NoFilter] = None):
+        self._session_filter : SetFilter[str] | NoFilter = session_filter or NoFilter()
+        self._player_filter  : SetFilter[str] | NoFilter = player_filter  or NoFilter()
 
     def __str__(self) -> str:
         ret_val = "no versioning filters"

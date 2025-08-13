@@ -10,8 +10,8 @@ class EventFilterCollection:
     """
 
     def __init__(self,
-                 event_name_filter : SetFilter[str] | NoFilter                    = NoFilter(),
-                 event_code_filter : SetFilter[int] | RangeFilter[int] | NoFilter = NoFilter()):
+                 event_name_filter : Optional[SetFilter[str] | NoFilter]                    = None,
+                 event_code_filter : Optional[SetFilter[int] | RangeFilter[int] | NoFilter] = None):
         """Constructor for the EventFilterCollection structure.
 
         Accepts a collection of filters to be applied on event names/codes included in the data.
@@ -22,8 +22,8 @@ class EventFilterCollection:
         :param event_code_filter: The filter to apply to event codes, defaults to NoFilter()
         :type event_code_filter: Filter, optional
         """
-        self._event_names : SetFilter[str] | NoFilter                    = event_name_filter
-        self._event_codes : SetFilter[int] | RangeFilter[int] | NoFilter = event_code_filter
+        self._event_names : SetFilter[str] | NoFilter                    = event_name_filter or NoFilter()
+        self._event_codes : SetFilter[int] | RangeFilter[int] | NoFilter = event_code_filter or NoFilter()
 
     def __str__(self) -> str:
         ret_val = "no versioning filters"
