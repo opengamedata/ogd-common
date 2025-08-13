@@ -1,4 +1,5 @@
 ## import standard libraries
+from typing import Optional
 # import local files
 from ogd.common.filters.collections.EventFilterCollection import EventFilterCollection
 from ogd.common.filters.collections.IDFilterCollection import IDFilterCollection
@@ -7,14 +8,14 @@ from ogd.common.filters.collections.VersioningFilterCollection import Versioning
 
 class DatasetFilterCollection:
     def __init__(self,
-                 id_filters:IDFilterCollection=IDFilterCollection(),
-                 sequence_filters:SequencingFilterCollection=SequencingFilterCollection(),
-                 version_filters:VersioningFilterCollection=VersioningFilterCollection(),
-                 event_filters:EventFilterCollection=EventFilterCollection()):
-        self._id_filters = id_filters
-        self._sequence_filters = sequence_filters
-        self._version_filters=version_filters
-        self._event_filters = event_filters
+                 id_filters:Optional[IDFilterCollection]=None,
+                 sequence_filters:Optional[SequencingFilterCollection]=None,
+                 version_filters:Optional[VersioningFilterCollection]=None,
+                 event_filters:Optional[EventFilterCollection]=None):
+        self._id_filters       : IDFilterCollection         = id_filters       or IDFilterCollection()
+        self._sequence_filters : SequencingFilterCollection = sequence_filters or SequencingFilterCollection()
+        self._version_filters  : VersioningFilterCollection = version_filters  or VersioningFilterCollection()
+        self._event_filters    : EventFilterCollection      = event_filters    or EventFilterCollection()
 
     @property
     def IDFilters(self):

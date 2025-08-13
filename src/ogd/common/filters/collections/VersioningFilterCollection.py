@@ -9,9 +9,9 @@ class VersioningFilterCollection:
     """Dumb struct to hold filters for versioning information
     """
     def __init__(self,
-                 log_ver_filter : SetFilter[Version] | RangeFilter[Version] | NoFilter = NoFilter(),
-                 app_ver_filter : SetFilter[Version] | RangeFilter[Version] | NoFilter = NoFilter(),
-                 branch_filter  : SetFilter[str] | NoFilter                            = NoFilter()):
+                 log_ver_filter : Optional[SetFilter[Version] | RangeFilter[Version] | NoFilter] = None,
+                 app_ver_filter : Optional[SetFilter[Version] | RangeFilter[Version] | NoFilter] = None,
+                 branch_filter  : Optional[SetFilter[str] | NoFilter]                            = None):
         """Constructor for the VersioningFilter structure.
 
         Accepts a collection of filters to be applied on versioning of data.
@@ -24,9 +24,9 @@ class VersioningFilterCollection:
         :param branch_filter: The filter to apply to app branch, defaults to NoFilter()
         :type branch_filter: BranchFilterType
         """
-        self._log_filter    : SetFilter[Version] | RangeFilter[Version] | NoFilter = log_ver_filter
-        self._app_filter    : SetFilter[Version] | RangeFilter[Version] | NoFilter = app_ver_filter
-        self._branch_filter : SetFilter[str] | NoFilter                            = branch_filter
+        self._log_filter    : SetFilter[Version] | RangeFilter[Version] | NoFilter = log_ver_filter or NoFilter()
+        self._app_filter    : SetFilter[Version] | RangeFilter[Version] | NoFilter = app_ver_filter or NoFilter()
+        self._branch_filter : SetFilter[str] | NoFilter                            = branch_filter  or NoFilter()
 
     def __str__(self) -> str:
         ret_val = "no versioning filters"

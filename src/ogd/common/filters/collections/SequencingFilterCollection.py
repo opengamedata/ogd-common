@@ -12,8 +12,8 @@ class SequencingFilterCollection:
     For now, it just does timestamps and session index, if need be we may come back and allow filtering by timezone offset
     """
     def __init__(self,
-                 timestamp_filter     : RangeFilter[datetime | date] | NoFilter      = NoFilter(),
-                 session_index_filter : SetFilter[int] | RangeFilter[int] | NoFilter = NoFilter()):
+                 timestamp_filter     : Optional[RangeFilter[datetime | date] | NoFilter]      = None,
+                 session_index_filter : Optional[SetFilter[int] | RangeFilter[int] | NoFilter] = None):
         """Constructor for the TimingFilterCollection structure.
 
         Accepts a collection of filters to be applied on timing of data.
@@ -26,8 +26,8 @@ class SequencingFilterCollection:
         :param branch_filter: The filter to apply to app branch, defaults to NoFilter()
         :type branch_filter: Filter, optional
         """
-        self._timestamp_filter     : RangeFilter[datetime | date] | NoFilter      = timestamp_filter
-        self._session_index_filter : SetFilter[int] | RangeFilter[int] | NoFilter = session_index_filter
+        self._timestamp_filter     : RangeFilter[datetime | date] | NoFilter      = timestamp_filter     or NoFilter()
+        self._session_index_filter : SetFilter[int] | RangeFilter[int] | NoFilter = session_index_filter or NoFilter()
 
     def __str__(self) -> str:
         ret_val = "no timestamp filters"
