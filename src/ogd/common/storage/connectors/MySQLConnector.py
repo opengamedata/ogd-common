@@ -38,7 +38,7 @@ class MySQLConnector(StorageConnector):
     def StoreConfig(self) -> MySQLConfig:
         return self._config
 
-    def _open(self) -> bool:
+    def _open(self, writeable:bool=True) -> bool:
         """
         Function to set up a connection to a database, via an ssh tunnel if available.
 

@@ -24,7 +24,7 @@ class StorageConnector(abc.ABC):
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the StoreConfig function!")
 
     @abc.abstractmethod
-    def _open(self) -> bool:
+    def _open(self, writeable:bool=True) -> bool:
         """Private implementation of the logic for opening a connection to a storage resource
 
         :return: True if the connection was successful, otherwise False.
@@ -66,7 +66,7 @@ class StorageConnector(abc.ABC):
 
     # *** PUBLIC METHODS ***
 
-    def Open(self, force_reopen:bool = False) -> bool:
+    def Open(self, writeable:bool=True, force_reopen:bool = False) -> bool:
         """Function to open the connection to a storage resource.
 
         If the resource was already open, this function (by default) does nothing.
