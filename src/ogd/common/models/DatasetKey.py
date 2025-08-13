@@ -1,5 +1,6 @@
 # standard imports
 from datetime import date
+from pathlib import Path
 from typing import Final, Optional
 
 class DatasetKey:
@@ -17,9 +18,10 @@ class DatasetKey:
     """Simple little class to make logic with dataset keys easier
     """
     def __init__(self, raw_key:str):
-        self._game_id    : str
-        self._from_date  : Optional[date] = None
-        self._to_date    : Optional[date] = None
+        self._game_id      : str
+        self._from_date    : Optional[date] = None
+        self._to_date      : Optional[date] = None
+        self._original_key : str            = raw_key
 
     # 1. Get Game ID from key
         _pieces = raw_key.split("_")
@@ -40,7 +42,6 @@ class DatasetKey:
             _to_month   = int(_pieces[-1][4:6])
             _to_day     = int(_pieces[-1][6:8])
             self._to_date = date(year=_to_year, month=_to_month, day=_to_day)
-        self._original_key = raw_key
 
     def __str__(self):
         return self._original_key
@@ -74,6 +75,11 @@ class DatasetKey:
     @staticmethod
     def FromID(game_id:Optional[str], ID:str):
         return DatasetKey(raw_key=f"{game_id or DatasetKey._DEFAULT_GAME_ID}_{ID}")
+
+    @staticmethod
+    def FromFile(game_id:Optional[str], file_path:Path):
+        _game_id = game_id or DatasetKey._DEFAULT_GAME_ID
+        return DatasetKey(raw_key=f"{_game_id}_from_{file_path.name}")
 
     # *** PUBLIC METHODS ***
 
