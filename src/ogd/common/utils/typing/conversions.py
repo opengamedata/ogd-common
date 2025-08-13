@@ -55,7 +55,7 @@ def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed 
     if Capitalize(value) in [None, "NONE", "NULL", "NAN"]:
         ret_val = None
     # Handle case where there are multiple valid types accepted (i.e. got a list, and everything in list is a type/str)
-    if isinstance(to_type, List) and all(type(x) in {type, str} for x in to_type):
+    elif isinstance(to_type, List) and all(type(x) in {type, str} for x in to_type):
         found = False
         # for each candidate type, check if value already had that type
         for t in to_type:
@@ -599,34 +599,35 @@ def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element") -> A
         ret_val = None
     elif value == "None" or value == "null" or value == "nan":
         ret_val = None
-    match (Capitalize(to_type)):
-        case 'BOOL' | builtins.bool:
-            ret_val = ToBool(name=name, value=value)
-        case 'STR' | builtins.str:
-            ret_val = ToString(name=name, value=value)
-        case 'INT' | builtins.int:
-            ret_val = ToInt(name=name, value=value)
-        case 'FLOAT' | builtins.float:
-            ret_val = ToFloat(name=name, value=value)
-        case 'PATH' | pathlib.Path:
-            ret_val = ToPath(name=name, value=value)
-        case 'DATETIME' | datetime.datetime:
-            ret_val = ToDatetime(name=name, value=value)
-        case 'TIMEDELTA' | datetime.timedelta:
-            ret_val = ToTimedelta(name=name, value=value)
-        case 'TIMEZONE' | datetime.timezone:
-            ret_val = ToTimezone(name=name, value=value)
-        case 'JSON' | 'DICT' | builtins.dict | typing.Dict:
-            ret_val = ToJSON(name=name, value=value)
-        case 'LIST' | builtins.list | typing.List:
-            ret_val = ToList(name=name, value=value)
-        case _dummy if isinstance(_dummy, str) and _dummy.startswith('ENUM'):
-            # if the column is supposed to be an enum, for now we just stick with the string.
-            ret_val = str(value)
-        case _:
-            _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
-            Logger.Log(_msg, logging.WARNING)
-            ret_val = None
+    else:
+        match (Capitalize(to_type)):
+            case 'BOOL' | builtins.bool:
+                ret_val = ToBool(name=name, value=value)
+            case 'STR' | builtins.str:
+                ret_val = ToString(name=name, value=value)
+            case 'INT' | builtins.int:
+                ret_val = ToInt(name=name, value=value)
+            case 'FLOAT' | builtins.float:
+                ret_val = ToFloat(name=name, value=value)
+            case 'PATH' | pathlib.Path:
+                ret_val = ToPath(name=name, value=value)
+            case 'DATETIME' | datetime.datetime:
+                ret_val = ToDatetime(name=name, value=value)
+            case 'TIMEDELTA' | datetime.timedelta:
+                ret_val = ToTimedelta(name=name, value=value)
+            case 'TIMEZONE' | datetime.timezone:
+                ret_val = ToTimezone(name=name, value=value)
+            case 'JSON' | 'DICT' | builtins.dict | typing.Dict:
+                ret_val = ToJSON(name=name, value=value)
+            case 'LIST' | builtins.list | typing.List:
+                ret_val = ToList(name=name, value=value)
+            case _dummy if isinstance(_dummy, str) and _dummy.startswith('ENUM'):
+                # if the column is supposed to be an enum, for now we just stick with the string.
+                ret_val = str(value)
+            case _:
+                _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
+                Logger.Log(_msg, logging.WARNING)
+                ret_val = None
     return ret_val
 
 # *** PRIVATE METHODS ***
