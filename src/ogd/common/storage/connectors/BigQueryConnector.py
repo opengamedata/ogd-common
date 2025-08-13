@@ -28,10 +28,7 @@ class BigQueryConnector(StorageConnector):
     def StoreConfig(self) -> BigQueryConfig:
         return self._config
 
-    def _open(self, force_reopen: bool = False) -> bool:
-        if force_reopen:
-            self.Close()
-            self.Open(force_reopen=False)
+    def _open(self, writeable:bool=True) -> bool:
         if not self._is_open:
             if "GITHUB_ACTIONS" in os.environ:
                 self._client = bigquery.Client()
