@@ -184,7 +184,7 @@ class EventTableSchema(TableSchema):
 
         # 1. Get ID data
         idx = self._indexFromMapping(self.ColumnMap.AppIDColumn)
-        app_id = self._valueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=None)
+        app_id = self._valueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=fallbacks.get("app_id"))
         if not isinstance(app_id, str):
             if "app_id" not in self._conversion_warnings:
                 _msg = f"{self.Name} event table schema set app_id as {type(app_id)}, but app_id should be a string"
@@ -193,7 +193,7 @@ class EventTableSchema(TableSchema):
             app_id = str(app_id)
 
         idx = self._indexFromMapping(self.ColumnMap.UserIDColumn)
-        user_id = self._valueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=None)
+        user_id = self._valueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=fallbacks.get("user_id"))
         if user_id is not None and not isinstance(user_id, str):
             if "uid" not in self._conversion_warnings:
                 _msg = f"{self.Name} event table schema set user_id as {type(user_id)}, but user_id should be a string"
@@ -202,7 +202,7 @@ class EventTableSchema(TableSchema):
             user_id = str(user_id)
 
         idx = self._indexFromMapping(self.ColumnMap.SessionIDColumn)
-        sess_id = self._valueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=None)
+        sess_id = self._valueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=fallbacks.get("session_id"))
         if not isinstance(sess_id, str):
             if "sess_id" not in self._conversion_warnings:
                 _msg = f"{self.Name} event table schema set session_id as {type(sess_id)}, but session_id should be a string"
