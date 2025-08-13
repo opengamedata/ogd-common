@@ -94,6 +94,10 @@ class FileLocationSchema(LocationSchema):
         """
         return self.Folder / self.Filename
 
+    @property
+    def FileExists(self):
+        return self.Filepath.is_file()
+
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
@@ -165,9 +169,9 @@ class FileLocationSchema(LocationSchema):
     @staticmethod
     def FromPath(name:str, fullpath:Path) -> "FileLocationSchema":
         if fullpath:
-            if not fullpath.is_file():
-                raise ValueError(f"FileLocationSchema was given a path '{fullpath}' which is not a valid file!", logging.WARNING)
-            elif not "." in fullpath.name:
+            # if not fullpath.is_file():
+            #     raise ValueError(f"FileLocationSchema was given a path '{fullpath}' which is not a valid file!", logging.WARNING)
+            if not "." in fullpath.name:
                 Logger.Log(f"FileLocationSchema was given a path '{fullpath}' which does not include a file extension!", logging.WARNING)
             return FileLocationSchema(name=name, folder_path=fullpath.parent, filename=fullpath.name)
 
