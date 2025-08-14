@@ -44,7 +44,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 indexing:Optional[RepositoryIndexingConfig],
+                 indexing:Optional[RepositoryIndexingConfig | Map | str],
                  datasets:Optional[Dict[str, DatasetCollectionSchema]],
                  # dict of leftovers
                  other_elements:Optional[Map]=None

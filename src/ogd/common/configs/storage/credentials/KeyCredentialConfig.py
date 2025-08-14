@@ -19,7 +19,7 @@ class KeyCredential(CredentialConfig):
         other_elements=None
     )
 
-    def __init__(self, name:str, location:Optional[FileLocationSchema | str | Path], other_elements:Optional[Map]=None):
+    def __init__(self, name:str, location:Optional[FileLocationSchema | Map | str | Path], other_elements:Optional[Map]=None):
         """Constructor for the `KeyCredentialConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
@@ -133,11 +133,13 @@ class KeyCredential(CredentialConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _toLocation(location:Optional[FileLocationSchema | str | Path], fallbacks:Map) -> FileLocationSchema:
+    def _toLocation(location:Optional[FileLocationSchema | Map | str | Path], fallbacks:Map) -> FileLocationSchema:
         ret_val: FileLocationSchema
 
         if isinstance(location, FileLocationSchema):
             ret_val = location
+        elif isinstance(location, dict):
+            ret_val = FileLocationSchema.FromDict(name="KeyCredentialLocation", unparsed_elements=location)
         elif isinstance(location, Path):
             ret_val = FileLocationSchema.FromPath(name="KeyCredentialLocation", fullpath=location)
         elif isinstance(location, str):
