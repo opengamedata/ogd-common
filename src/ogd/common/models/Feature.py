@@ -105,6 +105,10 @@ class Feature(GameData):
         return self._subfeatures
 
     @property
+    def FeatureNames(self) -> List[str]:
+        return [self.Name] + self._subfeatures
+
+    @property
     def Values(self) -> List[Any]:
         """Ordered list of values from the feature.
 
@@ -133,7 +137,6 @@ class Feature(GameData):
         if len(self.Subfeatures) != len(self.Values):
             raise ValueError(f"For {self.Name}, number of subfeatures (+1) did not match number of values!")
         else:
-            ret_val = {self.Subfeatures[i] : self.Values[i+1] for i in range(len(self.Subfeatures))}
-            ret_val["base"] = self.Values[0]
+            ret_val = {self.FeatureNames[i] : self.Values[i] for i in range(len(self.FeatureNames))}
         
         return ret_val
