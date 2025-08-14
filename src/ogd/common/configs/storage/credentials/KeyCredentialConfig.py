@@ -19,7 +19,7 @@ class KeyCredential(CredentialConfig):
         other_elements=None
     )
 
-    def __init__(self, name:str, location:Optional[FileLocationSchema], other_elements:Optional[Map]=None):
+    def __init__(self, name:str, location:Optional[FileLocationSchema | str | Path], other_elements:Optional[Map]=None):
         """Constructor for the `KeyCredentialConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
@@ -42,7 +42,15 @@ class KeyCredential(CredentialConfig):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._location : FileLocationSchema = location or self._parseLocation(unparsed_elements=unparsed_elements)
+        self._location : FileLocationSchema
+        if isinstance(location, FileLocationSchema):
+            self._location = location
+        elif isinstance(location, Path):
+            self._location = FileLocationSchema.FromPath(name="KeyCredentialLocation", fullpath=location)
+        elif isinstance(location, str):
+            self._location = FileLocationSchema.FromPath(name="KeyCredentialLocation", fullpath=Path(location))
+        else:
+            self._location = self._parseLocation(unparsed_elements=unparsed_elements)
         super().__init__(name=name, other_elements=unparsed_elements)
 
     @property
