@@ -27,7 +27,9 @@ class MySQLConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 db_location:Optional[URLLocationSchema], db_credential:Optional[PasswordCredential], ssh_cfg:Optional[SSHConfig],
+                 db_location:Optional[URLLocationSchema],
+                 db_credential:Optional[PasswordCredential],
+                 ssh_cfg:Optional[SSHConfig],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):

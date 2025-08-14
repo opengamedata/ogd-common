@@ -23,7 +23,8 @@ class SSHConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 location:Optional[URLLocationSchema], ssh_credential:Optional[PasswordCredential],
+                 location:Optional[URLLocationSchema],
+                 ssh_credential:Optional[PasswordCredential],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
