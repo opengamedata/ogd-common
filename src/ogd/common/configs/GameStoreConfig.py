@@ -192,7 +192,7 @@ class GameStoreConfig(Schema):
     def _parseTableSchemaName(unparsed_elements:Map) -> str:
         return GameStoreConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["table", "schema", "table_schema"],
+            valid_keys=["schema", "table_schema"],
             to_type=str,
             default_value=GameStoreConfig._DEFAULT_TABLE_SCHEMA_NAME,
             remove_target=True
