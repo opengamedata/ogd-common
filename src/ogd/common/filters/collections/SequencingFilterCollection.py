@@ -12,7 +12,7 @@ class SequencingFilterCollection:
     For now, it just does timestamps and session index, if need be we may come back and allow filtering by timezone offset
     """
     def __init__(self,
-                 timestamp_filter     : Optional[RangeFilter[datetime | date] | NoFilter]      = None,
+                 timestamp_filter     : Optional[RangeFilter[datetime] | NoFilter]      = None, # TODO : Bring back option to use date, converting to datetime automatically
                  session_index_filter : Optional[SetFilter[int] | RangeFilter[int] | NoFilter] = None):
         """Constructor for the TimingFilterCollection structure.
 
@@ -26,7 +26,7 @@ class SequencingFilterCollection:
         :param branch_filter: The filter to apply to app branch, defaults to NoFilter()
         :type branch_filter: Filter, optional
         """
-        self._timestamp_filter     : RangeFilter[datetime | date] | NoFilter      = timestamp_filter     or NoFilter()
+        self._timestamp_filter     : RangeFilter[datetime] | NoFilter      = timestamp_filter     or NoFilter()
         self._session_index_filter : SetFilter[int] | RangeFilter[int] | NoFilter = session_index_filter or NoFilter()
 
     def __str__(self) -> str:
@@ -48,10 +48,10 @@ class SequencingFilterCollection:
         return ret_val
 
     @property
-    def Timestamps(self) -> Filter[datetime | date]:
+    def Timestamps(self) -> Filter[datetime]:
         return self._timestamp_filter
     @Timestamps.setter
-    def Timestamps(self, allowed_times:Optional[RangeFilter[datetime | date] | NoFilter | slice | Pair]) -> None:
+    def Timestamps(self, allowed_times:Optional[RangeFilter[datetime] | NoFilter | slice | Pair]) -> None:
         if allowed_times is None or isinstance(allowed_times, NoFilter):
             self._timestamp_filter = NoFilter()
         elif isinstance(allowed_times, RangeFilter):

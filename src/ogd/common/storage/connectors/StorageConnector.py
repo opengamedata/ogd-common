@@ -78,10 +78,10 @@ class StorageConnector(abc.ABC):
         :rtype: bool
         """
         if not self.IsOpen:
-            self._is_open = self._open()
+            self._is_open = self._open(writeable=writeable)
         elif force_reopen:
             self.Close()
-            self._is_open = self._open()
+            self._is_open = self._open(writeable=writeable)
             Logger.Log(f"Successfully force-reopened {self.__class__}", logging.INFO)
         return self.IsOpen
 
