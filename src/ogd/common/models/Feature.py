@@ -106,11 +106,34 @@ class Feature(GameData):
 
     @property
     def Values(self) -> List[Any]:
+        """Ordered list of values from the feature.
+
+        The first is the base value, and each value after corresponds to the subfeature in the same order in Subfeatures.
+
+        :return: _description_
+        :rtype: List[Any]
+        """
         return self._values
+    @property
+    def FeatureValues(self) -> List[Any]:
+        """Alias for `Values` property
+
+        Ordered list of values from the feature.
+        The first is the base value, and each value after corresponds to the subfeature in the same order in Subfeatures.
+
+        :return: _description_
+        :rtype: List[Any]
+        """
+        return self.Values
 
     @property
     def ValueMap(self) -> Dict[str, Any]:
+        ret_val : Dict[str, Any]
+
         if len(self.Subfeatures) != len(self.Values):
             raise ValueError(f"For {self.Name}, number of subfeatures (+1) did not match number of values!")
         else:
-            return {self.Subfeatures[i] : self.Values[i] for i in range(len(self.Subfeatures))}
+            ret_val = {self.Subfeatures[i] : self.Values[i+1] for i in range(len(self.Subfeatures))}
+            ret_val["base"] = self.Values[0]
+        
+        return ret_val
