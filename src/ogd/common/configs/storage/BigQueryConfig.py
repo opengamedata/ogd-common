@@ -56,12 +56,12 @@ class BigQueryConfig(DataStoreConfig):
         :param other_elements: _description_, defaults to None
         :type other_elements: Optional[Map], optional
         """
-        unparsed_elements : Map = other_elements or {}
+        fallbacks : Map = other_elements or {}
 
-        self._location   : DatabaseLocationSchema = self._toLocation(location=location, fallbacks=unparsed_elements)
-        self._credential : KeyCredential          = self._toCredential(credential=credential, fallbacks=unparsed_elements)
+        self._location   : DatabaseLocationSchema = self._toLocation(location=location, fallbacks=fallbacks)
+        self._credential : KeyCredential          = self._toCredential(credential=credential, fallbacks=fallbacks)
 
-        super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=unparsed_elements)
+        super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=fallbacks)
 
     @property
     def Location(self) -> DatabaseLocationSchema:
