@@ -76,7 +76,7 @@ class GameStoreConfig(Schema):
         self._game_id        : str                       = game_id or name
         self._source_name    : str                       = source_name    or self._parseSourceName(unparsed_elements=unparsed_elements)
         self._config         : Optional[DataStoreConfig] = source
-        self._schema_name    : str                       = schema_name    or self._parseSchemaName(unparsed_elements=unparsed_elements)
+        self._schema_name    : str                       = schema_name    or self._parseTableSchemaName(unparsed_elements=unparsed_elements)
         self._schema         : Optional[TableSchema]     = schema
         self._table_location : DatabaseLocationSchema    = table_location or self._parseTableLocation(unparsed_elements=unparsed_elements)
 
@@ -189,10 +189,10 @@ class GameStoreConfig(Schema):
         )
 
     @staticmethod
-    def _parseSchemaName(unparsed_elements:Map) -> str:
+    def _parseTableSchemaName(unparsed_elements:Map) -> str:
         return GameStoreConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["schema"],
+            valid_keys=["table", "schema", "table_schema"],
             to_type=str,
             default_value=GameStoreConfig._DEFAULT_TABLE_SCHEMA_NAME,
             remove_target=True
