@@ -353,6 +353,8 @@ def ToTimedelta(name:str, value:Any, force:bool=False) -> Optional[datetime.time
             Logger.Log(f"{name} was a time value, treating the time is difference from 0: {ret_val}", logging.WARN)
         case builtins.str:
             ret_val = TimedeltaFromString(time_str=value)
+        case builtins.int:
+            ret_val = datetime.timedelta(seconds=value)
         case _:
             base_msg : str = f"{name} was unexpected type {type(value)}, expected a timedelta, time, or string!"
             if force:
