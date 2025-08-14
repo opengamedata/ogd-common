@@ -4,22 +4,19 @@ from pathlib import Path
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
-from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
-from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
+from ogd.common.schemas.locations.RAMLocationSchema import RAMLocationSchema
 from ogd.common.utils.typing import Map
-
-FileCredential : TypeAlias = PasswordCredential | EmptyCredential
 
 class DictionaryStoreConfig(DataStoreConfig):
     _STORE_TYPE = "DICTIONARY"
-    _DEFAULT_LOCATION: Final[Dict] = {}
+    _DEFAULT_LOCATION: Final[RAMLocationSchema] = RAMLocationSchema(name="DictionaryLocation")
     _DEFAULT_CREDENTIAL: Final[EmptyCredential] = EmptyCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,
                  # params for class
-                 location:Optional[Dict],
+                 location:Optional[RAMLocationSchema],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
@@ -57,7 +54,7 @@ class DictionaryStoreConfig(DataStoreConfig):
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=unparsed_elements)
 
     @property
-    def Location(self) -> Dict:
+    def Location(self) -> RAMLocationSchema:
         return self._location
 
     @property
