@@ -148,14 +148,14 @@ class TableSchema(Schema):
         return ret_val
     
     def _indexFromMapping(self, mapping:ColumnMapElement) -> ColumnMapIndex:
-        ret_val : ColumnMapIndex
+        ret_val : ColumnMapIndex = None
 
         if isinstance(mapping, str):
             ret_val = self.ColumnNames.index(mapping)
         elif isinstance(mapping, list):
             ret_val = [self.ColumnNames.index(col_name) for col_name in mapping]
         elif isinstance(mapping, dict):
-            ret_val = {key:self.ColumnNames.index(val) for key,val in mapping}
+            ret_val = {key:self.ColumnNames.index(val) for key,val in mapping.items()}
 
         return ret_val
 
