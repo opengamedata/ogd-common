@@ -14,8 +14,8 @@ class CSVConnector(StorageConnector):
 
     # *** BUILT-INS & PROPERTIES ***
     _VALID_SECONDARY_FILES = [ ExportMode.EVENTS, ExportMode.DETECTORS, ExportMode.FEATURES, ExportMode.SESSION, ExportMode.PLAYER, ExportMode.POPULATION ]
-    _SECONDARY_FILE_SUFFIXES = {ExportMode.EVENTS.name:"game-events", ExportMode.DETECTORS:"all-events",
-                                ExportMode.FEATURES:"all-features", ExportMode.SESSION.name:"session-features",
+    _SECONDARY_FILE_SUFFIXES = {ExportMode.EVENTS.name:"game-events", ExportMode.DETECTORS.name:"all-events",
+                                ExportMode.FEATURES.name:"all-features", ExportMode.SESSION.name:"session-features",
                                 ExportMode.PLAYER.name:"player-features", ExportMode.POPULATION.name:"population-features"}
 
     def __init__(self, config:FileStoreConfig, extension:str = ',',

@@ -42,13 +42,16 @@ class CSVOuterface(Outerface):
         self._extension                   = extension
         self._with_separate_feature_files = with_separate_feature_files
         self._with_zipping                = with_zipping
-        if store:
-            self._store = store
-        elif isinstance(self.Config.StoreConfig, FileStoreConfig):
-            self._store = CSVConnector(config=self.Config.StoreConfig, extension=self._extension, with_secondary_files=set())
-        else:
-            raise ValueError(f"CSVInterface config was for a connector other than CSV/TSV files! Found config type {type(self.Config.StoreConfig)}")
-        self.Connector.Open()
+        # if store:
+        #     self._store = store
+        # elif isinstance(self.Config.StoreConfig, FileStoreConfig):
+        #     self._store = CSVConnector(
+        #         config=self.Config.StoreConfig,
+        #         extension=self._extension,
+        #         with_secondary_files={ExportMode.EVENTS, ExportMode.DETECTORS, ExportMode.SESSION, ExportMode.PLAYER, ExportMode.POPULATION}
+        #     )
+        # else:
+        #     raise ValueError(f"CSVInterface config was for a connector other than CSV/TSV files! Found config type {type(self.Config.StoreConfig)}")
 
         existing_datasets = {}
         try:
@@ -71,6 +74,7 @@ class CSVOuterface(Outerface):
             )
         else:
             raise ValueError(f"CSVInterface config was for a connector other than CSV/TSV files! Found config type {type(self.Config.StoreConfig)}")
+        self.Connector.Open()
 
         # then set up our paths, and ensure each exists.
         # finally, generate file names.
