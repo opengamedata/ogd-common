@@ -25,7 +25,8 @@ class BigQueryConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 location:Optional[DatabaseLocationSchema], credential:Optional[KeyCredential],
+                 location:Optional[DatabaseLocationSchema | str],
+                 credential:Optional[KeyCredential | str],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
@@ -57,8 +58,8 @@ class BigQueryConfig(DataStoreConfig):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._location   : DatabaseLocationSchema  = location   or BigQueryConfig._parseLocation(unparsed_elements=unparsed_elements)
-        self._credential : KeyCredential           = credential or BigQueryConfig._parseCredential(unparsed_elements=unparsed_elements)
+        self._location   : DatabaseLocationSchema = self._toLocation(location=location, fallbacks=unparsed_elements)
+        self._credential : KeyCredential          = self._toCredential(credential=credential, fallbacks=unparsed_elements)
 
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=unparsed_elements)
 
@@ -130,6 +131,28 @@ class BigQueryConfig(DataStoreConfig):
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
+
+    @staticmethod
+    def _toLocation(location:Optional[DatabaseLocationSchema | str], fallbacks:Map) -> DatabaseLocationSchema:
+        ret_val : DatabaseLocationSchema
+        if isinstance(location, DatabaseLocationSchema):
+            ret_val = location
+        if isinstance(location, str):
+            ret_val = DatabaseLocationSchema(name="BQDatabaseLocation", database_name=location, table_name=None)
+        else:
+            ret_val = BigQueryConfig._parseLocation(unparsed_elements=fallbacks)
+        return ret_val
+
+    @staticmethod
+    def _toCredential(credential:Optional[KeyCredential | str], fallbacks:Map) -> KeyCredential:
+        ret_val : KeyCredential
+        if isinstance(credential, KeyCredential):
+            ret_val = credential
+        if isinstance(credential, str):
+            ret_val = KeyCredential(name="BQCredential", location=credential)
+        else:
+            ret_val = BigQueryConfig._parseCredential(unparsed_elements=fallbacks)
+        return ret_val
 
     @staticmethod
     def _parseLocation(unparsed_elements:Map) -> DatabaseLocationSchema:
