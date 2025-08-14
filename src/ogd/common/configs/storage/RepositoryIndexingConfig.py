@@ -17,7 +17,7 @@ class RepositoryIndexingConfig(Config):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,
-                 local_dir:Optional[DirectoryLocationSchema | Map | str],
+                 local_dir:Optional[DirectoryLocationSchema | Map | Path | str],
                  remote_url:Optional[URLLocationSchema | Map | str],
                  templates_url:Optional[URLLocationSchema | Map | str],
                  other_elements:Optional[Map]=None):
@@ -114,13 +114,13 @@ class RepositoryIndexingConfig(Config):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _toLocalDir(local_dir:Optional[DirectoryLocationSchema | Map | str], fallbacks:Map) -> DirectoryLocationSchema:
+    def _toLocalDir(local_dir:Optional[DirectoryLocationSchema | Map | Path | str], fallbacks:Map) -> DirectoryLocationSchema:
         ret_val : DirectoryLocationSchema
         if isinstance(local_dir, DirectoryLocationSchema):
             ret_val = local_dir
         elif isinstance(local_dir, dict):
             ret_val = DirectoryLocationSchema.FromDict(name="RepositoryDirectory", unparsed_elements=local_dir)
-        elif isinstance(local_dir, str):
+        elif isinstance(local_dir, str) or isinstance(local_dir, str):
             ret_val = DirectoryLocationSchema(name="RepositoryDirectory", folder_path=local_dir)
         else:
             ret_val = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=fallbacks)

@@ -44,7 +44,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 indexing:Optional[RepositoryIndexingConfig | Map | str],
+                 indexing:Optional[RepositoryIndexingConfig | Map | Path | str],
                  datasets:Optional[Dict[str, DatasetCollectionSchema]],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
@@ -140,13 +140,13 @@ class DatasetRepositoryConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _toIndexingConfig(indexing:Optional[RepositoryIndexingConfig | Map | str], fallbacks:Map) -> RepositoryIndexingConfig:
+    def _toIndexingConfig(indexing:Optional[RepositoryIndexingConfig | Map | Path | str], fallbacks:Map) -> RepositoryIndexingConfig:
         ret_val : RepositoryIndexingConfig
         if isinstance(indexing, RepositoryIndexingConfig):
             ret_val = indexing
         elif isinstance(indexing, dict):
             ret_val = RepositoryIndexingConfig.FromDict(name="DatasetRepositoryIndex", unparsed_elements=fallbacks)
-        elif isinstance(indexing, str):
+        elif isinstance(indexing, Path) | isinstance(indexing, str):
             ret_val = RepositoryIndexingConfig(name="DatasetRepositoryIndex", local_dir=indexing, remote_url=None, templates_url=None)
         else:
             ret_val = DatasetRepositoryConfig._parseIndexingConfig(unparsed_elements=fallbacks)
