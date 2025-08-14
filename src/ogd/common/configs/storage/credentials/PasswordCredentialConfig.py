@@ -36,10 +36,10 @@ class PasswordCredential(CredentialConfig):
         :param other_elements: _description_, defaults to None
         :type other_elements: Optional[Map], optional
         """
-        unparsed_elements : Map = other_elements or {}
-        self._user = username or self._parseUser(unparsed_elements=unparsed_elements)
-        self._pass = password or self._parsePass(unparsed_elements=unparsed_elements)
-        super().__init__(name=name, other_elements=unparsed_elements)
+        fallbacks : Map = other_elements or {}
+        self._user = username or self._parseUser(unparsed_elements=fallbacks)
+        self._pass = password or self._parsePass(unparsed_elements=fallbacks)
+        super().__init__(name=name, other_elements=fallbacks)
 
     @property
     def User(self) -> str:
