@@ -245,7 +245,7 @@ class BigQueryInterface(Interface):
             sessions : List[str] = filters.IDFilters.Sessions.AsList or []
             if len(sessions) > 0:
                 exclude = "NOT" if filters.IDFilters.Sessions.FilterMode == FilterMode.EXCLUDE else ""
-                sess_clause = f"`session_id` {exclude} IN (@session_list)"
+                sess_clause = f"`session_id` {exclude} IN UNNEST(@session_list)"
                 sess_param = [
                     bigquery.ArrayQueryParameter(name="session_list", array_type="STRING", values=sessions)
                 ]
@@ -256,7 +256,7 @@ class BigQueryInterface(Interface):
             players : List[str] = filters.IDFilters.Players.AsList or []
             if len(players) > 0:
                 exclude = "NOT" if filters.IDFilters.Players.FilterMode == FilterMode.EXCLUDE else ""
-                users_clause = f"`user_id` {exclude} IN (@user_list)"
+                users_clause = f"`user_id` {exclude} IN UNNEST(@user_list)"
                 users_param = [
                     bigquery.ArrayQueryParameter(name="user_list", array_type="STRING", values=players)
                 ]
@@ -289,7 +289,7 @@ class BigQueryInterface(Interface):
             indices : List[int] = filters.Sequences.SessionIndices.AsList or []
             if len(indices) > 0:
                 exclude = "NOT" if filters.Sequences.SessionIndices.FilterMode == FilterMode.EXCLUDE else ""
-                indices_clause = f"`event_session_index` {exclude} IN (@sess_index_list)"
+                indices_clause = f"`event_session_index` {exclude} IN UNNEST(@sess_index_list)"
                 indices_param = [
                     bigquery.ArrayQueryParameter(name="sess_index_list", array_type="INT64", values=indices)
                 ]
@@ -301,7 +301,7 @@ class BigQueryInterface(Interface):
                 logs : List[str] = [str(ver) for ver in filters.Versions.LogVersions.AsList] if filters.Versions.LogVersions.AsList else []
                 if len(logs) > 0:
                     exclude = "NOT" if filters.Versions.LogVersions.FilterMode == FilterMode.EXCLUDE else ""
-                    log_clause = f"`log_version` {exclude} IN (@log_versions)"
+                    log_clause = f"`log_version` {exclude} IN UNNEST(@log_versions)"
                     log_param = [
                         bigquery.ArrayQueryParameter(name="log_versions", array_type="STRING", values=logs)
                     ]
@@ -333,7 +333,7 @@ class BigQueryInterface(Interface):
                 apps : List[str] = [str(ver) for ver in filters.Versions.AppVersions.AsList] if filters.Versions.AppVersions.AsList else []
                 if len(apps) > 0:
                     exclude = "NOT" if filters.Versions.AppVersions.FilterMode == FilterMode.EXCLUDE else ""
-                    app_clause = f"`app_version` {exclude} IN (@app_versions)"
+                    app_clause = f"`app_version` {exclude} IN UNNEST(@app_versions)"
                     app_param = [
                         bigquery.ArrayQueryParameter(name="app_versions", array_type="STRING", values=apps)
                     ]
@@ -365,7 +365,7 @@ class BigQueryInterface(Interface):
                 branches : List[str] = filters.Versions.AppBranches.AsList or []
                 if len(branches) > 0:
                     exclude = "NOT" if filters.Versions.AppBranches.FilterMode == FilterMode.EXCLUDE else ""
-                    branch_clause = f"`app_branch` {exclude} IN (@app_branches)"
+                    branch_clause = f"`app_branch` {exclude} IN UNNEST(@app_branches)"
                     branch_param = [
                         bigquery.ArrayQueryParameter(name="app_branches", array_type="STRING", values=branches)
                     ]
@@ -396,7 +396,7 @@ class BigQueryInterface(Interface):
             events : List[str] = filters.Events.EventNames.AsList or []
             if len(events) > 0:
                 exclude = "NOT" if filters.Events.EventNames.FilterMode == FilterMode.EXCLUDE else ""
-                events_clause = f"`event_name` {exclude} IN (@event_name_list)"
+                events_clause = f"`event_name` {exclude} IN UNNEST(@event_name_list)"
                 events_param.append(
                     bigquery.ArrayQueryParameter(name="event_name_list", array_type="STRING", values=events)
                 )
@@ -406,7 +406,7 @@ class BigQueryInterface(Interface):
         # if event_filter.EventCodeFilter:
         #     if isinstance(filters.Events.EventCodeFilter, SetFilter) and len(event_filter.EventCodeFilter.AsSet) > 0:
         #         exclude = "NOT" if filters.Events.EventCodeFilter.FilterMode == FilterMode.EXCLUDE else ""
-        #         codes_clause = f"`event_code` {exclude} IN (@app_branchs)"
+        #         codes_clause = f"`event_code` {exclude} IN UNNEST(@app_branchs)"
         #         codes_param.append(
         #             bigquery.ArrayQueryParameter(name="app_branchs", array_type="INT64", values=filters.Events.EventCodeFilter.AsList)
         #         )
