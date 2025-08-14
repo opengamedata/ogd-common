@@ -148,7 +148,7 @@ class test_GameStoreConfig(TestCase):
             "schema":"Foo",
             "fakekey" : "Bar"
         }
-        _str = GameStoreConfig._parseSchemaName(_map)
+        _str = GameStoreConfig._parseTableSchemaName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 

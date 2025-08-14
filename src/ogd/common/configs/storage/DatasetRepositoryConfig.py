@@ -44,15 +44,15 @@ class DatasetRepositoryConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 indexing:Optional[RepositoryIndexingConfig],
+                 indexing:Optional[RepositoryIndexingConfig | Map | Path | str],
                  datasets:Optional[Dict[str, DatasetCollectionSchema]],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
-        unparsed_elements : Map = other_elements or {}
+        fallbacks : Map = other_elements or {}
 
-        self._indexing : RepositoryIndexingConfig           = indexing or self._parseIndexingConfig(unparsed_elements=unparsed_elements)
-        self._datasets : Dict[str, DatasetCollectionSchema] = datasets or self._parseDatasets(unparsed_elements=unparsed_elements)
+        self._indexing : RepositoryIndexingConfig           = self._toIndexingConfig(indexing=indexing, fallbacks=fallbacks)
+        self._datasets : Dict[str, DatasetCollectionSchema] = datasets or self._parseDatasets(unparsed_elements=fallbacks)
         super().__init__(name=name, store_type="Repository", other_elements=other_elements)
 
     def __str__(self) -> str:
@@ -138,6 +138,19 @@ class DatasetRepositoryConfig(DataStoreConfig):
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
+
+    @staticmethod
+    def _toIndexingConfig(indexing:Optional[RepositoryIndexingConfig | Map | Path | str], fallbacks:Map) -> RepositoryIndexingConfig:
+        ret_val : RepositoryIndexingConfig
+        if isinstance(indexing, RepositoryIndexingConfig):
+            ret_val = indexing
+        elif isinstance(indexing, dict):
+            ret_val = RepositoryIndexingConfig.FromDict(name="DatasetRepositoryIndex", unparsed_elements=fallbacks)
+        elif isinstance(indexing, Path) | isinstance(indexing, str):
+            ret_val = RepositoryIndexingConfig(name="DatasetRepositoryIndex", local_dir=indexing, remote_url=None, templates_url=None)
+        else:
+            ret_val = DatasetRepositoryConfig._parseIndexingConfig(unparsed_elements=fallbacks)
+        return ret_val
 
     @staticmethod
     def _parseIndexingConfig(unparsed_elements:Map) -> RepositoryIndexingConfig:

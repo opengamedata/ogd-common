@@ -4,6 +4,7 @@ from typing import Dict, Final, LiteralString, Optional, Self
 from ogd.common.schemas.Schema import Schema
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.schemas.tables.TableSchema import TableSchema
+from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
 from ogd.common.utils.typing import Map
 
@@ -76,8 +77,8 @@ class GameStoreConfig(Schema):
         self._game_id        : str                       = game_id or name
         self._source_name    : str                       = source_name    or self._parseSourceName(unparsed_elements=unparsed_elements)
         self._config         : Optional[DataStoreConfig] = source
-        self._schema_name    : str                       = schema_name    or self._parseSchemaName(unparsed_elements=unparsed_elements)
-        self._schema         : Optional[TableSchema]     = schema
+        self._schema_name    : str                       = schema_name    or self._parseTableSchemaName(unparsed_elements=unparsed_elements)
+        self._schema         : TableSchema               = schema         or EventTableSchema.FromFile(schema_name=self._schema_name)
         self._table_location : DatabaseLocationSchema    = table_location or self._parseTableLocation(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
@@ -109,7 +110,7 @@ class GameStoreConfig(Schema):
         return self._schema_name
 
     @property
-    def Table(self) -> Optional[TableSchema]:
+    def Table(self) -> TableSchema:
         return self._schema
     @Table.setter
     def Table(self, schema:TableSchema):
@@ -189,10 +190,10 @@ class GameStoreConfig(Schema):
         )
 
     @staticmethod
-    def _parseSchemaName(unparsed_elements:Map) -> str:
+    def _parseTableSchemaName(unparsed_elements:Map) -> str:
         return GameStoreConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["schema"],
+            valid_keys=["schema", "table_schema"],
             to_type=str,
             default_value=GameStoreConfig._DEFAULT_TABLE_SCHEMA_NAME,
             remove_target=True

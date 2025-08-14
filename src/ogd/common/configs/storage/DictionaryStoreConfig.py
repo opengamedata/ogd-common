@@ -4,28 +4,19 @@ from pathlib import Path
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
-from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
-from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
+from ogd.common.schemas.locations.RAMLocationSchema import RAMLocationSchema
 from ogd.common.utils.typing import Map
-
-FileCredential : TypeAlias = PasswordCredential | EmptyCredential
 
 class DictionaryStoreConfig(DataStoreConfig):
     _STORE_TYPE = "DICTIONARY"
-    _DEFAULT_LOCATION: Final[FileLocationSchema] = FileLocationSchema(
-        name="DefaultFileStoreLocation",
-        folder_path=Path('./data'),
-        filename="UNKNOWN.tsv",
-        other_elements=None
-    )
+    _DEFAULT_LOCATION: Final[RAMLocationSchema] = RAMLocationSchema(name="DictionaryLocation")
     _DEFAULT_CREDENTIAL: Final[EmptyCredential] = EmptyCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,
                  # params for class
-                 location:Optional[FileLocationSchema | Path],
-                 file_credential:Optional[FileCredential],
+                 location:Optional[RAMLocationSchema],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
@@ -59,17 +50,16 @@ class DictionaryStoreConfig(DataStoreConfig):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._location = DictionaryStoreConfig._DEFAULT_LOCATION
-        self._credential = DictionaryStoreConfig._DEFAULT_CREDENTIAL
+        self._location   = location or DictionaryStoreConfig._DEFAULT_LOCATION
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=unparsed_elements)
 
     @property
-    def Location(self) -> FileLocationSchema:
+    def Location(self) -> RAMLocationSchema:
         return self._location
 
     @property
-    def Credential(self) -> PasswordCredential | EmptyCredential:
-        return self._credential
+    def Credential(self) -> EmptyCredential:
+        return DictionaryStoreConfig._DEFAULT_CREDENTIAL
 
     @property
     def AsMarkdown(self) -> str:
@@ -96,7 +86,7 @@ class DictionaryStoreConfig(DataStoreConfig):
         :return: _description_
         :rtype: FileStoreConfig
         """
-        return DictionaryStoreConfig(name=name, location=None, file_credential=None, other_elements=unparsed_elements)
+        return DictionaryStoreConfig(name=name, location=None, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 
@@ -105,7 +95,6 @@ class DictionaryStoreConfig(DataStoreConfig):
         return DictionaryStoreConfig(
             name="DefaultFileStoreConfig",
             location=cls._DEFAULT_LOCATION,
-            file_credential=cls._DEFAULT_CREDENTIAL,
             other_elements={}
         )
 

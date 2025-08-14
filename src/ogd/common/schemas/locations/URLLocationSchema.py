@@ -23,7 +23,7 @@ class URLLocationSchema(LocationSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, url:ParseResult, other_elements:Optional[Map]=None):
+    def __init__(self, name:str, url:Optional[ParseResult | str], other_elements:Optional[Map]=None):
         """Constructor for the `URLLocationSchema` class.
         
         If optional params are not given, data is searched for in `other_elements`.
@@ -43,10 +43,10 @@ class URLLocationSchema(LocationSchema):
         :param other_elements: _description_, defaults to None
         :type other_elements: Optional[Map], optional
         """
-        unparsed_elements : Map = other_elements or {}
+        fallbacks : Map = other_elements or {}
 
-        self._url = url or self._parseURL(unparsed_elements=unparsed_elements) or self._parseSplitURL(unparsed_elements=unparsed_elements)
-        super().__init__(name=name, other_elements=unparsed_elements)
+        self._url = self._toURL(url=url, fallbacks=fallbacks)
+        super().__init__(name=name, other_elements=fallbacks)
 
     @property
     def Scheme(self) -> str:
@@ -123,6 +123,17 @@ class URLLocationSchema(LocationSchema):
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
+
+    @staticmethod
+    def _toURL(url:Optional[ParseResult | str], fallbacks:Map) -> ParseResult:
+        ret_val : ParseResult
+        if isinstance(url, ParseResult):
+            ret_val = url
+        elif isinstance(url, str):
+            ret_val = urlparse(url=url)
+        else:
+            ret_val = URLLocationSchema._parseURL(unparsed_elements=fallbacks) or URLLocationSchema._parseSplitURL(unparsed_elements=fallbacks)
+        return ret_val
 
     @staticmethod
     def _parseURL(unparsed_elements:Map,

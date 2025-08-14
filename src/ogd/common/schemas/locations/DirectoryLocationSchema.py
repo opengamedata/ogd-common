@@ -17,7 +17,9 @@ class DirectoryLocationSchema(LocationSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, folder_path:Optional[Path], other_elements:Optional[Map]=None):
+    def __init__(self, name:str,
+                 folder_path:Optional[Path | str],
+                 other_elements:Optional[Map]=None):
         """Constructor for the `DirectoryLocationSchema` class.
         
         If optional params are not given, data is searched for in `other_elements`.
@@ -37,9 +39,9 @@ class DirectoryLocationSchema(LocationSchema):
         :param other_elements: _description_, defaults to None
         :type other_elements: Optional[Map], optional
         """
-        unparsed_elements : Map = other_elements or {}
+        fallbacks : Map = other_elements or {}
 
-        self._folder_path = folder_path or self._parseFolderPath(unparsed_elements=unparsed_elements)
+        self._folder_path = self._toFolderPath(folder_path=folder_path, fallbacks=fallbacks)
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -101,6 +103,17 @@ class DirectoryLocationSchema(LocationSchema):
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
+
+    @staticmethod
+    def _toFolderPath(folder_path:Optional[Path | str], fallbacks:Map) -> Path:
+        ret_val : Path
+        if isinstance(folder_path, Path):
+            ret_val = folder_path
+        elif isinstance(folder_path, str):
+            ret_val = Path(folder_path)
+        else:
+            ret_val = DirectoryLocationSchema._parseFolderPath(unparsed_elements=fallbacks)
+        return ret_val
 
     @staticmethod
     def _parseFolderPath(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional["DirectoryLocationSchema"]=None) -> Path:

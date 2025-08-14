@@ -16,7 +16,11 @@ class RepositoryIndexingConfig(Config):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, local_dir:Optional[DirectoryLocationSchema], remote_url:Optional[URLLocationSchema], templates_url:Optional[URLLocationSchema], other_elements:Optional[Map]=None):
+    def __init__(self, name:str,
+                 local_dir:Optional[DirectoryLocationSchema | Map | Path | str],
+                 remote_url:Optional[URLLocationSchema | Map | str],
+                 templates_url:Optional[URLLocationSchema | Map | str],
+                 other_elements:Optional[Map]=None):
         """Constructor for the `IndexingConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
@@ -42,11 +46,11 @@ class RepositoryIndexingConfig(Config):
         :param other_elements: _description_, defaults to None
         :type other_elements: Optional[Map], optional
         """
-        unparsed_elements : Map = other_elements or {}
+        fallbacks : Map = other_elements or {}
 
-        self._local_dir     : DirectoryLocationSchema     = local_dir     or self._parseLocalDir(unparsed_elements=unparsed_elements)
-        self._remote_url    : Optional[URLLocationSchema] = remote_url    or self._parseRemoteURL(unparsed_elements=unparsed_elements)
-        self._templates_url : URLLocationSchema           = templates_url or self._parseTemplatesURL(unparsed_elements=unparsed_elements)
+        self._local_dir     : DirectoryLocationSchema     = self._toLocalDir(local_dir=local_dir, fallbacks=fallbacks)
+        self._remote_url    : Optional[URLLocationSchema] = self._toRemoteURL(remote_url=remote_url, fallbacks=fallbacks)
+        self._templates_url : URLLocationSchema           = self._toTemplatesURL(templates_url=templates_url, fallbacks=fallbacks)
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -108,6 +112,45 @@ class RepositoryIndexingConfig(Config):
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
+
+    @staticmethod
+    def _toLocalDir(local_dir:Optional[DirectoryLocationSchema | Map | Path | str], fallbacks:Map) -> DirectoryLocationSchema:
+        ret_val : DirectoryLocationSchema
+        if isinstance(local_dir, DirectoryLocationSchema):
+            ret_val = local_dir
+        elif isinstance(local_dir, dict):
+            ret_val = DirectoryLocationSchema.FromDict(name="RepositoryDirectory", unparsed_elements=local_dir)
+        elif isinstance(local_dir, str) or isinstance(local_dir, str):
+            ret_val = DirectoryLocationSchema(name="RepositoryDirectory", folder_path=local_dir)
+        else:
+            ret_val = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=fallbacks)
+        return ret_val
+
+    @staticmethod
+    def _toRemoteURL(remote_url:Optional[URLLocationSchema | Map | str], fallbacks:Map) -> URLLocationSchema:
+        ret_val : URLLocationSchema
+        if isinstance(remote_url, URLLocationSchema):
+            ret_val = remote_url
+        elif isinstance(remote_url, dict):
+            ret_val = URLLocationSchema.FromDict(name="RemoteRepoURL", unparsed_elements=remote_url)
+        elif isinstance(remote_url, str):
+            ret_val = URLLocationSchema(name="RemoteRepoURL", url=remote_url)
+        else:
+            ret_val = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=fallbacks)
+        return ret_val
+
+    @staticmethod
+    def _toTemplatesURL(templates_url:Optional[URLLocationSchema | Map | str], fallbacks:Map) -> URLLocationSchema:
+        ret_val : URLLocationSchema
+        if isinstance(templates_url, URLLocationSchema):
+            ret_val = templates_url
+        elif isinstance(templates_url, dict):
+            ret_val = URLLocationSchema.FromDict(name="TemplatesURL", unparsed_elements=fallbacks)
+        elif isinstance(templates_url, str):
+            ret_val = URLLocationSchema(name="TemplatesURL", url=templates_url)
+        else:
+            ret_val = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=fallbacks)
+        return ret_val
 
     @staticmethod
     def _parseLocalDir(unparsed_elements:Map) -> DirectoryLocationSchema:

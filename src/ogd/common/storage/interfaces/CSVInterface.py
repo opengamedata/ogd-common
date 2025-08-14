@@ -36,19 +36,21 @@ class CSVInterface(Interface):
             self._store = CSVConnector(
                 config=self.Config.StoreConfig,
                 extension=self._extension,
-                with_secondary_files=set()
+                with_secondary_files=set(),
             )
         else:
             raise ValueError(f"CSVInterface config was for a connector other than CSV/TSV files! Found config type {type(self.Config.StoreConfig)}")
-        self.Connector.Open()
+        self.Connector.Open(writeable=False)
 
         # We always just read the file right away.
         if self.Connector.IsOpen and self.Connector.File:
             # TODO should include option for access to the TableConfig in the interface, because obviously it should know what form the table takes.
-            target_types = defaultdict(str, {
+            _default = lambda : np.dtype("object")
+            _mapping : Dict[str, np.dtype] = {
                 column.Name : np.dtype(column.ValueType if column.ValueType in {"str", "int", "float"} else "object")
                 for column in self.Config.Table.Columns
-            }) if self.Config.Table is not None else None
+            }
+            target_types = defaultdict(_default, _mapping)
 
             date_columns = [
                 column.Name for column in self.Config.Table.Columns if column.ValueType in {"datetime", "timezone"}
@@ -92,15 +94,15 @@ class CSVInterface(Interface):
         ret_val : List[str] = []
 
         if not self.DataFrame.empty:
-            server_times = pd.to_datetime(self.DataFrame['server_time'])
+            dates = pd.to_datetime(self.DataFrame['timestamp'], format='ISO8601')
             mask = None
             if filters.Sequences.Timestamps.Active:
                 if filters.Sequences.Timestamps.Min and filters.Sequences.Timestamps.Max:
-                    mask = (server_times >= filters.Sequences.Timestamps.Min) & (server_times <= filters.Sequences.Timestamps.Max)
+                    mask = (dates >= filters.Sequences.Timestamps.Min) & (dates <= filters.Sequences.Timestamps.Max)
                 if filters.Sequences.Timestamps.Min:
-                    mask = server_times >= filters.Sequences.Timestamps.Min
+                    mask = dates >= filters.Sequences.Timestamps.Min
                 if filters.Sequences.Timestamps.Min and filters.Sequences.Timestamps.Max:
-                    mask = server_times <= filters.Sequences.Timestamps.Max
+                    mask = dates <= filters.Sequences.Timestamps.Max
             # if versions is not None and versions is not []:
             #     mask = mask & (self._data['app_version'].isin(versions))
             data_masked = self.DataFrame.loc[mask] if mask is not None else self.DataFrame

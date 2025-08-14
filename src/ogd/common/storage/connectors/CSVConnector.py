@@ -52,7 +52,7 @@ class CSVConnector(StorageConnector):
     def _open(self, writeable:bool=True) -> bool:
         ret_val = True
         try:
-            self._file = open(self.StoreConfig.Filepath, mode="w+" if writeable else "r+", encoding="utf-8")
+            self._file = open(self.StoreConfig.Filepath, mode="w+" if writeable else "r", encoding="utf-8")
         except FileNotFoundError:
             Logger.Log(f"Could not find file {self.StoreConfig.Filepath}.", logging.ERROR)
             ret_val = False

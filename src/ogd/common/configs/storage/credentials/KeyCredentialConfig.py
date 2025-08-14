@@ -19,7 +19,7 @@ class KeyCredential(CredentialConfig):
         other_elements=None
     )
 
-    def __init__(self, name:str, location:Optional[FileLocationSchema], other_elements:Optional[Map]=None):
+    def __init__(self, name:str, location:Optional[FileLocationSchema | Map | str | Path], other_elements:Optional[Map]=None):
         """Constructor for the `KeyCredentialConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
@@ -40,10 +40,10 @@ class KeyCredential(CredentialConfig):
         :param other_elements: _description_, defaults to None
         :type other_elements: Optional[Map], optional
         """
-        unparsed_elements : Map = other_elements or {}
+        fallbacks : Map = other_elements or {}
 
-        self._location : FileLocationSchema = location or self._parseLocation(unparsed_elements=unparsed_elements)
-        super().__init__(name=name, other_elements=unparsed_elements)
+        self._location : FileLocationSchema = self._toLocation(location=location, fallbacks=fallbacks)
+        super().__init__(name=name, other_elements=fallbacks)
 
     @property
     def Filename(self) -> str:
@@ -131,6 +131,23 @@ class KeyCredential(CredentialConfig):
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
+
+    @staticmethod
+    def _toLocation(location:Optional[FileLocationSchema | Map | str | Path], fallbacks:Map) -> FileLocationSchema:
+        ret_val: FileLocationSchema
+
+        if isinstance(location, FileLocationSchema):
+            ret_val = location
+        elif isinstance(location, dict):
+            ret_val = FileLocationSchema.FromDict(name="KeyCredentialLocation", unparsed_elements=location)
+        elif isinstance(location, Path):
+            ret_val = FileLocationSchema.FromPath(name="KeyCredentialLocation", fullpath=location)
+        elif isinstance(location, str):
+            ret_val = FileLocationSchema.FromPath(name="KeyCredentialLocation", fullpath=Path(location))
+        else:
+            ret_val = KeyCredential._parseLocation(unparsed_elements=fallbacks)
+
+        return ret_val
 
     @staticmethod
     def _parseLocation(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> FileLocationSchema:
