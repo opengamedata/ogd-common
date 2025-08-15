@@ -13,7 +13,7 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.configs.GameStoreConfig import DataTableConfig
 from tests.config.t_config import settings
 
-class test_GameStoreConfig(TestCase):
+class test_DataTableConfig(TestCase):
     """Testbed for the GameStoreConfig class.
     """
 
