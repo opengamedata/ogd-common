@@ -37,6 +37,10 @@ class FeatureSet:
     def __len__(self):
         return len(self.Features)
 
+    def __iter__(self):
+        for event in self.Features:
+            yield event
+
     @property
     def Features(self) -> List[Feature]:
         return self._features
