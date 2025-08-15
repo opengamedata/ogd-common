@@ -82,17 +82,6 @@ class DataTableConfig(Schema):
         super().__init__(name=name, other_elements=other_elements)
 
     @property
-    def GameID(self) -> str:
-        """Property to get the Game ID (also called App ID) associated with the given game source
-
-        By convention, this is a human-readable simplification of the games name, in CONSTANT_CASE format
-
-        :return: _description_
-        :rtype: str
-        """
-        return self._game_id
-
-    @property
     def StoreName(self) -> str:
         return self._store_name
 
@@ -139,7 +128,6 @@ class DataTableConfig(Schema):
     def Default(cls) -> "DataTableConfig":
         return DataTableConfig(
             name="DefaultDataTableConfig",
-            game_id=cls._DEFAULT_GAME_ID,
             store_name=cls._DEFAULT_STORE_NAME,
             store_config=None,
             schema_name=cls._DEFAULT_TABLE_SCHEMA_NAME,
@@ -168,7 +156,7 @@ class DataTableConfig(Schema):
         :return: _description_
         :rtype: DataTableConfig
         """
-        return DataTableConfig(name=name, game_id=None, store_name=None, schema_name=None,
+        return DataTableConfig(name=name, store_name=None, schema_name=None,
                                 table_location=None, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
