@@ -25,7 +25,6 @@ class DataTableConfig(Schema):
     TODO : Implement and use a smart Load(...) function of TableConfig to load schema from given name, rather than FromFile.
     """
 
-    _DEFAULT_GAME_ID           : Final[LiteralString] = "UNKNOWN GAME"
     _DEFAULT_STORE_NAME       : Final[LiteralString] = "OPENGAMEDATA_BQ"
     _DEFAULT_TABLE_SCHEMA_NAME : Final[LiteralString] = "OPENGAMEDATA_BIGQUERY"
     _DEFAULT_DB_NAME           : Final[LiteralString] = "UNKNOWN GAME"
@@ -38,7 +37,7 @@ class DataTableConfig(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, game_id:Optional[str],
+    def __init__(self, name:str,
                  store_name:Optional[str],
                  schema_name:Optional[str],
                  table_location:Optional[DatabaseLocationSchema],
@@ -74,7 +73,6 @@ class DataTableConfig(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._game_id        : str                       = game_id       or name
         self._store_name     : str                       = store_name    or self._parseStoreName(unparsed_elements=unparsed_elements)
         self._store_config   : Optional[DataStoreConfig] = store_config
         self._schema_name    : str                       = schema_name    or self._parseTableSchemaName(unparsed_elements=unparsed_elements)
