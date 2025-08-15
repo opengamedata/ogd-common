@@ -8,7 +8,7 @@ from google.api_core.exceptions import BadRequest
 # import locals
 from ogd.common.filters import *
 from ogd.common.filters.collections import *
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.GameStoreConfig import DataTableConfig
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.models.enums.FilterMode import FilterMode
@@ -24,7 +24,7 @@ class BQFirebaseInterface(BigQueryInterface):
 
     # *** BUILT-INS ***
 
-    def __init__(self, config:GameStoreConfig, fail_fast:bool, store:Optional[BigQueryConnector]=None):
+    def __init__(self, config:DataTableConfig, fail_fast:bool, store:Optional[BigQueryConnector]=None):
         super().__init__(config=config, fail_fast=fail_fast, store=store)
 
     # *** RE-IMPLEMENT ABSTRACT FUNCTIONS ***

@@ -14,7 +14,7 @@ from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.GameStoreConfig import DataTableConfig
 from ogd.common.configs.storage.MySQLConfig import MySQLConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Pair
@@ -23,7 +23,7 @@ class MySQLInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:GameStoreConfig, fail_fast:bool, store:Optional[MySQLConnector]=None):
+    def __init__(self, config:DataTableConfig, fail_fast:bool, store:Optional[MySQLConnector]=None):
         super().__init__(config=config, fail_fast=fail_fast)
         if store:
             self._store = store
@@ -50,7 +50,7 @@ class MySQLInterface(Interface):
                 params.append(self.Config.GameID)
             query = f"""
                 SELECT DISTINCT(`{id_col}`)
-                FROM `{self.Config.TableLocation.Location}`
+                FROM `{self.Config.Location.Location}`
                 {where_clause}
             """
             data = MySQLInterface.Query(cursor=self.Connector.Cursor, query=query, params=tuple(params))
@@ -70,7 +70,7 @@ class MySQLInterface(Interface):
                 params.append(self.Config.GameID)
             query = f"""
                 SELECT MIN(`server_time`), MAX(`server_time`)
-                FROM `{self.Config.TableLocation.Location}`
+                FROM `{self.Config.Location.Location}`
                 {where_clause}
             """
 
@@ -94,7 +94,7 @@ class MySQLInterface(Interface):
                 params.append(self.Config.GameID)
             query = f"""
                 SELECT DISTINCT({version_col})
-                FROM `{self.Config.TableLocation.Location}`
+                FROM `{self.Config.Location.Location}`
                 {where_clause}
             """
 
@@ -119,7 +119,7 @@ class MySQLInterface(Interface):
 
             query = f"""
                 SELECT *
-                FROM `{self.Config.TableLocation.Location}`
+                FROM `{self.Config.Location.Location}`
                 {where_clause}
                 ORDER BY `user_id`, `session_id`, `event_sequence_index` ASC
             """

@@ -10,7 +10,7 @@ from typing import List, Set
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.models.EventSet import EventSet
 from ogd.common.models.FeatureSet import FeatureSet
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.GameStoreConfig import DataTableConfig
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
@@ -91,12 +91,12 @@ class Outerface:
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:GameStoreConfig, export_modes:Set[ExportMode]):
-        self._config  : GameStoreConfig = config
+    def __init__(self, config:DataTableConfig, export_modes:Set[ExportMode]):
+        self._config  : DataTableConfig = config
         self._modes   : Set[ExportMode] = export_modes
 
     @property
-    def Config(self) -> GameStoreConfig:
+    def Config(self) -> DataTableConfig:
         return self._config
 
     @property
@@ -146,7 +146,7 @@ class Outerface:
             Logger.Log(f"Skipping WriteLines in {type(self).__name__}, export mode {mode} is not enabled for this outerface", depth=3)
 
     def WriteEvents(self, events:EventSet, mode:ExportMode) -> None:
-        if isinstance(self.Config.Table, EventTableSchema):
+        if isinstance(self.Config.TableStructure, EventTableSchema):
             if mode in self.ExportModes:
                 match (mode):
                     case ExportMode.EVENTS:
@@ -163,7 +163,7 @@ class Outerface:
             Logger.Log(f"Could not write events from {type(self).__name__}, outerface was not configured for a Events table!", depth=3)
 
     def WriteFeatures(self, features:FeatureSet, mode:ExportMode) -> None:
-        if isinstance(self.Config.Table, FeatureTableSchema):
+        if isinstance(self.Config.TableStructure, FeatureTableSchema):
             if mode in self.ExportModes:
                 match (mode):
                     case ExportMode.SESSION:

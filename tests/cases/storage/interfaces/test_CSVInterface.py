@@ -6,7 +6,7 @@ from typing import Final, List
 from unittest import TestCase
 from zipfile import ZipFile
 # import locals
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.GameStoreConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.storage.interfaces.CSVInterface import CSVInterface
@@ -55,7 +55,7 @@ class test_CSVInterface(TestCase):
     @unittest.skip("Not up-to-date with implementation")
     def test_IDsFromDates(self):
         with self.zipped_file.open(self.zipped_file.namelist()[0]) as f:
-            _cfg = GameStoreConfig.FromDict(name="FILE SOURCE", unparsed_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
+            _cfg = DataTableConfig.FromDict(name="FILE SOURCE", unparsed_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
             _store = CSVConnector(
                 config=FileStoreConfig(name="file", location=f, file_credential=None)
             )
@@ -72,7 +72,7 @@ class test_CSVInterface(TestCase):
     @unittest.skip("Not up-to-date with implementation")
     def test_DatesFromIDs(self):
         with self.zipped_file.open(self.zipped_file.namelist()[0]) as f:
-            _cfg = GameStoreConfig.FromDict(name="FILE SOURCE", unparsed_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
+            _cfg = DataTableConfig.FromDict(name="FILE SOURCE", unparsed_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
             CSVI = CSVInterface(game_id='BACTERIA', config=_cfg, filepath=f, delim='\t', fail_fast=False)
             if CSVI.Open():
                 dates = CSVI.DatesFromIDs(self.TEST_SESSION_LIST)

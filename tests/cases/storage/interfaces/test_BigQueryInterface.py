@@ -9,7 +9,7 @@ from google.cloud import bigquery
 from ogd.common.filters import *
 from ogd.common.filters.collections import *
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.GameStoreConfig import DataTableConfig
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.FilterMode import FilterMode
@@ -44,9 +44,9 @@ class test_BigQueryInterface(TestCase):
         table_schema = EventTableSchema.FromFile(schema_name="OPENGAMEDATA_BIGQUERY.json", schema_path="./tests/config/")
 
         _elems = { "source":"OPENGAMEDATA_BQ", "database":"aqualab", "table":"aqualab_daily", "schema":"OPENGAMEDATA_BIGQUERY" }
-        config = GameStoreConfig.FromDict(name="BQStoreConfig", unparsed_elements=_elems)
+        config = DataTableConfig.FromDict(name="BQStoreConfig", unparsed_elements=_elems)
         config.StoreConfig = store_config
-        config.Table = table_schema
+        config.TableStructure = table_schema
 
         cls.test_interface = BigQueryInterface(config=config, fail_fast=True, store=None)
 

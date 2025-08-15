@@ -10,7 +10,7 @@ from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.configs.GameStoreConfig import GameStoreConfig
+from src.ogd.common.configs.GameStoreConfig import DataTableConfig
 from tests.config.t_config import settings
 
 class test_GameStoreConfig(TestCase):
@@ -33,10 +33,10 @@ class test_GameStoreConfig(TestCase):
                 "PATH": "./"
             }
         }
-        cls.test_schema = GameStoreConfig(
+        cls.test_schema = DataTableConfig(
             name="Game Source Schema",
             game_id="AQUALAB",
-            source_name="AQUALAB_BQ",
+            store_name="AQUALAB_BQ",
             schema_name="OPENGAMEDATA_BIGQUERY",
             table_location=DatabaseLocationSchema(name="DBLocation", database_name="aqualab", table_name="aqualab_daily"),
             other_elements={ "foo":"bar" }
@@ -110,7 +110,7 @@ class test_GameStoreConfig(TestCase):
             "PROJECT_KEY": "./key.txt"
         }
         _sources : Dict[str, DataStoreConfig] = { "AQUALAB_BQ" : BigQueryConfig.FromDict(name="AQUALAB_BQ", unparsed_elements=source_elems) }
-        _schema = GameStoreConfig.FromDict(name="AQUALAB", unparsed_elements=_dict)
+        _schema = DataTableConfig.FromDict(name="AQUALAB", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "AQUALAB")
         self.assertIsInstance(_schema.StoreName, str)
@@ -127,19 +127,19 @@ class test_GameStoreConfig(TestCase):
             "source":"Foo",
             "fakekey" : "Bar"
         }
-        _str = GameStoreConfig._parseSourceName(_map)
+        _str = DataTableConfig._parseStoreName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
         # First parse should remove key, so second should return default from class
-        _str = GameStoreConfig._parseSourceName(_map)
+        _str = DataTableConfig._parseStoreName(_map)
         self.assertIsInstance(_str, str)
-        self.assertEqual(_str, GameStoreConfig._DEFAULT_SOURCE_NAME)
+        self.assertEqual(_str, DataTableConfig._DEFAULT_STORE_NAME)
         # Check that source_name is also treated as valid
         _map = {
             "source_name":"Foo",
             "fakekey" : "Bar"
         }
-        _str = GameStoreConfig._parseSourceName(_map)
+        _str = DataTableConfig._parseStoreName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
@@ -148,7 +148,7 @@ class test_GameStoreConfig(TestCase):
             "schema":"Foo",
             "fakekey" : "Bar"
         }
-        _str = GameStoreConfig._parseTableSchemaName(_map)
+        _str = DataTableConfig._parseTableSchemaName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
@@ -158,7 +158,7 @@ class test_GameStoreConfig(TestCase):
             "table":"Bar",
             "fakekey" : "Baz"
         }
-        _loc = GameStoreConfig._parseTableLocation(unparsed_elements=_map)
+        _loc = DataTableConfig._parseTableLocation(unparsed_elements=_map)
         self.assertIsInstance(_loc, DatabaseLocationSchema)
         self.assertIsInstance(_loc.DatabaseName, str)
         self.assertEqual(_loc.DatabaseName, "Foo")

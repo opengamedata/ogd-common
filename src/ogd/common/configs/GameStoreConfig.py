@@ -8,7 +8,7 @@ from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
 from ogd.common.utils.typing import Map
 
-class GameStoreConfig(Schema):
+class DataTableConfig(Schema):
     """A simple Schema structure containing configuration information for a particular game's data.
     
     When given to an interface, this schema is treated as the location from which to retrieve data.
@@ -26,7 +26,7 @@ class GameStoreConfig(Schema):
     """
 
     _DEFAULT_GAME_ID           : Final[LiteralString] = "UNKNOWN GAME"
-    _DEFAULT_SOURCE_NAME       : Final[LiteralString] = "OPENGAMEDATA_BQ"
+    _DEFAULT_STORE_NAME       : Final[LiteralString] = "OPENGAMEDATA_BQ"
     _DEFAULT_TABLE_SCHEMA_NAME : Final[LiteralString] = "OPENGAMEDATA_BIGQUERY"
     _DEFAULT_DB_NAME           : Final[LiteralString] = "UNKNOWN GAME"
     _DEFAULT_TABLE_NAME        : Final[LiteralString] = "_daily"
@@ -39,10 +39,10 @@ class GameStoreConfig(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, game_id:Optional[str],
-                 source_name:Optional[str],
+                 store_name:Optional[str],
                  schema_name:Optional[str],
                  table_location:Optional[DatabaseLocationSchema],
-                 source:Optional[DataStoreConfig]=None, schema:Optional[TableSchema]=None,
+                 store_config:Optional[DataStoreConfig]=None, table_schema:Optional[TableSchema]=None,
                  other_elements:Optional[Map]=None):
         """Constructor for the `GameStoreConfig` class.
         
@@ -53,8 +53,8 @@ class GameStoreConfig(Schema):
         ```
         {
             "source" : "DATA_SOURCE_NAME",
-            "schema" : "TABLE_SCHEMA_NAME",
             "database": "db_name",
+            "schema" : "TABLE_SCHEMA_NAME",
             "table" : "table_name"
         },
         ```
@@ -74,11 +74,11 @@ class GameStoreConfig(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._game_id        : str                       = game_id or name
-        self._source_name    : str                       = source_name    or self._parseSourceName(unparsed_elements=unparsed_elements)
-        self._config         : Optional[DataStoreConfig] = source
+        self._game_id        : str                       = game_id       or name
+        self._store_name     : str                       = store_name    or self._parseStoreName(unparsed_elements=unparsed_elements)
+        self._store_config   : Optional[DataStoreConfig] = store_config
         self._schema_name    : str                       = schema_name    or self._parseTableSchemaName(unparsed_elements=unparsed_elements)
-        self._schema         : TableSchema               = schema         or EventTableSchema.FromFile(schema_name=self._schema_name)
+        self._table_schema   : TableSchema               = table_schema   or EventTableSchema.FromFile(schema_name=self._schema_name)
         self._table_location : DatabaseLocationSchema    = table_location or self._parseTableLocation(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
@@ -96,28 +96,28 @@ class GameStoreConfig(Schema):
 
     @property
     def StoreName(self) -> str:
-        return self._source_name
+        return self._store_name
 
     @property
     def StoreConfig(self) -> Optional[DataStoreConfig]:
-        return self._config
+        return self._store_config
     @StoreConfig.setter
     def StoreConfig(self, source:DataStoreConfig):
-        self._config = source
+        self._store_config = source
 
     @property
     def TableSchemaName(self) -> str:
         return self._schema_name
 
     @property
-    def Table(self) -> TableSchema:
-        return self._schema
-    @Table.setter
-    def Table(self, schema:TableSchema):
-        self._schema = schema
+    def TableStructure(self) -> TableSchema:
+        return self._table_schema
+    @TableStructure.setter
+    def TableStructure(self, schema:TableSchema):
+        self._table_schema = schema
 
     @property
-    def TableLocation(self) -> DatabaseLocationSchema:
+    def Location(self) -> DatabaseLocationSchema:
         return self._table_location
 
     @property
@@ -134,18 +134,18 @@ class GameStoreConfig(Schema):
     def AsMarkdown(self) -> str:
         ret_val : str
 
-        ret_val = f"{self.Name}: _{self.TableSchemaName}_ format, source {self.StoreName} : {self.TableLocation.Location}"
+        ret_val = f"{self.Name}: _{self.TableSchemaName}_ format, source {self.StoreName} : {self.Location.Location}"
         return ret_val
 
     @classmethod
-    def Default(cls) -> "GameStoreConfig":
-        return GameStoreConfig(
+    def Default(cls) -> "DataTableConfig":
+        return DataTableConfig(
             name="DefaultGameStoreConfig",
             game_id=cls._DEFAULT_GAME_ID,
-            source_name=cls._DEFAULT_SOURCE_NAME,
-            source=None,
+            store_name=cls._DEFAULT_STORE_NAME,
+            store_config=None,
             schema_name=cls._DEFAULT_TABLE_SCHEMA_NAME,
-            schema=None,
+            table_schema=None,
             table_location=cls._DEFAULT_TABLE_LOC,
             other_elements={}
         )
@@ -153,7 +153,7 @@ class GameStoreConfig(Schema):
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map,
                   key_overrides:Optional[Dict[str, str]]=None,
-                  default_override:Optional[Self]=None) -> "GameStoreConfig":
+                  default_override:Optional[Self]=None) -> "DataTableConfig":
         """Create a GameStoreConfig from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -170,7 +170,7 @@ class GameStoreConfig(Schema):
         :return: _description_
         :rtype: GameStoreConfig
         """
-        return GameStoreConfig(name=name, game_id=None, source_name=None, schema_name=None,
+        return DataTableConfig(name=name, game_id=None, store_name=None, schema_name=None,
                                 table_location=None, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
@@ -180,22 +180,22 @@ class GameStoreConfig(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseSourceName(unparsed_elements:Map) -> str:
-        return GameStoreConfig.ParseElement(
+    def _parseStoreName(unparsed_elements:Map) -> str:
+        return DataTableConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["source", "source_name"],
+            valid_keys=["source", "source_name", "store", "store_name"],
             to_type=str,
-            default_value=GameStoreConfig._DEFAULT_SOURCE_NAME,
+            default_value=DataTableConfig._DEFAULT_STORE_NAME,
             remove_target=True
         )
 
     @staticmethod
     def _parseTableSchemaName(unparsed_elements:Map) -> str:
-        return GameStoreConfig.ParseElement(
+        return DataTableConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["schema", "table_schema"],
+            valid_keys=["table_schema", "schema"],
             to_type=str,
-            default_value=GameStoreConfig._DEFAULT_TABLE_SCHEMA_NAME,
+            default_value=DataTableConfig._DEFAULT_TABLE_SCHEMA_NAME,
             remove_target=True
         )
 
@@ -204,7 +204,7 @@ class GameStoreConfig(Schema):
         return DatabaseLocationSchema.FromDict(
             name="TableLocation",
             unparsed_elements=unparsed_elements,
-            default_override=GameStoreConfig._DEFAULT_TABLE_LOC
+            default_override=DataTableConfig._DEFAULT_TABLE_LOC
         )
 
     # *** PRIVATE METHODS ***

@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.GameStoreConfig import DataTableConfig
 from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.storage.interfaces.CSVInterface import CSVInterface
 from ogd.common.storage.interfaces.BigQueryInterface import BigQueryInterface
@@ -12,7 +12,7 @@ from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 
 class InterfaceFactory:
     @staticmethod
-    def FromConfig(config:GameStoreConfig, fail_fast:bool)-> Interface:
+    def FromConfig(config:DataTableConfig, fail_fast:bool)-> Interface:
         if config.StoreConfig:
             match (config.StoreConfig.Type.upper()):
                 # case "MYSQL":
@@ -29,5 +29,5 @@ class InterfaceFactory:
             raise ValueError("Could not generate Interface from GameStoreConfig, the underlying StoreConfig was null!")
     @staticmethod
     def FromDict(name:str, all_elements:Dict[str, Any], fail_fast:bool)-> Interface:
-        config = GameStoreConfig.FromDict(name=name, unparsed_elements=all_elements)
+        config = DataTableConfig.FromDict(name=name, unparsed_elements=all_elements)
         return InterfaceFactory.FromConfig(config=config, fail_fast=fail_fast)

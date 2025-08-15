@@ -12,7 +12,7 @@ from typing import Any, List, Optional, override, Set
 # 3rd-party imports
 # import local files
 # from ogd import games
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.GameStoreConfig import DataTableConfig
 from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
@@ -30,7 +30,7 @@ class CSVOuterface(Outerface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:GameStoreConfig, export_modes:Set[ExportMode],
+    def __init__(self, config:DataTableConfig, export_modes:Set[ExportMode],
                  repository:DatasetRepositoryConfig, dataset_id:str,
                  extension:str="tsv", with_separate_feature_files:bool=True, with_zipping:bool=True,
                  store:Optional[CSVConnector]=None):

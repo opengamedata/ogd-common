@@ -6,7 +6,7 @@ import logging
 from typing import List, override, Set
 
 # import OGD files
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.GameStoreConfig import DataTableConfig
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.storage.outerfaces.Outerface import Outerface
@@ -21,7 +21,7 @@ class DebugOuterface(Outerface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:GameStoreConfig, export_modes:Set[ExportMode]):
+    def __init__(self, config:DataTableConfig, export_modes:Set[ExportMode]):
         super().__init__(export_modes=export_modes, config=config)
         # self.Open()
 

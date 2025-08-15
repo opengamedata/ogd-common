@@ -11,7 +11,7 @@ from google.api_core.exceptions import BadRequest
 # OGD imports
 from ogd.common.filters import *
 from ogd.common.filters.collections import *
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.GameStoreConfig import DataTableConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.models.enums.IDMode import IDMode
@@ -36,7 +36,7 @@ class BigQueryInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:GameStoreConfig, fail_fast:bool, store:Optional[BigQueryConnector]=None):
+    def __init__(self, config:DataTableConfig, fail_fast:bool, store:Optional[BigQueryConnector]=None):
         self._store : BigQueryConnector
 
         super().__init__(config=config, fail_fast=fail_fast)
@@ -58,7 +58,7 @@ class BigQueryInterface(Interface):
         :return: The full path from project ID to table name, if properly set in configuration, else the literal string "INVALID SOURCE SCHEMA".
         :rtype: str
         """
-        return f"{self.Connector.StoreConfig.Location.DatabaseName}.{self.Config.TableLocation.Location}_*"
+        return f"{self.Connector.StoreConfig.Location.DatabaseName}.{self.Config.Location.Location}_*"
 
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***

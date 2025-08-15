@@ -17,7 +17,7 @@ from ogd.common.models.FeatureSet import FeatureSet
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.models.SemanticVersion import SemanticVersion
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.GameStoreConfig import DataTableConfig
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.storage.connectors.StorageConnector import StorageConnector
@@ -70,13 +70,13 @@ class Interface(abc.ABC):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:GameStoreConfig, fail_fast:bool):
-        self._config    : GameStoreConfig = config
+    def __init__(self, config:DataTableConfig, fail_fast:bool):
+        self._config    : DataTableConfig = config
         self._fail_fast : bool            = fail_fast
         super().__init__()
 
     @property
-    def Config(self) -> GameStoreConfig:
+    def Config(self) -> DataTableConfig:
         return self._config
 
     # *** PUBLIC STATICS ***
@@ -146,7 +146,7 @@ class Interface(abc.ABC):
         _events : List[Event] = []
 
         if self.Connector.IsOpen:
-            if isinstance(self.Config.Table, EventTableSchema):
+            if isinstance(self.Config.TableStructure, EventTableSchema):
                 _msg = f"Retrieving event data from {self.Connector.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
 
@@ -154,7 +154,7 @@ class Interface(abc.ABC):
                 rows = self._getEventRows(filters=filters)
                 for row in rows:
                     try:
-                        event = self.Config.Table.EventFromRow(row, fallbacks=fallbacks)
+                        event = self.Config.TableStructure.EventFromRow(row, fallbacks=fallbacks)
                         # in case event index was not given, we should fall back on using the order it came to us.
                     except Exception as err:
                         if self._fail_fast:
@@ -175,7 +175,7 @@ class Interface(abc.ABC):
         _features : List[Feature] = []
 
         if self.Connector.IsOpen:
-            if isinstance(self.Config.Table, FeatureTableSchema):
+            if isinstance(self.Config.TableStructure, FeatureTableSchema):
                 _msg = f"Retrieving event data from {self.Connector.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
 
@@ -183,7 +183,7 @@ class Interface(abc.ABC):
                 rows = self._getFeatureRows(filters=filters)
                 for row in rows:
                     try:
-                        feature = self.Config.Table.FeatureFromRow(row, fallbacks=fallbacks)
+                        feature = self.Config.TableStructure.FeatureFromRow(row, fallbacks=fallbacks)
                         # in case event index was not given, we should fall back on using the order it came to us.
                     except Exception as err:
                         if self._fail_fast:
