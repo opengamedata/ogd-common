@@ -187,10 +187,10 @@ class TableSchema(Schema):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, schema_name:str, schema_path:str | Path=_DEFAULT_SCHEMA_PATH) -> "TableSchema":
+    def FromFile(cls, schema_name:str, schema_path:Optional[str | Path]=None) -> "TableSchema":
         ret_val : Schema
 
-        schema_path = schema_path
+        schema_path = schema_path or TableSchema._DEFAULT_SCHEMA_PATH
         ret_val = cls._fromFile(schema_name=schema_name, schema_path=Path(schema_path))
         if isinstance(ret_val, TableSchema):
             return ret_val
