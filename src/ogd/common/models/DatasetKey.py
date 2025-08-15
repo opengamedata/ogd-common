@@ -1,4 +1,5 @@
 # standard imports
+import builtins
 import re
 from calendar import monthrange
 from datetime import date, datetime
@@ -24,7 +25,7 @@ class DatasetKey:
     """
     def __init__(self, game_id:str,
                  full_month:Optional[str | Tuple[int, int]]=None,
-                 from_date:Optional[date]=None, to_date:Optional[date]=None,
+                 from_date:Optional[date|str|int]=None, to_date:Optional[date|str|int]=None,
                  player_id:Optional[str]=None, player_id_file:Optional[str|Path]=None,
                  session_id:Optional[str]=None, session_id_file:Optional[str|Path]=None
     ):
@@ -32,8 +33,8 @@ class DatasetKey:
         if not any(x is not None for x in [full_month, from_date, to_date, player_id, player_id_file, session_id, session_id_file]):
             raise ValueError("Attempted to create DatasetKey without specifying dates or a player or a session identifier!")
         else:
-            self._from_date : Optional[date]
-            self._to_date   : Optional[date]
+            self._from_date : Optional[date] = None
+            self._to_date   : Optional[date] = None
             if full_month:
                 if isinstance(full_month, str):
                     month_start = dateparse(timestr=full_month, default=datetime.min)
@@ -41,8 +42,20 @@ class DatasetKey:
                     self._from_date = month_start.date()
                     self._to_date   = month_start.replace(day=month_end).date()
             else:
-                self._from_date  = from_date
-                self._to_date    = to_date
+                # 1. Get from date
+                if isinstance(from_date, date):
+                    self._from_date = from_date
+                elif isinstance(from_date, str):
+                    self._from_date = dateparse(from_date).date()
+                elif isinstance(from_date, int):
+                    self._from_date = dateparse(str(from_date)).date()
+                # 2. Get to date
+                if isinstance(to_date, date):
+                    self._to_date = to_date
+                elif isinstance(to_date, str):
+                    self._to_date = dateparse(to_date).date()
+                elif isinstance(to_date, int):
+                    self._to_date = dateparse(str(to_date)).date()
             self._player_id       : Optional[str]  = player_id
             self._player_id_file  : Optional[str]  = player_id_file.name if isinstance(player_id_file, Path) else player_id_file
             self._session_id      : Optional[str]  = session_id
