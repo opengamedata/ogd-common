@@ -1,25 +1,25 @@
 # Workflow to test the SemanticVersion class from the `utils` module
-name: Testbed - FileIO Module
+name: Testbed - SemanticVersion Class
 run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
 on:
   workflow_dispatch:
   workflow_call:
   push:
     paths:
-    - '.github/workflows/TEST_FileIO.yml'
+    - '.github/workflows/TEST_models_SemanticVersion.yml'
     - '.github/actions/test_config/**'
-    - 'tests/cases/schemas/config/*.py'
+    - 'tests/cases/models/config/*.py'
     - 'tests/config/**'
     - 'requirements.txt'
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-FileIO
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-SemanticVersion
   cancel-in-progress: true
 
 jobs:
 
   run_testbeds:
-    name: Run FileIO Testbed
+    name: Run SemanticVersion Testbed
     runs-on: ubuntu-22.04
 
     steps:
@@ -41,11 +41,11 @@ jobs:
   # 2. Build & configure remote environments
 
   # 3. Perform work
-    - name: Execute FileIO Testbed
+    - name: Execute SemanticVersion Testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/utils"
-        test_file: "test_fileio.py"
+        directory: "tests/cases/models"
+        test_file: "test_SemanticVersion.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete

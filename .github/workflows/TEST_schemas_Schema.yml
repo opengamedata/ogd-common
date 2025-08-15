@@ -1,38 +1,26 @@
-# Workflow to test the schemas from the `config` subfolder
-name: Testbed - Event Schemas
+# Workflow to test the `Schema` base class
+name: Testbed - Schema base class
 run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
 on:
   workflow_dispatch:
   workflow_call:
   push:
     paths:
-    # repo-wide dependencies
+    - '.github/workflows/TEST_schemas_Schema.yml'
     - '.github/actions/test_config/**'
+    - 'tests/cases/schemas/t_Schema.py'
     - 'tests/config/**'
     - 'requirements.txt'
-    # specific dependencies
-    - '.github/workflows/TEST_EventSchemas.yml'
-    - 'tests/cases/schemas/events/**'
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-EventSchemas
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-Schema
   cancel-in-progress: true
 
 jobs:
 
   run_testbed_schema:
-    name: Run Event Schema Testbeds
+    name: Run Schema base class Testbed
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        testbed: [
-          test_DataElementSchema,
-          test_EventSchema,
-          test_LoggingSpecificationSchema,
-          test_GameStateSchema
-        ]
-      fail-fast: false # we don't want to cancel just because one testbed fails.
-      max-parallel: 20
 
     steps:
   # 1. Local checkout 
@@ -48,16 +36,16 @@ jobs:
       uses: ./.github/actions/test_config
       with:
           verbose_output: "True"
-          with_schemas: "True"
+          with_schemas:   "True"
 
   # 2. Build & configure remote environments
 
   # 3. Perform export
-    - name: Execute ${{ matrix.testbed }} testbed
+    - name: Execute testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/schemas/events"
-        test_file: "${{ matrix.testbed }}.py"
+        directory: "tests/cases/schemas"
+        test_file: "test_Schema.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete
