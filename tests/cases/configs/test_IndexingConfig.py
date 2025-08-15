@@ -50,9 +50,11 @@ class test_IndexingConfig(TestCase):
 
     def test_RemoteURL(self):
         _url = self.test_schema.RemoteURL
+        self.assertIsNotNone(_url)
         self.assertIsInstance(_url, URLLocationSchema)
-        self.assertIsInstance(_url.Location, str)
-        self.assertEqual(_url.Location, "https://fieldday-web.ad.education.wisc.edu/opengamedata/")
+        if _url:
+            self.assertIsInstance(_url.Location, str)
+            self.assertEqual(_url.Location, "https://fieldday-web.ad.education.wisc.edu/opengamedata/")
 
     def test_TemplatesURL(self):
         _url = self.test_schema.TemplatesURL
@@ -86,7 +88,8 @@ class test_IndexingConfig(TestCase):
         self.assertIsInstance(_schema.LocalDirectory, DirectoryLocationSchema)
         self.assertEqual(_schema.LocalDirectory.FolderPath, Path("./data"))
         self.assertIsInstance(_schema.RemoteURL, URLLocationSchema)
-        self.assertEqual(_schema.RemoteURL.Location, "https://fieldday-web.ad.education.wisc.edu/opengamedata/")
+        if _schema.RemoteURL:
+            self.assertEqual(_schema.RemoteURL.Location, "https://fieldday-web.ad.education.wisc.edu/opengamedata/")
         self.assertIsInstance(_schema.TemplatesURL, URLLocationSchema)
         self.assertEqual(_schema.TemplatesURL.Location, "https://github.com/opengamedata/opengamedata-samples")
 
