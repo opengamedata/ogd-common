@@ -24,7 +24,7 @@ class DatasetKey:
     """Simple little class to make logic with dataset keys easier
     """
     def __init__(self, game_id:str,
-                 full_month:Optional[str | Tuple[int, int]]=None,
+                 full_month:Optional[str | Tuple[int, int]]=None, full_file:Optional[str | Path]=None,
                  from_date:Optional[date|str|int]=None, to_date:Optional[date|str|int]=None,
                  player_id:Optional[str]=None, player_id_file:Optional[str|Path]=None,
                  session_id:Optional[str]=None, session_id_file:Optional[str|Path]=None
@@ -56,6 +56,7 @@ class DatasetKey:
                     self._to_date = dateparse(to_date).date()
                 elif isinstance(to_date, int):
                     self._to_date = dateparse(str(to_date)).date()
+            self._full_file       : Optional[str]  = full_file.name if isinstance(full_file, Path) else full_file
             self._player_id       : Optional[str]  = player_id
             self._player_id_file  : Optional[str]  = player_id_file.name if isinstance(player_id_file, Path) else player_id_file
             self._session_id      : Optional[str]  = session_id
@@ -158,7 +159,7 @@ class DatasetKey:
                 _file_name  = id_match.group("file")
         else:
             raise ValueError(f"{raw_key} is not a valid DatasetKey!")
-        return DatasetKey(game_id=_game_id, from_date=_from_date, to_date=_to_date, session_id=_session_id, player_id=_player_id, session_id_file=_file_name)
+        return DatasetKey(game_id=_game_id, from_date=_from_date, to_date=_to_date, session_id=_session_id, player_id=_player_id, full_file=_file_name)
 
     # *** PUBLIC METHODS ***
 
