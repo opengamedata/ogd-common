@@ -6,6 +6,13 @@ from typing import Final, List
 from unittest import TestCase
 from zipfile import ZipFile
 # import locals
+from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
+from ogd.common.filters.collections.IDFilterCollection import IDFilterCollection
+from ogd.common.filters.collections.SequencingFilterCollection import SequencingFilterCollection
+from ogd.common.filters.RangeFilter import RangeFilter
+from ogd.common.filters.SetFilter import SetFilter
+from ogd.common.models.enums.FilterMode import FilterMode
+from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.storage.connectors.CSVConnector import CSVConnector
@@ -59,15 +66,22 @@ class test_CSVInterface(TestCase):
             _store = CSVConnector(
                 config=FileStoreConfig(name="file", location=f, file_credential=None)
             )
-            CSVI = CSVInterface(config=_cfg, filepath=f, delim='\t', fail_fast=False)
-            if CSVI.Open():
-                result_session_list = CSVI.IDsFromDates(self.TEST_MIN_DATE, self.TEST_MAX_DATE)
-                self.assertNotEqual(result_session_list, None)
-                if result_session_list is not None:
-                    diff = set(result_session_list).symmetric_difference(self.TEST_SESSION_LIST)
-                    self.assertTrue(len(diff) > 0, f"Date range for missed items: {CSVI.DatesFromIDs(list(diff))}")
-            else:
-                raise FileNotFoundError('Could not open the test data TSV!')
+            CSVI = CSVInterface(config=_cfg, fail_fast=False, extension='\t', store=_store)
+            filters = DatasetFilterCollection(
+                sequence_filters=SequencingFilterCollection(
+                    timestamp_filter=RangeFilter(mode=FilterMode.INCLUDE, minimum=self.TEST_MIN_DATE, maximum=self.TEST_MAX_DATE)
+                )
+            )
+            result_session_list = CSVI.AvailableIDs(mode=IDMode.SESSION, filters=filters)
+            self.assertNotEqual(result_session_list, None)
+            if result_session_list is not None:
+                diff = set(result_session_list).symmetric_difference(self.TEST_SESSION_LIST)
+                reverse_filters = DatasetFilterCollection(
+                    id_filters=IDFilterCollection(
+                        session_filter=SetFilter(mode=FilterMode.INCLUDE, set_elements=set(result_session_list))
+                    )
+                )
+                self.assertTrue(len(diff) > 0, f"Date range for missed items: {CSVI.AvailableDates(reverse_filters)}")
 
     @unittest.skip("Not up-to-date with implementation")
     def test_DatesFromIDs(self):
