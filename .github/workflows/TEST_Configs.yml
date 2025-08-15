@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          test_GameStoreConfig,
+          test_DataTableConfig,
           test_IndexingConfig,
           test_TestConfig,
         ]

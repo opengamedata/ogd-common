@@ -13,7 +13,7 @@ from ogd.common.utils.Logger import Logger
 from tests.config.t_config import settings
 
 class test_MySQLConnector(TestCase):
-    """Testbed for the GameStoreConfig class.
+    """Testbed for the DataTableConfig class.
 
         TODO : Test more 'enabled' options/combinations.
     """

@@ -6,7 +6,7 @@ import logging
 from typing import List, override, Set
 
 # import OGD files
-from ogd.common.configs.GameStoreConfig import DataTableConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.storage.outerfaces.Outerface import Outerface

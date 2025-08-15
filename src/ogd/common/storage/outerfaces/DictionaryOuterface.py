@@ -2,7 +2,7 @@
 from typing import Any, Dict, List, Optional, override, Set
 
 # import local files
-from ogd.common.configs.GameStoreConfig import DataTableConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.storage.outerfaces.Outerface import Outerface
@@ -18,8 +18,8 @@ class DictionaryOuterface(Outerface):
 
         :param game_id: The name of the game whose data is being exported
         :type game_id: str
-        :param config: A GameStoreConfig indicating where output data should be stored. Ignored by the DictionaryOuterface class.
-        :type config: GameStoreConfig
+        :param config: A DataTableConfig indicating where output data should be stored. Ignored by the DictionaryOuterface class.
+        :type config: DataTableConfig
         :param export_modes: A set of all export modes that should be enabled.
         :type export_modes: Set[ExportMode]
         :param out_dict: The dictionary to which outputs are written by the DictionaryOuterface

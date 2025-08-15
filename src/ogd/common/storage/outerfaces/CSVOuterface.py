@@ -12,7 +12,7 @@ from typing import Any, List, Optional, override, Set
 # 3rd-party imports
 # import local files
 # from ogd import games
-from ogd.common.configs.GameStoreConfig import DataTableConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema

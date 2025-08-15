@@ -11,7 +11,7 @@ from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
 class test_EventSchema(TestCase):
-    """Testbed for the GameStoreConfig class.
+    """Testbed for the DataTableConfig class.
 
         TODO : Implement and enable tests.
     """

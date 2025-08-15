@@ -10,7 +10,7 @@ from typing import List, Set
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.models.EventSet import EventSet
 from ogd.common.models.FeatureSet import FeatureSet
-from ogd.common.configs.GameStoreConfig import DataTableConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema

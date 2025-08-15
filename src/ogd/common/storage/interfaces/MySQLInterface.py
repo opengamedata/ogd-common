@@ -14,7 +14,7 @@ from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
-from ogd.common.configs.GameStoreConfig import DataTableConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.MySQLConfig import MySQLConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Pair

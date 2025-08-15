@@ -10,7 +10,7 @@ from src.ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from tests.config.t_config import settings
 
 class test_DataElementSchema(TestCase):
-    """Testbed for the GameStoreConfig class.
+    """Testbed for the DataTableConfig class.
 
         TODO : Test cases for empty details
     """

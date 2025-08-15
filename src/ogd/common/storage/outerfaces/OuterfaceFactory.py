@@ -2,7 +2,7 @@ from typing import Any, Dict, Set
 
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
-from ogd.common.configs.GameStoreConfig import DataTableConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.storage.outerfaces.Outerface import Outerface
 from ogd.common.storage.outerfaces.CSVOuterface import CSVOuterface
 from ogd.common.storage.outerfaces.DebugOuterface import DebugOuterface
@@ -20,9 +20,9 @@ class OuterfaceFactory:
                 case "DICT" | "DICTIONARY" | "API":
                     return DictionaryOuterface(config=config, export_modes=export_modes, out_dict=None)
                 case _:
-                    raise ValueError(f"Could not generate Interface from GameStoreConfig, the underlying StoreConfig was unrecognized type {config.StoreConfig.Type}!")
+                    raise ValueError(f"Could not generate Interface from DataTableConfig, the underlying StoreConfig was unrecognized type {config.StoreConfig.Type}!")
         else:
-            raise ValueError("Could not generate Interface from GameStoreConfig, the underlying StoreConfig was null!")
+            raise ValueError("Could not generate Interface from DataTableConfig, the underlying StoreConfig was null!")
 
     @staticmethod
     def FromDict(name:str, all_elements:Dict[str, Any], export_modes:Set[ExportMode], repository:DatasetRepositoryConfig, dataset_id:str)-> Outerface:

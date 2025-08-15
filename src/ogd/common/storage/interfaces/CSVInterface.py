@@ -8,7 +8,7 @@ import pandas as pd
 ## import local files
 from ogd.common.filters import *
 from ogd.common.filters.collections import *
-from ogd.common.configs.GameStoreConfig import DataTableConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.models.enums.IDMode import IDMode

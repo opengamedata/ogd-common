@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from ogd.common.configs.GameStoreConfig import DataTableConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.storage.interfaces.CSVInterface import CSVInterface
 from ogd.common.storage.interfaces.BigQueryInterface import BigQueryInterface
@@ -24,9 +24,9 @@ class InterfaceFactory:
                 case "FILE" | "CSV" | "TSV":
                     return CSVInterface(config=config, fail_fast=fail_fast)
                 case _:
-                    raise ValueError(f"Could not generate Interface from GameStoreConfig, the underlying StoreConfig was unrecognized type {config.StoreConfig.Type}!")
+                    raise ValueError(f"Could not generate Interface from DataTableConfig, the underlying StoreConfig was unrecognized type {config.StoreConfig.Type}!")
         else:
-            raise ValueError("Could not generate Interface from GameStoreConfig, the underlying StoreConfig was null!")
+            raise ValueError("Could not generate Interface from DataTableConfig, the underlying StoreConfig was null!")
     @staticmethod
     def FromDict(name:str, all_elements:Dict[str, Any], fail_fast:bool)-> Interface:
         config = DataTableConfig.FromDict(name=name, unparsed_elements=all_elements)

@@ -9,7 +9,7 @@ from google.cloud import bigquery
 from ogd.common.filters import *
 from ogd.common.filters.collections import *
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
-from ogd.common.configs.GameStoreConfig import DataTableConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.FilterMode import FilterMode
@@ -21,7 +21,7 @@ from ogd.common.utils.Logger import Logger
 from tests.config.t_config import settings
 
 class test_BigQueryInterface(TestCase):
-    """Testbed for the GameStoreConfig class.
+    """Testbed for the DataTableConfig class.
 
         TODO : Test more 'enabled' options/combinations.
     """

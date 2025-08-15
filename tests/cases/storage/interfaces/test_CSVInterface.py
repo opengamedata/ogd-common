@@ -6,7 +6,7 @@ from typing import Final, List
 from unittest import TestCase
 from zipfile import ZipFile
 # import locals
-from ogd.common.configs.GameStoreConfig import DataTableConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.storage.interfaces.CSVInterface import CSVInterface

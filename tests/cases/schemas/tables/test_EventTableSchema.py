@@ -12,7 +12,7 @@ from src.ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from tests.config.t_config import settings
 
 class test_EventTableSchema(TestCase):
-    """Testbed for the GameStoreConfig class.
+    """Testbed for the DataTableConfig class.
 
         TODO : Implement and enable tests.
     """

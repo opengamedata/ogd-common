@@ -44,7 +44,7 @@ class DataTableConfig(Schema):
                  table_location:Optional[DatabaseLocationSchema],
                  store_config:Optional[DataStoreConfig]=None, table_schema:Optional[TableSchema]=None,
                  other_elements:Optional[Map]=None):
-        """Constructor for the `GameStoreConfig` class.
+        """Constructor for the `DataTableConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
 
@@ -140,7 +140,7 @@ class DataTableConfig(Schema):
     @classmethod
     def Default(cls) -> "DataTableConfig":
         return DataTableConfig(
-            name="DefaultGameStoreConfig",
+            name="DefaultDataTableConfig",
             game_id=cls._DEFAULT_GAME_ID,
             store_name=cls._DEFAULT_STORE_NAME,
             store_config=None,
@@ -154,10 +154,10 @@ class DataTableConfig(Schema):
     def _fromDict(cls, name:str, unparsed_elements:Map,
                   key_overrides:Optional[Dict[str, str]]=None,
                   default_override:Optional[Self]=None) -> "DataTableConfig":
-        """Create a GameStoreConfig from a given dictionary
+        """Create a DataTableConfig from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
-        TODO : data_sources shouldn't really be a param here. Better to have e.g. a way to register the list into GameStoreConfig class, or something.
+        TODO : data_sources shouldn't really be a param here. Better to have e.g. a way to register the list into DataTableConfig class, or something.
 
         :param name: _description_
         :type name: str
@@ -168,7 +168,7 @@ class DataTableConfig(Schema):
         :param data_sources: _description_
         :type data_sources: Dict[str, DataStoreConfig]
         :return: _description_
-        :rtype: GameStoreConfig
+        :rtype: DataTableConfig
         """
         return DataTableConfig(name=name, game_id=None, store_name=None, schema_name=None,
                                 table_location=None, other_elements=unparsed_elements)

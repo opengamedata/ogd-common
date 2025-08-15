@@ -14,7 +14,7 @@ from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIn
 from tests.config.t_config import settings
 
 class test_IndexingConfig(TestCase):
-    """Testbed for the GameStoreConfig class.
+    """Testbed for the DataTableConfig class.
     """
 
     @classmethod

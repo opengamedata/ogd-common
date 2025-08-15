@@ -7,7 +7,7 @@ from ogd.common.models.coding.Code import Code
 from ogd.common.models.coding.Coder import Coder
 from ogd.common.storage.interfaces.CodingInterface import CodingInterface
 from ogd.common.models.enums.IDMode import IDMode
-from ogd.common.configs.GameStoreConfig import DataTableConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.utils.Logger import Logger
 
 # TODO: see about merging this back into BigQueryInterface for a unified interface.

@@ -11,7 +11,7 @@ from google.api_core.exceptions import BadRequest
 # OGD imports
 from ogd.common.filters import *
 from ogd.common.filters.collections import *
-from ogd.common.configs.GameStoreConfig import DataTableConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.models.enums.IDMode import IDMode
