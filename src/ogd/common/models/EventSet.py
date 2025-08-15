@@ -35,6 +35,10 @@ class EventSet:
     def __len__(self):
         return len(self.Events)
 
+    def __iter__(self):
+        for event in self.Events:
+            yield event
+
     @property
     def Events(self) -> List[Event]:
         return self._events
