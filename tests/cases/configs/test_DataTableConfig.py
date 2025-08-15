@@ -10,11 +10,11 @@ from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.configs.GameStoreConfig import DataTableConfig
+from src.ogd.common.configs.DataTableConfig import DataTableConfig
 from tests.config.t_config import settings
 
 class test_DataTableConfig(TestCase):
-    """Testbed for the GameStoreConfig class.
+    """Testbed for the DataTableConfig class.
     """
 
     @classmethod
