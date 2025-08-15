@@ -4,7 +4,6 @@ import unittest
 from datetime import datetime
 from unittest import TestCase
 # import 3rd-party libraries
-from google.cloud import bigquery
 # import ogd libraries.
 from ogd.common.filters import *
 from ogd.common.filters.collections import *
@@ -14,7 +13,6 @@ from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
-from ogd.common.storage.connectors.BigQueryConnector import BigQueryConnector
 from ogd.common.storage.interfaces.BigQueryInterface import BigQueryInterface, ParamaterizedClause
 from ogd.common.utils.Logger import Logger
 # import locals
