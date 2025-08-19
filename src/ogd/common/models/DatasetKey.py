@@ -14,7 +14,7 @@ class DatasetKey:
     TODO : Rework this to be more like other schemas.
     """
 
-    # *** BUILT-INS & PROPERTIES ***
+    #region *** BUILT-INS & PROPERTIES ***
 
     _DEFAULT_GAME_ID   : Final[str] = "UNKOWN_GAME"
     _DEFAULT_DATE_FROM : Final[date] = date(year=2000, month=1, day=1)
@@ -101,7 +101,9 @@ class DatasetKey:
     def DateTo(self) -> Optional[date]:
         return self._to_date
 
-    # *** PUBLIC STATICS ***
+    #endregion
+
+    #region *** PUBLIC STATICS ***
 
     @classmethod
     def Default(cls) -> "DatasetKey":
@@ -160,8 +162,16 @@ class DatasetKey:
             raise ValueError(f"{raw_key} is not a valid DatasetKey!")
         return DatasetKey(game_id=_game_id, from_date=_from_date, to_date=_to_date, session_id=_session_id, player_id=_player_id, full_file=_file_name)
 
-    # *** PUBLIC METHODS ***
+    #endregion
 
-    # *** PRIVATE STATICS ***
+    #region *** PUBLIC METHODS ***
 
-    # *** PRIVATE METHODS ***
+    #endregion
+
+    #region *** PRIVATE STATICS ***
+
+    #endregion
+
+    #region *** PRIVATE METHODS ***
+
+    #endregion
