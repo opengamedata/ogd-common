@@ -222,7 +222,7 @@ class BigQueryInterface(Interface):
     def _generateSuffixClause(date_filter:SequencingFilterCollection) -> ParamaterizedClause:
         clause = ""
         params = []
-        
+
         if date_filter.Timestamps.Min and date_filter.Timestamps.Max:
             str_min, str_max = date_filter.Timestamps.Min.strftime("%Y%m%d"), date_filter.Timestamps.Max.strftime("%Y%m%d")
             clause = "_TABLE_SUFFIX BETWEEN @suffixstart AND @suffixend"
@@ -232,7 +232,7 @@ class BigQueryInterface(Interface):
             params.append(
                 bigquery.ScalarQueryParameter(type_="STRING", value=str_max, name="suffixend")
             )
-        
+
         return ParamaterizedClause(clause=clause, params=params)
 
     @staticmethod
