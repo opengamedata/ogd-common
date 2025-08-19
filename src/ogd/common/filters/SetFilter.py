@@ -29,6 +29,9 @@ class SetFilter(Filter[T]):
                 ret_val = "unfiltered"
         
         return ret_val
+
+    def __contains__(self, elem:T):
+        return elem in self._set
     
     def __repr__(self) -> str:
         _types = set(type(elem).__name__ for elem in self._set)
