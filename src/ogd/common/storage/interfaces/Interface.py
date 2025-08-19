@@ -23,6 +23,7 @@ from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.storage.connectors.StorageConnector import StorageConnector
+from ogd.common.utils.typing import Map
 from ogd.common.utils.Logger import Logger
 
 class Interface(abc.ABC):
@@ -147,7 +148,7 @@ class Interface(abc.ABC):
             Logger.Log(f"Could not retrieve data versions from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val
 
-    def GetEventCollection(self, filters:DatasetFilterCollection) -> EventSet:
+    def GetEventCollection(self, filters:DatasetFilterCollection, fallbacks:Map) -> EventSet:
         _events : List[Event] = []
 
         if self.Connector.IsOpen:
@@ -156,7 +157,6 @@ class Interface(abc.ABC):
                 _msg = f"Retrieving event data from {self.Connector.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
 
-                fallbacks = {"app_id":self.Config.GameID}
                 rows = self._getEventRows(filters=filters)
                 for row in rows:
                     try:
@@ -177,7 +177,7 @@ class Interface(abc.ABC):
 
         return EventSet(events=_events, filters=filters)
 
-    def GetFeatureCollection(self, filters:DatasetFilterCollection) -> FeatureSet:
+    def GetFeatureCollection(self, filters:DatasetFilterCollection, fallbacks:Map) -> FeatureSet:
         _features : List[Feature] = []
 
         if self.Connector.IsOpen:
@@ -186,7 +186,6 @@ class Interface(abc.ABC):
                 _msg = f"Retrieving event data from {self.Connector.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
 
-                fallbacks = {"app_id":self.Config.GameID}
                 rows = self._getFeatureRows(filters=filters)
                 for row in rows:
                     try:
