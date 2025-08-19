@@ -25,6 +25,9 @@ class LocationSchema(Schema):
     def __init__(self, name:str, other_elements:Optional[Map]=None):
         super().__init__(name=name, other_elements=other_elements)
 
+    def __str__(self) -> str:
+        return self.Location
+
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     # *** PUBLIC STATICS ***
