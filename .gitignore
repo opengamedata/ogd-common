@@ -1,7 +1,6 @@
 # Custom added
 .tmp
 .vscode/
-.pylintrc
 tests/config/t_config.py
 tests/config/*.json
 
