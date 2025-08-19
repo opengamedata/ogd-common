@@ -146,10 +146,20 @@ class DataTableConfig(Schema):
 
     @property
     def DatabaseName(self) -> str:
+        """The database name provided by the DataTableConfig's Location property
+
+        :return: _description_
+        :rtype: str
+        """
         return self._table_location.DatabaseName
 
     @property
     def TableName(self) -> Optional[str]:
+        """The table name provided by the DataTableConfig's Location property
+
+        :return: _description_
+        :rtype: Optional[str]
+        """
         return self._table_location.TableName
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
