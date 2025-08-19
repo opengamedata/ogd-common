@@ -37,6 +37,7 @@ class Interface(abc.ABC):
     @property
     @abc.abstractmethod
     def Connector(self) -> StorageConnector:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
@@ -48,6 +49,7 @@ class Interface(abc.ABC):
         :return: A list of IDs with given mode available through the connected storage.
         :rtype: List[str]
         """
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
@@ -57,18 +59,22 @@ class Interface(abc.ABC):
         :return: A dict mapping `min` and `max` to the minimum and maximum datetimes
         :rtype: Dict[str,datetime]
         """
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _availableVersions(self, mode:VersionType, filters:DatasetFilterCollection) -> List[SemanticVersion | str]:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _getEventRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _getFeatureRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     # *** BUILT-INS & PROPERTIES ***
