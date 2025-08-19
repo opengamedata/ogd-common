@@ -196,4 +196,15 @@ class CSVInterface(Interface):
 
     # *** PRIVATE STATICS ***
 
+    @classmethod
+    def _safeguardFilters(cls, filters:DatasetFilterCollection) -> None:
+        """Override of the `_safeguardFilters` function to perform a check on a filter set, and update the filters if they are not satisfactory.
+
+        For CSVInterface, we are comfortable reading the entirety of a file, so this override simply applies no constraints or defaults, and allows any filtering configuration.
+
+        :param filters: _description_
+        :type filters: DatasetFilterCollection
+        """
+        return
+
     # *** PRIVATE METHODS ***

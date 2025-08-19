@@ -7,7 +7,7 @@ from typing import Dict, List, LiteralString, Optional, override, Tuple
 from mysql.connector import cursor
 # import locals
 from ogd.common.filters import *
-from ogd.common.filters.collections import *
+from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
 from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.storage.connectors.MySQLConnector import MySQLConnector
 from ogd.common.models.SemanticVersion import SemanticVersion
@@ -108,11 +108,6 @@ class MySQLInterface(Interface):
 
     def _getEventRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
         ret_val = []
-
-        if not (filters.any):
-            Logger.Log("Request filters did not define any filters at all! Defaulting to filter for yesterday's data!", logging.WARNING)
-            yesterday = datetime.combine(datetime.now().date(), time(0)) - timedelta(days=1)
-            filters.Sequences.Timestamps = RangeFilter[datetime](mode=FilterMode.INCLUDE, minimum=yesterday, maximum=datetime.now())
 
         # grab data for the given session range. Sort by event time, so
         if self.Connector.Cursor is not None and isinstance(self.Config.StoreConfig, MySQLConfig):

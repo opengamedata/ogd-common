@@ -4,17 +4,19 @@
 import abc
 import logging
 import sys
-from datetime import datetime
+from datetime import datetime, time, timedelta
 from pprint import pformat
 from typing import Dict, List, Optional, Tuple, Union
 
 # import local files
-from ogd.common.filters.collections import *
+from ogd.common.filters.RangeFilter import RangeFilter
+from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
 from ogd.common.models.Event import Event
 from ogd.common.models.EventSet import EventSet
 from ogd.common.models.Feature import Feature
 from ogd.common.models.FeatureSet import FeatureSet
 from ogd.common.models.enums.IDMode import IDMode
+from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.configs.DataTableConfig import DataTableConfig
@@ -93,6 +95,7 @@ class Interface(abc.ABC):
         """
         ret_val = None
         if self.Connector.IsOpen:
+            self._safeguardFilters(filters=filters)
             _msg = f"Retrieving IDs with {mode} ID mode on date(s) {filters.Sequences} with version(s) {filters.Versions} from {self.Connector.ResourceName}."
             Logger.Log(_msg, logging.INFO, depth=3)
             ret_val = self._availableIDs(mode=mode, filters=filters)
@@ -113,6 +116,7 @@ class Interface(abc.ABC):
         """
         ret_val = {'min':None, 'max':None}
         if self.Connector.IsOpen:
+            self._safeguardFilters(filters=filters)
             _msg = f"Retrieving range of event/feature dates with version(s) {filters.Versions} from {self.Connector.ResourceName}."
             Logger.Log(_msg, logging.INFO, depth=3)
             ret_val = self._availableDates(filters=filters)
@@ -135,6 +139,7 @@ class Interface(abc.ABC):
         """
         ret_val = []
         if self.Connector.IsOpen:
+            self._safeguardFilters(filters=filters)
             _msg = f"Retrieving data versions on date(s) {filters.Sequences} from {self.Connector.ResourceName}."
             Logger.Log(_msg, logging.INFO, depth=3)
             ret_val = self._availableVersions(mode=mode, filters=filters)
@@ -146,6 +151,7 @@ class Interface(abc.ABC):
         _events : List[Event] = []
 
         if self.Connector.IsOpen:
+            self._safeguardFilters(filters=filters)
             if isinstance(self.Config.TableStructure, EventTableSchema):
                 _msg = f"Retrieving event data from {self.Connector.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
@@ -175,6 +181,7 @@ class Interface(abc.ABC):
         _features : List[Feature] = []
 
         if self.Connector.IsOpen:
+            self._safeguardFilters(filters=filters)
             if isinstance(self.Config.TableStructure, FeatureTableSchema):
                 _msg = f"Retrieving event data from {self.Connector.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
@@ -201,5 +208,24 @@ class Interface(abc.ABC):
         return FeatureSet(features=_features, filters=filters)
 
     # *** PRIVATE STATICS ***
+
+    @classmethod
+    def _safeguardFilters(cls, filters:DatasetFilterCollection) -> None:
+        """Function to perform a check on a filter set, and update the filters if they are not satisfactory.
+
+        This is used in the top-level data retrieval functions to ensure the function won't try to read
+        e.g. an entire database at once if the Interface user forgot to specify any filters.
+        By default, it adds a filter for only the previous day's data if no filters were specified at all.
+        
+        Subclasses of Interface are allowed and encouraged to override the function to place appropriate constraints
+        and provide appropriate defaults.
+
+        :param filters: _description_
+        :type filters: DatasetFilterCollection
+        """
+        if not (filters.any):
+            Logger.Log("Request filters did not define any filters at all! Defaulting to filter for yesterday's data!", logging.WARNING)
+            yesterday = datetime.combine(datetime.now().date(), time(0)) - timedelta(days=1)
+            filters.Sequences.Timestamps = RangeFilter[datetime](mode=FilterMode.INCLUDE, minimum=yesterday, maximum=datetime.now())
 
     # *** PRIVATE METHODS ***

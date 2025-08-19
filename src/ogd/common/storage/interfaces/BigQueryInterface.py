@@ -168,11 +168,6 @@ class BigQueryInterface(Interface):
     def _getEventRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
         ret_val = []
 
-        if not (filters.any):
-            Logger.Log("Request filters did not define any filters at all! Defaulting to filter for yesterday's data!", logging.WARNING)
-            yesterday = datetime.combine(datetime.now().date(), time(0)) - timedelta(days=1)
-            filters.Sequences.Timestamps = RangeFilter[datetime](mode=FilterMode.INCLUDE, minimum=yesterday, maximum=datetime.now())
-
         if self.Connector.Client:
             # 1. Create query & config
             where_clause : ParamaterizedClause = self._generateWhereClause(filters=filters)
