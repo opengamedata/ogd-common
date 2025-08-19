@@ -2,7 +2,7 @@
 import json
 import logging
 from dataclasses import dataclass
-from datetime import datetime, time, timedelta
+from datetime import datetime
 from itertools import chain
 from typing import Dict, Final, List, LiteralString, Optional, Tuple, Union, override
 # 3rd-party imports
@@ -10,7 +10,8 @@ from google.cloud import bigquery
 from google.api_core.exceptions import BadRequest
 # OGD imports
 from ogd.common.filters import *
-from ogd.common.filters.collections import *
+from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
+from ogd.common.filters.collections.SequencingFilterCollection import SequencingFilterCollection
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.models.SemanticVersion import SemanticVersion
@@ -20,7 +21,6 @@ from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.storage.connectors.BigQueryConnector import BigQueryConnector
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Version
 
 AQUALAB_MIN_VERSION : Final[float] = 6.2
 
