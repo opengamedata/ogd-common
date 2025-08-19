@@ -45,9 +45,10 @@ class MySQLInterface(Interface):
             id_col : LiteralString       = "session_id" if mode==IDMode.SESSION else "user_id"
             # 1. If we're in shared table, then need to filter on game ID
             where_clause, params = self._generateWhereClause(filters=filters)
-            if self.Config.TableName != self.Config.GameID:
-                where_clause += "\nAND `app_id`=%s"
-                params.append(self.Config.GameID)
+            if self.Config.TableName not in (filters.IDFilters.AppIDs.AsSet or set()):
+                if filters.IDFilters.AppIDs.AsList and len(filters.IDFilters.AppIDs.AsList) == 1:
+                    where_clause += "\nAND `app_id`=%s"
+                    params.append(filters.IDFilters.AppIDs.AsList[0])
             query = f"""
                 SELECT DISTINCT(`{id_col}`)
                 FROM `{self.Config.Location.Location}`
@@ -65,9 +66,10 @@ class MySQLInterface(Interface):
 
         if self.Connector.Cursor is not None and isinstance(self.Config.StoreConfig, MySQLConfig):
             where_clause, params = self._generateWhereClause(filters=filters)
-            if self.Config.TableName != self.Config.GameID:
-                where_clause += "\nAND `app_id`=%s"
-                params.append(self.Config.GameID)
+            if self.Config.TableName not in (filters.IDFilters.AppIDs.AsSet or set()):
+                if filters.IDFilters.AppIDs.AsList and len(filters.IDFilters.AppIDs.AsList) == 1:
+                    where_clause += "\nAND `app_id`=%s"
+                    params.append(filters.IDFilters.AppIDs.AsList[0])
             query = f"""
                 SELECT MIN(`server_time`), MAX(`server_time`)
                 FROM `{self.Config.Location.Location}`
@@ -89,9 +91,10 @@ class MySQLInterface(Interface):
             version_col  : LiteralString       = "log_version" if mode==VersionType.LOG else "app_version" if mode==VersionType.APP else "app_branch"
 
             where_clause, params = self._generateWhereClause(filters=filters)
-            if self.Config.TableName != self.Config.GameID:
-                where_clause += "\nAND `app_id`=%s"
-                params.append(self.Config.GameID)
+            if self.Config.TableName not in (filters.IDFilters.AppIDs.AsSet or set()):
+                if filters.IDFilters.AppIDs.AsList and len(filters.IDFilters.AppIDs.AsList) == 1:
+                    where_clause += "\nAND `app_id`=%s"
+                    params.append(filters.IDFilters.AppIDs.AsList[0])
             query = f"""
                 SELECT DISTINCT({version_col})
                 FROM `{self.Config.Location.Location}`
@@ -114,9 +117,10 @@ class MySQLInterface(Interface):
             # filt = f"app_id='{self._game_id}' AND (session_id  BETWEEN '{next_slice[0]}' AND '{next_slice[-1]}'){ver_filter}"
 
             where_clause, params = self._generateWhereClause(filters=filters)
-            if self.Config.TableName != self.Config.GameID:
-                where_clause += "\nAND `app_id`=%s"
-                params.append(self.Config.GameID)
+            if self.Config.TableName not in (filters.IDFilters.AppIDs.AsSet or set()):
+                if filters.IDFilters.AppIDs.AsList and len(filters.IDFilters.AppIDs.AsList) == 1:
+                    where_clause += "\nAND `app_id`=%s"
+                    params.append(filters.IDFilters.AppIDs.AsList[0])
 
             query = f"""
                 SELECT *
