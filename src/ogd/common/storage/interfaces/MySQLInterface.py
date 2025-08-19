@@ -1,10 +1,10 @@
 # import libraries
 import logging
-from datetime import datetime
+from datetime import datetime, time, timedelta
 from itertools import chain
 from typing import Dict, List, LiteralString, Optional, override, Tuple
 # 3rd-party imports
-from mysql.connector import connection, cursor
+from mysql.connector import cursor
 # import locals
 from ogd.common.filters import *
 from ogd.common.filters.collections import *
@@ -108,6 +108,12 @@ class MySQLInterface(Interface):
 
     def _getEventRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
         ret_val = []
+
+        if not (filters.any):
+            Logger.Log("Request filters did not define any filters at all! Defaulting to filter for yesterday's data!", logging.WARNING)
+            yesterday = datetime.combine(datetime.now().date(), time(0)) - timedelta(days=1)
+            filters.Sequences.Timestamps = RangeFilter[datetime](mode=FilterMode.INCLUDE, minimum=yesterday, maximum=datetime.now())
+
         # grab data for the given session range. Sort by event time, so
         if self.Connector.Cursor is not None and isinstance(self.Config.StoreConfig, MySQLConfig):
             # filt = f"app_id='{self._game_id}' AND (session_id  BETWEEN '{next_slice[0]}' AND '{next_slice[-1]}'){ver_filter}"

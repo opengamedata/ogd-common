@@ -2,7 +2,7 @@
 import json
 import logging
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, time, timedelta
 from itertools import chain
 from typing import Dict, Final, List, LiteralString, Optional, Tuple, Union, override
 # 3rd-party imports
@@ -167,6 +167,11 @@ class BigQueryInterface(Interface):
     @override
     def _getEventRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
         ret_val = []
+
+        if not (filters.any):
+            Logger.Log("Request filters did not define any filters at all! Defaulting to filter for yesterday's data!", logging.WARNING)
+            yesterday = datetime.combine(datetime.now().date(), time(0)) - timedelta(days=1)
+            filters.Sequences.Timestamps = RangeFilter[datetime](mode=FilterMode.INCLUDE, minimum=yesterday, maximum=datetime.now())
 
         if self.Connector.Client:
             # 1. Create query & config
