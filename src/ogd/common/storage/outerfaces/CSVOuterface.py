@@ -14,12 +14,13 @@ from typing import Any, List, Optional, override, Set
 # from ogd import games
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
-from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
-from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
+from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
+from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
+from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.storage.outerfaces.Outerface import Outerface
 from ogd.common.utils import fileio
@@ -31,17 +32,17 @@ class CSVOuterface(Outerface):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, config:DataTableConfig, export_modes:Set[ExportMode],
-                 repository:DatasetRepositoryConfig, dataset_id:str,
+                 repository:DatasetRepositoryConfig, dataset_key:str | DatasetKey,
                  extension:str="tsv", with_separate_feature_files:bool=True, with_zipping:bool=True,
                  store:Optional[CSVConnector]=None):
         self._store : CSVConnector
 
         super().__init__(config=config, export_modes=export_modes)
-        self._repository                  = repository
-        self._dataset_id                  = dataset_id
-        self._extension                   = extension
-        self._with_separate_feature_files = with_separate_feature_files
-        self._with_zipping                = with_zipping
+        self._repository                  : DatasetRepositoryConfig = repository
+        self._dataset_key                 : DatasetKey              = dataset_key if isinstance(dataset_key, DatasetKey) else DatasetKey.FromString(dataset_key)
+        self._extension                   : str                     = extension
+        self._with_separate_feature_files : bool                    = with_separate_feature_files
+        self._with_zipping                : bool                    = with_zipping
         # if store:
         #     self._store = store
         # elif isinstance(self.Config.StoreConfig, FileStoreConfig):
@@ -56,12 +57,12 @@ class CSVOuterface(Outerface):
         existing_datasets = {}
         try:
             file_directory = fileio.loadJSONFile(filename="file_list.json", path=self._repository.LocalDirectory.FolderPath)
-            existing_datasets = file_directory.get(self.Config.GameID, {})
+            existing_datasets = file_directory.get(self._dataset_key.GameID, {})
         except FileNotFoundError:
             Logger.Log("file_list.json does not exist.", logging.WARNING)
         except json.decoder.JSONDecodeError as err:
             Logger.Log(f"file_list.json has invalid format: {str(err)}.", logging.WARNING)
-        existing_meta = existing_datasets.get(self._dataset_id, None)
+        existing_meta = existing_datasets.get(self._dataset_key, None)
         if store:
             self._store = store
         elif isinstance(self.Config.StoreConfig, FileStoreConfig):
@@ -207,7 +208,7 @@ class CSVOuterface(Outerface):
 
     @override
     def _writeMetadata(self, dataset_schema:DatasetSchema):
-        game_dir = self._repository.LocalDirectory.FolderPath / self.Config.GameID
+        game_dir = self._repository.LocalDirectory.FolderPath / self._dataset_key.GameID
         try:
             game_dir.mkdir(exist_ok=True, parents=True)
         except Exception as err:
@@ -251,8 +252,8 @@ class CSVOuterface(Outerface):
     #  @param date_range    The range of dates included in the exported data.
     #  @param num_sess      The number of sessions included in the recent export.
     def _writeMetadataFile(self, dataset_schema:DatasetSchema) -> None:
-        game_dir = self._repository.LocalDirectory.FolderPath / self.Config.GameID
-        match_string = f"{self._dataset_id}_\\w*\\.meta"
+        game_dir = self._repository.LocalDirectory.FolderPath / self._dataset_key.GameID
+        match_string = f"{self._dataset_key}_\\w*\\.meta"
         old_metas = [f for f in os.listdir(game_dir) if re.match(match_string, f)]
         for old_meta in old_metas:
             try:
@@ -263,7 +264,7 @@ class CSVOuterface(Outerface):
                 Logger.Log(msg, logging.WARNING)
         # Third, write the new meta file.
         # calculate the path and name of the metadata file, and open/make it.
-        meta_file_path : Path = game_dir / f"{self._dataset_id}_{self._generateHash()}.meta"
+        meta_file_path : Path = game_dir / f"{self._dataset_key}_{self._generateHash()}.meta"
         with open(meta_file_path, "w", encoding="utf-8") as meta_file :
             meta_file.write(json.dumps(dataset_schema.AsMetadata, indent=4))
             meta_file.close()
