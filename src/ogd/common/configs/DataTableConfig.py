@@ -83,10 +83,24 @@ class DataTableConfig(Schema):
 
     @property
     def StoreName(self) -> str:
+        """The string name of the DataStoreConfig for this DataTableConfig.
+
+        The DataStoreConfig contains information necessary to connect to the data store containing the configured data table.
+
+        :return: _description_
+        :rtype: str
+        """
         return self._store_name
 
     @property
     def StoreConfig(self) -> Optional[DataStoreConfig]:
+        """The DataStoreConfig for this DataTableConfig.
+
+        This DataStoreConfig contains information necessary to connect to the data store containing the configured data table.
+
+        :return: _description_
+        :rtype: Optional[DataStoreConfig]
+        """
         return self._store_config
     @StoreConfig.setter
     def StoreConfig(self, source:DataStoreConfig):
@@ -94,10 +108,24 @@ class DataTableConfig(Schema):
 
     @property
     def TableSchemaName(self) -> str:
+        """The string name of the TableSchema for this DataTableConfig.
+
+        The TableSchema contains information on the internal column structure of the configured data table.
+
+        :return: _description_
+        :rtype: str
+        """
         return self._schema_name
 
     @property
     def TableStructure(self) -> TableSchema:
+        """The TableSchema for this DataTableConfig.
+
+        This TableSchema contains information on the internal column structure of the configured data table.
+
+        :return: _description_
+        :rtype: TableSchema
+        """
         return self._table_schema
     @TableStructure.setter
     def TableStructure(self, schema:TableSchema):
@@ -105,6 +133,15 @@ class DataTableConfig(Schema):
 
     @property
     def Location(self) -> DatabaseLocationSchema:
+        """The DatabaseLocationSchema for this DataTableConfig.
+
+        This DatabaseLocationSchema contains information on how to locate the configured data table within its data store.
+
+        .. TODO: Allow other types of location, not every data store is a database. For now, when using non-database stores, the DatabaseLocationSchema can simply be interpreted as containing e.g. the sheet (in an Excel file) within a file, or file within a folder.
+
+        :return: _description_
+        :rtype: DatabaseLocationSchema
+        """
         return self._table_location
 
     @property
