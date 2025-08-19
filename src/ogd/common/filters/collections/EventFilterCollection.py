@@ -1,5 +1,5 @@
 ## import standard libraries
-from typing import List, Optional, Set
+from typing import List, Optional, Set, Tuple
 # import local files
 from ogd.common.filters import *
 from ogd.common.models.enums.FilterMode import FilterMode
@@ -52,7 +52,7 @@ class EventFilterCollection:
         """
         return self._event_names
     @EventNames.setter
-    def EventNames(self, allowed_events:Optional[SetFilter[str] | NoFilter | List[str] | Set[str]]):
+    def EventNames(self, allowed_events:Optional[SetFilter[str] | NoFilter | List[str] | Set[str] | Tuple[str] | str]):
         """Can be conveniently set from an existing filter, or collection of event names.
 
         If set this way, the filter is assumed to be an "inclusion" filter.
@@ -64,10 +64,8 @@ class EventFilterCollection:
         """
         if allowed_events is None or isinstance(allowed_events, NoFilter):
             self._event_names = NoFilter()
-        elif isinstance(allowed_events, SetFilter):
-            self._event_names = allowed_events
-        elif isinstance(allowed_events, list) or isinstance(allowed_events, set):
-            self._event_names = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(allowed_events))
+        else:
+            self._event_names = SetFilter(mode=FilterMode.INCLUDE, set_elements=allowed_events)
 
     @property
     def EventCodes(self) -> Filter[int]:
