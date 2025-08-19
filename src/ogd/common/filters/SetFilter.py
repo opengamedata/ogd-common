@@ -7,7 +7,7 @@ from ogd.common.models.enums.FilterMode import FilterMode
 
 T = TypeVar("T")
 class SetFilter(Filter[T]):
-    def __init__(self, mode:FilterMode=FilterMode.NOFILTER, set_elements:"SetFilter" | Set[T] | List[T] | Tuple[T] | T = None):
+    def __init__(self, mode:FilterMode=FilterMode.NOFILTER, set_elements:Optional["SetFilter" | Set[T] | List[T] | Tuple[T] | T] = None):
         super().__init__(mode=mode)
         self._set : Set[T]
         if isinstance(set_elements, SetFilter):
