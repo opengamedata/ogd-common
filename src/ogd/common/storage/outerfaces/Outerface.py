@@ -127,19 +127,19 @@ class Outerface:
             match (mode):
                 case ExportMode.EVENTS:
                     self._writeGameEventsHeader(header=header)
-                    Logger.Log(f"Wrote event header for {self.Config.TableName} events", depth=3)
+                    Logger.Log(f"Wrote event header for {self.Config.Location} events", depth=3)
                 case ExportMode.DETECTORS:
                     self._writeAllEventsHeader(header=header)
-                    Logger.Log(f"Wrote processed event header for {self.Config.TableName} events", depth=3)
+                    Logger.Log(f"Wrote processed event header for {self.Config.Location} events", depth=3)
                 case ExportMode.SESSION:
                     self._writeSessionHeader(header=header)
-                    Logger.Log(f"Wrote session feature header for {self.Config.TableName} sessions", depth=3)
+                    Logger.Log(f"Wrote session feature header for {self.Config.Location} sessions", depth=3)
                 case ExportMode.PLAYER:
                     self._writePlayerHeader(header=header)
-                    Logger.Log(f"Wrote player feature header for {self.Config.TableName} players", depth=3)
+                    Logger.Log(f"Wrote player feature header for {self.Config.Location} players", depth=3)
                 case ExportMode.POPULATION:
                     self._writePopulationHeader(header=header)
-                    Logger.Log(f"Wrote population feature header for {self.Config.TableName} populations", depth=3)
+                    Logger.Log(f"Wrote population feature header for {self.Config.Location} populations", depth=3)
                 case _:
                     Logger.Log(f"Failed to write header for unrecognized export mode {mode}!", level=logging.WARN, depth=3)
         else:
@@ -151,10 +151,10 @@ class Outerface:
                 match (mode):
                     case ExportMode.EVENTS:
                         self._writeGameEventLines(events=events.GameEventLines)
-                        Logger.Log(f"Wrote {len(events.GameEventLines)} {self.Config.TableName} events", depth=3)
+                        Logger.Log(f"Wrote {len(events.GameEventLines)} {self.Config.Location} events", depth=3)
                     case ExportMode.DETECTORS:
                         self._writeAllEventLines(events=events.EventLines)
-                        Logger.Log(f"Wrote {len(events)} {self.Config.TableName} processed events", depth=3)
+                        Logger.Log(f"Wrote {len(events)} {self.Config.Location} processed events", depth=3)
                     case _:
                         Logger.Log(f"Failed to write lines for unrecognized Event export mode {mode}!", level=logging.WARN, depth=3)
             else:
@@ -168,13 +168,13 @@ class Outerface:
                 match (mode):
                     case ExportMode.SESSION:
                         self._writeSessionLines(sessions=features.SessionLines)
-                        Logger.Log(f"Wrote {len(features.SessionLines)} {self.Config.TableName} session lines", depth=3)
+                        Logger.Log(f"Wrote {len(features.SessionLines)} {self.Config.Location} session lines", depth=3)
                     case ExportMode.PLAYER:
                         self._writePlayerLines(players=features.PlayerLines)
-                        Logger.Log(f"Wrote {len(features.PlayerLines)} {self.Config.TableName} player lines", depth=3)
+                        Logger.Log(f"Wrote {len(features.PlayerLines)} {self.Config.Location} player lines", depth=3)
                     case ExportMode.POPULATION:
                         self._writePopulationLines(populations=features.PopulationLines)
-                        Logger.Log(f"Wrote {len(features.PopulationLines)} {self.Config.TableName} population lines", depth=3)
+                        Logger.Log(f"Wrote {len(features.PopulationLines)} {self.Config.Location} population lines", depth=3)
                     case _:
                         Logger.Log(f"Failed to write lines for unrecognized Feature export mode {mode}!", level=logging.WARN, depth=3)
             else:
