@@ -55,6 +55,10 @@ class IDFilterCollection:
         elif isinstance(included_players, list) or isinstance(included_players, set):
             self._player_filter = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(included_players))
 
+    @property
+    def any(self) -> bool:
+        return self.Sessions.Active or self.Players.Active
+
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***

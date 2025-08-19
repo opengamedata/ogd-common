@@ -85,6 +85,10 @@ class EventFilterCollection:
         elif isinstance(allowed_events, tuple):
             self._event_codes = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_events[0], maximum=allowed_events[1])
 
+    @property
+    def any(self) -> bool:
+        return self.EventNames.Active or self.EventCodes.Active
+
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***

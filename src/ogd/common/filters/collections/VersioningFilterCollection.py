@@ -92,6 +92,10 @@ class VersioningFilterCollection:
         elif isinstance(allowed_branches, list) or isinstance(allowed_branches, set):
             self._branch_filter = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(allowed_branches))
 
+    @property
+    def any(self) -> bool:
+        return self.LogVersions.Active or self.AppVersions.Active or self.AppBranches.Active
+
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***

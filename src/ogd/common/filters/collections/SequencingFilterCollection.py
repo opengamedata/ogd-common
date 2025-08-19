@@ -1,5 +1,5 @@
 ## import standard libraries
-from datetime import date, datetime
+from datetime import datetime
 from typing import Optional
 # import local files
 from ogd.common.filters import *
@@ -74,6 +74,10 @@ class SequencingFilterCollection:
             self._session_index_filter = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, slice=allowed_indices)
         elif isinstance(allowed_indices, tuple):
             self._session_index_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_indices[0], maximum=allowed_indices[1])
+
+    @property
+    def any(self) -> bool:
+        return self.Timestamps.Active or self.SessionIndices.Active
 
     # *** PRIVATE STATICS ***
 
