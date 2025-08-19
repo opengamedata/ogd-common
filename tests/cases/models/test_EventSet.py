@@ -8,7 +8,7 @@ from unittest import TestCase
 from zipfile import ZipFile
 # import locals
 from ogd.common.configs.TestConfig import TestConfig
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
 from ogd.common.models.EventSet import EventSet
@@ -62,7 +62,8 @@ class test_EventSet(TestCase):
         Logger.std_logger.setLevel(_level)
 
         # 2. Set up local instance of testing class
-        _cfg = GameStoreConfig(name="FILE SOURCE", game_id="BACTERIA", schema_name="OGD_EVENT_FILE", source=)
+        _cfg = DataTableConfig(name="FILE SOURCE", game_id="BACTERIA", schema_name="OGD_EVENT_FILE",
+                               store_name=None, store_config=)
         CSVI = CSVInterface(config=_cfg, filepath=f, delim='\t', fail_fast=False)
         cls.events : EventSet = CSVI.GetEventCollection(filters=DatasetFilterCollection())
 
