@@ -91,7 +91,7 @@ class FileStoreConfig(DataStoreConfig):
 
     @property
     def FileExtension(self) -> str:
-        return self.Filename.split(".")[-1]
+        return self.Filename.rsplit(".", maxsplit=1)[-1]
 
     @property
     def Filepath(self) -> str | Path:
