@@ -1,4 +1,5 @@
 ## import standard libraries
+import builtins
 from typing import Optional, List, Set, Tuple, TypeVar
 # import local files
 from ogd.common.filters.Filter import Filter
@@ -6,13 +7,15 @@ from ogd.common.models.enums.FilterMode import FilterMode
 
 T = TypeVar("T")
 class SetFilter(Filter[T]):
-    def __init__(self, mode:FilterMode=FilterMode.NOFILTER, set_elements:"SetFilter" | Set[T] | List[T] | Tuple[T] =set()):
+    def __init__(self, mode:FilterMode=FilterMode.NOFILTER, set_elements:"SetFilter" | Set[T] | List[T] | Tuple[T] | T = None):
         super().__init__(mode=mode)
         self._set : Set[T]
         if isinstance(set_elements, SetFilter):
             self._set = set_elements.AsSet or set()
-        else:
+        elif isinstance(set_elements, set) or isinstance(set_elements, list) or isinstance(set_elements, tuple):
             self._set = set(set_elements)
+        else:
+            self._set = {set_elements} if set_elements else set()
 
     def __str__(self) -> str:
         ret_val : str
