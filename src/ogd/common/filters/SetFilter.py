@@ -1,6 +1,6 @@
 ## import standard libraries
 import builtins
-from typing import Optional, List, Set, Tuple, TypeVar
+from typing import Any, Optional, List, Set, Tuple, TypeVar
 # import local files
 from ogd.common.filters.Filter import Filter
 from ogd.common.models.enums.FilterMode import FilterMode
@@ -30,7 +30,7 @@ class SetFilter(Filter[T]):
         
         return ret_val
 
-    def __contains__(self, elem:T):
+    def __contains__(self, elem:Any):
         return elem in self._set
     
     def __repr__(self) -> str:
