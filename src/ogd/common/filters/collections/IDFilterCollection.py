@@ -39,22 +39,31 @@ class IDFilterCollection:
     def Sessions(self) -> Filter[str]:
         return self._session_filter
     @Sessions.setter
-    def Sessions(self, included_sessions:Optional[SetFilter | Set[str] | List[str] | Tuple[str] | str]) -> None:
-        self._session_filter = SetFilter[str](mode=self.Sessions.FilterMode, set_elements=included_sessions)
+    def Sessions(self, included_sessions:Optional[SetFilter | NoFilter | Set[str] | List[str] | Tuple[str] | str]) -> None:
+        if included_sessions is None or isinstance(included_sessions, NoFilter):
+            self._app_filter = NoFilter()
+        else:
+            self._session_filter = SetFilter[str](mode=self.Sessions.FilterMode, set_elements=included_sessions)
 
     @property
     def Players(self) -> Filter[str]:
         return self._player_filter
     @Players.setter
-    def Players(self, included_players:Optional[SetFilter | Set[str] | List[str] | Tuple[str] | str]) -> None:
-        self._player_filter = SetFilter[str](mode=self.Players.FilterMode, set_elements=included_players)
+    def Players(self, included_players:Optional[SetFilter | NoFilter | Set[str] | List[str] | Tuple[str] | str]) -> None:
+        if included_players is None or isinstance(included_players, NoFilter):
+            self._app_filter = NoFilter()
+        else:
+            self._player_filter = SetFilter[str](mode=self.Players.FilterMode, set_elements=included_players)
 
     @property
     def AppIDs(self) -> Filter[str]:
         return self._app_filter
     @AppIDs.setter
-    def AppIDs(self, included_apps:Optional[SetFilter | Set[str] | List[str] | Tuple[str] | str]) -> None:
-        self._app_filter = SetFilter[str](mode=self.AppIDs.FilterMode, set_elements=included_apps)
+    def AppIDs(self, included_apps:Optional[SetFilter | NoFilter | Set[str] | List[str] | Tuple[str] | str]) -> None:
+        if included_apps is None or isinstance(included_apps, NoFilter):
+            self._app_filter = NoFilter()
+        else:
+            self._app_filter = SetFilter[str](mode=self.AppIDs.FilterMode, set_elements=included_apps)
 
     @property
     def any(self) -> bool:
