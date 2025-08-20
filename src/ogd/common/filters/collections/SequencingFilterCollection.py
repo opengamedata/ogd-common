@@ -57,7 +57,7 @@ class SequencingFilterCollection:
         elif isinstance(allowed_times, RangeFilter):
             self._timestamp_filter = allowed_times
         elif isinstance(allowed_times, slice):
-            self._timestamp_filter = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, slice=allowed_times)
+            self._timestamp_filter = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, range_slice=allowed_times)
         elif isinstance(allowed_times, tuple):
             self._timestamp_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_times[0], maximum=allowed_times[1])
 
@@ -71,7 +71,7 @@ class SequencingFilterCollection:
         elif isinstance(allowed_indices, Filter):
             self._session_index_filter = allowed_indices
         elif isinstance(allowed_indices, slice):
-            self._session_index_filter = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, slice=allowed_indices)
+            self._session_index_filter = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, range_slice=allowed_indices)
         elif isinstance(allowed_indices, tuple):
             self._session_index_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_indices[0], maximum=allowed_indices[1])
 

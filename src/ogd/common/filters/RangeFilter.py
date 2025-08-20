@@ -1,6 +1,6 @@
 ## import standard libraries
 import logging
-from typing import Any, Optional, Set, TypeVar
+from typing import Any, Optional, TypeVar
 # import local files
 from ogd.common.filters.Filter import Filter
 from ogd.common.models.enums.FilterMode import FilterMode
@@ -58,7 +58,7 @@ class RangeFilter(Filter[T]):
         return slice(self.Min, self.Max) if self.FilterMode != FilterMode.NOFILTER else None
 
     @staticmethod
-    def FromSlice(mode:FilterMode, slice:slice) -> "RangeFilter":
+    def FromSlice(mode:FilterMode, range_slice:slice) -> "RangeFilter":
         """Create a RangeFilter based on a slice object.
 
         This is sort of an abuse of the type, but it's a convenient way to represent a min and max where one or the other is optional.
@@ -70,4 +70,4 @@ class RangeFilter(Filter[T]):
         :return: _description_
         :rtype: RangeFilter
         """
-        return RangeFilter(mode=mode, minimum=slice.start, maximum=slice.stop)
+        return RangeFilter(mode=mode, minimum=range_slice.start, maximum=range_slice.stop)

@@ -79,7 +79,7 @@ class EventFilterCollection:
         elif isinstance(allowed_events, list) or isinstance(allowed_events, set):
             self._event_codes = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(allowed_events))
         elif isinstance(allowed_events, slice):
-            self._event_codes = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, slice=allowed_events)
+            self._event_codes = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, range_slice=allowed_events)
         elif isinstance(allowed_events, tuple):
             self._event_codes = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_events[0], maximum=allowed_events[1])
 
