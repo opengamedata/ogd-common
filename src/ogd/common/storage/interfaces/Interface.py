@@ -168,7 +168,7 @@ class Interface(abc.ABC):
                     try:
                         event = self.Config.TableSchema.EventFromRow(row, fallbacks=fallbacks)
                         # in case event index was not given, we should fall back on using the order it came to us.
-                    except Exception as err:
+                    except Exception as err: # pylint: disable=broad-exception-caught
                         if self._fail_fast:
                                 Logger.Log(f"Error while converting row to Event! Cancelling data retrieval.\nFull error: {err}\nRow data: {pformat(row)}", logging.ERROR, depth=2)
                                 raise err
@@ -197,7 +197,7 @@ class Interface(abc.ABC):
                     try:
                         feature = self.Config.TableSchema.FeatureFromRow(row, fallbacks=fallbacks)
                         # in case event index was not given, we should fall back on using the order it came to us.
-                    except Exception as err:
+                    except Exception as err: # pylint: disable=broad-exception-caught
                         if self._fail_fast:
                                 Logger.Log(f"Error while converting row to Feature! Cancelling data retrieval.\nFull error: {err}\nRow data: {pformat(row)}", logging.ERROR, depth=2)
                                 raise err
