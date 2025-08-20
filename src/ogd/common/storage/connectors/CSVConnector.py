@@ -19,17 +19,18 @@ class CSVConnector(StorageConnector):
                                 ExportMode.PLAYER.name:"player-features", ExportMode.POPULATION.name:"population-features"}
 
     def __init__(self, config:FileStoreConfig,
-                 with_secondary_files:Set[ExportMode]=set(), with_zipping:bool=False,
-                 existing_meta:Optional[Dict]={}):
+                 with_secondary_files:Optional[Set[ExportMode]]=None,
+                 with_zipping:bool=False,
+                 existing_meta:Optional[Dict]=None):
         # set up data from params
         super().__init__()
-        self._config = config
-        self._file = None
-        self._existing_meta = existing_meta
-        self._with_secondary_files = with_secondary_files
-        self._secondary_files : Dict[str,Optional[IO]]   = {mode.name:None for mode in CSVConnector._VALID_SECONDARY_FILES}
-        self._with_zipping = with_zipping
-        self._zip_paths       : Dict[str,Optional[Path]] = {mode.name:None for mode in CSVConnector._VALID_SECONDARY_FILES}
+        self._config               : FileStoreConfig          = config
+        self._file                 : Optional[IO]             = None
+        self._existing_meta        : Dict                     = existing_meta or {}
+        self._with_secondary_files : Set[ExportMode]          = with_secondary_files or set()
+        self._secondary_files      : Dict[str,Optional[IO]]   = {mode.name:None for mode in CSVConnector._VALID_SECONDARY_FILES}
+        self._with_zipping         : bool                     = with_zipping
+        self._zip_paths            : Dict[str,Optional[Path]] = {mode.name:None for mode in CSVConnector._VALID_SECONDARY_FILES}
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
