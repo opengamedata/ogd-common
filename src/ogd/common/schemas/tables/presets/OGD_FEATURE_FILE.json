@@ -1,4 +1,5 @@
 {
+    "table_type": "FEATURE",
     "column_map": {
         "name"            : "name",
         "feature_type"    : "feature_type",
