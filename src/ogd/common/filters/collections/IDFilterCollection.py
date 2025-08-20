@@ -36,7 +36,7 @@ class IDFilterCollection:
         return ret_val
 
     @property
-    def Sessions(self) -> Filter[str]:
+    def Sessions(self) -> SetFilter[str] | NoFilter:
         return self._session_filter
     @Sessions.setter
     def Sessions(self, included_sessions:Optional[SetFilter | NoFilter | Set[str] | List[str] | Tuple[str] | str]) -> None:
@@ -46,7 +46,7 @@ class IDFilterCollection:
             self._session_filter = SetFilter[str](mode=self.Sessions.FilterMode, set_elements=included_sessions)
 
     @property
-    def Players(self) -> Filter[str]:
+    def Players(self) -> SetFilter[str] | NoFilter:
         return self._player_filter
     @Players.setter
     def Players(self, included_players:Optional[SetFilter | NoFilter | Set[str] | List[str] | Tuple[str] | str]) -> None:
@@ -56,7 +56,7 @@ class IDFilterCollection:
             self._player_filter = SetFilter[str](mode=self.Players.FilterMode, set_elements=included_players)
 
     @property
-    def AppIDs(self) -> Filter[str]:
+    def AppIDs(self) -> SetFilter[str] | NoFilter:
         return self._app_filter
     @AppIDs.setter
     def AppIDs(self, included_apps:Optional[SetFilter | NoFilter | Set[str] | List[str] | Tuple[str] | str]) -> None:
