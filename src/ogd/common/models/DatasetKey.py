@@ -55,11 +55,11 @@ class DatasetKey:
                     self._to_date = dateparse(to_date).date()
                 elif isinstance(to_date, int):
                     self._to_date = dateparse(str(to_date)).date()
-            self._full_file       : Optional[str]  = full_file.name if isinstance(full_file, Path) else Path(full_file).name if isinstance(full_file, str) else None
+            self._full_file       : Optional[str]  = full_file.stem if isinstance(full_file, Path) else Path(full_file).stem if isinstance(full_file, str) else None
             self._player_id       : Optional[str]  = player_id
-            self._player_id_file  : Optional[str]  = player_id_file.name if isinstance(player_id_file, Path) else player_id_file
+            self._player_id_file  : Optional[str]  = player_id_file.stem if isinstance(player_id_file, Path) else Path(player_id_file).stem if isinstance(player_id_file, str) else None
             self._session_id      : Optional[str]  = session_id
-            self._session_id_file : Optional[str]  = session_id_file.name if isinstance(session_id_file, Path) else session_id_file
+            self._session_id_file : Optional[str]  = session_id_file.stem if isinstance(session_id_file, Path) else Path(session_id_file).stem if isinstance(session_id_file, str) else None
 
     def __str__(self):
         """Returns formatted string for the dataset key, with the form "GAME_ID_<from_ID>_<YYYYMMDD_to_YYYYMMDD>"
