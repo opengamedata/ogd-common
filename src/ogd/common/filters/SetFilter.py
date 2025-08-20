@@ -1,5 +1,4 @@
 ## import standard libraries
-import builtins
 from typing import Any, Optional, List, Set, Tuple, TypeVar
 # import local files
 from ogd.common.filters.Filter import Filter
