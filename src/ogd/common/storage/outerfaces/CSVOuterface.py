@@ -173,36 +173,42 @@ class CSVOuterface(Outerface):
             Logger.Log("No processed_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(event_lines))
 
-    def _writeSessionLines(self, sessions:List[ExportRow]) -> None:
+    def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
         # self._sess_count += len(sessions)
-        _session_feats = [CSVOuterface._cleanSpecialChars(vals=sess) for sess in sessions]
-        _session_lines = ["\t".join(sess) + "\n" for sess in _session_feats]
+        _clean_lines = [CSVOuterface._cleanSpecialChars(vals=feat) for feat in session_lines]
+        final_lines = ["\t".join(sess) + "\n" for sess in _clean_lines]
+        if self.Connector.File is not None:
+            self.Connector.File.writelines(final_lines)
         f = self.Connector.SecondaryFiles.get(ExportMode.SESSION.name, None)
         if f is not None:
-            f.writelines(_session_lines)
+            f.writelines(final_lines)
         else:
             Logger.Log("No session file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(_session_lines))
+            sys.stdout.write("".join(final_lines))
 
-    def _writePlayerLines(self, players:List[ExportRow]) -> None:
-        _player_feats = [CSVOuterface._cleanSpecialChars(vals=play) for play in players]
-        _player_lines = ["\t".join(play) + "\n" for play in _player_feats]
+    def _writePlayerLines(self, player_lines:List[ExportRow]) -> None:
+        _clean_lines = [CSVOuterface._cleanSpecialChars(vals=play) for play in player_lines]
+        final_lines = ["\t".join(play) + "\n" for play in _clean_lines]
+        if self.Connector.File is not None:
+            self.Connector.File.writelines(final_lines)
         f = self.Connector.SecondaryFiles.get(ExportMode.PLAYER.name, None)
         if f is not None:
-            f.writelines(_player_lines)
+            f.writelines(final_lines)
         else:
             Logger.Log("No player file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(_player_lines))
+            sys.stdout.write("".join(final_lines))
 
-    def _writePopulationLines(self, populations:List[ExportRow]) -> None:
-        _pop_feats = [CSVOuterface._cleanSpecialChars(vals=pop) for pop in populations]
-        _pop_lines = ["\t".join(pop) + "\n" for pop in _pop_feats]
+    def _writePopulationLines(self, population_lines:List[ExportRow]) -> None:
+        _clean_lines = [CSVOuterface._cleanSpecialChars(vals=pop) for pop in population_lines]
+        final_lines = ["\t".join(pop) + "\n" for pop in _clean_lines]
+        if self.Connector.File is not None:
+            self.Connector.File.writelines(final_lines)
         f = self.Connector.SecondaryFiles.get(ExportMode.POPULATION.name, None)
         if f is not None:
-            f.writelines(_pop_lines)
+            f.writelines(final_lines)
         else:
             Logger.Log("No population file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(_pop_lines))
+            sys.stdout.write("".join(final_lines))
 
     @override
     def _writeMetadata(self, dataset_schema:DatasetSchema):

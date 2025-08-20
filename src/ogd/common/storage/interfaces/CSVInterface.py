@@ -35,7 +35,6 @@ class CSVInterface(Interface):
         elif isinstance(self.Config.StoreConfig, FileStoreConfig):
             self._store = CSVConnector(
                 config=self.Config.StoreConfig,
-                extension=self._extension,
                 with_secondary_files=set(),
             )
         else:
