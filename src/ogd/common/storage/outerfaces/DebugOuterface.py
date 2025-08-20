@@ -27,6 +27,10 @@ class DebugOuterface(Outerface):
 
     # *** IMPLEMENT ABSTRACTS ***
 
+    @property
+    def Connector(self) -> None:
+        return None
+
     def _removeExportMode(self, mode:ExportMode):
         match mode:
             case ExportMode.EVENTS:
