@@ -131,7 +131,6 @@ class Interface(abc.ABC):
             Logger.Log(f"Could not get full date range from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val
 
-
     def AvailableVersions(self, mode:VersionType, filters:DatasetFilterCollection) -> List[SemanticVersion | str]:
         """Get a list of all versions of given type in the connected storage, subject to ID and date filters.
 
