@@ -15,7 +15,7 @@ jobs:
   testbed_schema:
     name: Schema base class Testbed
     needs: build
-    uses: ./.github/workflows/TEST_Schema.yml
+    uses: ./.github/workflows/TEST_schemas_Schema.yml
 
   release:
     name: Publish Release to PyPI
