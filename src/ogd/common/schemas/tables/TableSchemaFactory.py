@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
@@ -10,7 +10,6 @@ class TableSchemaFactory:
     @staticmethod
     def FromDict(name:str, all_elements:Dict[str, Any])-> TableSchema:
         table_type = str(all_elements.get("table_type", "NOT FOUND"))
-        # _table_type       = TableType.FromString(_table_type_str) if _table_type_str is not None else TableType.EVENT
         match (table_type.upper()):
             case "EVENT":
                 return EventTableSchema.FromDict(name=name, unparsed_elements=all_elements)
@@ -20,15 +19,14 @@ class TableSchemaFactory:
                 raise ValueError(f"Could not generate TableSchema from dictionary, table_type had invalid value {table_type}")
 
     @staticmethod
-    def FromFile(name:str, filepath:Path|str)-> TableSchema:
-        filepath = filepath if isinstance(filepath, Path) else Path(filepath)
-        all_elements = loadJSONFile(filename=filepath.name, path=filepath.parent)
+    def FromFile(filename:str, path:Optional[Path|str])-> TableSchema:
+        path = path or TableSchema._DEFAULT_SCHEMA_PATH
+        all_elements = loadJSONFile(filename=filename, path=Path(path))
         table_type = str(all_elements.get("table_type", "NOT FOUND"))
-        # _table_type       = TableType.FromString(_table_type_str) if _table_type_str is not None else TableType.EVENT
         match (table_type.upper()):
             case "EVENT":
-                return EventTableSchema.FromDict(name=name, unparsed_elements=all_elements)
+                return EventTableSchema.FromDict(name=filename, unparsed_elements=all_elements)
             case "FEATURE":
-                return FeatureTableSchema.FromDict(name=name, unparsed_elements=all_elements)
+                return FeatureTableSchema.FromDict(name=filename, unparsed_elements=all_elements)
             case _:
                 raise ValueError(f"Could not generate TableSchema from dictionary, table_type had invalid value {table_type}")
