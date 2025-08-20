@@ -10,6 +10,7 @@ from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexi
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.schemas.datasets.DatasetCollectionSchema import DatasetCollectionSchema
+from ogd.common.utils.fileio import loadJSONFile
 from ogd.common.utils.typing import Map
 
 BaseLocation : TypeAlias = URLLocationSchema | DirectoryLocationSchema
@@ -174,14 +175,20 @@ class DatasetRepositoryConfig(DataStoreConfig):
         _data_elems = DatasetRepositoryConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["datasets"],
-            to_type=dict,
+            to_type=[dict, str],
             default_value=None,
             remove_target=True
         )
-        if _data_elems:
+        if isinstance(_data_elems, dict):
             ret_val = {
                 key : DatasetCollectionSchema.FromDict(name=key, unparsed_elements=datasets if isinstance(datasets, dict) else {})
                 for key, datasets in _data_elems.items()
+            }
+        elif isinstance(_data_elems, str):
+            raw_elems = loadJSONFile(_data_elems)
+            ret_val = {
+                key : DatasetCollectionSchema.FromDict(name=key, unparsed_elements=val) \
+                for key, val in raw_elems
             }
         elif len(unparsed_elements) > 0:
             ret_val = {
