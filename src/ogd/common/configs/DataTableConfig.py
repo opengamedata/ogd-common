@@ -3,6 +3,7 @@ from typing import Dict, Final, LiteralString, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
+from ogd.common.schemas.tables.TableSchemaFactory import TableSchemaFactory
 from ogd.common.schemas.tables import TableSchema as ts
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
@@ -74,7 +75,7 @@ class DataTableConfig(Schema):
         self._store_name     : str                       = store_name    or self._parseStoreName(unparsed_elements=unparsed_elements)
         self._store_config   : Optional[DataStoreConfig] = store_config
         self._schema_name    : str                       = schema_name    or self._parseTableSchemaName(unparsed_elements=unparsed_elements)
-        self._table_schema   : ts.TableSchema            = table_schema   or EventTableSchema.FromFile(schema_name=self._schema_name)
+        self._table_schema   : ts.TableSchema            = table_schema   or TableSchemaFactory.FromFile(filename=self._schema_name)
         self._table_location : DatabaseLocationSchema    = table_location or self._parseTableLocation(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
