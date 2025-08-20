@@ -4,7 +4,7 @@ from typing import Optional
 # import local files
 from ogd.common.filters import *
 from ogd.common.models.enums.FilterMode import FilterMode
-from ogd.common.utils.typing import Map, Pair
+from ogd.common.utils.typing import Pair
 
 class SequencingFilterCollection:
     """Dumb struct to hold filters for timing information
