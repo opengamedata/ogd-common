@@ -77,7 +77,7 @@ class DatasetKey:
         :return: _description_
         :rtype: _type_
         """
-        date_clause = f"{self._from_date}_to_{self._to_date}" if self._from_date and self._to_date else None
+        date_clause = f"{self._from_date.strftime('%Y%m%d')}_to_{self._to_date.strftime('%Y%m%d')}" if self._from_date and self._to_date else None
         has_id = any([id is not None for id in [self._session_id, self._session_id_file, self._player_id, self._player_id_file]])
         id_clause = f"from_{self._session_id or self._session_id_file or self._player_id or self._player_id_file}" if has_id else None
         pieces : List[str] = [x for x in [self._game_id, id_clause, date_clause] if x is not None]
