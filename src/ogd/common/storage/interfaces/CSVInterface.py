@@ -8,7 +8,7 @@ import pandas as pd
 ## import local files
 from ogd.common.filters import *
 from ogd.common.filters.collections import *
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.models.enums.IDMode import IDMode
@@ -24,7 +24,7 @@ class CSVInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:GameStoreConfig, fail_fast:bool, extension:str="tsv", store:Optional[CSVConnector]=None):
+    def __init__(self, config:DataTableConfig, fail_fast:bool, extension:str="tsv", store:Optional[CSVConnector]=None):
         self._store : CSVConnector
 
         super().__init__(config=config, fail_fast=fail_fast)
@@ -35,7 +35,6 @@ class CSVInterface(Interface):
         elif isinstance(self.Config.StoreConfig, FileStoreConfig):
             self._store = CSVConnector(
                 config=self.Config.StoreConfig,
-                extension=self._extension,
                 with_secondary_files=set(),
             )
         else:
@@ -48,13 +47,13 @@ class CSVInterface(Interface):
             _default = lambda : np.dtype("object")
             _mapping : Dict[str, np.dtype] = {
                 column.Name : np.dtype(column.ValueType if column.ValueType in {"str", "int", "float"} else "object")
-                for column in self.Config.Table.Columns
+                for column in self.Config.TableSchema.Columns
             }
             target_types = defaultdict(_default, _mapping)
 
             date_columns = [
-                column.Name for column in self.Config.Table.Columns if column.ValueType in {"datetime", "timezone"}
-            ] if self.Config.Table is not None else []
+                column.Name for column in self.Config.TableSchema.Columns if column.ValueType in {"datetime", "timezone"}
+            ] if self.Config.TableSchema is not None else []
 
             self._data = pd.read_csv(
                 filepath_or_buffer=self.Connector.File,
@@ -94,7 +93,7 @@ class CSVInterface(Interface):
         ret_val : List[str] = []
 
         if not self.DataFrame.empty:
-            dates = pd.to_datetime(self.DataFrame['timestamp'], format='ISO8601')
+            dates = pd.to_datetime(self.DataFrame['timestamp'], format='ISO8601').dt.tz_convert(None) # HACK : need to handle this better elsewhere, pretty sure we've got someplace else giving us filters with dates rather than datetime
             mask = None
             if filters.Sequences.Timestamps.Active:
                 if filters.Sequences.Timestamps.Min and filters.Sequences.Timestamps.Max:
@@ -195,5 +194,16 @@ class CSVInterface(Interface):
     # *** PROPERTIES ***
 
     # *** PRIVATE STATICS ***
+
+    @classmethod
+    def _safeguardFilters(cls, filters:DatasetFilterCollection) -> None:
+        """Override of the `_safeguardFilters` function to perform a check on a filter set, and update the filters if they are not satisfactory.
+
+        For CSVInterface, we are comfortable reading the entirety of a file, so this override simply applies no constraints or defaults, and allows any filtering configuration.
+
+        :param filters: _description_
+        :type filters: DatasetFilterCollection
+        """
+        return
 
     # *** PRIVATE METHODS ***

@@ -154,8 +154,11 @@ class FeatureMapSchema(ColumnMapSchema):
         :return: _description_
         :rtype: EventMapSchema
         """
-        return FeatureMapSchema(name=name, feature_name=None, feature_type=None, game_unit=None, game_unit_index=None,
-                              app_id=None, user_id=None, session_id=None, subfeatures=None, values=None)
+        return FeatureMapSchema(name=name, feature_name=None, feature_type=None,
+                                game_unit=None, game_unit_index=None,
+                                app_id=None, user_id=None, session_id=None,
+                                subfeatures=None, values=None,
+                                other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 

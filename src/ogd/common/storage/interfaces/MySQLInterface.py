@@ -1,20 +1,20 @@
 # import libraries
 import logging
-from datetime import datetime
+from datetime import datetime, time, timedelta
 from itertools import chain
 from typing import Dict, List, LiteralString, Optional, override, Tuple
 # 3rd-party imports
-from mysql.connector import connection, cursor
+from mysql.connector import cursor
 # import locals
 from ogd.common.filters import *
-from ogd.common.filters.collections import *
+from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
 from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.storage.connectors.MySQLConnector import MySQLConnector
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.MySQLConfig import MySQLConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Pair
@@ -23,7 +23,7 @@ class MySQLInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:GameStoreConfig, fail_fast:bool, store:Optional[MySQLConnector]=None):
+    def __init__(self, config:DataTableConfig, fail_fast:bool, store:Optional[MySQLConnector]=None):
         super().__init__(config=config, fail_fast=fail_fast)
         if store:
             self._store = store
@@ -45,12 +45,19 @@ class MySQLInterface(Interface):
             id_col : LiteralString       = "session_id" if mode==IDMode.SESSION else "user_id"
             # 1. If we're in shared table, then need to filter on game ID
             where_clause, params = self._generateWhereClause(filters=filters)
-            if self.Config.TableName != self.Config.GameID:
-                where_clause += "\nAND `app_id`=%s"
-                params.append(self.Config.GameID)
+            app_ids = filters.IDFilters.AppIDs.AsList
+            if app_ids and len(app_ids) > 0 and self.Config.TableName not in app_ids:
+                if len(app_ids) == 1 and filters.IDFilters.AppIDs.FilterMode == FilterMode.INCLUDE:
+                    where_clause += "\nAND `app_id`=%s"
+                    params.append(app_ids[0])
+                else:
+                    exclude = "NOT" if filters.IDFilters.AppIDs.FilterMode == FilterMode.EXCLUDE else ""
+                    app_param_string : LiteralString = ("%s, " * len(app_ids))[:-2] # take all but the trailing ', '.
+                    where_clause += f"\nAND `app_id` {exclude} in ({app_param_string})"
+                    params += app_ids
             query = f"""
                 SELECT DISTINCT(`{id_col}`)
-                FROM `{self.Config.TableLocation.Location}`
+                FROM `{self.Config.Location.Location}`
                 {where_clause}
             """
             data = MySQLInterface.Query(cursor=self.Connector.Cursor, query=query, params=tuple(params))
@@ -65,12 +72,19 @@ class MySQLInterface(Interface):
 
         if self.Connector.Cursor is not None and isinstance(self.Config.StoreConfig, MySQLConfig):
             where_clause, params = self._generateWhereClause(filters=filters)
-            if self.Config.TableName != self.Config.GameID:
-                where_clause += "\nAND `app_id`=%s"
-                params.append(self.Config.GameID)
+            app_ids = filters.IDFilters.AppIDs.AsList
+            if app_ids and len(app_ids) > 0 and self.Config.TableName not in app_ids:
+                if len(app_ids) == 1 and filters.IDFilters.AppIDs.FilterMode == FilterMode.INCLUDE:
+                    where_clause += "\nAND `app_id`=%s"
+                    params.append(app_ids[0])
+                else:
+                    exclude = "NOT" if filters.IDFilters.AppIDs.FilterMode == FilterMode.EXCLUDE else ""
+                    app_param_string : LiteralString = ("%s, " * len(app_ids))[:-2] # take all but the trailing ', '.
+                    where_clause += f"\nAND `app_id` {exclude} in ({app_param_string})"
+                    params += app_ids
             query = f"""
                 SELECT MIN(`server_time`), MAX(`server_time`)
-                FROM `{self.Config.TableLocation.Location}`
+                FROM `{self.Config.Location.Location}`
                 {where_clause}
             """
 
@@ -89,12 +103,19 @@ class MySQLInterface(Interface):
             version_col  : LiteralString       = "log_version" if mode==VersionType.LOG else "app_version" if mode==VersionType.APP else "app_branch"
 
             where_clause, params = self._generateWhereClause(filters=filters)
-            if self.Config.TableName != self.Config.GameID:
-                where_clause += "\nAND `app_id`=%s"
-                params.append(self.Config.GameID)
+            app_ids = filters.IDFilters.AppIDs.AsList
+            if app_ids and len(app_ids) > 0 and self.Config.TableName not in app_ids:
+                if len(app_ids) == 1 and filters.IDFilters.AppIDs.FilterMode == FilterMode.INCLUDE:
+                    where_clause += "\nAND `app_id`=%s"
+                    params.append(app_ids[0])
+                else:
+                    exclude = "NOT" if filters.IDFilters.AppIDs.FilterMode == FilterMode.EXCLUDE else ""
+                    app_param_string : LiteralString = ("%s, " * len(app_ids))[:-2] # take all but the trailing ', '.
+                    where_clause += f"\nAND `app_id` {exclude} in ({app_param_string})"
+                    params += app_ids
             query = f"""
                 SELECT DISTINCT({version_col})
-                FROM `{self.Config.TableLocation.Location}`
+                FROM `{self.Config.Location.Location}`
                 {where_clause}
             """
 
@@ -108,18 +129,26 @@ class MySQLInterface(Interface):
 
     def _getEventRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
         ret_val = []
+
         # grab data for the given session range. Sort by event time, so
         if self.Connector.Cursor is not None and isinstance(self.Config.StoreConfig, MySQLConfig):
             # filt = f"app_id='{self._game_id}' AND (session_id  BETWEEN '{next_slice[0]}' AND '{next_slice[-1]}'){ver_filter}"
 
             where_clause, params = self._generateWhereClause(filters=filters)
-            if self.Config.TableName != self.Config.GameID:
-                where_clause += "\nAND `app_id`=%s"
-                params.append(self.Config.GameID)
+            app_ids = filters.IDFilters.AppIDs.AsList
+            if app_ids and len(app_ids) > 0 and self.Config.TableName not in app_ids:
+                if len(app_ids) == 1 and filters.IDFilters.AppIDs.FilterMode == FilterMode.INCLUDE:
+                    where_clause += "\nAND `app_id`=%s"
+                    params.append(app_ids[0])
+                else:
+                    exclude = "NOT" if filters.IDFilters.AppIDs.FilterMode == FilterMode.EXCLUDE else ""
+                    app_param_string : LiteralString = ("%s, " * len(app_ids))[:-2] # take all but the trailing ', '.
+                    where_clause += f"\nAND `app_id` {exclude} in ({app_param_string})"
+                    params += app_ids
 
             query = f"""
                 SELECT *
-                FROM `{self.Config.TableLocation.Location}`
+                FROM `{self.Config.Location.Location}`
                 {where_clause}
                 ORDER BY `user_id`, `session_id`, `event_sequence_index` ASC
             """

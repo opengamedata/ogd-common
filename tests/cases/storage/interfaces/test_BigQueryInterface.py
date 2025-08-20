@@ -4,24 +4,22 @@ import unittest
 from datetime import datetime
 from unittest import TestCase
 # import 3rd-party libraries
-from google.cloud import bigquery
 # import ogd libraries.
 from ogd.common.filters import *
 from ogd.common.filters.collections import *
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
-from ogd.common.storage.connectors.BigQueryConnector import BigQueryConnector
 from ogd.common.storage.interfaces.BigQueryInterface import BigQueryInterface, ParamaterizedClause
 from ogd.common.utils.Logger import Logger
 # import locals
 from tests.config.t_config import settings
 
 class test_BigQueryInterface(TestCase):
-    """Testbed for the GameStoreConfig class.
+    """Testbed for the DataTableConfig class.
 
         TODO : Test more 'enabled' options/combinations.
     """
@@ -44,9 +42,9 @@ class test_BigQueryInterface(TestCase):
         table_schema = EventTableSchema.FromFile(schema_name="OPENGAMEDATA_BIGQUERY.json", schema_path="./tests/config/")
 
         _elems = { "source":"OPENGAMEDATA_BQ", "database":"aqualab", "table":"aqualab_daily", "schema":"OPENGAMEDATA_BIGQUERY" }
-        config = GameStoreConfig.FromDict(name="BQStoreConfig", unparsed_elements=_elems)
+        config = DataTableConfig.FromDict(name="BQStoreConfig", unparsed_elements=_elems)
         config.StoreConfig = store_config
-        config.Table = table_schema
+        config.TableSchema = table_schema
 
         cls.test_interface = BigQueryInterface(config=config, fail_fast=True, store=None)
 

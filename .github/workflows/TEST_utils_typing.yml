@@ -1,37 +1,26 @@
-# Workflow to test the schemas from the `config` subfolder
-name: Testbed - Configs
+# Workflow to test the SemanticVersion class from the `utils` module
+name: Testbed - `typing` Module
 run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
 on:
   workflow_dispatch:
   workflow_call:
   push:
     paths:
-    # repo-wide dependencies
+    - '.github/workflows/TEST_utils_typing.yml'
     - '.github/actions/test_config/**'
+    - 'tests/cases/models/config/*.py'
     - 'tests/config/**'
     - 'requirements.txt'
-    # specific dependencies
-    - '.github/workflows/TEST_Configs.yml'
-    - 'tests/cases/configs/*.py'
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-Configs
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-typing
   cancel-in-progress: true
 
 jobs:
 
   run_testbeds:
-    name: Run Config Schema Testbeds
+    name: Run `typing` Testbed
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        testbed: [
-          test_DataTableConfig,
-          test_IndexingConfig,
-          test_TestConfig,
-        ]
-      fail-fast: false # we don't want to cancel just because one testbed fails.
-      max-parallel: 20
 
     steps:
   # 1. Local checkout 
@@ -52,11 +41,11 @@ jobs:
   # 2. Build & configure remote environments
 
   # 3. Perform work
-    - name: Execute ${{ matrix.testbed }} testbed
+    - name: Execute typing Testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/configs"
-        test_file: "${{ matrix.testbed }}.py"
+        directory: "tests/cases/utils"
+        test_file: "test_typing.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete

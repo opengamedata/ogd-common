@@ -6,7 +6,7 @@ import logging
 from typing import List, override, Set
 
 # import OGD files
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.storage.outerfaces.Outerface import Outerface
@@ -21,11 +21,15 @@ class DebugOuterface(Outerface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:GameStoreConfig, export_modes:Set[ExportMode]):
-        super().__init__(export_modes=export_modes, config=config)
+    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode]):
+        super().__init__(export_modes=export_modes, table_config=table_config)
         # self.Open()
 
     # *** IMPLEMENT ABSTRACTS ***
+
+    @property
+    def Connector(self) -> None:
+        return None
 
     def _removeExportMode(self, mode:ExportMode):
         match mode:
@@ -70,20 +74,20 @@ class DebugOuterface(Outerface):
         _lengths = [len(elem) for elem in events]
         self._display(f"{len(events)} processed events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
 
-    def _writeSessionLines(self, sessions:List[ExportRow]) -> None:
+    def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
         self._display("Session data:")
-        _lengths = [len(elem) for elem in sessions]
-        self._display(f"{len(sessions)} events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
+        _lengths = [len(elem) for elem in session_lines]
+        self._display(f"{len(session_lines)} events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
 
-    def _writePlayerLines(self, players:List[ExportRow]) -> None:
+    def _writePlayerLines(self, player_lines:List[ExportRow]) -> None:
         self._display("Player data:")
-        _lengths = [len(elem) for elem in players]
-        self._display(f"{len(players)} events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
+        _lengths = [len(elem) for elem in player_lines]
+        self._display(f"{len(player_lines)} events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
 
-    def _writePopulationLines(self, populations:List[ExportRow]) -> None:
+    def _writePopulationLines(self, population_lines:List[ExportRow]) -> None:
         self._display("Population data:")
-        _lengths = [len(elem) for elem in populations]
-        self._display(f"{len(populations)} events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
+        _lengths = [len(elem) for elem in population_lines]
+        self._display(f"{len(population_lines)} events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
 
     @override
     def _writeMetadata(self, dataset_schema:DatasetSchema):

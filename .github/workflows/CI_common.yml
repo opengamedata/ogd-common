@@ -29,31 +29,36 @@ jobs:
 
   # Run testbeds in models module
 
+  testbed_datasetkey:
+    name: DatasetKey Testbed
+    needs: build
+    uses: ./.github/workflows/TEST_models_DatasetKey.yml
+
   testbed_semver:
     name: SemanticVersion Testbed
     needs: build
-    uses: ./.github/workflows/TEST_SemanticVersion.yml
+    uses: ./.github/workflows/TEST_models_SemanticVersion.yml
 
   # Run testbeds in schemas module
 
   testbed_schema:
     name: Schema base class Testbed
     needs: build
-    uses: ./.github/workflows/TEST_Schema.yml
+    uses: ./.github/workflows/TEST_schemas_Schema.yml
 
   testbed_game_schemas:
     name: Game Schema Testbeds
     needs: build
-    uses: ./.github/workflows/TEST_EventSchemas.yml
+    uses: ./.github/workflows/TEST_schemas_EventSchemas.yml
 
   # Run testbeds in utils module
 
   testbed_fileio:
     name: FileIO Testbed
     needs: build
-    uses: ./.github/workflows/TEST_FileIO.yml
+    uses: ./.github/workflows/TEST_utils_FileIO.yml
 
   testbed_typing:
     name: "`typing` Testbed"
     needs: build
-    uses: ./.github/workflows/TEST_typing.yml
+    uses: ./.github/workflows/TEST_utils_typing.yml

@@ -60,7 +60,7 @@ class VersioningFilterCollection:
         elif isinstance(allowed_versions, list) or isinstance(allowed_versions, set):
             self._log_filter = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(allowed_versions))
         elif isinstance(allowed_versions, slice):
-            self._log_filter = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, slice=allowed_versions)
+            self._log_filter = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, range_slice=allowed_versions)
         elif isinstance(allowed_versions, tuple):
             self._log_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_versions[0], maximum=allowed_versions[1])
 
@@ -76,7 +76,7 @@ class VersioningFilterCollection:
         elif isinstance(allowed_versions, list) or isinstance(allowed_versions, set):
             self._app_filter = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(allowed_versions))
         elif isinstance(allowed_versions, slice):
-            self._app_filter = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, slice=allowed_versions)
+            self._app_filter = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, range_slice=allowed_versions)
         elif isinstance(allowed_versions, tuple):
             self._app_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_versions[0], maximum=allowed_versions[1])
 
@@ -91,6 +91,10 @@ class VersioningFilterCollection:
             self._branch_filter = allowed_branches
         elif isinstance(allowed_branches, list) or isinstance(allowed_branches, set):
             self._branch_filter = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(allowed_branches))
+
+    @property
+    def any(self) -> bool:
+        return self.LogVersions.Active or self.AppVersions.Active or self.AppBranches.Active
 
     # *** PRIVATE STATICS ***
 

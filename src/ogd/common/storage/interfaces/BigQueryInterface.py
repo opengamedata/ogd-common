@@ -10,8 +10,9 @@ from google.cloud import bigquery
 from google.api_core.exceptions import BadRequest
 # OGD imports
 from ogd.common.filters import *
-from ogd.common.filters.collections import *
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
+from ogd.common.filters.collections.SequencingFilterCollection import SequencingFilterCollection
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.models.enums.IDMode import IDMode
@@ -20,7 +21,6 @@ from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.storage.connectors.BigQueryConnector import BigQueryConnector
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Version
 
 AQUALAB_MIN_VERSION : Final[float] = 6.2
 
@@ -36,7 +36,7 @@ class BigQueryInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:GameStoreConfig, fail_fast:bool, store:Optional[BigQueryConnector]=None):
+    def __init__(self, config:DataTableConfig, fail_fast:bool, store:Optional[BigQueryConnector]=None):
         self._store : BigQueryConnector
 
         super().__init__(config=config, fail_fast=fail_fast)
@@ -58,7 +58,7 @@ class BigQueryInterface(Interface):
         :return: The full path from project ID to table name, if properly set in configuration, else the literal string "INVALID SOURCE SCHEMA".
         :rtype: str
         """
-        return f"{self.Connector.StoreConfig.Location.DatabaseName}.{self.Config.TableLocation.Location}_*"
+        return f"{self.Connector.StoreConfig.Location.DatabaseName}.{self.Config.Location.Location}_*"
 
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -222,7 +222,7 @@ class BigQueryInterface(Interface):
     def _generateSuffixClause(date_filter:SequencingFilterCollection) -> ParamaterizedClause:
         clause = ""
         params = []
-        
+
         if date_filter.Timestamps.Min and date_filter.Timestamps.Max:
             str_min, str_max = date_filter.Timestamps.Min.strftime("%Y%m%d"), date_filter.Timestamps.Max.strftime("%Y%m%d")
             clause = "_TABLE_SUFFIX BETWEEN @suffixstart AND @suffixend"
@@ -232,7 +232,7 @@ class BigQueryInterface(Interface):
             params.append(
                 bigquery.ScalarQueryParameter(type_="STRING", value=str_max, name="suffixend")
             )
-        
+
         return ParamaterizedClause(clause=clause, params=params)
 
     @staticmethod

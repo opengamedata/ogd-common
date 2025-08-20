@@ -18,19 +18,19 @@ class CSVConnector(StorageConnector):
                                 ExportMode.FEATURES.name:"all-features", ExportMode.SESSION.name:"session-features",
                                 ExportMode.PLAYER.name:"player-features", ExportMode.POPULATION.name:"population-features"}
 
-    def __init__(self, config:FileStoreConfig, extension:str = ',',
-                 with_secondary_files:Set[ExportMode]=set(), with_zipping:bool=False,
-                 existing_meta:Optional[Dict]={}):
+    def __init__(self, config:FileStoreConfig,
+                 with_secondary_files:Optional[Set[ExportMode]]=None,
+                 with_zipping:bool=False,
+                 existing_meta:Optional[Dict]=None):
         # set up data from params
         super().__init__()
-        self._config = config
-        self._extension = extension
-        self._file = None
-        self._existing_meta = existing_meta
-        self._with_secondary_files = with_secondary_files
-        self._secondary_files : Dict[str,Optional[IO]]   = {mode.name:None for mode in CSVConnector._VALID_SECONDARY_FILES}
-        self._with_zipping = with_zipping
-        self._zip_paths       : Dict[str,Optional[Path]] = {mode.name:None for mode in CSVConnector._VALID_SECONDARY_FILES}
+        self._config               : FileStoreConfig          = config
+        self._file                 : Optional[IO]             = None
+        self._existing_meta        : Dict                     = existing_meta or {}
+        self._with_secondary_files : Set[ExportMode]          = with_secondary_files or set()
+        self._secondary_files      : Dict[str,Optional[IO]]   = {mode.name:None for mode in CSVConnector._VALID_SECONDARY_FILES}
+        self._with_zipping         : bool                     = with_zipping
+        self._zip_paths            : Dict[str,Optional[Path]] = {mode.name:None for mode in CSVConnector._VALID_SECONDARY_FILES}
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -41,6 +41,11 @@ class CSVConnector(StorageConnector):
     @property
     def File(self) -> Optional[IO]:
         return self._file
+
+    @property
+    def FileExtension(self) -> str:
+        candidate_ext = self.StoreConfig.FileExtension
+        return candidate_ext if candidate_ext in ["tsv", "csv"] else "tsv"
 
     @property
     def SecondaryFiles(self) -> Dict[str, Optional[IO]]:
@@ -62,7 +67,7 @@ class CSVConnector(StorageConnector):
             for mode in CSVConnector._VALID_SECONDARY_FILES:
                 if mode in self._with_secondary_files:
                     suffix = self._SECONDARY_FILE_SUFFIXES[mode.name]
-                    file = self.StoreConfig.Folder / f"{base_file_name}_{suffix}.{self._extension}"
+                    file = self.StoreConfig.Folder / f"{base_file_name}_{suffix}.{self.FileExtension}"
                     _zip  = self.StoreConfig.Folder / f"{base_file_name}_{suffix}.zip"
                     try:
                         self._secondary_files[mode.name] = open(file, "w+", encoding="utf-8")
@@ -149,7 +154,7 @@ class CSVConnector(StorageConnector):
                 with zipfile.ZipFile(z_path, "w", compression=zipfile.ZIP_DEFLATED) as zip_file:
                     base_file_name : str = "_".join(self.StoreConfig.Filename.split("_")[:-1]) # everything up to suffix
                     dataset_id     : str = "_".join(base_file_name.split("_")[:-1]) # everything up to short hash
-                    file_name = f"{base_file_name}_{self._SECONDARY_FILE_SUFFIXES[mode.name]}.{self._extension}"
+                    file_name = f"{base_file_name}_{self._SECONDARY_FILE_SUFFIXES[mode.name]}.{self.FileExtension}"
                     try:
                         self._addToZip(
                             path=self.StoreConfig.Folder / file_name,

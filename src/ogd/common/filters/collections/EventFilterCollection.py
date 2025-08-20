@@ -1,5 +1,5 @@
 ## import standard libraries
-from typing import List, Optional, Set
+from typing import List, Optional, Set, Tuple
 # import local files
 from ogd.common.filters import *
 from ogd.common.models.enums.FilterMode import FilterMode
@@ -52,7 +52,7 @@ class EventFilterCollection:
         """
         return self._event_names
     @EventNames.setter
-    def EventNames(self, allowed_events:Optional[SetFilter[str] | NoFilter | List[str] | Set[str]]):
+    def EventNames(self, allowed_events:Optional[SetFilter[str] | NoFilter | List[str] | Set[str] | Tuple[str] | str]):
         """Can be conveniently set from an existing filter, or collection of event names.
 
         If set this way, the filter is assumed to be an "inclusion" filter.
@@ -66,8 +66,8 @@ class EventFilterCollection:
             self._event_names = NoFilter()
         elif isinstance(allowed_events, SetFilter):
             self._event_names = allowed_events
-        elif isinstance(allowed_events, list) or isinstance(allowed_events, set):
-            self._event_names = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(allowed_events))
+        else:
+            self._event_names = SetFilter(mode=self.EventNames.FilterMode, set_elements=allowed_events)
 
     @property
     def EventCodes(self) -> Filter[int]:
@@ -81,9 +81,13 @@ class EventFilterCollection:
         elif isinstance(allowed_events, list) or isinstance(allowed_events, set):
             self._event_codes = SetFilter(mode=FilterMode.INCLUDE, set_elements=set(allowed_events))
         elif isinstance(allowed_events, slice):
-            self._event_codes = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, slice=allowed_events)
+            self._event_codes = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, range_slice=allowed_events)
         elif isinstance(allowed_events, tuple):
             self._event_codes = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_events[0], maximum=allowed_events[1])
+
+    @property
+    def any(self) -> bool:
+        return self.EventNames.Active or self.EventCodes.Active
 
     # *** PRIVATE STATICS ***
 

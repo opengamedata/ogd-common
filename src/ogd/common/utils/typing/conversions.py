@@ -498,6 +498,7 @@ def BoolFromString(bool_str:str) -> bool:
 def DatetimeFromString(time_str:str) -> datetime.datetime:
     """_summary_
 
+    TODO : handle null inputs!
     TODO : handle more date formats, or something. I dunno, copied this from another area where we were parsing dates.
 
     :param time_str: _description_

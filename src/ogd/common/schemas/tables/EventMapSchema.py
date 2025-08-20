@@ -226,7 +226,8 @@ class EventMapSchema(ColumnMapSchema):
                               app_version=None, app_branch=None, log_version=None,
                               timestamp=None, time_offset=None, event_sequence_index=None,
                               event_name=None, event_source=None, event_data=None,
-                              game_state=None, user_data=None, other_elements=unparsed_elements)
+                              game_state=None, user_data=None,
+                              other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 

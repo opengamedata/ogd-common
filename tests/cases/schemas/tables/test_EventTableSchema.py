@@ -12,7 +12,7 @@ from src.ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from tests.config.t_config import settings
 
 class test_EventTableSchema(TestCase):
-    """Testbed for the GameStoreConfig class.
+    """Testbed for the DataTableConfig class.
 
         TODO : Implement and enable tests.
     """
@@ -259,7 +259,7 @@ class test_EventTableSchema(TestCase):
 
     def test_FromFile_preset(self):
         # try to load from default location
-        _schema = EventTableSchema.FromFile(schema_name="OGD_EVENT_FILE", schema_path=None)
+        _schema = EventTableSchema.FromFile(schema_name="OGD_EVENT_FILE")
         self.assertIsInstance(_schema, EventTableSchema)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "OGD_EVENT_FILE")

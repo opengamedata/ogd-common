@@ -1,16 +1,20 @@
 ## import standard libraries
-import logging
-from typing import Optional, Set, TypeVar
+from typing import Any, Optional, List, Set, Tuple, TypeVar
 # import local files
-from ogd.common.utils.Logger import Logger
 from ogd.common.filters.Filter import Filter
 from ogd.common.models.enums.FilterMode import FilterMode
 
 T = TypeVar("T")
 class SetFilter(Filter[T]):
-    def __init__(self, mode:FilterMode=FilterMode.NOFILTER, set_elements:Set[T]=set()):
+    def __init__(self, mode:FilterMode=FilterMode.NOFILTER, set_elements:Optional["SetFilter" | Set[T] | List[T] | Tuple[T] | T] = None):
         super().__init__(mode=mode)
-        self._set = set(set_elements)
+        self._set : Set[T]
+        if isinstance(set_elements, SetFilter):
+            self._set = set_elements.AsSet or set()
+        elif isinstance(set_elements, set) or isinstance(set_elements, list) or isinstance(set_elements, tuple):
+            self._set = set(set_elements)
+        else:
+            self._set = {set_elements} if set_elements else set()
 
     def __str__(self) -> str:
         ret_val : str
@@ -24,6 +28,9 @@ class SetFilter(Filter[T]):
                 ret_val = "unfiltered"
         
         return ret_val
+
+    def __contains__(self, elem:Any):
+        return elem in self._set
     
     def __repr__(self) -> str:
         _types = set(type(elem).__name__ for elem in self._set)

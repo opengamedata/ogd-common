@@ -12,14 +12,15 @@ from typing import Any, List, Optional, override, Set
 # 3rd-party imports
 # import local files
 # from ogd import games
-from ogd.common.configs.GameStoreConfig import GameStoreConfig
+from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
-from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
-from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
+from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
+from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
+from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.storage.outerfaces.Outerface import Outerface
 from ogd.common.utils import fileio
@@ -30,18 +31,17 @@ class CSVOuterface(Outerface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:GameStoreConfig, export_modes:Set[ExportMode],
-                 repository:DatasetRepositoryConfig, dataset_id:str,
-                 extension:str="tsv", with_separate_feature_files:bool=True, with_zipping:bool=True,
+    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode],
+                 repository:DatasetRepositoryConfig, dataset_key:str | DatasetKey,
+                 with_separate_feature_files:bool=True, with_zipping:bool=True,
                  store:Optional[CSVConnector]=None):
         self._store : CSVConnector
 
-        super().__init__(config=config, export_modes=export_modes)
-        self._repository                  = repository
-        self._dataset_id                  = dataset_id
-        self._extension                   = extension
-        self._with_separate_feature_files = with_separate_feature_files
-        self._with_zipping                = with_zipping
+        super().__init__(table_config=table_config, export_modes=export_modes)
+        self._repository                  : DatasetRepositoryConfig = repository
+        self._dataset_key                 : DatasetKey              = dataset_key if isinstance(dataset_key, DatasetKey) else DatasetKey.FromString(dataset_key)
+        self._with_separate_feature_files : bool                    = with_separate_feature_files
+        self._with_zipping                : bool                    = with_zipping
         # if store:
         #     self._store = store
         # elif isinstance(self.Config.StoreConfig, FileStoreConfig):
@@ -56,18 +56,17 @@ class CSVOuterface(Outerface):
         existing_datasets = {}
         try:
             file_directory = fileio.loadJSONFile(filename="file_list.json", path=self._repository.LocalDirectory.FolderPath)
-            existing_datasets = file_directory.get(self.Config.GameID, {})
+            existing_datasets = file_directory.get(self._dataset_key.GameID, {})
         except FileNotFoundError:
             Logger.Log("file_list.json does not exist.", logging.WARNING)
         except json.decoder.JSONDecodeError as err:
             Logger.Log(f"file_list.json has invalid format: {str(err)}.", logging.WARNING)
-        existing_meta = existing_datasets.get(self._dataset_id, None)
+        existing_meta = existing_datasets.get(self._dataset_key, None)
         if store:
             self._store = store
         elif isinstance(self.Config.StoreConfig, FileStoreConfig):
             self._store = CSVConnector(
                 config               = self.Config.StoreConfig,
-                extension            = self.Extension,
                 with_secondary_files = export_modes if with_separate_feature_files else set(),
                 with_zipping         = self._with_zipping,
                 existing_meta        = existing_meta
@@ -84,18 +83,18 @@ class CSVOuterface(Outerface):
         return self._store
 
     @property
-    def Extension(self) -> str:
-        return self._extension
+    def FileExtension(self) -> str:
+        return self.Connector.FileExtension
 
     @property
     def Delimiter(self) -> str:
-        match self.Extension:
+        match self.FileExtension:
             case "tsv":
                 return "\t"
             case "csv":
                 return ","
             case _:
-                Logger.Log(f"CSVOuterface has unexpected extension {self.Extension}, defaulting to comma-separation!", logging.WARN)
+                Logger.Log(f"CSVOuterface has unexpected extension {self.FileExtension}, defaulting to comma-separation!", logging.WARN)
                 return ","
         
 
@@ -174,40 +173,46 @@ class CSVOuterface(Outerface):
             Logger.Log("No processed_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(event_lines))
 
-    def _writeSessionLines(self, sessions:List[ExportRow]) -> None:
+    def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
         # self._sess_count += len(sessions)
-        _session_feats = [CSVOuterface._cleanSpecialChars(vals=sess) for sess in sessions]
-        _session_lines = ["\t".join(sess) + "\n" for sess in _session_feats]
+        _clean_lines = [CSVOuterface._cleanSpecialChars(vals=feat) for feat in session_lines]
+        final_lines = ["\t".join(sess) + "\n" for sess in _clean_lines]
+        if self.Connector.File is not None:
+            self.Connector.File.writelines(final_lines)
         f = self.Connector.SecondaryFiles.get(ExportMode.SESSION.name, None)
         if f is not None:
-            f.writelines(_session_lines)
+            f.writelines(final_lines)
         else:
             Logger.Log("No session file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(_session_lines))
+            sys.stdout.write("".join(final_lines))
 
-    def _writePlayerLines(self, players:List[ExportRow]) -> None:
-        _player_feats = [CSVOuterface._cleanSpecialChars(vals=play) for play in players]
-        _player_lines = ["\t".join(play) + "\n" for play in _player_feats]
+    def _writePlayerLines(self, player_lines:List[ExportRow]) -> None:
+        _clean_lines = [CSVOuterface._cleanSpecialChars(vals=play) for play in player_lines]
+        final_lines = ["\t".join(play) + "\n" for play in _clean_lines]
+        if self.Connector.File is not None:
+            self.Connector.File.writelines(final_lines)
         f = self.Connector.SecondaryFiles.get(ExportMode.PLAYER.name, None)
         if f is not None:
-            f.writelines(_player_lines)
+            f.writelines(final_lines)
         else:
             Logger.Log("No player file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(_player_lines))
+            sys.stdout.write("".join(final_lines))
 
-    def _writePopulationLines(self, populations:List[ExportRow]) -> None:
-        _pop_feats = [CSVOuterface._cleanSpecialChars(vals=pop) for pop in populations]
-        _pop_lines = ["\t".join(pop) + "\n" for pop in _pop_feats]
+    def _writePopulationLines(self, population_lines:List[ExportRow]) -> None:
+        _clean_lines = [CSVOuterface._cleanSpecialChars(vals=pop) for pop in population_lines]
+        final_lines = ["\t".join(pop) + "\n" for pop in _clean_lines]
+        if self.Connector.File is not None:
+            self.Connector.File.writelines(final_lines)
         f = self.Connector.SecondaryFiles.get(ExportMode.POPULATION.name, None)
         if f is not None:
-            f.writelines(_pop_lines)
+            f.writelines(final_lines)
         else:
             Logger.Log("No population file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(_pop_lines))
+            sys.stdout.write("".join(final_lines))
 
     @override
     def _writeMetadata(self, dataset_schema:DatasetSchema):
-        game_dir = self._repository.LocalDirectory.FolderPath / self.Config.GameID
+        game_dir = self._repository.LocalDirectory.FolderPath / self._dataset_key.GameID
         try:
             game_dir.mkdir(exist_ok=True, parents=True)
         except Exception as err:
@@ -251,8 +256,8 @@ class CSVOuterface(Outerface):
     #  @param date_range    The range of dates included in the exported data.
     #  @param num_sess      The number of sessions included in the recent export.
     def _writeMetadataFile(self, dataset_schema:DatasetSchema) -> None:
-        game_dir = self._repository.LocalDirectory.FolderPath / self.Config.GameID
-        match_string = f"{self._dataset_id}_\\w*\\.meta"
+        game_dir = self._repository.LocalDirectory.FolderPath / self._dataset_key.GameID
+        match_string = f"{self._dataset_key}_\\w*\\.meta"
         old_metas = [f for f in os.listdir(game_dir) if re.match(match_string, f)]
         for old_meta in old_metas:
             try:
@@ -263,7 +268,7 @@ class CSVOuterface(Outerface):
                 Logger.Log(msg, logging.WARNING)
         # Third, write the new meta file.
         # calculate the path and name of the metadata file, and open/make it.
-        meta_file_path : Path = game_dir / f"{self._dataset_id}_{self._generateHash()}.meta"
+        meta_file_path : Path = game_dir / f"{self._dataset_key}_{self._generateHash()}.meta"
         with open(meta_file_path, "w", encoding="utf-8") as meta_file :
             meta_file.write(json.dumps(dataset_schema.AsMetadata, indent=4))
             meta_file.close()

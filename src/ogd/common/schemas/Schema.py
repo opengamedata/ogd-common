@@ -59,7 +59,7 @@ class Schema(abc.ABC):
         self._other_elements : Map = other_elements or {}
 
         if len(self._other_elements.keys()) > 0:
-            Logger.Log(f"Schema for {self.Name} contained nonstandard elements {self.NonStandardElementNames}")
+            Logger.Log(f"Schema for {self.Name} contained nonstandard elements {self.NonStandardElementNames}", logging.DEBUG)
 
     def __str__(self):
         return f"{type(self).__name__}[{self.Name}]"

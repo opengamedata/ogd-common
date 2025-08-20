@@ -1,5 +1,5 @@
 ## import standard libraries
-from datetime import date, datetime
+from datetime import date, datetime, time
 from typing import Optional
 # import local files
 from ogd.common.filters import *
@@ -12,7 +12,7 @@ class SequencingFilterCollection:
     For now, it just does timestamps and session index, if need be we may come back and allow filtering by timezone offset
     """
     def __init__(self,
-                 timestamp_filter     : Optional[RangeFilter[datetime] | NoFilter]      = None, # TODO : Bring back option to use date, converting to datetime automatically
+                 timestamp_filter     : Optional[RangeFilter[datetime] | NoFilter | Pair[datetime, datetime] | Pair[date, date]] = None,
                  session_index_filter : Optional[SetFilter[int] | RangeFilter[int] | NoFilter] = None):
         """Constructor for the TimingFilterCollection structure.
 
@@ -26,7 +26,7 @@ class SequencingFilterCollection:
         :param branch_filter: The filter to apply to app branch, defaults to NoFilter()
         :type branch_filter: Filter, optional
         """
-        self._timestamp_filter     : RangeFilter[datetime] | NoFilter      = timestamp_filter     or NoFilter()
+        self._timestamp_filter     : RangeFilter[datetime] | NoFilter      = SequencingFilterCollection._toTimestampFilter(timestamps=timestamp_filter)
         self._session_index_filter : SetFilter[int] | RangeFilter[int] | NoFilter = session_index_filter or NoFilter()
 
     def __str__(self) -> str:
@@ -51,15 +51,8 @@ class SequencingFilterCollection:
     def Timestamps(self) -> Filter[datetime]:
         return self._timestamp_filter
     @Timestamps.setter
-    def Timestamps(self, allowed_times:Optional[RangeFilter[datetime] | NoFilter | slice | Pair]) -> None:
-        if allowed_times is None or isinstance(allowed_times, NoFilter):
-            self._timestamp_filter = NoFilter()
-        elif isinstance(allowed_times, RangeFilter):
-            self._timestamp_filter = allowed_times
-        elif isinstance(allowed_times, slice):
-            self._timestamp_filter = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, slice=allowed_times)
-        elif isinstance(allowed_times, tuple):
-            self._timestamp_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_times[0], maximum=allowed_times[1])
+    def Timestamps(self, allowed_times:Optional[RangeFilter[datetime] | NoFilter | slice | Pair[datetime | date, datetime | date]]) -> None:
+        self._timestamp_filter = SequencingFilterCollection._toTimestampFilter(timestamps=allowed_times)
 
     @property
     def SessionIndices(self) -> Filter[int]:
@@ -71,10 +64,36 @@ class SequencingFilterCollection:
         elif isinstance(allowed_indices, Filter):
             self._session_index_filter = allowed_indices
         elif isinstance(allowed_indices, slice):
-            self._session_index_filter = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, slice=allowed_indices)
+            self._session_index_filter = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, range_slice=allowed_indices)
         elif isinstance(allowed_indices, tuple):
             self._session_index_filter = RangeFilter(mode=FilterMode.INCLUDE, minimum=allowed_indices[0], maximum=allowed_indices[1])
 
+    @property
+    def any(self) -> bool:
+        return self.Timestamps.Active or self.SessionIndices.Active
+
     # *** PRIVATE STATICS ***
+
+    @staticmethod
+    def _toTimestampFilter(timestamps:Optional[RangeFilter[datetime] | NoFilter | slice | Pair[datetime | date, datetime | date]]) -> RangeFilter[datetime] | NoFilter:
+        ret_val : RangeFilter[datetime] | NoFilter
+
+        if timestamps is None or isinstance(timestamps, NoFilter):
+            ret_val = NoFilter()
+        elif isinstance(timestamps, RangeFilter):
+            ret_val = timestamps
+        elif isinstance(timestamps, slice):
+            # TODO : deal with types of the actual start and stop here
+            ret_val = RangeFilter.FromSlice(mode=FilterMode.INCLUDE, range_slice=timestamps)
+        elif isinstance(timestamps, tuple):
+            dt_from : date | datetime = timestamps[0]
+            dt_to   : date | datetime = timestamps[1]
+            if isinstance(dt_from, date):
+                dt_from = datetime.combine(dt_from, time(0))
+            if isinstance(dt_to, date):
+                dt_to = datetime.combine(dt_to, time(0))
+            ret_val = RangeFilter(mode=FilterMode.INCLUDE, minimum=dt_from, maximum=dt_to)
+
+        return ret_val
 
     # *** PRIVATE METHODS ***

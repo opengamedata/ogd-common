@@ -25,7 +25,7 @@ class test_DatasetKey(TestCase):
         Logger.std_logger.setLevel(_level)
 
         # 2. Set up local instance of testing class
-        cls.test_schema = DatasetKey(raw_key="GAME_NAME_20250101_to_20250131")
+        cls.test_schema = DatasetKey(game_id="GAME_NAME", from_date="20250101", to_date="20250131")
 
     @staticmethod
     def RunAll():
@@ -45,6 +45,12 @@ class test_DatasetKey(TestCase):
         _date = self.test_schema.DateTo
         self.assertIsInstance(_date, date)
         self.assertEqual(_date, date(year=2025, month=1, day=31))
+
+    def test_FromString(self):
+        _schema = DatasetKey.FromString("GAME_NAME_20250101_to_20250131")
+        self.assertEqual(_schema.GameID, self.test_schema.GameID)
+        self.assertEqual(_schema.DateFrom, self.test_schema.DateFrom)
+        self.assertEqual(_schema.DateTo, self.test_schema.DateTo)
 
 if __name__ == '__main__':
     unittest.main()

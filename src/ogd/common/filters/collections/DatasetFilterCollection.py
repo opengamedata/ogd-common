@@ -34,6 +34,15 @@ class DatasetFilterCollection:
         return self._event_filters
 
     @property
+    def any(self) -> bool:
+        """Property to check whether any filter in the collection is active
+
+        :return: _description_
+        :rtype: bool
+        """
+        return self.IDFilters.any or self.Sequences.any or self.Versions.any or self.Events.any
+
+    @property
     def AsDict(self):
         return {
             "session_id" : self.IDFilters.Sessions,
