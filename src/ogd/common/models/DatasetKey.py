@@ -29,7 +29,7 @@ class DatasetKey:
                  session_id:Optional[str]=None, session_id_file:Optional[str|Path]=None
     ):
         self._game_id      : str = game_id or DatasetKey._DEFAULT_GAME_ID
-        if not any(x is not None for x in [full_month, from_date, to_date, player_id, player_id_file, session_id, session_id_file]):
+        if not any(x is not None for x in [full_month, full_file, from_date, to_date, player_id, player_id_file, session_id, session_id_file]):
             raise ValueError("Attempted to create DatasetKey without specifying dates or a player or a session identifier!")
         else:
             self._from_date : Optional[date] = None
@@ -55,7 +55,7 @@ class DatasetKey:
                     self._to_date = dateparse(to_date).date()
                 elif isinstance(to_date, int):
                     self._to_date = dateparse(str(to_date)).date()
-            self._full_file       : Optional[str]  = full_file.name if isinstance(full_file, Path) else full_file
+            self._full_file       : Optional[str]  = full_file.name if isinstance(full_file, Path) else Path(full_file).name if isinstance(full_file, str) else None
             self._player_id       : Optional[str]  = player_id
             self._player_id_file  : Optional[str]  = player_id_file.name if isinstance(player_id_file, Path) else player_id_file
             self._session_id      : Optional[str]  = session_id
@@ -78,8 +78,8 @@ class DatasetKey:
         :rtype: _type_
         """
         date_clause = f"{self._from_date.strftime('%Y%m%d')}_to_{self._to_date.strftime('%Y%m%d')}" if self._from_date and self._to_date else None
-        has_id = any([id is not None for id in [self._session_id, self._session_id_file, self._player_id, self._player_id_file]])
-        id_clause = f"from_{self._session_id or self._session_id_file or self._player_id or self._player_id_file}" if has_id else None
+        has_id = any([id is not None for id in [self._session_id, self._session_id_file, self._player_id, self._player_id_file, self._full_file]])
+        id_clause = f"from_{self._session_id or self._session_id_file or self._player_id or self._player_id_file or self._full_file}" if has_id else None
         pieces : List[str] = [x for x in [self._game_id, id_clause, date_clause] if x is not None]
         return "_".join(pieces)
     
