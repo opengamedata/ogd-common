@@ -19,7 +19,7 @@ class TableSchemaFactory:
                 raise ValueError(f"Could not generate TableSchema from dictionary, table_type had invalid value {table_type}")
 
     @staticmethod
-    def FromFile(filename:str, path:Optional[Path|str])-> TableSchema:
+    def FromFile(filename:str, path:Optional[Path|str]=None)-> TableSchema:
         path = path or TableSchema._DEFAULT_SCHEMA_PATH
         all_elements = loadJSONFile(filename=filename, path=Path(path))
         table_type = str(all_elements.get("table_type", "NOT FOUND"))
