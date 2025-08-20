@@ -188,7 +188,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
             raw_elems = loadJSONFile(_data_elems)
             ret_val = {
                 key : DatasetCollectionSchema.FromDict(name=key, unparsed_elements=val) \
-                for key, val in raw_elems
+                for key, val in raw_elems.items()
             }
         elif len(unparsed_elements) > 0:
             ret_val = {
