@@ -96,16 +96,16 @@ class DictionaryOuterface(Outerface):
         self._all_evts += events
 
     @override
-    def _writeSessionLines(self, sessions:List[ExportRow]) -> None:
-        self._sess += sessions
+    def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
+        self._sess += session_lines
 
     @override
-    def _writePlayerLines(self, players:List[ExportRow]) -> None:
-        self._plrs += players
+    def _writePlayerLines(self, player_lines:List[ExportRow]) -> None:
+        self._plrs += player_lines
 
     @override
-    def _writePopulationLines(self, populations:List[ExportRow]) -> None:
-        self._pops += populations
+    def _writePopulationLines(self, population_lines:List[ExportRow]) -> None:
+        self._pops += population_lines
 
     @override
     def _writeMetadata(self, dataset_schema:DatasetSchema):

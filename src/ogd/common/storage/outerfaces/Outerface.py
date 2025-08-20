@@ -83,17 +83,17 @@ class Outerface:
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
-    def _writeSessionLines(self, sessions:List[ExportRow]) -> None:
+    def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
         # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
-    def _writePlayerLines(self, players:List[ExportRow]) -> None:
+    def _writePlayerLines(self, player_lines:List[ExportRow]) -> None:
         # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
-    def _writePopulationLines(self, populations:List[ExportRow]) -> None:
+    def _writePopulationLines(self, population_lines:List[ExportRow]) -> None:
         # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
@@ -180,13 +180,13 @@ class Outerface:
             if mode in self.ExportModes:
                 match (mode):
                     case ExportMode.SESSION:
-                        self._writeSessionLines(sessions=features.SessionLines)
+                        self._writeSessionLines(session_lines=features.SessionLines)
                         Logger.Log(f"Wrote {len(features.SessionLines)} {self.Config.Location} session lines", depth=3)
                     case ExportMode.PLAYER:
-                        self._writePlayerLines(players=features.PlayerLines)
+                        self._writePlayerLines(player_lines=features.PlayerLines)
                         Logger.Log(f"Wrote {len(features.PlayerLines)} {self.Config.Location} player lines", depth=3)
                     case ExportMode.POPULATION:
-                        self._writePopulationLines(populations=features.PopulationLines)
+                        self._writePopulationLines(population_lines=features.PopulationLines)
                         Logger.Log(f"Wrote {len(features.PopulationLines)} {self.Config.Location} population lines", depth=3)
                     case _:
                         Logger.Log(f"Failed to write lines for unrecognized Feature export mode {mode}!", level=logging.WARN, depth=3)
