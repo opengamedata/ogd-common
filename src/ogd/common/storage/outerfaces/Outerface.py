@@ -146,7 +146,7 @@ class Outerface:
             Logger.Log(f"Skipping WriteLines in {type(self).__name__}, export mode {mode} is not enabled for this outerface", depth=3)
 
     def WriteEvents(self, events:EventSet, mode:ExportMode) -> None:
-        if isinstance(self.Config.TableStructure, EventTableSchema):
+        if isinstance(self.Config.TableSchema, EventTableSchema):
             if mode in self.ExportModes:
                 match (mode):
                     case ExportMode.EVENTS:
@@ -163,7 +163,7 @@ class Outerface:
             Logger.Log(f"Could not write events from {type(self).__name__}, outerface was not configured for a Events table!", depth=3)
 
     def WriteFeatures(self, features:FeatureSet, mode:ExportMode) -> None:
-        if isinstance(self.Config.TableStructure, FeatureTableSchema):
+        if isinstance(self.Config.TableSchema, FeatureTableSchema):
             if mode in self.ExportModes:
                 match (mode):
                     case ExportMode.SESSION:

@@ -44,7 +44,7 @@ class test_BigQueryInterface(TestCase):
         _elems = { "source":"OPENGAMEDATA_BQ", "database":"aqualab", "table":"aqualab_daily", "schema":"OPENGAMEDATA_BIGQUERY" }
         config = DataTableConfig.FromDict(name="BQStoreConfig", unparsed_elements=_elems)
         config.StoreConfig = store_config
-        config.TableStructure = table_schema
+        config.TableSchema = table_schema
 
         cls.test_interface = BigQueryInterface(config=config, fail_fast=True, store=None)
 

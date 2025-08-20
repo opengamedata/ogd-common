@@ -159,14 +159,14 @@ class Interface(abc.ABC):
 
         if self.Connector.IsOpen:
             self._safeguardFilters(filters=filters)
-            if isinstance(self.Config.TableStructure, EventTableSchema):
+            if isinstance(self.Config.TableSchema, EventTableSchema):
                 _msg = f"Retrieving event data from {self.Connector.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
 
                 rows = self._getEventRows(filters=filters)
                 for row in rows:
                     try:
-                        event = self.Config.TableStructure.EventFromRow(row, fallbacks=fallbacks)
+                        event = self.Config.TableSchema.EventFromRow(row, fallbacks=fallbacks)
                         # in case event index was not given, we should fall back on using the order it came to us.
                     except Exception as err:
                         if self._fail_fast:
@@ -188,14 +188,14 @@ class Interface(abc.ABC):
 
         if self.Connector.IsOpen:
             self._safeguardFilters(filters=filters)
-            if isinstance(self.Config.TableStructure, FeatureTableSchema):
+            if isinstance(self.Config.TableSchema, FeatureTableSchema):
                 _msg = f"Retrieving event data from {self.Connector.ResourceName}."
                 Logger.Log(_msg, logging.INFO, depth=3)
 
                 rows = self._getFeatureRows(filters=filters)
                 for row in rows:
                     try:
-                        feature = self.Config.TableStructure.FeatureFromRow(row, fallbacks=fallbacks)
+                        feature = self.Config.TableSchema.FeatureFromRow(row, fallbacks=fallbacks)
                         # in case event index was not given, we should fall back on using the order it came to us.
                     except Exception as err:
                         if self._fail_fast:

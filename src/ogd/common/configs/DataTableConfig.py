@@ -3,26 +3,24 @@ from typing import Dict, Final, LiteralString, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
-from ogd.common.schemas.tables.TableSchema import TableSchema
+from ogd.common.schemas.tables import TableSchema as ts
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
 from ogd.common.utils.typing import Map
 
 class DataTableConfig(Schema):
-    """A simple Schema structure containing configuration information for a particular game's data.
-    
-    When given to an interface, this schema is treated as the location from which to retrieve data.
-    When given to an outerface, this schema is treated as the location in which to store data.
-    (note that some interfaces/outerfaces, such as debugging i/o-faces, may ignore the configuration)
-    Key properties of this schema are:
-    - `Name` : Typically, the name of the Game whose source configuration is indicated by this schema
-    - `Source` : A data source where game data is stored
-    - `DatabaseName` : The name of the specific database within the source that contains this game's data
-    - `TableName` : The neame of the specific table within the database holding the given game's data
-    - `TableConfig` : A schema indicating the structure of the table containing the given game's data.
+    """A simple Schema structure containing configuration for a specific table of data.
 
-    TODO : use a TableConfig for the table_schema instead of just the name of the schema, like we do with source_schema.
-    TODO : Implement and use a smart Load(...) function of TableConfig to load schema from given name, rather than FromFile.
+    It principally contains 3 key components:
+    1. `StoreConfig` : The DataStoreConfig that specifies the storage resource containing the configured table.
+    2. `Location`    : The LocationSchema that specifies the location of the configured table within the storage resource.
+    3. `TableSchema` : The TableSchema that specifies the structure of the configured table.
+    
+    When given to an interface, this schema is treated as a specification of the table from which to retrieve data.
+    When given to an outerface, this schema is treated as a specification of the table in which to store data.
+    (note that some interfaces/outerfaces, such as debugging i/o-faces, may ignore the configuration)
+
+    .. TODO : Implement and use a smart Load(...) function of TableConfig to load schema from given name, rather than FromFile.
     """
 
     _DEFAULT_STORE_NAME       : Final[LiteralString] = "OPENGAMEDATA_BQ"
@@ -41,7 +39,7 @@ class DataTableConfig(Schema):
                  store_name:Optional[str],
                  schema_name:Optional[str],
                  table_location:Optional[DatabaseLocationSchema],
-                 store_config:Optional[DataStoreConfig]=None, table_schema:Optional[TableSchema]=None,
+                 store_config:Optional[DataStoreConfig]=None, table_schema:Optional[ts.TableSchema]=None,
                  other_elements:Optional[Map]=None):
         """Constructor for the `DataTableConfig` class.
         
@@ -76,7 +74,7 @@ class DataTableConfig(Schema):
         self._store_name     : str                       = store_name    or self._parseStoreName(unparsed_elements=unparsed_elements)
         self._store_config   : Optional[DataStoreConfig] = store_config
         self._schema_name    : str                       = schema_name    or self._parseTableSchemaName(unparsed_elements=unparsed_elements)
-        self._table_schema   : TableSchema               = table_schema   or EventTableSchema.FromFile(schema_name=self._schema_name)
+        self._table_schema   : ts.TableSchema            = table_schema   or EventTableSchema.FromFile(schema_name=self._schema_name)
         self._table_location : DatabaseLocationSchema    = table_location or self._parseTableLocation(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
@@ -118,7 +116,7 @@ class DataTableConfig(Schema):
         return self._schema_name
 
     @property
-    def TableStructure(self) -> TableSchema:
+    def TableSchema(self) -> ts.TableSchema:
         """The TableSchema for this DataTableConfig.
 
         This TableSchema contains information on the internal column structure of the configured data table.
@@ -127,8 +125,8 @@ class DataTableConfig(Schema):
         :rtype: TableSchema
         """
         return self._table_schema
-    @TableStructure.setter
-    def TableStructure(self, schema:TableSchema):
+    @TableSchema.setter
+    def TableSchema(self, schema:ts.TableSchema):
         self._table_schema = schema
 
     @property

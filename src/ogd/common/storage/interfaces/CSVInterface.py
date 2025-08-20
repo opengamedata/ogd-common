@@ -48,13 +48,13 @@ class CSVInterface(Interface):
             _default = lambda : np.dtype("object")
             _mapping : Dict[str, np.dtype] = {
                 column.Name : np.dtype(column.ValueType if column.ValueType in {"str", "int", "float"} else "object")
-                for column in self.Config.TableStructure.Columns
+                for column in self.Config.TableSchema.Columns
             }
             target_types = defaultdict(_default, _mapping)
 
             date_columns = [
-                column.Name for column in self.Config.TableStructure.Columns if column.ValueType in {"datetime", "timezone"}
-            ] if self.Config.TableStructure is not None else []
+                column.Name for column in self.Config.TableSchema.Columns if column.ValueType in {"datetime", "timezone"}
+            ] if self.Config.TableSchema is not None else []
 
             self._data = pd.read_csv(
                 filepath_or_buffer=self.Connector.File,
