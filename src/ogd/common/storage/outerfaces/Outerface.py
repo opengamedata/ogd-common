@@ -32,6 +32,7 @@ class Outerface:
     @property
     @abc.abstractmethod
     def Connector(self) -> StorageConnector:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     # @abc.abstractmethod
@@ -40,53 +41,65 @@ class Outerface:
 
     @abc.abstractmethod
     def _removeExportMode(self, mode:ExportMode) -> str:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
 
     @abc.abstractmethod
     def _writeGameEventsHeader(self, header:List[str]) -> None:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
 
     @abc.abstractmethod
     def _writeAllEventsHeader(self, header:List[str]) -> None:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
 
     @abc.abstractmethod
     def _writeSessionHeader(self, header:List[str]) -> None:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writePlayerHeader(self, header:List[str]) -> None:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writePopulationHeader(self, header:List[str]) -> None:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writeGameEventLines(self, events:List[ExportRow]) -> None:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writeAllEventLines(self, events:List[ExportRow]) -> None:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writeSessionLines(self, sessions:List[ExportRow]) -> None:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writePlayerLines(self, players:List[ExportRow]) -> None:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writePopulationLines(self, populations:List[ExportRow]) -> None:
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writeMetadata(self, dataset_schema:DatasetSchema):
+        # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     # *** BUILT-INS & PROPERTIES ***
