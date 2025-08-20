@@ -64,8 +64,10 @@ class EventFilterCollection:
         """
         if allowed_events is None or isinstance(allowed_events, NoFilter):
             self._event_names = NoFilter()
+        elif isinstance(allowed_events, SetFilter):
+            self._event_names = allowed_events
         else:
-            self._event_names = SetFilter(mode=FilterMode.INCLUDE, set_elements=allowed_events)
+            self._event_names = SetFilter(mode=self.EventNames.FilterMode, set_elements=allowed_events)
 
     @property
     def EventCodes(self) -> Filter[int]:
