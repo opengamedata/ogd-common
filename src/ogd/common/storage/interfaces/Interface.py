@@ -170,8 +170,8 @@ class Interface(abc.ABC):
                         # in case event index was not given, we should fall back on using the order it came to us.
                     except Exception as err: # pylint: disable=broad-exception-caught
                         if self._fail_fast:
-                                Logger.Log(f"Error while converting row to Event! Cancelling data retrieval.\nFull error: {err}\nRow data: {pformat(row)}", logging.ERROR, depth=2)
-                                raise err
+                            Logger.Log(f"Error while converting row to Event! Cancelling data retrieval.\nFull error: {err}\nRow data: {pformat(row)}", logging.ERROR, depth=2)
+                            raise err
                         else:
                             Logger.Log(f"Error while converting row ({row}) to Event! This row will be skipped.\nFull error: {err}", logging.WARNING, depth=2)
                     else:
@@ -199,8 +199,8 @@ class Interface(abc.ABC):
                         # in case event index was not given, we should fall back on using the order it came to us.
                     except Exception as err: # pylint: disable=broad-exception-caught
                         if self._fail_fast:
-                                Logger.Log(f"Error while converting row to Feature! Cancelling data retrieval.\nFull error: {err}\nRow data: {pformat(row)}", logging.ERROR, depth=2)
-                                raise err
+                            Logger.Log(f"Error while converting row to Feature! Cancelling data retrieval.\nFull error: {err}\nRow data: {pformat(row)}", logging.ERROR, depth=2)
+                            raise err
                         else:
                             Logger.Log(f"Error while converting row ({row}) to Feature! This row will be skipped.\nFull error: {err}", logging.WARNING, depth=2)
                     else:
