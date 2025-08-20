@@ -21,8 +21,8 @@ class DebugOuterface(Outerface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:DataTableConfig, export_modes:Set[ExportMode]):
-        super().__init__(export_modes=export_modes, config=config)
+    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode]):
+        super().__init__(export_modes=export_modes, table_config=table_config)
         # self.Open()
 
     # *** IMPLEMENT ABSTRACTS ***

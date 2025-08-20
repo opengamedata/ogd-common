@@ -91,8 +91,8 @@ class Outerface:
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:DataTableConfig, export_modes:Set[ExportMode]):
-        self._config  : DataTableConfig = config
+    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode]):
+        self._config  : DataTableConfig = table_config
         self._modes   : Set[ExportMode] = export_modes
 
     @property

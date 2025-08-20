@@ -31,13 +31,13 @@ class CSVOuterface(Outerface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:DataTableConfig, export_modes:Set[ExportMode],
+    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode],
                  repository:DatasetRepositoryConfig, dataset_key:str | DatasetKey,
                  with_separate_feature_files:bool=True, with_zipping:bool=True,
                  store:Optional[CSVConnector]=None):
         self._store : CSVConnector
 
-        super().__init__(config=config, export_modes=export_modes)
+        super().__init__(table_config=table_config, export_modes=export_modes)
         self._repository                  : DatasetRepositoryConfig = repository
         self._dataset_key                 : DatasetKey              = dataset_key if isinstance(dataset_key, DatasetKey) else DatasetKey.FromString(dataset_key)
         self._with_separate_feature_files : bool                    = with_separate_feature_files

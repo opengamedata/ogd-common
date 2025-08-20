@@ -15,11 +15,11 @@ class OuterfaceFactory:
         if config.StoreConfig:
             match (config.StoreConfig.Type.upper()):
                 case "FILE" | "CSV" | "TSV":
-                    return CSVOuterface(config=config, export_modes=export_modes, repository=repository, dataset_key=dataset_id)
+                    return CSVOuterface(table_config=config, export_modes=export_modes, repository=repository, dataset_key=dataset_id)
                 case "DEBUG":
-                    return DebugOuterface(config=config, export_modes=export_modes)
+                    return DebugOuterface(table_config=config, export_modes=export_modes)
                 case "DICT" | "DICTIONARY" | "API":
-                    return DictionaryOuterface(config=config, export_modes=export_modes, out_dict=None)
+                    return DictionaryOuterface(table_config=config, export_modes=export_modes, out_dict=None)
                 case _:
                     raise ValueError(f"Could not generate Interface from DataTableConfig, the underlying StoreConfig was unrecognized type {config.StoreConfig.Type}!")
         else:

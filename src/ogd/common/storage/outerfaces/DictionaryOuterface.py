@@ -13,7 +13,7 @@ class DictionaryOuterface(Outerface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:DataTableConfig, export_modes:Set[ExportMode], out_dict:Optional[OutputDict]):
+    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode], out_dict:Optional[OutputDict]):
         """Constructor for a DictionaryOuterface, which provides a dictionary for each kind of data being processed
 
         :param game_id: The name of the game whose data is being exported
@@ -25,7 +25,7 @@ class DictionaryOuterface(Outerface):
         :param out_dict: The dictionary to which outputs are written by the DictionaryOuterface
         :type out_dict: Dict[str, Dict[str, Union[List[str], List[ExportRow]]]]
         """
-        super().__init__(config=config, export_modes=export_modes)
+        super().__init__(table_config=table_config, export_modes=export_modes)
         self._raw_evts : List[ExportRow] = []
         self._all_evts : List[ExportRow] = []
         self._sess     : List[ExportRow] = []
