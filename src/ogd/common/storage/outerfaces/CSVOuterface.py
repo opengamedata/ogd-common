@@ -68,7 +68,6 @@ class CSVOuterface(Outerface):
         elif isinstance(self.Config.StoreConfig, FileStoreConfig):
             self._store = CSVConnector(
                 config               = self.Config.StoreConfig,
-                extension            = self.Extension,
                 with_secondary_files = export_modes if with_separate_feature_files else set(),
                 with_zipping         = self._with_zipping,
                 existing_meta        = existing_meta
