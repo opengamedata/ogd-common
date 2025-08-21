@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, Type
 
 from json.decoder import JSONDecodeError
 ## import 3rd-party libraries
+from pandas._libs.tslibs import timestamps, timedeltas
 from dateutil import parser
 ## import local files
 from ogd.common.utils.Logger import Logger
@@ -317,6 +318,8 @@ def ToDatetime(name:str, value:Any, force:bool=False) -> Optional[datetime.datet
             Logger.Log(f"{name} was a date value, defaulting to midnight of the given date: {ret_val}", logging.WARN)
         case builtins.str:
             ret_val = DatetimeFromString(time_str=value)
+        case timestamps.Timestamp:
+            ret_val = value.to_pydatetime()
         case _:
             base_msg : str = f"{name} was unexpected type {type(value)}, expected a datetime or string!"
             if force:
@@ -355,6 +358,8 @@ def ToTimedelta(name:str, value:Any, force:bool=False) -> Optional[datetime.time
             ret_val = TimedeltaFromString(time_str=value)
         case builtins.int:
             ret_val = datetime.timedelta(seconds=value)
+        case timedeltas.Timedelta:
+            ret_val = value.to_pytimedelta()
         case _:
             base_msg : str = f"{name} was unexpected type {type(value)}, expected a timedelta, time, or string!"
             if force:
