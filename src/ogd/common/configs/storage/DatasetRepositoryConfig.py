@@ -185,11 +185,17 @@ class DatasetRepositoryConfig(DataStoreConfig):
                 for key, datasets in _data_elems.items()
             }
         elif isinstance(_data_elems, str):
-            raw_elems = loadJSONFile(_data_elems)
-            ret_val = {
-                key : DatasetCollectionSchema.FromDict(name=key, unparsed_elements=val) \
-                for key, val in raw_elems.items()
-            }
+            try:
+                raw_elems = loadJSONFile(_data_elems)
+            except FileNotFoundError:
+                raw_elems = {}
+            except ModuleNotFoundError:
+                raw_elems = {}
+            finally:
+                ret_val = {
+                    key : DatasetCollectionSchema.FromDict(name=key, unparsed_elements=val) \
+                    for key, val in raw_elems.items()
+                }
         elif len(unparsed_elements) > 0:
             ret_val = {
                 key : DatasetCollectionSchema.FromDict(name=key, unparsed_elements=datasets if isinstance(datasets, dict) else {})
