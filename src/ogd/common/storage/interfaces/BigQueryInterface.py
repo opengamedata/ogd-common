@@ -78,17 +78,18 @@ class BigQueryInterface(Interface):
             id_col : LiteralString       = "session_id" if mode==IDMode.SESSION else "user_id"
             suffix : ParamaterizedClause = self._generateSuffixClause(date_filter=filters.Sequences)
             suffix_clause = f"WHERE {suffix.clause}" if suffix.clause is not None else ""
-            query = f"""
+            query = textwrap.dedent(f"""
                 SELECT DISTINCT {id_col}
                 FROM `{self.DBPath}`
                 {suffix_clause}
-            """
+            """)
             cfg = bigquery.QueryJobConfig(query_parameters=suffix.params)
 
             # 2. Actually run the thing
             Logger.Log(f"Running query for all {mode} ids:\n{query}", logging.DEBUG, depth=3)
             try:
-                data = self.Connector.Client.query(query, cfg)
+                job = self.Connector.Client.query(query, cfg)
+                data = job.result()
             except BadRequest as err:
                 Logger.Log(f"In _availableIDs, got a BadRequest error when trying to retrieve data from BigQuery, defaulting to empty result!\n{err}")
             else:
@@ -105,17 +106,18 @@ class BigQueryInterface(Interface):
         if self.Connector.Client:
             # 1. Create query & config
             where_clause = self._generateWhereClause(filters=filters)
-            query = f"""
+            query = textwrap.dedent(f"""
                 SELECT MIN(server_time), MAX(server_time)
                 FROM `{self.DBPath}`
                 {where_clause.clause}
-            """
+            """)
             cfg = bigquery.QueryJobConfig(query_parameters=where_clause.params)
 
             # 2. Actually run the thing
             Logger.Log(f"Running query for full date range:\n{query}", logging.DEBUG, depth=3)
             try:
-                data = list(self.Connector.Client.query(query, job_config=cfg))
+                job = self.Connector.Client.query(query, job_config=cfg)
+                data = list(job.result())
                 Logger.Log(f"...Query yielded results:\n{data}", logging.DEBUG, depth=3)
             except BadRequest as err:
                 Logger.Log(f"In _availableDates, got a BadRequest error when trying to retrieve data from BigQuery, defaulting to empty result!\n{err}")
@@ -144,17 +146,18 @@ class BigQueryInterface(Interface):
             # 1. Create query & config
             version_col  : LiteralString       = "log_version" if mode==VersionType.LOG else "app_version" if mode==VersionType.APP else "app_branch"
             where_clause : ParamaterizedClause = self._generateWhereClause(filters=filters)
-            query = f"""
+            query = textwrap.dedent(f"""
                 SELECT DISTINCT {version_col}
                 FROM `{self.DBPath}`
                 {where_clause.clause}
-            """
+            """)
             cfg = bigquery.QueryJobConfig(query_parameters=where_clause.params)
 
             # 2. Actually run the thing
             Logger.Log(f"Running query for distinct {mode} versions:\n{query}", logging.DEBUG, depth=3)
             try:
-                data = self.Connector.Client.query(query, job_config=cfg)
+                job = self.Connector.Client.query(query, job_config=cfg)
+                data = job.result()
             except BadRequest as err:
                 Logger.Log(f"In _availableVersions, got a BadRequest error when trying to retrieve data from BigQuery, defaulting to empty result!\n{err}")
             else:
@@ -175,22 +178,23 @@ class BigQueryInterface(Interface):
             # Note that this could prove to be wonky when we have more games without user ids,
             # will need to really rethink this when we start using new system.
             # Still, not a huge deal because most of these will be rewritten at that time anyway.
-            query = f"""
+            query = textwrap.dedent(f"""
                 SELECT *
                 FROM `{self.DBPath}`
                 {where_clause.clause}
                 ORDER BY `user_id`, `session_id`, `event_sequence_index` ASC
-            """
+            """)
             cfg = bigquery.QueryJobConfig(query_parameters=where_clause.params)
 
             # 2. Actually run the thing
             Logger.Log(f"Running query for rows from IDs:\n{query}", logging.DEBUG, depth=3)
             try:
-                data = self.Connector.Client.query(query, job_config=cfg)
+                job = self.Connector.Client.query(query, job_config=cfg)
+                data = job.result()
             except BadRequest as err:
                 Logger.Log(f"In _rowsFromIDs, got a BadRequest error when trying to retrieve data from BigQuery, defaulting to empty result!\n{err}")
             else:
-                Logger.Log(f"...Query yielded results, with query in state: {data.state}", logging.DEBUG, depth=3)
+                Logger.Log(f"...Query yielded results, with query in state: {job.state}", logging.DEBUG, depth=3)
                 for row in data:
                     items = tuple(row.items())
                     event = []
