@@ -78,7 +78,7 @@ class BigQueryInterface(Interface):
             id_col : LiteralString       = "session_id" if mode==IDMode.SESSION else "user_id"
             suffix : ParamaterizedClause = self._generateSuffixClause(date_filter=filters.Sequences)
             suffix_clause = f"WHERE {suffix.clause}" if suffix.clause is not None else ""
-            query = textwrap.dedent(f"""
+            query = textwrap.dedent(f"""\
                 SELECT DISTINCT {id_col}
                 FROM `{self.DBPath}`
                 {suffix_clause}
@@ -106,7 +106,7 @@ class BigQueryInterface(Interface):
         if self.Connector.Client:
             # 1. Create query & config
             where_clause = self._generateWhereClause(filters=filters)
-            query = textwrap.dedent(f"""
+            query = textwrap.dedent(f"""\
                 SELECT MIN(server_time), MAX(server_time)
                 FROM `{self.DBPath}`
                 {where_clause.clause}
@@ -146,7 +146,7 @@ class BigQueryInterface(Interface):
             # 1. Create query & config
             version_col  : LiteralString       = "log_version" if mode==VersionType.LOG else "app_version" if mode==VersionType.APP else "app_branch"
             where_clause : ParamaterizedClause = self._generateWhereClause(filters=filters)
-            query = textwrap.dedent(f"""
+            query = textwrap.dedent(f"""\
                 SELECT DISTINCT {version_col}
                 FROM `{self.DBPath}`
                 {where_clause.clause}
@@ -178,7 +178,7 @@ class BigQueryInterface(Interface):
             # Note that this could prove to be wonky when we have more games without user ids,
             # will need to really rethink this when we start using new system.
             # Still, not a huge deal because most of these will be rewritten at that time anyway.
-            query = textwrap.dedent(f"""
+            query = textwrap.dedent(f"""\
                 SELECT *
                 FROM `{self.DBPath}`
                 {where_clause.clause}
