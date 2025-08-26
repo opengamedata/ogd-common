@@ -30,7 +30,7 @@ type BigQueryParameter = bigquery.ScalarQueryParameter | bigquery.ArrayQueryPara
 @dataclass
 class ParamaterizedClause:
     clause: LiteralString
-    params: List[BigQueryParameter]
+    params: Sequence[BigQueryParameter]
 
 class BigQueryInterface(Interface):
     """Implementation of Interface functions for BigQuery.
@@ -267,90 +267,85 @@ class BigQueryInterface(Interface):
 
     @staticmethod
     def _generateWhereClause(filters:DatasetFilterCollection) -> ParamaterizedClause:
-        sess_clause, sess_param = BigQueryInterface._setFilterClause(
+        sess_clause = BigQueryInterface._setFilterClause(
             filt=filters.IDFilters.Sessions,
             column_name="session_id",
             column_type=str
         )
 
-        users_clause, users_param = BigQueryInterface._setFilterClause(
+        users_clause = BigQueryInterface._setFilterClause(
             filt=filters.IDFilters.Players,
             column_name="user_id",
             column_type=str
         )
 
-        times_clause, times_param = BigQueryInterface._timerangeFilterClause(
+        times_clause = BigQueryInterface._timerangeFilterClause(
             filt=filters.Sequences.Timestamps,
             column_name="client_time"
         )
 
-        indices_clause : Optional[LiteralString] = None
-        indices_param  : Sequence[BigQueryParameter] = []
+        indices_clause : ParamaterizedClause
         if isinstance(filters.Sequences.SessionIndices, SetFilter):
-            indices_clause, indices_param = BigQueryInterface._setFilterClause(
+            indices_clause = BigQueryInterface._setFilterClause(
                 filt=filters.Sequences.SessionIndices,
                 column_name="event_session_index",
                 column_type=int
             )
         elif isinstance(filters.Sequences.SessionIndices, RangeFilter):
-            indices_clause, indices_param = BigQueryInterface._rangeFilterClause(
+            indices_clause = BigQueryInterface._rangeFilterClause(
                 filt=filters.Sequences.SessionIndices,
                 column_name="event_session_index",
                 column_type=int
             )
 
-        log_clause : Optional[LiteralString] = None
-        log_param  : Sequence[BigQueryParameter] = []
+        log_clause : ParamaterizedClause
         if filters.Versions.LogVersions.Active:
             if isinstance(filters.Versions.LogVersions, SetFilter):
-                log_clause, log_param = BigQueryInterface._setFilterClause(
+                log_clause = BigQueryInterface._setFilterClause(
                     filt=filters.Versions.LogVersions,
                     column_name="log_version",
                     column_type=str
                 )
             elif isinstance(filters.Versions.LogVersions, RangeFilter):
-                log_clause, log_param = BigQueryInterface._rangeFilterClause(
+                log_clause = BigQueryInterface._rangeFilterClause(
                     filt=filters.Versions.LogVersions,
                     column_name="log_version",
                     column_type=str
                 )
 
-        app_clause : Optional[LiteralString] = None
-        app_param  : Sequence[BigQueryParameter] = []
+        app_clause : ParamaterizedClause
         if filters.Versions.AppVersions.Active:
             if isinstance(filters.Versions.AppVersions, SetFilter):
-                app_clause, app_param = BigQueryInterface._setFilterClause(
+                app_clause = BigQueryInterface._setFilterClause(
                     filt=filters.Versions.AppVersions,
                     column_name="app_version",
                     column_type=str
                 )
             elif isinstance(filters.Versions.AppVersions, RangeFilter):
-                app_clause, app_param = BigQueryInterface._rangeFilterClause(
+                app_clause = BigQueryInterface._rangeFilterClause(
                     filt=filters.Versions.AppVersions,
                     column_name="app_version",
                     column_type=str
                 )
 
-        branch_clause : Optional[LiteralString] = None
-        branch_param  : Sequence[BigQueryParameter] = []
+        branch_clause : ParamaterizedClause
         if filters.Versions.AppBranches.Active:
             if isinstance(filters.Versions.AppBranches, SetFilter):
-                branch_clause, branch_param = BigQueryInterface._setFilterClause(
+                branch_clause = BigQueryInterface._setFilterClause(
                     filt=filters.Versions.AppBranches,
                     column_name="app_branch",
                     column_type=str
                 )
             elif isinstance(filters.Versions.AppBranches, RangeFilter):
-                branch_clause, branch_param = BigQueryInterface._rangeFilterClause(
+                branch_clause = BigQueryInterface._rangeFilterClause(
                     filt=filters.Versions.AppBranches,
                     column_name="app_branch",
                     column_type=str
                 )
 
-        events_clause : Optional[LiteralString] = None
-        events_param  : Sequence[bigquery.ArrayQueryParameter] = []
+        events_clause : ParamaterizedClause
         if filters.Events.EventNames.Active:
-            events_clause, events_param = BigQueryInterface._setFilterClause(
+            events_clause = BigQueryInterface._setFilterClause(
                 filt=filters.Events.EventNames,
                 column_name="event_name",
                 column_type=str
@@ -372,20 +367,21 @@ class BigQueryInterface(Interface):
         #             column_type=int
         #         )
 
-        # clause_list_raw : List[Optional[LiteralString]] = [sess_clause, users_clause, times_clause, indices_clause, log_clause, app_clause, branch_clause, events_clause, codes_clause]
-        clause_list_raw : List[Optional[LiteralString]] = [sess_clause, users_clause, times_clause, indices_clause, log_clause, app_clause, branch_clause, events_clause]
-        clause_list     : List[LiteralString]           = [clause for clause in clause_list_raw if clause is not None]
-        where_clause    : LiteralString                 = f"WHERE {'\nAND '.join(clause_list)}" if len(clause_list) > 0 else ""
+        all_clauses     : List[ParamaterizedClause] = [sess_clause, users_clause, times_clause, indices_clause, log_clause, app_clause, branch_clause, events_clause]
+        
+        # get the actual clause strings
+        clause_list     : List[LiteralString]       = [clause.clause for clause in all_clauses if clause.clause is not None and clause.clause != ""]
+        where_clause    : LiteralString             = f"WHERE {'\nAND '.join(clause_list)}" if len(clause_list) > 0 else ""
 
-        # params_collection = [sess_param, users_param, times_param, indices_param, log_param, app_param, branch_param, events_param, codes_param]
-        params_collection = [sess_param, users_param, times_param, indices_param, log_param, app_param, branch_param, events_param]
+        # get the params
+        params_collection = [clause.params for clause in all_clauses]
         params = list(chain.from_iterable(params_collection))
 
         return ParamaterizedClause(clause=where_clause, params=params)
 
     @staticmethod
-    def _setFilterClause(filt:SetFilter | NoFilter, column_name:LiteralString, column_type:Type) -> Tuple[Optional[LiteralString], List[bigquery.ArrayQueryParameter]]:
-        ret_val : Tuple[Optional[LiteralString], List[bigquery.ArrayQueryParameter]] = (None, [])
+    def _setFilterClause(filt:SetFilter | NoFilter, column_name:LiteralString, column_type:Type) -> ParamaterizedClause:
+        ret_val : ParamaterizedClause = ParamaterizedClause("", [])
 
         if filt.Active:
             elems : List = filt.AsList or []
@@ -406,13 +402,13 @@ class BigQueryInterface(Interface):
                 params     : List[bigquery.ArrayQueryParameter] = [
                     bigquery.ArrayQueryParameter(name=param_name, array_type=array_type, values=[column_type(elem) for elem in elems])
                 ]
-                ret_val = (clause, params)
+                ret_val = ParamaterizedClause(clause, params)
 
         return ret_val
     
     @staticmethod
-    def _rangeFilterClause(filt:RangeFilter | NoFilter, column_name:LiteralString, column_type:Type) -> Tuple[Optional[LiteralString], List[bigquery.RangeQueryParameter | bigquery.ScalarQueryParameter]]:
-        ret_val : Tuple[Optional[LiteralString], List[bigquery.RangeQueryParameter | bigquery.ScalarQueryParameter]] = (None, [])
+    def _rangeFilterClause(filt:RangeFilter | NoFilter, column_name:LiteralString, column_type:Type) -> ParamaterizedClause:
+        ret_val : ParamaterizedClause = ParamaterizedClause("", [])
 
         if filt.Active:
             exclude    : LiteralString
@@ -432,36 +428,37 @@ class BigQueryInterface(Interface):
                     param_type = "STRING"
             # 1. If we have both min and max, use a range
             if filt.Min and filt.Max:
-                exclude    = "NOT" if filt.FilterMode == FilterMode.EXCLUDE else ""
-                param_name = f"{column_name}_range"
-                clause = f"`app_branch` {exclude} BETWEEN @app_branch_min AND @app_branch_max"
+                exclude        = "NOT" if filt.FilterMode == FilterMode.EXCLUDE else ""
+                param_name_min = f"{column_name}_min"
+                param_name_max = f"{column_name}_max"
+                clause = f"`app_branch` {exclude} BETWEEN @{param_name_min} AND @{param_name_max}"
                 params = [
-                    bigquery.ScalarQueryParameter(name="app_branch_min", type_=param_type, value=column_type(filt.Min)),
-                    bigquery.ScalarQueryParameter(name="app_branch_max", type_=param_type, value=column_type(filt.Max))
+                    bigquery.ScalarQueryParameter(name=param_name_min, type_=param_type, value=column_type(filt.Min)),
+                    bigquery.ScalarQueryParameter(name=param_name_max, type_=param_type, value=column_type(filt.Max))
                 ]
             elif filt.Min:
                 exclude    = "<" if filt.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
                 param_name = f"{column_name}_min"
                 clause     = f"`{column_name}` {exclude} @{param_name}"
                 params = [
-                    bigquery.ScalarQueryParameter(name=column_name, type_=param_type, value=column_type(filt.Min))
+                    bigquery.ScalarQueryParameter(name=param_name, type_=param_type, value=column_type(filt.Min))
                 ]
             elif filt.Max:
                 exclude    = ">" if filt.FilterMode == FilterMode.EXCLUDE else "<" # > if we're excluding this max, or < if we're including this max
                 param_name = f"{column_name}_max"
                 clause     = f"`{column_name}` {exclude} @{param_name}"
                 params = [
-                    bigquery.ScalarQueryParameter(name=column_name, type_=param_type, value=column_type(filt.Max))
+                    bigquery.ScalarQueryParameter(name=param_name, type_=param_type, value=column_type(filt.Max))
                 ]
             else:
                 Logger.Log(f"Tried to generate range clause from a range filter (on column {column_name}) that was somehow active with null max and min! This clause will be skipped!", logging.ERROR)
-            ret_val = (clause, params)
+            ret_val = ParamaterizedClause(clause, params)
 
         return ret_val
 
     @staticmethod
-    def _timerangeFilterClause(filt:RangeFilter[datetime] | NoFilter, column_name:LiteralString) -> Tuple[Optional[LiteralString], List[bigquery.RangeQueryParameter | bigquery.ScalarQueryParameter]]:
-        ret_val : Tuple[Optional[LiteralString], List[bigquery.RangeQueryParameter | bigquery.ScalarQueryParameter]] = (None, [])
+    def _timerangeFilterClause(filt:RangeFilter[datetime] | NoFilter, column_name:LiteralString) -> ParamaterizedClause:
+        ret_val : ParamaterizedClause = ParamaterizedClause("", ())
 
         if filt.Active:
             exclude    : LiteralString
@@ -481,16 +478,16 @@ class BigQueryInterface(Interface):
                 param_name = f"{column_name}_min"
                 clause     = f"`{column_name}` {exclude} @{param_name}"
                 params = [
-                    bigquery.ScalarQueryParameter(name=column_name, type_="TIMESTAMP", value=filt.Min)
+                    bigquery.ScalarQueryParameter(name=param_name, type_="TIMESTAMP", value=filt.Min)
                 ]
             else: # filt.Max is not None
                 exclude    = ">" if filt.FilterMode == FilterMode.EXCLUDE else "<" # > if we're excluding this max, or < if we're including this max
                 param_name = f"{column_name}_max"
                 clause     = f"`{column_name}` {exclude} @{param_name}"
                 params = [
-                    bigquery.ScalarQueryParameter(name=column_name, type_="TIMESTAMP", value=filt.Max)
+                    bigquery.ScalarQueryParameter(name=param_name, type_="TIMESTAMP", value=filt.Max)
                 ]
-            ret_val = (clause, params)
+            ret_val = ParamaterizedClause(clause, params)
 
         return ret_val
 
