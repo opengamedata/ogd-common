@@ -4,9 +4,9 @@ import json
 import logging
 import textwrap
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import chain
-from typing import Dict, Final, List, LiteralString, Optional, Tuple, Type, Union, override, Sequence
+from typing import Dict, Final, List, LiteralString, Optional, Tuple, Type, override, Sequence
 # 3rd-party imports
 from google.cloud import bigquery
 from google.api_core.exceptions import BadRequest
@@ -78,8 +78,10 @@ class BigQueryInterface(Interface):
         if self.Connector.Client:
             # 1. Create query & config
             id_col : LiteralString       = "session_id" if mode==IDMode.SESSION else "user_id"
-            suffix : ParamaterizedClause = self._generateSuffixClause(date_filter=filters.Sequences)
-            suffix_clause = f"WHERE {suffix.clause}" if suffix.clause is not None else ""
+            suffix_clause : LiteralString = ""
+            if filters.Sequences.Timestamps.Active and isinstance(filters.Sequences.Timestamps, RangeFilter):
+                suffix : ParamaterizedClause = self._generateSuffixClause(date_filter=filters.Sequences.Timestamps)
+                suffix_clause = f"WHERE {suffix.clause}" if suffix.clause is not None else ""
             query = textwrap.dedent(f"""\
                 SELECT DISTINCT {id_col}
                 FROM `{self.DBPath}`
@@ -225,12 +227,33 @@ class BigQueryInterface(Interface):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _generateSuffixClause(date_filter:SequencingFilterCollection) -> ParamaterizedClause:
+    def _generateSuffixClause(date_filter:RangeFilter[datetime], extra_bound:int=0) -> ParamaterizedClause:
+        """Function to generate a BigQuery clause representing a bound on table suffixes.
+
+        In particular, it takes a date filter, and returns a parameterized clause of the form:  
+        ```
+        _TABLE_SUFFIX BETWEEN @suffixstart AND @suffixend
+        ```
+        where the `@suffixstart` and `@suffixend` have form YYYYMMDD.
+
+        The `extra_bound` parameter has the function expand the bounds by the given integer value in either direction.
+        For example, if the filter specified a range between January 2nd and 3rd,
+        an `extra_bound` of 1 would set the returned clause to be between January 1st and 4th.
+
+        :param date_filter: Filter specifying the range of dates for the suffix to take
+        :type date_filter: RangeFilter[datetime]
+        :param extra_bound: Optional integer to expand the suffix range beyond the range specified by the filter. The value is treated as the number of **days** by which to expand the suffix. Defaults to 0
+        :type extra_bound: int, optional
+        :return: _description_
+        :rtype: ParamaterizedClause
+        """
         clause = ""
         params = []
 
-        if date_filter.Timestamps.Min and date_filter.Timestamps.Max:
-            str_min, str_max = date_filter.Timestamps.Min.strftime("%Y%m%d"), date_filter.Timestamps.Max.strftime("%Y%m%d")
+        if date_filter.Min and date_filter.Max:
+            _min = date_filter.Min.date() - timedelta(days=extra_bound)
+            _max = date_filter.Max.date() + timedelta(days=extra_bound)
+            str_min, str_max = _min.strftime("%Y%m%d"), _max.strftime("%Y%m%d")
             clause = "_TABLE_SUFFIX BETWEEN @suffixstart AND @suffixend"
             params.append(
                 bigquery.ScalarQueryParameter(type_="STRING", value=str_min, name="suffixstart")
