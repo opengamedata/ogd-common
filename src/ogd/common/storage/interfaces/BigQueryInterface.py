@@ -3,7 +3,7 @@ import builtins
 import json
 import logging
 import textwrap
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from itertools import chain
 from typing import Dict, Final, List, LiteralString, Optional, Tuple, Type, override, Sequence
@@ -30,7 +30,7 @@ type BigQueryParameter = bigquery.ScalarQueryParameter | bigquery.ArrayQueryPara
 @dataclass
 class ParamaterizedClause:
     clause: LiteralString = ""
-    params: Sequence[BigQueryParameter] = []
+    params: Sequence[BigQueryParameter] = field(default_factory=[])
 
 class BigQueryInterface(Interface):
     """Implementation of Interface functions for BigQuery.
