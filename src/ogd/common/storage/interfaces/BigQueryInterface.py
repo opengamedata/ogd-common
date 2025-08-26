@@ -111,7 +111,7 @@ class BigQueryInterface(Interface):
             # 1. Create query & config
             where_clause = self._generateWhereClause(filters=filters)
             query = textwrap.dedent(f"""\
-                SELECT MIN(server_time), MAX(server_time)
+                SELECT MIN(client_time), MAX(client_time)
                 FROM `{self.DBPath}`
                 {where_clause.clause}
             """)
