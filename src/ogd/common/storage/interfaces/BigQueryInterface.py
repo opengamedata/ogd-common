@@ -284,7 +284,7 @@ class BigQueryInterface(Interface):
             column_name="client_time"
         )
 
-        indices_clause : ParamaterizedClause
+        indices_clause : ParamaterizedClause = ParamaterizedClause()
         if isinstance(filters.Sequences.SessionIndices, SetFilter):
             indices_clause = BigQueryInterface._setFilterClause(
                 filt=filters.Sequences.SessionIndices,
