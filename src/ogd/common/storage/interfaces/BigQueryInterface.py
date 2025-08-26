@@ -30,7 +30,7 @@ type BigQueryParameter = bigquery.ScalarQueryParameter | bigquery.ArrayQueryPara
 @dataclass
 class ParamaterizedClause:
     clause: LiteralString = ""
-    params: Sequence[BigQueryParameter] = field(default_factory=[])
+    params: Sequence[BigQueryParameter] = field(default_factory=lambda:[])
 
 class BigQueryInterface(Interface):
     """Implementation of Interface functions for BigQuery.
