@@ -244,8 +244,6 @@ class BigQueryInterface(Interface):
 
     @staticmethod
     def _generateWhereClause(filters:DatasetFilterCollection) -> ParamaterizedClause:
-        exclude : LiteralString
-
         sess_clause, sess_param = BigQueryInterface._setFilterClause(
             filt=filters.IDFilters.Sessions,
             column_name="session_id",
