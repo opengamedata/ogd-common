@@ -1,26 +1,36 @@
-# Workflow to test the DatasetKey class from the `utils` module
-name: Testbed - DatasetKey Class
+# Workflow to test the schemas from the `config` subfolder
+name: Testbed - StorageConnectors
 run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
 on:
   workflow_dispatch:
   workflow_call:
   push:
     paths:
-    - '.github/workflows/TEST_models_DatasetKey.yml'
+    # repo-wide dependencies
     - '.github/actions/test_config/**'
-    - 'tests/cases/models/config/*.py'
     - 'tests/config/**'
     - 'requirements.txt'
+    # specific dependencies
+    - '.github/workflows/TEST_storage_Connectors.yml'
+    - 'tests/cases/schemas/tables/**'
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-DatasetKey
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-StorageConnectors
   cancel-in-progress: true
 
 jobs:
 
-  run_testbeds:
-    name: Run DatasetKey Testbed
+  run_testbed_schema:
+    name: Run Storage Connector Testbeds
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        testbed: [
+          test_BigQueryConnector,
+          test_MySQLConnector
+        ]
+      fail-fast: false # we don't want to cancel just because one testbed fails.
+      max-parallel: 20
 
     steps:
   # 1. Local checkout 
@@ -40,12 +50,12 @@ jobs:
 
   # 2. Build & configure remote environments
 
-  # 3. Perform work
-    - name: Execute DatasetKey Testbed
+  # 3. Perform export
+    - name: Execute ${{ matrix.testbed }} testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/models"
-        test_file: "test_DatasetKey.py"
+        directory: "tests/cases/storage/connectors"
+        test_file: "${{ matrix.testbed }}.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete
