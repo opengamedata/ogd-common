@@ -29,8 +29,8 @@ AQUALAB_MIN_VERSION : Final[float] = 6.2
 type BigQueryParameter = bigquery.ScalarQueryParameter | bigquery.ArrayQueryParameter | bigquery.RangeQueryParameter
 @dataclass
 class ParamaterizedClause:
-    clause: LiteralString
-    params: Sequence[BigQueryParameter]
+    clause: LiteralString = ""
+    params: Sequence[BigQueryParameter] = []
 
 class BigQueryInterface(Interface):
     """Implementation of Interface functions for BigQuery.
@@ -298,7 +298,7 @@ class BigQueryInterface(Interface):
                 column_type=int
             )
 
-        log_clause : ParamaterizedClause
+        log_clause : ParamaterizedClause = ParamaterizedClause()
         if filters.Versions.LogVersions.Active:
             if isinstance(filters.Versions.LogVersions, SetFilter):
                 log_clause = BigQueryInterface._setFilterClause(
@@ -313,7 +313,7 @@ class BigQueryInterface(Interface):
                     column_type=str
                 )
 
-        app_clause : ParamaterizedClause
+        app_clause : ParamaterizedClause = ParamaterizedClause()
         if filters.Versions.AppVersions.Active:
             if isinstance(filters.Versions.AppVersions, SetFilter):
                 app_clause = BigQueryInterface._setFilterClause(
@@ -328,7 +328,7 @@ class BigQueryInterface(Interface):
                     column_type=str
                 )
 
-        branch_clause : ParamaterizedClause
+        branch_clause : ParamaterizedClause = ParamaterizedClause()
         if filters.Versions.AppBranches.Active:
             if isinstance(filters.Versions.AppBranches, SetFilter):
                 branch_clause = BigQueryInterface._setFilterClause(
@@ -343,7 +343,7 @@ class BigQueryInterface(Interface):
                     column_type=str
                 )
 
-        events_clause : ParamaterizedClause
+        events_clause : ParamaterizedClause = ParamaterizedClause()
         if filters.Events.EventNames.Active:
             events_clause = BigQueryInterface._setFilterClause(
                 filt=filters.Events.EventNames,
@@ -431,7 +431,7 @@ class BigQueryInterface(Interface):
                 exclude        = "NOT" if filt.FilterMode == FilterMode.EXCLUDE else ""
                 param_name_min = f"{column_name}_min"
                 param_name_max = f"{column_name}_max"
-                clause = f"`app_branch` {exclude} BETWEEN @{param_name_min} AND @{param_name_max}"
+                clause = f"`{column_name}` {exclude} BETWEEN @{param_name_min} AND @{param_name_max}"
                 params = [
                     bigquery.ScalarQueryParameter(name=param_name_min, type_=param_type, value=column_type(filt.Min)),
                     bigquery.ScalarQueryParameter(name=param_name_max, type_=param_type, value=column_type(filt.Max))
