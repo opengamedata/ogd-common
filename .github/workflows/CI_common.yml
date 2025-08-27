@@ -46,6 +46,18 @@ jobs:
     needs: build
     uses: ./.github/workflows/TEST_schemas_EventSchemas.yml
 
+  # Run testbeds in storage module
+
+  testbed_connectors:
+    name: Connector Testbeds
+    needs: build
+    uses: ./.github/workflows/TEST_storage_Connectors.yml
+
+  testbed_interfaces:
+    name: Interface Testbeds
+    needs: build
+    uses: ./.github/workflows/TEST_storage_Interfaces.yml
+
   # Run testbeds in utils module
 
   testbed_fileio:
