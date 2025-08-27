@@ -15,7 +15,7 @@ _testing_cfg = TestConfig.FromDict(name="conversionsTestConfig", unparsed_elemen
 _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
 Logger.std_logger.setLevel(_level)
 
-class Capitalize(TestCase):
+class test_Capitalize(TestCase):
     def test_normal_string(self):
         _str = conversions.Capitalize(value="fOo")
         self.assertIsInstance(_str, str)
@@ -26,16 +26,16 @@ class Capitalize(TestCase):
         self.assertEqual(_str, 100)
 
 @unittest.skip("Not Implemented")
-class ConvertToType(TestCase):
+class test_ConvertToType(TestCase):
     def test_null_values(self):
         pass
 
 @unittest.skip("Not Implemented")
-class ToBool(TestCase):
+class test_ToBool(TestCase):
     def test_normal_bool(self):
         pass
 
-class ToInt(TestCase):
+class test_ToInt(TestCase):
     def test_normal_int(self):
         _int = conversions.ToInt(name="ParseIntVal", value=1)
         self.assertIsInstance(_int, int)
@@ -60,7 +60,7 @@ class ToInt(TestCase):
         _int = conversions.ToInt(name="ParseIntVal", value=_nan)
         self.assertIsNone(_int)
 
-class ToFloat(TestCase):
+class test_ToFloat(TestCase):
     def test_normal_float(self):
         _float = conversions.ToFloat(name="ParseFloatVal", value=1.2)
         self.assertIsInstance(_float, float)
@@ -76,7 +76,7 @@ class ToFloat(TestCase):
         _float = conversions.ToFloat(name="ParseFloatVal", value=_nan)
         self.assertIsNone(_float)
 
-class ToString(TestCase):
+class test_ToString(TestCase):
     def test_normal_string(self):
         _str = conversions.ToString(name="ParseStringVal", value="Foo")
         self.assertIsInstance(_str, str)
@@ -94,7 +94,7 @@ class ToString(TestCase):
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, _elem_str)
 
-class ToPath(TestCase):
+class test_ToPath(TestCase):
     def test_normal_path(self):
         _val = Path("./Foo")
         _path = conversions.ToPath(name="ParsePathVal", value=_val)
