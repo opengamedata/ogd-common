@@ -539,12 +539,13 @@ def DatetimeFromString(time_str:str) -> Optional[datetime.datetime]:
 def TimedeltaFromString(time_str:str) -> Optional[datetime.timedelta]:
     ret_val : Optional[datetime.timedelta]
 
-    day_pattern    : LiteralString = r"(?:(?P<day>-?\d+)\s+day(?:s)?,\s+)"
+    neg_pattern    : LiteralString = r"(?P<neg>-)"
+    day_pattern    : LiteralString = r"(?:(?P<day>\d+)\s+day(?:s)?,\s+)"
     hour_pattern   : LiteralString = r"(?P<hour>\d+)"
     minute_pattern : LiteralString = r"(?P<minute>\d+)"
     second_pattern : LiteralString = r"(?P<second>\d+)"
     micros_pattern : LiteralString = r"(?P<micros>\d+)"
-    pattern = re.compile(f"{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}.{micros_pattern}")
+    pattern = re.compile(f"{neg_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}.{micros_pattern}")
 
     if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
         ret_val = None
@@ -552,12 +553,15 @@ def TimedeltaFromString(time_str:str) -> Optional[datetime.timedelta]:
         match = re.fullmatch(pattern=pattern, string=time_str)
         if match:
             ret_val = datetime.timedelta(
-                days=int(match.group("day")),
-                hours=int(match.group("hour")),
-                minutes=int(match.group("minute")),
-                seconds=int(match.group("second")),
-                microseconds=int(match.group("micros"))
+                days=int(match.group("day") or 0),
+                hours=int(match.group("hour") or 0),
+                minutes=int(match.group("minute") or 0),
+                seconds=int(match.group("second") or 0),
+                microseconds=int(match.group("micros") or 0)
             )
+            # if we matched the negative sign, then make the timedelta negative.
+            if match.group("neg"):
+                ret_val = -ret_val
         else:
             match = re.fullmatch(pattern=r"-?\d+", string=time_str)
             if match:
