@@ -30,10 +30,32 @@ class test_ConvertToType(TestCase):
     def test_null_values(self):
         pass
 
-@unittest.skip("Not Implemented")
 class test_ToBool(TestCase):
-    def test_normal_bool(self):
-        pass
+    def test_normal_bool_true(self):
+        _bool = conversions.ToBool(name="ParseBoolVal", value=True)
+        self.assertIsInstance(_bool, bool)
+        self.assertEqual(_bool, True)
+
+    def test_normal_bool_false(self):
+        _bool = conversions.ToBool(name="ParseBoolVal", value=False)
+        self.assertIsInstance(_bool, bool)
+        self.assertEqual(_bool, False)
+
+    def test_string_true(self):
+        _bool = conversions.ToBool(name="ParseBoolVal", value="True")
+        self.assertIsInstance(_bool, bool)
+        self.assertEqual(_bool, True)
+        _bool = conversions.ToBool(name="ParseBoolVal", value="true")
+        self.assertIsInstance(_bool, bool)
+        self.assertEqual(_bool, True)
+
+    def test_string_false(self):
+        _bool = conversions.ToBool(name="ParseBoolVal", value="False")
+        self.assertIsInstance(_bool, bool)
+        self.assertEqual(_bool, False)
+        _bool = conversions.ToBool(name="ParseBoolVal", value="false")
+        self.assertIsInstance(_bool, bool)
+        self.assertEqual(_bool, False)
 
 class test_ToInt(TestCase):
     def test_normal_int(self):
@@ -186,13 +208,12 @@ class test_ToTimedelta(TestCase):
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, -datetime.timedelta(days=1, hours=2, minutes=3, seconds=4, microseconds=456000))
 
-@unittest.skip(reason="Not implemented")
 class test_ToTimezone(TestCase):
     def test_normal_timezone(self):
         _val = datetime.timezone(datetime.timedelta(hours=1))
-        _str = conversions.ToTimezone(name="ToTimezoneVal", value=_val)
-        self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "Foo")
+        _tz = conversions.ToTimezone(name="ToTimezoneVal", value=_val)
+        self.assertIsInstance(_tz, datetime.timezone)
+        self.assertEqual(_tz, _val)
 
 class test_ToList(TestCase):
     def test_normal_list(self):
