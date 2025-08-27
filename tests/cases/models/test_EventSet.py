@@ -12,6 +12,7 @@ from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
 from ogd.common.models.EventSet import EventSet
+from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
 from ogd.common.storage.interfaces.CSVInterface import CSVInterface
 from ogd.common.utils.Logger import Logger
 # import locals
@@ -62,10 +63,15 @@ class test_EventSet(TestCase):
         Logger.std_logger.setLevel(_level)
 
         # 2. Set up local instance of testing class
-        _cfg = DataTableConfig(name="FILE SOURCE", game_id="BACTERIA", schema_name="OGD_EVENT_FILE",
-                               store_name=None, store_config=)
-        CSVI = CSVInterface(config=_cfg, filepath=f, delim='\t', fail_fast=False)
-        cls.events : EventSet = CSVI.GetEventCollection(filters=DatasetFilterCollection())
+        _cfg = DataTableConfig(
+            name="FILE SOURCE",
+            store_name=None,
+            schema_name="OGD_EVENT_FILE",
+            table_location=DatabaseLocationSchema(name="TestLocation", database_name="location", table_name=None),
+            store_config=None
+        )
+        CSVI = CSVInterface(config=_cfg, fail_fast=False)
+        cls.events : EventSet = CSVI.GetEventCollection(filters=DatasetFilterCollection(), fallbacks={})
 
     @staticmethod
     def RunAll():

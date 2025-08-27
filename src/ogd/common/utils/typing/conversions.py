@@ -12,7 +12,7 @@ import logging
 import pathlib
 import re
 import typing
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, LiteralString, Optional, Type
 
 from json.decoder import JSONDecodeError
 ## import 3rd-party libraries
@@ -500,7 +500,7 @@ def BoolFromString(bool_str:str) -> bool:
             ret_val = bool(bool_str)
     return ret_val
 
-def DatetimeFromString(time_str:str) -> datetime.datetime:
+def DatetimeFromString(time_str:str) -> Optional[datetime.datetime]:
     """_summary_
 
     TODO : handle null inputs!
@@ -513,58 +513,63 @@ def DatetimeFromString(time_str:str) -> datetime.datetime:
     :return: _description_
     :rtype: datetime.datetime
     """
-    ret_val : datetime.datetime
+    ret_val : Optional[datetime.datetime] = None
 
-    if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
+    if time_str == None or time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
         raise ValueError(f"Got a non-timestamp value of {time_str} when converting a datetime column from data source!")
 
-    formats = ["%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S.%f"]
-
+    # Approach 1: use dateutil parser to parse, assuming an iso format
     try:
         ret_val = parser.isoparse(time_str)
+    # Approach 2: if dateutil threw error, try using the general parse
     except ValueError:
-        # Logger.Log(f"Could not parse time string '{time_str}', got error {err}")
-        # raise err
-        pass
-    else:
-        return ret_val
-    for fmt in formats:
+        Logger.Log(f"Attempted to convert a time string that was not in ISO format: {time_str}, switching to general parser instead!", logging.DEBUG)
         try:
-            ret_val = datetime.datetime.strptime(time_str, fmt)
+            ret_val = parser.parse(time_str)
         except ValueError:
-            pass
+            Logger.Log(f"Could not parse timestamp {time_str}, it did not match any expected formats!", logging.WARNING)
         else:
-            return ret_val
-    raise ValueError(f"Could not parse timestamp {time_str}, it did not match any expected formats!")
+            pass
+    else:
+        pass
+
+    return ret_val
 
 @staticmethod
 def TimedeltaFromString(time_str:str) -> Optional[datetime.timedelta]:
     ret_val : Optional[datetime.timedelta]
 
+    neg_pattern    : LiteralString = r"(?P<neg>-)"
+    day_pattern    : LiteralString = r"(?:(?P<day>\d+)\s+day(?:s)?,\s+)"
+    hour_pattern   : LiteralString = r"(?P<hour>\d+)"
+    minute_pattern : LiteralString = r"(?P<minute>\d+)"
+    second_pattern : LiteralString = r"(?P<second>\d+)"
+    micros_pattern : LiteralString = r"(?P<micros>\d+)"
+    pattern = re.compile(f"{neg_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}.{micros_pattern}")
+
     if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
-        return None
-    elif re.fullmatch(pattern=r"\d+:\d+:\d+(\.\d+)?", string=time_str):
-        try:
-            pieces = time_str.split(':')
-            seconds_pieces = pieces[2].split('.')
-            ret_val = datetime.timedelta(hours=int(pieces[0]),
-                                minutes=int(pieces[1]),
-                                seconds=int(seconds_pieces[0]),
-                                milliseconds=int(seconds_pieces[1]) if len(seconds_pieces) > 1 else 0)
-        except ValueError:
-            pass
-        except IndexError:
-            pass
+        ret_val = None
+    else:
+        match = re.fullmatch(pattern=pattern, string=time_str)
+        if match:
+            ret_val = datetime.timedelta(
+                days=int(match.group("day") or 0),
+                hours=int(match.group("hour") or 0),
+                minutes=int(match.group("minute") or 0),
+                seconds=int(match.group("second") or 0),
+                microseconds=int(match.group("micros") or 0)
+            )
+            # if we matched the negative sign, then make the timedelta negative.
+            if match.group("neg"):
+                ret_val = -ret_val
         else:
-            return ret_val
-    elif re.fullmatch(pattern=r"-?\d+", string=time_str):
-        try:
-            ret_val = datetime.timedelta(seconds=int(time_str))
-        except ValueError:
-            pass
-        else:
-            return ret_val
-    raise ValueError(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats.")
+            match = re.fullmatch(pattern=r"-?\d+", string=time_str)
+            if match:
+                ret_val = datetime.timedelta(seconds=int(time_str))
+            else:
+                Logger.Log(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats.", logging.WARNING)
+    
+    return ret_val
 
 def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
     ret_val : Optional[datetime.timezone]
