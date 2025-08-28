@@ -58,10 +58,10 @@ class Feature(GameData):
         :rtype: List[str]
         """
         return ["name",   "feature_type", "game_unit",  "game_unit_index", 
-                "app_id", "user_id",      "session_id", "subfeatures", "values"]
+                "app_id", "user_id",      "session_id", "value"]
 
     @property
-    def ColumnValues(self) -> List[str | int | List[Any] | None]:
+    def ColumnValues(self) -> List[List[Any]]:
         """A list of all values for the row, in order they appear in the `ColumnNames` function.
 
         .. todo:: Technically, this should be string representations of each, but we're technically not enforcing that yet.
@@ -69,8 +69,13 @@ class Feature(GameData):
         :return: The list of values.
         :rtype: List[Union[str, datetime, timezone, Map, int, None]]
         """
-        return [self.Name,  self.FeatureType, self.GameUnit,  self.GameUnitIndex,
-                self.AppID, self.UserID,      self.SessionID, self.Subfeatures, self.Values]
+        return [
+            [
+                feat_name,  self.FeatureType, self.GameUnit,  self.GameUnitIndex,
+                self.AppID, self.UserID,      self.SessionID, self.ValueMap.get(feat_name)
+            ]
+            for feat_name in self.FeatureNames
+        ]
 
     @property
     def ExportMode(self) -> ExportMode:
@@ -134,8 +139,8 @@ class Feature(GameData):
     def ValueMap(self) -> Dict[str, Any]:
         ret_val : Dict[str, Any]
 
-        if len(self.Subfeatures) != len(self.Values):
-            raise ValueError(f"For {self.Name}, number of subfeatures (+1) did not match number of values!")
+        if len(self.FeatureNames) != len(self.Values):
+            raise ValueError(f"For {self.Name}, number of Features did not match number of values!")
         else:
             ret_val = {self.FeatureNames[i] : self.Values[i] for i in range(len(self.FeatureNames))}
         
