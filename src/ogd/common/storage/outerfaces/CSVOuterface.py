@@ -123,6 +123,10 @@ class CSVOuterface(Outerface):
             Logger.Log("No processed_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
+    def _writeAllFeaturesHeader(self, header:List[str]) -> None:
+        # TODO : CSVOuterface is currently in this weird hardcoded situation, so not yet supporting the 'all features' format
+        pass
+
     def _writeSessionHeader(self, header:List[str]) -> None:
         cols = CSVOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
@@ -172,6 +176,10 @@ class CSVOuterface(Outerface):
         else:
             Logger.Log("No processed_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(event_lines))
+
+    def _writeAllFeaturesLines(self, feature_lines:List[ExportRow]) -> None:
+        # TODO : CSVOuterface is currently in this weird hardcoded situation, so not yet supporting the 'all features' format
+        pass
 
     def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
         # self._sess_count += len(sessions)

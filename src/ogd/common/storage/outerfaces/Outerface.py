@@ -89,6 +89,11 @@ class Outerface:
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
+    def _writeAllFeaturesLines(self, feature_lines:List[ExportRow]) -> None:
+        # pylint: disable-next=protected-access
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
+
+    @abc.abstractmethod
     def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
         # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
@@ -188,6 +193,9 @@ class Outerface:
         if isinstance(self.Config.TableSchema, FeatureTableSchema):
             if mode in self.ExportModes:
                 match (mode):
+                    case ExportMode.FEATURES:
+                        self._writeAllFeaturesLines(feature_lines=features.FeatureLines)
+                        Logger.Log(f"Wrote {len(features.FeatureLines)} {self.Config.Location} feature lines", depth=3)
                     case ExportMode.SESSION:
                         self._writeSessionLines(session_lines=features.SessionLines)
                         Logger.Log(f"Wrote {len(features.SessionLines)} {self.Config.Location} session lines", depth=3)
