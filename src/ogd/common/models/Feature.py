@@ -139,8 +139,8 @@ class Feature(GameData):
     def ValueMap(self) -> Dict[str, Any]:
         ret_val : Dict[str, Any]
 
-        if len(self.Subfeatures) != len(self.Values):
-            raise ValueError(f"For {self.Name}, number of subfeatures (+1) did not match number of values!")
+        if len(self.FeatureNames) != len(self.Values):
+            raise ValueError(f"For {self.Name}, number of Features did not match number of values!")
         else:
             ret_val = {self.FeatureNames[i] : self.Values[i] for i in range(len(self.FeatureNames))}
         
