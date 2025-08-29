@@ -42,6 +42,10 @@ class DictionaryOuterface(Outerface):
     def Connector(self) -> None:
         return None
 
+    @property
+    def Output(self) -> OutputDict:
+        return self._out
+
     def _removeExportMode(self, mode:ExportMode):
         match mode:
             case ExportMode.EVENTS:
