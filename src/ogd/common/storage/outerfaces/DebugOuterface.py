@@ -52,6 +52,10 @@ class DebugOuterface(Outerface):
         self._display("Processed events header:")
         self._display(header)
 
+    def _writeAllFeaturesHeader(self, header:List[str]) -> None:
+        self._display("All Feature header:")
+        self._display(header)
+
     def _writeSessionHeader(self, header:List[str]) -> None:
         self._display("Sessions header:")
         self._display(header)
@@ -73,6 +77,11 @@ class DebugOuterface(Outerface):
         self._display("Processed event data:")
         _lengths = [len(elem) for elem in events]
         self._display(f"{len(events)} processed events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
+
+    def _writeAllFeaturesLines(self, feature_lines:List[ExportRow]) -> None:
+        self._display("Feature data:")
+        _lengths = [len(elem) for elem in feature_lines]
+        self._display(f"{len(feature_lines)} events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
 
     def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
         self._display("Session data:")
