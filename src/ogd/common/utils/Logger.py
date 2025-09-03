@@ -1,4 +1,5 @@
 import logging
+import textwrap
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional, List
@@ -55,30 +56,40 @@ class Logger:
     # Function to print a method to both the standard out and file logs.
     # Useful for "general" errors where you just want to print out the exception from a "backstop" try-catch block.
     @staticmethod
-    def Log(message:str, level=logging.INFO, depth:int=0) -> None:
+    def Log(message:str, level=logging.INFO, depth:int=0, whitespace_adjust:Optional[str]=None) -> None:
         now = datetime.now().strftime("%y-%m-%d %H:%M:%S")
-        indent = ''.join(['  '*depth])
-        _idt_msg = message.replace("\n", f"\n{' '*9}{indent}")
+        INDENT_WIDTH = 2
+        base_indent = ' '*9
+        user_indent = ' '*INDENT_WIDTH*depth
+        line_indent = f"\n{base_indent}{user_indent}"
+        indented_msg : str
+        match whitespace_adjust:
+            case "lstrip":
+                indented_msg = line_indent.join(line.lstrip() for line in message.split("\n"))
+            case "dedent":
+                indented_msg = textwrap.dedent(message).replace("\n", line_indent)
+            case _:
+                indented_msg = message.replace("\n", line_indent)
         if Logger.file_logger is not None:
             match level:
                 case logging.DEBUG:
-                    Logger.file_logger.debug(f"DEBUG:   {now} {indent}{_idt_msg}")
+                    Logger.file_logger.debug(   f"DEBUG:   {now} {user_indent}{indented_msg}")
                 case logging.INFO:
-                    Logger.file_logger.info( f"INFO:    {now} {indent}{_idt_msg}")
+                    Logger.file_logger.info(    f"INFO:    {now} {user_indent}{indented_msg}")
                 case logging.WARNING:
-                    Logger.file_logger.warning( f"WARNING: {now} {indent}{_idt_msg}")
+                    Logger.file_logger.warning( f"WARNING: {now} {user_indent}{indented_msg}")
                 case logging.ERROR:
-                    Logger.file_logger.error(f"ERROR:   {now} {indent}{_idt_msg}")
+                    Logger.file_logger.error(   f"ERROR:   {now} {user_indent}{indented_msg}")
         if Logger.std_logger is not None:
             match level:
                 case logging.DEBUG:
-                    Logger.std_logger.debug(f"DEBUG:   {indent}{_idt_msg}")
+                    Logger.std_logger.debug(   f"DEBUG:   {user_indent}{indented_msg}")
                 case logging.INFO:
-                    Logger.std_logger.info( f"INFO:    {indent}{_idt_msg}")
+                    Logger.std_logger.info(    f"INFO:    {user_indent}{indented_msg}")
                 case logging.WARNING:
-                    Logger.std_logger.warning( f"WARNING: {indent}{_idt_msg}")
+                    Logger.std_logger.warning( f"WARNING: {user_indent}{indented_msg}")
                 case logging.ERROR:
-                    Logger.std_logger.error(f"ERROR:   {indent}{_idt_msg}")
+                    Logger.std_logger.error(   f"ERROR:   {user_indent}{indented_msg}")
 
     @staticmethod
     def Print(message:str, level=logging.DEBUG) -> None:
