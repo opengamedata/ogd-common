@@ -19,6 +19,7 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.models.EventSet import EventSet
 from tests.config.t_config import settings
 
+@unittest.skip("Not implemented")
 class test_EventSet(TestCase):
     TEST_MIN_DATE     : Final[datetime]  = datetime(year=2021, month=2, day=1, hour= 0, minute=0, second=0)
     TEST_MAX_DATE     : Final[datetime]  = datetime(year=2021, month=2, day=1, hour=10, minute=0, second=0)

@@ -44,8 +44,8 @@ jobs:
     - name: Execute typing Testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/utils"
-        test_file: "test_typing.py"
+        directory: "tests/cases/utils/typing"
+        test_file: "test_conversions.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete

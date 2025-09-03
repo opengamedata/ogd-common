@@ -26,6 +26,7 @@ jobs:
         testbed: [
           test_DatasetKey,
           test_EventSet,
+          test_Feature,
           test_SemanticVersion,
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.

@@ -4,11 +4,12 @@
 import abc
 import logging
 import sys
-from typing import List, Set
+from typing import List, Optional, Set
 
 # import local files
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.models.EventSet import EventSet
+from ogd.common.models.Feature import Feature
 from ogd.common.models.FeatureSet import FeatureSet
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
@@ -56,6 +57,11 @@ class Outerface:
         # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
+
+    @abc.abstractmethod
+    def _writeAllFeaturesHeader(self, header:List[str]) -> None:
+        # pylint: disable-next=protected-access
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
     def _writeSessionHeader(self, header:List[str]) -> None:
@@ -135,23 +141,26 @@ class Outerface:
         self._modes.discard(mode)
         Logger.Log(f"Removed mode {mode} from {type(self).__name__} output.", logging.INFO)
 
-    def WriteHeader(self, header:List[str], mode:ExportMode):
+    def WriteHeader(self, mode:ExportMode, header:Optional[List[str]]=None):
         if mode in self.ExportModes:
             match (mode):
                 case ExportMode.EVENTS:
-                    self._writeGameEventsHeader(header=header)
+                    self._writeGameEventsHeader(header=header or [])
                     Logger.Log(f"Wrote event header for {self.Config.Location} events", depth=3)
                 case ExportMode.DETECTORS:
-                    self._writeAllEventsHeader(header=header)
+                    self._writeAllEventsHeader(header=header or [])
                     Logger.Log(f"Wrote processed event header for {self.Config.Location} events", depth=3)
+                case ExportMode.FEATURES:
+                    self._writeAllFeaturesHeader(header=Feature.ColumnNames())
+                    Logger.Log(f"Wrote all-features header for {self.Config.Location} features", depth=3)
                 case ExportMode.SESSION:
-                    self._writeSessionHeader(header=header)
+                    self._writeSessionHeader(header=header or [])
                     Logger.Log(f"Wrote session feature header for {self.Config.Location} sessions", depth=3)
                 case ExportMode.PLAYER:
-                    self._writePlayerHeader(header=header)
+                    self._writePlayerHeader(header=header or [])
                     Logger.Log(f"Wrote player feature header for {self.Config.Location} players", depth=3)
                 case ExportMode.POPULATION:
-                    self._writePopulationHeader(header=header)
+                    self._writePopulationHeader(header=header or [])
                     Logger.Log(f"Wrote population feature header for {self.Config.Location} populations", depth=3)
                 case _:
                     Logger.Log(f"Failed to write header for unrecognized export mode {mode}!", level=logging.WARN, depth=3)

@@ -1,4 +1,5 @@
 ## import standard libraries
+from itertools import chain
 from typing import List
 # import local files
 from ogd.common.filters.collections import *
@@ -60,16 +61,22 @@ class FeatureSet:
 
     @property
     def FeatureLines(self) -> List[ExportRow]:
-        return [feature.ColumnValues for feature in self.Features]
+        """Property to get all the "ExportRow" lines of the features within the set.
+
+        :return: _description_
+        :rtype: List[ExportRow]
+        """
+        # Since each feature returns a list of rows, we need to chain them to a single list
+        return list(chain.from_iterable(feature.ColumnValues for feature in self.Features))
     @property
     def PopulationLines(self) -> List[ExportRow]:
-        return [feature.ColumnValues for feature in self.PopulationFeatures]
+        return list(chain.from_iterable(feature.ColumnValues for feature in self.PopulationFeatures))
     @property
     def PlayerLines(self) -> List[ExportRow]:
-        return [feature.ColumnValues for feature in self.PlayerFeatures]
+        return list(chain.from_iterable(feature.ColumnValues for feature in self.PlayerFeatures))
     @property
     def SessionLines(self) -> List[ExportRow]:
-        return [feature.ColumnValues for feature in self.SessionFeatures]
+        return list(chain.from_iterable(feature.ColumnValues for feature in self.SessionFeatures))
 
     @property
     def Filters(self) -> DatasetFilterCollection:

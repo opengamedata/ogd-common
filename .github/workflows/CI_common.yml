@@ -29,15 +29,10 @@ jobs:
 
   # Run testbeds in models module
 
-  testbed_datasetkey:
-    name: DatasetKey Testbed
+  testbed_models:
+    name: Models Testbed
     needs: build
-    uses: ./.github/workflows/TEST_models_DatasetKey.yml
-
-  testbed_semver:
-    name: SemanticVersion Testbed
-    needs: build
-    uses: ./.github/workflows/TEST_models_SemanticVersion.yml
+    uses: ./.github/workflows/TEST_Models.yml
 
   # Run testbeds in schemas module
 
@@ -50,6 +45,18 @@ jobs:
     name: Game Schema Testbeds
     needs: build
     uses: ./.github/workflows/TEST_schemas_EventSchemas.yml
+
+  # Run testbeds in storage module
+
+  testbed_connectors:
+    name: Connector Testbeds
+    needs: build
+    uses: ./.github/workflows/TEST_storage_Connectors.yml
+
+  testbed_interfaces:
+    name: Interface Testbeds
+    needs: build
+    uses: ./.github/workflows/TEST_storage_Interfaces.yml
 
   # Run testbeds in utils module
 
