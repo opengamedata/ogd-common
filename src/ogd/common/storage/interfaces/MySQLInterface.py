@@ -1,5 +1,6 @@
 # import libraries
 import logging
+import textwrap
 from datetime import datetime, time, timedelta
 from itertools import chain
 from typing import Dict, List, LiteralString, Optional, override, Tuple
@@ -55,15 +56,15 @@ class MySQLInterface(Interface):
                     app_param_string : LiteralString = ("%s, " * len(app_ids))[:-2] # take all but the trailing ', '.
                     where_clause += f"\nAND `app_id` {exclude} in ({app_param_string})"
                     params += app_ids
-            query = f"""
+            query = textwrap.dedent(f"""
                 SELECT DISTINCT(`{id_col}`)
                 FROM `{self.Config.Location.Location}`
                 {where_clause}
-            """
+            """)
             data = MySQLInterface.Query(cursor=self.Connector.Cursor, query=query, params=tuple(params))
             return [str(id[0]) for id in data] if data != None else []
         else:
-            Logger.Log(f"Could not get list of all session ids, MySQL connection is not open.", logging.WARN)
+            Logger.Log("Could not get list of all session ids, MySQL connection is not open.", logging.WARN)
             return []
 
     @override
@@ -82,18 +83,18 @@ class MySQLInterface(Interface):
                     app_param_string : LiteralString = ("%s, " * len(app_ids))[:-2] # take all but the trailing ', '.
                     where_clause += f"\nAND `app_id` {exclude} in ({app_param_string})"
                     params += app_ids
-            query = f"""
+            query = textwrap.dedent(f"""
                 SELECT MIN(`server_time`), MAX(`server_time`)
                 FROM `{self.Config.Location.Location}`
                 {where_clause}
-            """
+            """)
 
             # run query
             result = MySQLInterface.Query(cursor=self.Connector.Cursor, query=query, params=tuple(params))
             if result is not None:
                 ret_val = {'min':result[0][0], 'max':result[0][1]}
         else:
-            Logger.Log(f"Could not get full date range, MySQL connection is not open or config was not for MySQL.", logging.WARN)
+            Logger.Log("Could not get full date range, MySQL connection is not open or config was not for MySQL.", logging.WARN)
         return ret_val
 
     def _availableVersions(self, mode:VersionType, filters:DatasetFilterCollection) -> List[SemanticVersion | str]:
@@ -113,18 +114,18 @@ class MySQLInterface(Interface):
                     app_param_string : LiteralString = ("%s, " * len(app_ids))[:-2] # take all but the trailing ', '.
                     where_clause += f"\nAND `app_id` {exclude} in ({app_param_string})"
                     params += app_ids
-            query = f"""
+            query = textwrap.dedent(f"""
                 SELECT DISTINCT({version_col})
                 FROM `{self.Config.Location.Location}`
                 {where_clause}
-            """
+            """)
 
             # run query
             result = MySQLInterface.Query(cursor=self.Connector.Cursor, query=query, params=tuple(params))
             if result is not None:
                 ret_val = [str(row[0]) for row in result]
         else:
-            Logger.Log(f"Could not get available versions, MySQL connection is not open or config was not for MySQL.", logging.WARN)
+            Logger.Log("Could not get available versions, MySQL connection is not open or config was not for MySQL.", logging.WARN)
         return ret_val
 
     def _getEventRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
@@ -146,12 +147,12 @@ class MySQLInterface(Interface):
                     where_clause += f"\nAND `app_id` {exclude} in ({app_param_string})"
                     params += app_ids
 
-            query = f"""
+            query = textwrap.dedent(f"""
                 SELECT *
                 FROM `{self.Config.Location.Location}`
                 {where_clause}
                 ORDER BY `user_id`, `session_id`, `event_sequence_index` ASC
-            """
+            """)
             data = MySQLInterface.Query(cursor=self.Connector.Cursor, query=query, params=tuple(params))
             if data is not None:
                 ret_val = data

@@ -57,7 +57,7 @@ class Logger:
     @staticmethod
     def Log(message:str, level=logging.INFO, depth:int=0) -> None:
         now = datetime.now().strftime("%y-%m-%d %H:%M:%S")
-        indent = ''.join(['  '*depth])
+        indent = '  '*depth
         _idt_msg = message.replace("\n", f"\n{' '*9}{indent}")
         if Logger.file_logger is not None:
             match level:
