@@ -59,23 +59,26 @@ class FeatureSet:
     def SessionFeatures(self) -> List[Feature]:
         return [feature for feature in self.Features if feature.ExportMode == ExportMode.SESSION]
 
-    @property
-    def FeatureLines(self) -> List[ExportRow]:
+    def FeatureLines(self, as_pivot:bool=True) -> List[ExportRow]:
         """Property to get all the "ExportRow" lines of the features within the set.
 
         :return: _description_
         :rtype: List[ExportRow]
         """
-        # Since each feature returns a list of rows, we need to chain them to a single list
-        return list(chain.from_iterable(feature.ColumnValues for feature in self.Features))
-    @property
-    def PopulationLines(self) -> List[ExportRow]:
+        ret_val : List[ExportRow] = []
+
+        if as_pivot:
+            # Since each feature returns a list of rows, we need to chain them to a single list
+            ret_val = list(chain.from_iterable(feature.ColumnValues for feature in self.Features))
+        else:
+            ret_val = []
+        
+        return ret_val
+    def PopulationLines(self, as_pivot:bool=True) -> List[ExportRow]:
         return list(chain.from_iterable(feature.ColumnValues for feature in self.PopulationFeatures))
-    @property
-    def PlayerLines(self) -> List[ExportRow]:
+    def PlayerLines(self, as_pivot:bool=True) -> List[ExportRow]:
         return list(chain.from_iterable(feature.ColumnValues for feature in self.PlayerFeatures))
-    @property
-    def SessionLines(self) -> List[ExportRow]:
+    def SessionLines(self, as_pivot:bool=True) -> List[ExportRow]:
         return list(chain.from_iterable(feature.ColumnValues for feature in self.SessionFeatures))
 
     @property
