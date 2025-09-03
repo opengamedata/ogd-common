@@ -53,10 +53,28 @@ class Logger:
             finally:
                 Logger.file_logger.debug("Initialized file logger")
     
-    # Function to print a method to both the standard out and file logs.
-    # Useful for "general" errors where you just want to print out the exception from a "backstop" try-catch block.
     @staticmethod
     def Log(message:str, level=logging.INFO, depth:int=0, whitespace_adjust:Optional[str]=None) -> None:
+        """Function to print a method to both the standard out and file logs.
+
+        Useful for "general" errors where you just want to print out the exception from a "backstop" try-catch block.
+
+        :param message: The log message to display.
+            Some additional formatting, such as displaying the log level, is automatically added.
+        :type message: str
+        :param level: Logging level at which to output the message, defaults to logging.INFO
+        :type level: _type_, optional
+        :param depth: The number of levels to indent the message (indent width=2).
+            This allows for nice indentation of logging messages, useful for complex programs with multiple levels of "nested" behaviors to log.
+            Defaults to 0
+        :type depth: int, optional
+        :param whitespace_adjust: how to handle leading whitespace in the message.
+            If set to 'dedent', shared indentation will be removed, but relative indentation in the message will be preserved.
+            If set to 'lstrip', all leading whitespace on each line will be removed, and relative indentation will be lost.
+            Otherwise, all leading whitespace, including relative indentation, is preserved.
+            Defaults to None
+        :type whitespace_adjust: Optional[str], optional
+        """
         now = datetime.now().strftime("%y-%m-%d %H:%M:%S")
         INDENT_WIDTH = 2
         base_indent = ' '*9
