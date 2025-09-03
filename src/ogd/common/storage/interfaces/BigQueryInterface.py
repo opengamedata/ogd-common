@@ -191,12 +191,14 @@ class BigQueryInterface(Interface):
             cfg = bigquery.QueryJobConfig(query_parameters=where_clause.params)
 
             # 2. Actually run the thing
-            Logger.Log(f"Running query for rows from IDs:\n{query}", logging.DEBUG, depth=3)
+            Logger.Log(f"Running query for rows from IDs:\n{query}\nWith Params:\n{where_clause.params}", logging.DEBUG, depth=3)
             try:
                 job = self.Connector.Client.query(query, job_config=cfg)
                 data = job.result()
             except BadRequest as err:
                 Logger.Log(f"In _rowsFromIDs, got a BadRequest error when trying to retrieve data from BigQuery, defaulting to empty result!\n{err}")
+            except Exception as err:
+                Logger.Log(f"Unexpected error in BigQuery of type {type(err)} occurred: {err}", logging.ERROR)
             else:
                 Logger.Log(f"...Query yielded results, with query in state: {job.state}", logging.DEBUG, depth=3)
                 for row in data:
@@ -467,11 +469,16 @@ class BigQueryInterface(Interface):
             params     : List[bigquery.RangeQueryParameter | bigquery.ScalarQueryParameter]
             # 1. If we have both min and max, use a range
             if filt.Min and filt.Max:
-                exclude    = "NOT" if filt.FilterMode == FilterMode.EXCLUDE else ""
-                param_name = f"{column_name}_range"
-                clause     = f"`{column_name}` {exclude} BETWEEN @{param_name}"
+                exclude        = "NOT" if filt.FilterMode == FilterMode.EXCLUDE else ""
+                param_name_min = f"{column_name}_min"
+                param_name_max = f"{column_name}_max"
+                # param_name = f"{column_name}"
+                clause         = f"`{column_name}` {exclude} BETWEEN @{param_name_min} AND @{param_name_max}"
+                # clause         = f"`{column_name}` {exclude} BETWEEN @{param_name}"
                 params = [
-                    bigquery.RangeQueryParameter(name=param_name, range_element_type="TIMESTAMP", start=filt.Min, end=filt.Max)
+                    bigquery.ScalarQueryParameter(name=param_name_min, type_="TIMESTAMP", value=filt.Min),
+                    bigquery.ScalarQueryParameter(name=param_name_max, type_="TIMESTAMP", value=filt.Max)
+                    # bigquery.RangeQueryParameter(name=param_name, range_element_type="TIMESTAMP", start=filt.Min, end=filt.Max)
                 ]
             elif filt.Min:
                 exclude    = "<" if filt.FilterMode == FilterMode.EXCLUDE else ">" # < if we're excluding this min, or > if we're including this min
