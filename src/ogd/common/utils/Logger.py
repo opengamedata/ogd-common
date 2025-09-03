@@ -54,7 +54,7 @@ class Logger:
                 Logger.file_logger.debug("Initialized file logger")
     
     @staticmethod
-    def Log(message:str, level=logging.INFO, depth:int=0, whitespace_adjust:Optional[str]=None) -> None:
+    def Log(message:str, level:int=logging.INFO, depth:int=0, whitespace_adjust:Optional[str]=None) -> None:
         """Function to print a method to both the standard out and file logs.
 
         Useful for "general" errors where you just want to print out the exception from a "backstop" try-catch block.
@@ -108,6 +108,22 @@ class Logger:
                     Logger.std_logger.warning( f"WARNING: {user_indent}{indented_msg}")
                 case logging.ERROR:
                     Logger.std_logger.error(   f"ERROR:   {user_indent}{indented_msg}")
+
+    @staticmethod
+    def debug(message:str, depth:int=0, whitespace_adjust:Optional[str]=None) -> None:
+        Logger.Log(message=message, level=logging.DEBUG, depth=depth, whitespace_adjust=whitespace_adjust)
+
+    @staticmethod
+    def info(message:str, depth:int=0, whitespace_adjust:Optional[str]=None) -> None:
+        Logger.Log(message=message, level=logging.INFO, depth=depth, whitespace_adjust=whitespace_adjust)
+
+    @staticmethod
+    def warning(message:str, depth:int=0, whitespace_adjust:Optional[str]=None) -> None:
+        Logger.Log(message=message, level=logging.WARNING, depth=depth, whitespace_adjust=whitespace_adjust)
+
+    @staticmethod
+    def error(message:str, depth:int=0, whitespace_adjust:Optional[str]=None) -> None:
+        Logger.Log(message=message, level=logging.ERROR, depth=depth, whitespace_adjust=whitespace_adjust)
 
     @staticmethod
     def Print(message:str, level=logging.DEBUG) -> None:
