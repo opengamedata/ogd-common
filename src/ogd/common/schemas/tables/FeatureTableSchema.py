@@ -65,7 +65,7 @@ class FeatureTableSchema(TableSchema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._column_map : FeatureMapSchema = column_map or self._parseColumnMap(unparsed_elements=unparsed_elements)
+        self._column_map : FeatureMapSchema = column_map or self._parseColumnMap(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, columns=columns, other_elements=unparsed_elements)
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -256,7 +256,7 @@ class FeatureTableSchema(TableSchema):
     # *** PRIVATE METHODS ***
 
     @staticmethod
-    def _parseColumnMap(unparsed_elements:Map) -> FeatureMapSchema:
+    def _parseColumnMap(unparsed_elements:Map, schema_name:Optional[str]=None) -> FeatureMapSchema:
         ret_val : FeatureMapSchema
 
         raw_map = TableSchema.ParseElement(
@@ -264,7 +264,8 @@ class FeatureTableSchema(TableSchema):
             valid_keys=["column_map"],
             to_type=dict,
             default_value=None,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if raw_map:
             ret_val = FeatureMapSchema.FromDict(name="ColumnMap", unparsed_elements=raw_map)
