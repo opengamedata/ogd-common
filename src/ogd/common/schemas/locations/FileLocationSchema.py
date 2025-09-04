@@ -181,6 +181,7 @@ class FileLocationSchema(LocationSchema):
 
     @staticmethod
     def _parsePath(unparsed_elements:Map,
+                   schema_name:Optional[str]=None,
                    key_overrides:Optional[Dict[str, str]]=None) -> Optional[Tuple[Path, str]]:
         """Function to parse a full path into a folder and filename
 
@@ -199,7 +200,8 @@ class FileLocationSchema(LocationSchema):
             valid_keys=search_keys,
             to_type=Path,
             default_value=None,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if raw_path:
             ret_val = (raw_path.parent, raw_path.name)
@@ -212,6 +214,7 @@ class FileLocationSchema(LocationSchema):
 
     @staticmethod
     def _parseFolderPath(unparsed_elements:Map,
+                         schema_name:Optional[str]=None,
                          key_overrides:Optional[Dict[str, str]]=None,
                          default_override:Optional["FileLocationSchema"]=None) -> Path:
         default_keys : List[str] = ["folder", "path"]
@@ -223,11 +226,13 @@ class FileLocationSchema(LocationSchema):
             valid_keys=search_keys,
             to_type=Path,
             default_value=default_value,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
     @staticmethod
     def _parseFilename(unparsed_elements:Map,
+                       schema_name:Optional[str]=None,
                        key_overrides:Optional[Dict[str, str]]=None,
                        default_override:Optional["FileLocationSchema"]=None) -> str:
         default_keys : List[str] = ["filename", "file"]
@@ -239,5 +244,6 @@ class FileLocationSchema(LocationSchema):
             valid_keys=search_keys,
             to_type=str,
             default_value=default_value,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )

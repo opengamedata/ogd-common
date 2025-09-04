@@ -41,7 +41,7 @@ class DirectoryLocationSchema(LocationSchema):
         """
         fallbacks : Map = other_elements or {}
 
-        self._folder_path = self._toFolderPath(folder_path=folder_path, fallbacks=fallbacks)
+        self._folder_path = self._toFolderPath(folder_path=folder_path, fallbacks=fallbacks, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -91,7 +91,7 @@ class DirectoryLocationSchema(LocationSchema):
         :return: _description_
         :rtype: DirectoryLocationSchema
         """
-        _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
+        _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
         return DirectoryLocationSchema(name=name, folder_path=_folder_path, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
@@ -105,18 +105,18 @@ class DirectoryLocationSchema(LocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _toFolderPath(folder_path:Optional[Path | str], fallbacks:Map) -> Path:
+    def _toFolderPath(folder_path:Optional[Path | str], fallbacks:Map, schema_name:Optional[str]=None) -> Path:
         ret_val : Path
         if isinstance(folder_path, Path):
             ret_val = folder_path
         elif isinstance(folder_path, str):
             ret_val = Path(folder_path)
         else:
-            ret_val = DirectoryLocationSchema._parseFolderPath(unparsed_elements=fallbacks)
+            ret_val = DirectoryLocationSchema._parseFolderPath(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
-    def _parseFolderPath(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional["DirectoryLocationSchema"]=None) -> Path:
+    def _parseFolderPath(unparsed_elements:Map, schema_name:Optional[str]=None, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional["DirectoryLocationSchema"]=None) -> Path:
         default_keys : List[str] = ["folder", "path"]
         search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
         default_value : Path = default_override.FolderPath if default_override else DirectoryLocationSchema._DEFAULT_PATH
@@ -126,5 +126,6 @@ class DirectoryLocationSchema(LocationSchema):
             valid_keys=search_keys,
             to_type=Path,
             default_value=default_value,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
