@@ -48,8 +48,8 @@ class EventSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._description : str                          = description or self._parseDescription(unparsed_elements=unparsed_elements)
-        self._event_data  : Dict[str, DataElementSchema] = event_data  or self._parseEventDataElements(unparsed_elements=unparsed_elements)
+        self._description : str                          = description or self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_data  : Dict[str, DataElementSchema] = event_data  or self._parseEventDataElements(unparsed_elements=unparsed_elements, schema_name=name)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -127,14 +127,15 @@ class EventSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseEventDataElements(unparsed_elements:Map):
+    def _parseEventDataElements(unparsed_elements:Map, schema_name:Optional[str]=None):
         ret_val : Dict[str, DataElementSchema]
         event_data : Dict[str, Any] = EventSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["event_data"],
             to_type=dict,
             default_value=EventSchema._DEFAULT_EVENT_DATA,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(event_data, dict):
             ret_val = {
@@ -147,13 +148,14 @@ class EventSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseDescription(unparsed_elements:Map):
+    def _parseDescription(unparsed_elements:Map, schema_name:Optional[str]=None):
         return EventSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["description"],
             to_type=str,
             default_value=EventSchema._DEFAULT_DESCRIPTION,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
     # *** PRIVATE METHODS ***
