@@ -72,9 +72,9 @@ class DataTableConfig(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._store_name     : str                       = store_name    or self._parseStoreName(unparsed_elements=unparsed_elements)
+        self._store_name     : str                       = store_name    or self._parseStoreName(unparsed_elements=unparsed_elements, schema_name=name)
         self._store_config   : Optional[DataStoreConfig] = store_config
-        self._schema_name    : str                       = schema_name    or self._parseTableSchemaName(unparsed_elements=unparsed_elements)
+        self._schema_name    : str                       = schema_name    or self._parseTableSchemaName(unparsed_elements=unparsed_elements, schema_name=name)
         self._table_schema   : ts.TableSchema            = table_schema   or TableSchemaFactory.FromFile(filename=self._schema_name)
         self._table_location : DatabaseLocationSchema    = table_location or self._parseTableLocation(unparsed_elements=unparsed_elements)
 
@@ -212,23 +212,25 @@ class DataTableConfig(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseStoreName(unparsed_elements:Map) -> str:
+    def _parseStoreName(unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
         return DataTableConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["source", "source_name", "store", "store_name"],
             to_type=str,
             default_value=DataTableConfig._DEFAULT_STORE_NAME,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseTableSchemaName(unparsed_elements:Map) -> str:
+    def _parseTableSchemaName(unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
         return DataTableConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["table_schema", "schema"],
             to_type=str,
             default_value=DataTableConfig._DEFAULT_TABLE_SCHEMA_NAME,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
     @staticmethod

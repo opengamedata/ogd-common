@@ -52,8 +52,8 @@ class TestConfig(Config):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._verbose       : bool            = verbose       or self._parseVerbose(unparsed_elements=unparsed_elements)
-        self._enabled_tests : Dict[str, bool] = enabled_tests or self._parseEnabledTests(unparsed_elements=unparsed_elements)
+        self._verbose       : bool            = verbose       or self._parseVerbose(unparsed_elements=unparsed_elements, schema_name=name)
+        self._enabled_tests : Dict[str, bool] = enabled_tests or self._parseEnabledTests(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, other_elements=unparsed_elements)
 
     @property
@@ -105,17 +105,18 @@ class TestConfig(Config):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseVerbose(unparsed_elements:Map) -> bool:
+    def _parseVerbose(unparsed_elements:Map, schema_name:Optional[str]=None) -> bool:
         return TestConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["VERBOSE"],
             to_type=bool,
             default_value=TestConfig._DEFAULT_VERBOSE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseEnabledTests(unparsed_elements:Map) -> Dict[str, bool]:
+    def _parseEnabledTests(unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, bool]:
         ret_val : Dict[str, bool]
 
         enabled = TestConfig.ParseElement(
@@ -123,7 +124,8 @@ class TestConfig(Config):
             valid_keys=["ENABLED"],
             to_type=dict,
             default_value=TestConfig._DEFAULT_ENABLED_TESTS,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         ret_val = { str(key) : conversions.ConvertToType(value=val, to_type=bool, name=key) for key, val in enabled.items() }
 
