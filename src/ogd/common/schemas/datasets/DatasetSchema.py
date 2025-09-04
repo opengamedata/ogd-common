@@ -116,7 +116,7 @@ class DatasetSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._key                 : DatasetKey     = key                 or DatasetKey(game_id=game_id, from_date=start_date, to_date=end_date, schema_name=name)
+        self._key                 : DatasetKey     = key                 or DatasetKey(game_id=game_id, from_date=start_date, to_date=end_date)
     # 1. Set dates
         self._date_modified       : date | str     = date_modified       or self._parseDateModified(unparsed_elements=unparsed_elements, schema_name=name)
         self._start_date          : date | str     = start_date          or self._parseStartDate(unparsed_elements=unparsed_elements, schema_name=name)
