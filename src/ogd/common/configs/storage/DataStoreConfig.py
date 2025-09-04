@@ -68,7 +68,7 @@ class DataStoreConfig(Config):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._store_type : str = store_type or self._parseStoreType(unparsed_elements=unparsed_elements)
+        self._store_type : str = store_type or self._parseStoreType(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, other_elements=unparsed_elements)
 
     @property
@@ -92,13 +92,14 @@ class DataStoreConfig(Config):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseStoreType(unparsed_elements:Map) -> str:
+    def _parseStoreType(unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
         return DataStoreConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["SOURCE_TYPE", "DB_TYPE"],
             to_type=str,
             default_value=DataStoreConfig._DEFAULT_TYPE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
     # *** PRIVATE METHODS ***

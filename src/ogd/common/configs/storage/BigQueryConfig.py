@@ -159,7 +159,7 @@ class BigQueryConfig(DataStoreConfig):
         return ret_val
 
     @staticmethod
-    def _parseLocation(unparsed_elements:Map) -> DatabaseLocationSchema:
+    def _parseLocation(unparsed_elements:Map, schema_name:Optional[str]=None) -> DatabaseLocationSchema:
         ret_val : DatabaseLocationSchema
 
         # First check for project ID or dataset ID given directly
@@ -168,7 +168,8 @@ class BigQueryConfig(DataStoreConfig):
             valid_keys=["PROJECT_ID", "DATASET_ID"],
             to_type=str,
             default_value=None,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         # If we found it, use to construct
         if project_id:
@@ -180,7 +181,7 @@ class BigQueryConfig(DataStoreConfig):
         return ret_val
 
     @staticmethod
-    def _parseCredential(unparsed_elements:Map) -> KeyCredential:
+    def _parseCredential(unparsed_elements:Map, schema_name:Optional[str]=None) -> KeyCredential:
         ret_val : KeyCredential
 
         raw_credential = BigQueryConfig.ParseElement(
@@ -188,7 +189,8 @@ class BigQueryConfig(DataStoreConfig):
             valid_keys=["PROJECT_KEY"],
             to_type=[dict, str],
             default_value=BigQueryConfig._DEFAULT_CREDENTIAL,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(raw_credential, dict):
             ret_val = KeyCredential.FromDict(name="KeyCredential", unparsed_elements=raw_credential)

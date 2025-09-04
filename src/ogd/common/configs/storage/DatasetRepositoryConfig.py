@@ -52,8 +52,8 @@ class DatasetRepositoryConfig(DataStoreConfig):
         ):
         fallbacks : Map = other_elements or {}
 
-        self._indexing : RepositoryIndexingConfig           = self._toIndexingConfig(indexing=indexing, fallbacks=fallbacks)
-        self._datasets : Dict[str, DatasetCollectionSchema] = datasets or self._parseDatasets(unparsed_elements=fallbacks)
+        self._indexing : RepositoryIndexingConfig           = self._toIndexingConfig(indexing=indexing, fallbacks=fallbacks, schema_name=name)
+        self._datasets : Dict[str, DatasetCollectionSchema] = datasets or self._parseDatasets(unparsed_elements=fallbacks, schema_name=name)
         super().__init__(name=name, store_type="Repository", other_elements=other_elements)
 
     def __str__(self) -> str:
@@ -141,7 +141,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _toIndexingConfig(indexing:Optional[RepositoryIndexingConfig | Map | Path | str], fallbacks:Map) -> RepositoryIndexingConfig:
+    def _toIndexingConfig(indexing:Optional[RepositoryIndexingConfig | Map | Path | str], fallbacks:Map, schema_name:Optional[str]=None) -> RepositoryIndexingConfig:
         ret_val : RepositoryIndexingConfig
         if isinstance(indexing, RepositoryIndexingConfig):
             ret_val = indexing
@@ -150,11 +150,11 @@ class DatasetRepositoryConfig(DataStoreConfig):
         elif isinstance(indexing, Path) | isinstance(indexing, str):
             ret_val = RepositoryIndexingConfig(name="DatasetRepositoryIndex", local_dir=indexing, remote_url=None, templates_url=None)
         else:
-            ret_val = DatasetRepositoryConfig._parseIndexingConfig(unparsed_elements=fallbacks)
+            ret_val = DatasetRepositoryConfig._parseIndexingConfig(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
-    def _parseIndexingConfig(unparsed_elements:Map) -> RepositoryIndexingConfig:
+    def _parseIndexingConfig(unparsed_elements:Map, schema_name:Optional[str]=None) -> RepositoryIndexingConfig:
         ret_val : RepositoryIndexingConfig
 
         raw_config = DatasetRepositoryConfig.ParseElement(
@@ -162,14 +162,15 @@ class DatasetRepositoryConfig(DataStoreConfig):
             valid_keys=["CONFIG", "INDEXING", "FILE_INDEXING"],
             to_type=dict,
             default_value=None,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         ret_val = RepositoryIndexingConfig.FromDict(name="RepositoryIndex", unparsed_elements=raw_config)
 
         return ret_val
 
     @staticmethod
-    def _parseDatasets(unparsed_elements:Map) -> Dict[str, DatasetCollectionSchema]:
+    def _parseDatasets(unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, DatasetCollectionSchema]:
         ret_val : Dict[str, DatasetCollectionSchema]
 
         _data_elems = DatasetRepositoryConfig.ParseElement(
@@ -177,7 +178,8 @@ class DatasetRepositoryConfig(DataStoreConfig):
             valid_keys=["datasets"],
             to_type=[dict, str],
             default_value=None,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(_data_elems, dict):
             ret_val = {

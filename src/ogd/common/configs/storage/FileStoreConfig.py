@@ -68,7 +68,7 @@ class FileStoreConfig(DataStoreConfig):
             self._location = FileLocationSchema.FromPath(name=f"{name}Location", fullpath=Path(location))
         else:
             self._location = self._parseLocation(unparsed_elements=unparsed_elements)
-        self._credential  : FileCredential     = file_credential or self._parseCredential(unparsed_elements=unparsed_elements)
+        self._credential  : FileCredential     = file_credential or self._parseCredential(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=unparsed_elements)
 
     @property
@@ -158,14 +158,15 @@ class FileStoreConfig(DataStoreConfig):
         return FileLocationSchema.FromDict(name="FileStoreLocation", unparsed_elements=unparsed_elements)
 
     @staticmethod
-    def _parseCredential(unparsed_elements:Map) -> FileCredential:
+    def _parseCredential(unparsed_elements:Map, schema_name:Optional[str]=None) -> FileCredential:
         ret_val : FileCredential
         _cred_elements = FileStoreConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["FILE_CREDENTIAL"],
             to_type=dict,
             default_value=None,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if _cred_elements:
             ret_val = PasswordCredential.FromDict(name="FileStoreCredential", unparsed_elements=_cred_elements)
