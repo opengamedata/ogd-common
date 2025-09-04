@@ -116,7 +116,7 @@ class DatasetSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._key                 : DatasetKey     = key                 or DatasetKey.FromDateRange(game_id=game_id, start_date=start_date, end_date=end_date)
+        self._key                 : DatasetKey     = key                 or DatasetKey(game_id=game_id, from_date=start_date, to_date=end_date)
     # 1. Set dates
         self._date_modified       : date | str     = date_modified       or self._parseDateModified(unparsed_elements=unparsed_elements)
         self._start_date          : date | str     = start_date          or self._parseStartDate(unparsed_elements=unparsed_elements)
@@ -150,7 +150,7 @@ class DatasetSchema(Schema):
         return self._key
     @property
     def DatasetID(self) -> str:
-        return self.Key._original_key
+        return str(self.Key)
 
     @property
     def DateModified(self) -> date | str:
@@ -382,7 +382,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         :return: _description_
         :rtype: DatasetSchema
         """
-        _key                 : DatasetKey     = DatasetKey(raw_key=name)
+        _key                 : DatasetKey     = DatasetKey.FromString(raw_key=name)
 
         return DatasetSchema(name=name, key=_key,
                              game_id=None,
