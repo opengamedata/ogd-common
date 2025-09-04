@@ -82,15 +82,15 @@ class BigQueryInterface(Interface):
             if filters.Sequences.Timestamps.Active and isinstance(filters.Sequences.Timestamps, RangeFilter):
                 suffix : ParamaterizedClause = self._generateSuffixClause(date_filter=filters.Sequences.Timestamps)
                 suffix_clause = f"WHERE {suffix.clause}" if suffix.clause is not None else ""
-            query = textwrap.dedent(f"""\
+            query = f"""\
                 SELECT DISTINCT {id_col}
                 FROM `{self.DBPath}`
                 {suffix_clause}
-            """)
+            """
             cfg = bigquery.QueryJobConfig(query_parameters=suffix.params)
 
             # 2. Actually run the thing
-            Logger.Log(f"Running query for all {mode} ids:\n{query}", logging.DEBUG, depth=3)
+            Logger.Log(f"Running query for all {mode} ids:\n{query}", logging.DEBUG, depth=3, whitespace_adjust="lstrip")
             try:
                 job = self.Connector.Client.query(query, cfg)
                 data = job.result()
@@ -118,7 +118,7 @@ class BigQueryInterface(Interface):
             cfg = bigquery.QueryJobConfig(query_parameters=where_clause.params)
 
             # 2. Actually run the thing
-            Logger.Log(f"Running query for full date range:\n{query}", logging.DEBUG, depth=3)
+            Logger.Log(f"Running query for full date range:\n{query}", logging.DEBUG, depth=3, whitespace_adjust="lstrip")
             try:
                 job = self.Connector.Client.query(query, job_config=cfg)
                 data = list(job.result())
@@ -158,7 +158,7 @@ class BigQueryInterface(Interface):
             cfg = bigquery.QueryJobConfig(query_parameters=where_clause.params)
 
             # 2. Actually run the thing
-            Logger.Log(f"Running query for distinct {mode} versions:\n{query}", logging.DEBUG, depth=3)
+            Logger.Log(f"Running query for distinct {mode} versions:\n{query}", logging.DEBUG, depth=3, whitespace_adjust="lstrip")
             try:
                 job = self.Connector.Client.query(query, job_config=cfg)
                 data = job.result()
@@ -191,7 +191,7 @@ class BigQueryInterface(Interface):
             cfg = bigquery.QueryJobConfig(query_parameters=where_clause.params)
 
             # 2. Actually run the thing
-            Logger.Log(f"Running query for rows from IDs:\n{query}\nWith Params:\n{where_clause.params}", logging.DEBUG, depth=3)
+            Logger.Log(f"Running query for rows from IDs:\n{query}\nWith Params:\n{where_clause.params}", logging.DEBUG, depth=3, whitespace_adjust="lstrip")
             try:
                 job = self.Connector.Client.query(query, job_config=cfg)
                 data = job.result()
