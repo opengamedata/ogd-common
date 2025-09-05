@@ -186,17 +186,6 @@ class TableSchema(Schema):
 
     # *** PUBLIC STATICS ***
 
-    @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Optional[str | Path]=None) -> "TableSchema":
-        ret_val : Schema
-
-        schema_path = schema_path or TableSchema._DEFAULT_SCHEMA_PATH
-        ret_val = cls._fromFile(schema_name=schema_name, schema_path=Path(schema_path))
-        if isinstance(ret_val, TableSchema):
-            return ret_val
-        else:
-            raise ValueError(f"TableSchema's call to _fromFile yielded a Schema of different type ({type(ret_val)})!")
-
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
@@ -284,3 +273,15 @@ class TableSchema(Schema):
             ret_val = TableSchema._DEFAULT_COLUMNS
 
         return ret_val
+
+    @classmethod
+    def _loadDirectories(cls, file_name:str) -> List[str | Path]:
+        """Private function that can be optionally overridden to define additional directories in which cls.Load(...) searches for a file from which to load an instance of the class.
+
+        These extra directories are treated as optional places to search,
+        and so have a lower priority than the main search paths (./, ~/, etc.)
+
+        :return: A list of nonstandard directories in which to search for a file from which to load an instance of the class.
+        :rtype: List[str | Path]
+        """
+        return [cls._DEFAULT_SCHEMA_PATH]
