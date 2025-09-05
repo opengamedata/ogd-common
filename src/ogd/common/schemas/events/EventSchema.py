@@ -48,8 +48,8 @@ class EventSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._description : str                          = description or self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
-        self._event_data  : Dict[str, DataElementSchema] = event_data  or self._parseEventDataElements(unparsed_elements=unparsed_elements, schema_name=name)
+        self._description : str                          = description if description is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_data  : Dict[str, DataElementSchema] = event_data  if event_data  is not None else self._parseEventDataElements(unparsed_elements=unparsed_elements, schema_name=name)
 
         super().__init__(name=name, other_elements=other_elements)
 

@@ -44,8 +44,8 @@ class DatabaseLocationSchema(LocationSchema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._db_name    : str           = database_name or self._parseDatabaseName(unparsed_elements=unparsed_elements, schema_name=name)
-        self._table_name : Optional[str] = table_name    or self._parseTableName(unparsed_elements=unparsed_elements, schema_name=name)
+        self._db_name    : str           = database_name if database_name is not None else self._parseDatabaseName(unparsed_elements=unparsed_elements, schema_name=name)
+        self._table_name : Optional[str] = table_name    if table_name    is not None else self._parseTableName(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
 
     @property

@@ -68,9 +68,9 @@ class MySQLConfig(DataStoreConfig):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._db_location : URLLocationSchema  = db_location   or self._parseLocation(unparsed_elements=unparsed_elements)
-        self._credential  : PasswordCredential = db_credential or self._parseCredential(unparsed_elements=unparsed_elements, schema_name=name)
-        self._ssh_cfg     : SSHConfig          = ssh_cfg       or self._parseSSHConfig(unparsed_elements=unparsed_elements, schema_name=name)
+        self._db_location : URLLocationSchema  = db_location   if db_location   is not None else self._parseLocation(unparsed_elements=unparsed_elements)
+        self._credential  : PasswordCredential = db_credential if db_credential is not None else self._parseCredential(unparsed_elements=unparsed_elements, schema_name=name)
+        self._ssh_cfg     : SSHConfig          = ssh_cfg       if ssh_cfg       is not None else self._parseSSHConfig(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=other_elements)
 
     @property

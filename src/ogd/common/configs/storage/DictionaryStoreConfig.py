@@ -50,7 +50,7 @@ class DictionaryStoreConfig(DataStoreConfig):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._location   = location or DictionaryStoreConfig._DEFAULT_LOCATION
+        self._location   = location if location is not None else DictionaryStoreConfig._DEFAULT_LOCATION
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=unparsed_elements)
 
     @property

@@ -86,17 +86,17 @@ class EventMapSchema(ColumnMapSchema):
 
         super().__init__(name=name, app_id=app_id, user_id=user_id, session_id=session_id,
                          other_elements=unparsed_elements)
-        self._app_version          : ColumnMapElement = app_version          or self._parseAppVersion(unparsed_elements=self._raw_map, schema_name=name)
-        self._app_branch           : ColumnMapElement = app_branch           or self._parseAppBranch(unparsed_elements=self._raw_map, schema_name=name)
-        self._log_version          : ColumnMapElement = log_version          or self._parseLogVersion(unparsed_elements=self._raw_map, schema_name=name)
-        self._timestamp            : ColumnMapElement = timestamp            or self._parseTimestamp(unparsed_elements=unparsed_elements, schema_name=name)
-        self._time_offset          : ColumnMapElement = time_offset          or self._parseTimeoffset(unparsed_elements=unparsed_elements, schema_name=name)
-        self._event_sequence_index : ColumnMapElement = event_sequence_index or self._parseSequenceIndex(unparsed_elements=unparsed_elements, schema_name=name)
-        self._event_name           : ColumnMapElement = event_name           or self._parseEventName(unparsed_elements=unparsed_elements, schema_name=name)
-        self._event_source         : ColumnMapElement = event_source         or self._parseEventSource(unparsed_elements=unparsed_elements, schema_name=name)
-        self._event_data           : ColumnMapElement = event_data           or self._parseEventData(unparsed_elements=unparsed_elements, schema_name=name)
-        self._game_state           : ColumnMapElement = game_state           or self._parseGameState(unparsed_elements=unparsed_elements, schema_name=name)
-        self._user_data            : ColumnMapElement = user_data            or self._parseUserData(unparsed_elements=unparsed_elements, schema_name=name)
+        self._app_version          : ColumnMapElement = app_version          if app_version          is not None else self._parseAppVersion(unparsed_elements=self._raw_map, schema_name=name)
+        self._app_branch           : ColumnMapElement = app_branch           if app_branch           is not None else self._parseAppBranch(unparsed_elements=self._raw_map, schema_name=name)
+        self._log_version          : ColumnMapElement = log_version          if log_version          is not None else self._parseLogVersion(unparsed_elements=self._raw_map, schema_name=name)
+        self._timestamp            : ColumnMapElement = timestamp            if timestamp            is not None else self._parseTimestamp(unparsed_elements=unparsed_elements, schema_name=name)
+        self._time_offset          : ColumnMapElement = time_offset          if time_offset          is not None else self._parseTimeoffset(unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_sequence_index : ColumnMapElement = event_sequence_index if event_sequence_index is not None else self._parseSequenceIndex(unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_name           : ColumnMapElement = event_name           if event_name           is not None else self._parseEventName(unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_source         : ColumnMapElement = event_source         if event_source         is not None else self._parseEventSource(unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_data           : ColumnMapElement = event_data           if event_data           is not None else self._parseEventData(unparsed_elements=unparsed_elements, schema_name=name)
+        self._game_state           : ColumnMapElement = game_state           if game_state           is not None else self._parseGameState(unparsed_elements=unparsed_elements, schema_name=name)
+        self._user_data            : ColumnMapElement = user_data            if user_data            is not None else self._parseUserData(unparsed_elements=unparsed_elements, schema_name=name)
 
     def __eq__(self, other:"EventMapSchema"):
         if not isinstance(other, EventMapSchema):

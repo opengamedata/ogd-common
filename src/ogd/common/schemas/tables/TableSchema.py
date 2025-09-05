@@ -164,7 +164,7 @@ class TableSchema(Schema):
 
         # declare and initialize vars
         # self._schema            : Optional[Dict[str, Any]] = all_elements
-        self._table_columns : List[ColumnSchema] = columns    or self._parseColumns(unparsed_elements=unparsed_elements, schema_name=name)
+        self._table_columns : List[ColumnSchema] = columns if columns is not None else self._parseColumns(unparsed_elements=unparsed_elements, schema_name=name)
 
         # after loading the file, take the stuff we need and store.
         super().__init__(name=name, other_elements=other_elements)

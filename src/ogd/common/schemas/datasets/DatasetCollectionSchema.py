@@ -52,7 +52,7 @@ class DatasetCollectionSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._datasets : Dict[str, DatasetSchema] = datasets or self._parseDatasets(unparsed_elements=unparsed_elements)
+        self._datasets : Dict[str, DatasetSchema] = datasets if datasets is not None else self._parseDatasets(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements={})
 

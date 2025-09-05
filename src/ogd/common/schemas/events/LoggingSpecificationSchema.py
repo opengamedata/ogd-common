@@ -94,11 +94,11 @@ class LoggingSpecificationSchema(Schema):
 
     # 1. define instance vars
         self._game_id     : str                  = game_id
-        self._enum_defs   : Dict[str, List[str]] = enum_defs       or self._parseEnumDefs(unparsed_elements=unparsed_elements, schema_name=name)
-        self._game_state  : Map                  = game_state      or self._parseGameState(unparsed_elements=unparsed_elements, schema_name=name)
-        self._user_data   : Map                  = user_data       or self._parseUserData(unparsed_elements=unparsed_elements, schema_name=name)
-        self._event_list  : List[EventSchema]    = event_list      or self._parseEventList(unparsed_elements=unparsed_elements, schema_name=name)
-        self._log_version : int                  = logging_version or self._parseLogVersion(unparsed_elements=unparsed_elements, schema_name=name)
+        self._enum_defs   : Dict[str, List[str]] = enum_defs       if enum_defs       is not None else self._parseEnumDefs(unparsed_elements=unparsed_elements, schema_name=name)
+        self._game_state  : Map                  = game_state      if game_state      is not None else self._parseGameState(unparsed_elements=unparsed_elements, schema_name=name)
+        self._user_data   : Map                  = user_data       if user_data       is not None else self._parseUserData(unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_list  : List[EventSchema]    = event_list      if event_list      is not None else self._parseEventList(unparsed_elements=unparsed_elements, schema_name=name)
+        self._log_version : int                  = logging_version if logging_version is not None else self._parseLogVersion(unparsed_elements=unparsed_elements, schema_name=name)
 
         super().__init__(name=name, other_elements=other_elements)
 

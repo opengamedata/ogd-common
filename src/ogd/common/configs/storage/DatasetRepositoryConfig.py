@@ -53,7 +53,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         fallbacks : Map = other_elements or {}
 
         self._indexing : RepositoryIndexingConfig           = self._toIndexingConfig(indexing=indexing, fallbacks=fallbacks, schema_name=name)
-        self._datasets : Dict[str, DatasetCollectionSchema] = datasets or self._parseDatasets(unparsed_elements=fallbacks, schema_name=name)
+        self._datasets : Dict[str, DatasetCollectionSchema] = datasets if datasets is not None else self._parseDatasets(unparsed_elements=fallbacks, schema_name=name)
         super().__init__(name=name, store_type="Repository", other_elements=other_elements)
 
     def __str__(self) -> str:
