@@ -1,5 +1,6 @@
 # import standard libraries
 import abc
+import inspect
 import logging
 from pathlib import Path
 from shutil import copyfile
@@ -97,7 +98,29 @@ class Schema(abc.ABC):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Path | str, search_templates:bool=False) -> Self:
+    def Load(cls, schema_name:str, search_path:Optional[Path | str]=None):
+        class_dir = Path(inspect.getfile(cls)).parent
+        raw_search_directories = ["./", "./.ogd", Path.home(), Path.home() / ".ogd", class_dir, class_dir / "presets"] + cls._loadDirectories(schema_name=schema_name)
+        search_directories = [Path(dir) for dir in raw_search_directories]
+        if search_path:
+            search_directories.insert(0, Path(search_path))
+
+        # 1. First, check all valid directories for the file.
+        for directory in search_directories:
+            if (Path(directory) / schema_name).is_file():
+                return cls.FromFile(file_name=schema_name, directory=directory)
+        # 2. If we didn't find it, repeat search, but looking for templates
+        for directory in search_directories:
+            if (directory / schema_name).is_file():
+                return cls._schemaFromTemplate(template_name=schema_name, directory=directory)
+            elif (directory / "templates" / schema_name).is_file():
+                return cls._schemaFromTemplate(template_name=schema_name, directory=directory / "templates")
+        # 3. If we still didn't find it, notify user, and use class default instead.
+        Logger.Log(f"Unable to load {cls.__name__} at {Path(search_path or "./") / schema_name}, and did not find {schema_name} or {f'{schema_name}.template'} in any standard search directory!  Using default {cls.__name__} instead", logging.WARNING, depth=1)
+        return cls.Default()
+
+    @classmethod
+    def FromFile(cls, file_name:str, directory:Path | str) -> Self:
         """_summary_
 
         :param schema_name: _description_
@@ -109,7 +132,7 @@ class Schema(abc.ABC):
         :return: _description_
         :rtype: _type_
         """
-        return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
+        return cls._fromFile(file_name=file_name, directory=directory)
 
     @classmethod
     def FromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> Self:
@@ -175,10 +198,11 @@ class Schema(abc.ABC):
     # *** PRIVATE STATICS ***
 
     @classmethod
-    def _fromFile(cls, schema_name:str, schema_path:Path | str, search_templates:bool=False) -> Self:
+    def _fromFile(cls, file_name:str, directory:Path | str) -> Self:
         ret_val : Schema
-        schema_file_name : str = f"{schema_name}.json" if not schema_name.lower().endswith(".json") else schema_name
-        _schema_path = Path(schema_path)
+
+        schema_file_name : str = f"{file_name}.json" if not file_name.lower().endswith(".json") else file_name
+        _schema_path = Path(directory)
             
         # 2. try to actually load the contents of the file.
         try:
@@ -186,46 +210,60 @@ class Schema(abc.ABC):
         except (ModuleNotFoundError, FileNotFoundError) as err:
             # Case 1: Didn't find module, nothing else to try
             if isinstance(err, ModuleNotFoundError):
-                Logger.Log(f"Unable to load schema at {_schema_path / schema_file_name}, module ({schema_path}) does not exist! Using default schema instead", logging.ERROR, depth=1)
+                Logger.Log(f"Unable to load {cls.__name__} at {_schema_path / schema_file_name}, module ({directory}) does not exist! Using default {cls.__name__} instead", logging.ERROR, depth=1)
                 ret_val = cls.Default()
             # Case 2a: Didn't find file, search for template
-            elif search_templates:
-                Logger.Log(f"Unable to load schema at {_schema_path / schema_file_name}, {schema_name} does not exist! Trying to load from json template instead...", logging.WARNING, depth=1)
-                ret_val = cls._schemaFromTemplate(schema_path=_schema_path, schema_name=schema_file_name)
+            # elif search_templates:
+            #     Logger.Log(f"Unable to load schema at {_schema_path / schema_file_name}, {schema_name} does not exist! Trying to load from json template instead...", logging.WARNING, depth=1)
+            #     ret_val = cls._schemaFromTemplate(directory=_schema_path, template_name=schema_file_name)
             # Case 2b: Didn't find file, don't search for template
             else:
-                Logger.Log(f"Unable to load schema at {_schema_path / schema_file_name}, {schema_file_name} does not exist! Using default schema instead", logging.ERROR, depth=1)
+                Logger.Log(f"Unable to load {cls.__name__} at {_schema_path / schema_file_name}, {schema_file_name} does not exist! Using default {cls.__name__} instead", logging.ERROR, depth=1)
                 ret_val = cls.Default()
         else:
             if schema_contents is None:
-                Logger.Log(f"Could not load schema at {_schema_path / schema_file_name}, the file was empty! Using default schema instead", logging.ERROR, depth=1)
+                Logger.Log(f"Could not load {cls.__name__} at {_schema_path / schema_file_name}, the file was empty! Using default {cls.__name__} instead", logging.ERROR, depth=1)
                 ret_val = cls.Default()
             else:
-                ret_val = cls._fromDict(name=schema_name, unparsed_elements=schema_contents)
+                ret_val = cls._fromDict(name=file_name, unparsed_elements=schema_contents)
 
         return ret_val
 
     @classmethod
-    def _schemaFromTemplate(cls, schema_path:Path, schema_name:str) -> Self:
-        template_name = schema_name + ".template"
+    def _schemaFromTemplate(cls, template_name:str, directory:Path) -> Self:
+        if not template_name.endswith(".template"):
+            template_name = f"{template_name}.template"
         try:
-            template_contents = fileio.loadJSONFile(filename=template_name, path=schema_path, autocorrect_extension=False)
+            template_contents = fileio.loadJSONFile(filename=template_name, path=directory, autocorrect_extension=False)
         except FileNotFoundError:
-            _msg = f"Unable to load schema template at {schema_path / template_name}, {template_name} does not exist!."
+            _msg = f"Unable to load {cls.__name__} template at {directory / template_name}, {template_name} does not exist!."
             Logger.Log(_msg, logging.WARN, depth=1)
             print(f"(via print) {_msg}.")
         else:
             if template_contents is not None:
-                Logger.Log(f"Successfully loaded {schema_name} from template.", logging.INFO, depth=1)
-                Logger.Log(f"Trying to copy {schema_name} from template, for future use...", logging.DEBUG, depth=2)
-                template = schema_path / template_name
+                Logger.Log(f"Successfully loaded {template_name} from template.", logging.INFO, depth=1)
+                Logger.Log(f"Trying to copy {template_name} from template, for future use...", logging.DEBUG, depth=2)
+                template = directory / template_name
                 try:
-                    copyfile(template, schema_path / schema_name)
+                    copyfile(template, directory / template_name)
                 except Exception as cp_err:
-                    _msg = f"Could not make a copy of {schema_name} from template, a {type(cp_err)} error occurred:\n{cp_err}"
+                    _msg = f"Could not make a copy of {template_name} from template, a {type(cp_err)} error occurred:\n{cp_err}"
                     Logger.Log(         _msg, logging.WARN, depth=1)
                     print(f"(via print) {_msg}")
                 else:
-                    Logger.Log(f"Successfully copied {schema_name} from template.", logging.DEBUG, depth=2)
-        return cls._fromDict(name=schema_name, unparsed_elements=template_contents)
+                    Logger.Log(f"Successfully copied {template_name} from template.", logging.DEBUG, depth=2)
+        return cls._fromDict(name=template_name, unparsed_elements=template_contents)
+
+    @classmethod
+    def _loadDirectories(cls, schema_name:str) -> List[str | Path]:
+        """Private function that can be optionally overridden to define additional directories in which cls.Load(...) searches for a file from which to load an instance of the class.
+
+        These extra directories are treated as optional places to search,
+        and so have a lower priority than the main search paths (./, ~/, etc.)
+
+        :return: A list of nonstandard directories in which to search for a file from which to load an instance of the class.
+        :rtype: List[str | Path]
+        """
+        return []
+
     # *** PRIVATE METHODS ***

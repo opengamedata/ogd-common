@@ -39,7 +39,7 @@ class test_BigQueryInterface(TestCase):
         }
         store_config = BigQueryConfig.FromDict(name="OPENGAMEDATA_BQ", unparsed_elements=_elems)
 
-        table_schema = EventTableSchema.FromFile(schema_name="OPENGAMEDATA_BIGQUERY.json", schema_path="./tests/config/")
+        table_schema = EventTableSchema.FromFile(file_name="OPENGAMEDATA_BIGQUERY.json", directory="./tests/config/")
 
         _elems = { "source":"OPENGAMEDATA_BQ", "database":"aqualab", "table":"aqualab_daily", "schema":"OPENGAMEDATA_BIGQUERY" }
         config = DataTableConfig.FromDict(name="BQStoreConfig", unparsed_elements=_elems)

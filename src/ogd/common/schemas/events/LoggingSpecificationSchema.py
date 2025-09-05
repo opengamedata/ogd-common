@@ -223,31 +223,6 @@ class LoggingSpecificationSchema(Schema):
 
     # *** PUBLIC STATICS ***
 
-    @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Optional[Path] = None, search_templates:bool=True) -> "LoggingSpecificationSchema":
-        """Function to get a LoggingSpecificationSchema from a file
-
-        :param game_id: _description_
-        :type game_id: str
-        :param schema_path: _description_, defaults to None
-        :type schema_path: Optional[Path], optional
-        :param search_templates: _description_, defaults to True
-        :type search_templates: bool, optional
-        :raises ValueError: _description_
-        :return: _description_
-        :rtype: LoggingSpecificationSchema
-        """
-        ret_val : Schema
-
-        game_id = schema_name.split(".")[0]
-        # Give schema_path a default, don't think we can use game_id to construct it directly in the function header (so do it here if None)
-        schema_path = schema_path or cls._DEFAULT_GAME_FOLDER / game_id / "schemas"
-        ret_val = cls._fromFile(schema_name=game_id, schema_path=schema_path, search_templates=search_templates)
-        if isinstance(ret_val, LoggingSpecificationSchema):
-            return ret_val
-        else:
-            raise ValueError("The result of the class _fromFile function was not a LoggingSpecificationSchema!")
-
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
@@ -347,5 +322,17 @@ class LoggingSpecificationSchema(Schema):
             schema_name=schema_name
         )
 
+    @classmethod
+    def _loadDirectories(cls, schema_name:str) -> List[str | Path]:
+        """Private function that can be optionally overridden to define additional directories in which cls.Load(...) searches for a file from which to load an instance of the class.
+
+        These extra directories are treated as optional places to search,
+        and so have a lower priority than the main search paths (./, ~/, etc.)
+
+        :return: A list of nonstandard directories in which to search for a file from which to load an instance of the class.
+        :rtype: List[str | Path]
+        """
+        game_id = schema_name.split(".")[0] if schema_name else "UNKNOWN_GAME"
+        return [cls._DEFAULT_GAME_FOLDER / game_id / "schemas"]
 
     # *** PRIVATE METHODS ***
