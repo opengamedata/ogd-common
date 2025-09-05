@@ -65,7 +65,7 @@ class FeatureTableSchema(TableSchema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._column_map : FeatureMapSchema = column_map or self._parseColumnMap(unparsed_elements=unparsed_elements, schema_name=name)
+        self._column_map : FeatureMapSchema = column_map if column_map is not None else self._parseColumnMap(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, columns=columns, other_elements=unparsed_elements)
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***

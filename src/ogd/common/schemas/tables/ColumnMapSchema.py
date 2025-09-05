@@ -47,9 +47,9 @@ class ColumnMapSchema(Schema):
         # declare and initialize vars
         self._raw_map : Map = other_elements or {}
 
-        self._app_id     : ColumnMapElement = app_id     or self._parseAppID(unparsed_elements=self._raw_map, schema_name=name)
-        self._user_id    : ColumnMapElement = user_id    or self._parseUserID(unparsed_elements=self._raw_map, schema_name=name)
-        self._session_id : ColumnMapElement = session_id or self._parseSessionID(unparsed_elements=self._raw_map, schema_name=name)
+        self._app_id     : ColumnMapElement = app_id     if app_id     is not None else self._parseAppID(unparsed_elements=self._raw_map, schema_name=name)
+        self._user_id    : ColumnMapElement = user_id    if user_id    is not None else self._parseUserID(unparsed_elements=self._raw_map, schema_name=name)
+        self._session_id : ColumnMapElement = session_id if session_id is not None else self._parseSessionID(unparsed_elements=self._raw_map, schema_name=name)
 
         # after loading the file, take the stuff we need and store.
         super().__init__(name=name, other_elements=other_elements)

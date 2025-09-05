@@ -63,8 +63,8 @@ class FileLocationSchema(LocationSchema):
                 self._filename    = parsed_path[1]
         # 3. If there wasn't a full path, then we move on to just parse folder and filename from dict directly.
             else:
-                self._folder_path = folder_path or self._parsePath(unparsed_elements=unparsed_elements, schema_name=name)
-                self._filename    = filename    or self._parseFilename(unparsed_elements=unparsed_elements, schema_name=name)
+                self._folder_path = folder_path if folder_path is not None else self._parseFolderPath(unparsed_elements=unparsed_elements, schema_name=name)
+                self._filename    = filename    if filename    is not None else self._parseFilename(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
 
     @property
