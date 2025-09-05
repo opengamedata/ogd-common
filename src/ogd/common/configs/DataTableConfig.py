@@ -72,11 +72,11 @@ class DataTableConfig(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._store_name     : str                       = store_name    or self._parseStoreName(unparsed_elements=unparsed_elements, schema_name=name)
+        self._store_name     : str                       = store_name     if store_name     is not None else self._parseStoreName(unparsed_elements=unparsed_elements, schema_name=name)
         self._store_config   : Optional[DataStoreConfig] = store_config
-        self._schema_name    : str                       = schema_name    or self._parseTableSchemaName(unparsed_elements=unparsed_elements, schema_name=name)
-        self._table_schema   : ts.TableSchema            = table_schema   or TableSchemaFactory.FromFile(filename=self._schema_name)
-        self._table_location : DatabaseLocationSchema    = table_location or self._parseTableLocation(unparsed_elements=unparsed_elements)
+        self._schema_name    : str                       = schema_name    if schema_name    is not None else self._parseTableSchemaName(unparsed_elements=unparsed_elements, schema_name=name)
+        self._table_schema   : ts.TableSchema            = table_schema   if table_schema   is not None else TableSchemaFactory.FromFile(filename=self._schema_name)
+        self._table_location : DatabaseLocationSchema    = table_location if table_location is not None else self._parseTableLocation(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 

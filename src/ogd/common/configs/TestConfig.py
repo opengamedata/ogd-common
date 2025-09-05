@@ -52,8 +52,8 @@ class TestConfig(Config):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._verbose       : bool            = verbose       or self._parseVerbose(unparsed_elements=unparsed_elements, schema_name=name)
-        self._enabled_tests : Dict[str, bool] = enabled_tests or self._parseEnabledTests(unparsed_elements=unparsed_elements, schema_name=name)
+        self._verbose       : bool            = verbose       if verbose       is not None else self._parseVerbose(unparsed_elements=unparsed_elements, schema_name=name)
+        self._enabled_tests : Dict[str, bool] = enabled_tests if enabled_tests is not None else self._parseEnabledTests(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, other_elements=unparsed_elements)
 
     @property

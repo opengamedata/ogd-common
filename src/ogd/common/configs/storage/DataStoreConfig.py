@@ -68,7 +68,7 @@ class DataStoreConfig(Config):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._store_type : str = store_type or self._parseStoreType(unparsed_elements=unparsed_elements, schema_name=name)
+        self._store_type : str = store_type if store_type is not None else self._parseStoreType(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, other_elements=unparsed_elements)
 
     @property

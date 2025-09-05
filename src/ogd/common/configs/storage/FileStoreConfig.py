@@ -57,19 +57,11 @@ class FileStoreConfig(DataStoreConfig):
         :param other_elements: _description_, defaults to None
         :type other_elements: Optional[Map], optional
         """
-        unparsed_elements : Map = other_elements or {}
+        fallbacks : Map = other_elements or {}
 
-        self._location    : FileLocationSchema
-        if isinstance(location, FileLocationSchema):
-            self._location = location
-        elif isinstance(location, Path):
-            self._location = FileLocationSchema.FromPath(name=f"{name}Location", fullpath=location)
-        elif isinstance(location, str):
-            self._location = FileLocationSchema.FromPath(name=f"{name}Location", fullpath=Path(location))
-        else:
-            self._location = self._parseLocation(unparsed_elements=unparsed_elements)
-        self._credential  : FileCredential     = file_credential or self._parseCredential(unparsed_elements=unparsed_elements, schema_name=name)
-        super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=unparsed_elements)
+        self._location    : FileLocationSchema = self._toLocation(location=location, fallbacks=fallbacks, schema_name=f"{name}Location")
+        self._credential  : FileCredential     = file_credential if file_credential is not None else self._parseCredential(unparsed_elements=fallbacks, schema_name=name)
+        super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=fallbacks)
 
     @property
     def Filename(self) -> str:
@@ -154,8 +146,23 @@ class FileStoreConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseLocation(unparsed_elements:Map) -> FileLocationSchema:
-        return FileLocationSchema.FromDict(name="FileStoreLocation", unparsed_elements=unparsed_elements)
+    def _toLocation(location:Optional[FileLocationSchema | Path | str], fallbacks:Map, schema_name:Optional[str]=None) -> FileLocationSchema:
+        ret_val : FileLocationSchema
+
+        if isinstance(location, FileLocationSchema):
+            ret_val = location
+        elif isinstance(location, Path):
+            ret_val = FileLocationSchema.FromPath(name=schema_name or "FileStoreLocation", fullpath=location)
+        elif isinstance(location, str):
+            ret_val = FileLocationSchema.FromPath(name=schema_name or "FileStoreLocation", fullpath=Path(location))
+        else:
+            ret_val = FileStoreConfig._parseLocation(unparsed_elements=fallbacks)
+
+        return ret_val
+
+    @staticmethod
+    def _parseLocation(unparsed_elements:Map, schema_name:Optional[str]=None) -> FileLocationSchema:
+        return FileLocationSchema.FromDict(name=schema_name or "FileStoreLocation", unparsed_elements=unparsed_elements)
 
     @staticmethod
     def _parseCredential(unparsed_elements:Map, schema_name:Optional[str]=None) -> FileCredential:

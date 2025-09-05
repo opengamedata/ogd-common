@@ -37,8 +37,8 @@ class PasswordCredential(CredentialConfig):
         :type other_elements: Optional[Map], optional
         """
         fallbacks : Map = other_elements or {}
-        self._user = username or self._parseUser(unparsed_elements=fallbacks, schema_name=name)
-        self._pass = password or self._parsePass(unparsed_elements=fallbacks, schema_name=name)
+        self._user = username if username is not None else self._parseUser(unparsed_elements=fallbacks, schema_name=name)
+        self._pass = password if username is not None else self._parsePass(unparsed_elements=fallbacks, schema_name=name)
         super().__init__(name=name, other_elements=fallbacks)
 
     @property
