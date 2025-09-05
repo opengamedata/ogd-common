@@ -98,29 +98,29 @@ class Schema(abc.ABC):
     # *** PUBLIC STATICS ***
 
     @classmethod
-    def Load(cls, file_name:str, search_path:Optional[Path | str]=None):
+    def Load(cls, schema_name:str, search_path:Optional[Path | str]=None):
         class_dir = Path(inspect.getfile(cls)).parent
-        raw_search_directories = ["./", "./.ogd", Path.home(), Path.home() / ".ogd", class_dir, class_dir / "presets"] + cls._loadDirectories(file_name=file_name)
+        raw_search_directories = ["./", "./.ogd", Path.home(), Path.home() / ".ogd", class_dir, class_dir / "presets"] + cls._loadDirectories(file_name=schema_name)
         search_directories = [Path(dir) for dir in raw_search_directories]
         if search_path:
             search_directories.insert(0, Path(search_path))
 
         # 1. First, check all valid directories for the file.
         for directory in search_directories:
-            if (Path(directory) / file_name).is_file():
-                return cls.FromFile(schema_name=file_name, schema_path=directory)
+            if (Path(directory) / schema_name).is_file():
+                return cls.FromFile(file_name=schema_name, directory=directory)
         # 2. If we didn't find it, repeat search, but looking for templates
         for directory in search_directories:
-            if (directory / file_name).is_file():
-                return cls._schemaFromTemplate(template_name=file_name, directory=directory)
-            elif (directory / "templates" / file_name).is_file():
-                return cls._schemaFromTemplate(template_name=file_name, directory=directory / "templates")
+            if (directory / schema_name).is_file():
+                return cls._schemaFromTemplate(template_name=schema_name, directory=directory)
+            elif (directory / "templates" / schema_name).is_file():
+                return cls._schemaFromTemplate(template_name=schema_name, directory=directory / "templates")
         # 3. If we still didn't find it, notify user, and use class default instead.
-        Logger.Log(f"Unable to load {cls.__name__} at {Path(search_path or "./") / file_name}, and did not find {file_name} or {f'{file_name}.template'} in any standard search directory!  Using default {cls.__name__} instead", logging.WARNING, depth=1)
+        Logger.Log(f"Unable to load {cls.__name__} at {Path(search_path or "./") / schema_name}, and did not find {schema_name} or {f'{schema_name}.template'} in any standard search directory!  Using default {cls.__name__} instead", logging.WARNING, depth=1)
         return cls.Default()
 
     @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Path | str, search_templates:bool=False) -> Self:
+    def FromFile(cls, file_name:str, directory:Path | str) -> Self:
         """_summary_
 
         :param schema_name: _description_
@@ -132,7 +132,7 @@ class Schema(abc.ABC):
         :return: _description_
         :rtype: _type_
         """
-        return cls._fromFile(schema_name=schema_name, schema_path=schema_path)
+        return cls._fromFile(file_name=file_name, directory=directory)
 
     @classmethod
     def FromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> Self:
@@ -198,10 +198,11 @@ class Schema(abc.ABC):
     # *** PRIVATE STATICS ***
 
     @classmethod
-    def _fromFile(cls, schema_name:str, schema_path:Path | str) -> Self:
+    def _fromFile(cls, file_name:str, directory:Path | str) -> Self:
         ret_val : Schema
-        schema_file_name : str = f"{schema_name}.json" if not schema_name.lower().endswith(".json") else schema_name
-        _schema_path = Path(schema_path)
+
+        schema_file_name : str = f"{file_name}.json" if not file_name.lower().endswith(".json") else file_name
+        _schema_path = Path(directory)
             
         # 2. try to actually load the contents of the file.
         try:
@@ -209,7 +210,7 @@ class Schema(abc.ABC):
         except (ModuleNotFoundError, FileNotFoundError) as err:
             # Case 1: Didn't find module, nothing else to try
             if isinstance(err, ModuleNotFoundError):
-                Logger.Log(f"Unable to load {cls.__name__} at {_schema_path / schema_file_name}, module ({schema_path}) does not exist! Using default {cls.__name__} instead", logging.ERROR, depth=1)
+                Logger.Log(f"Unable to load {cls.__name__} at {_schema_path / schema_file_name}, module ({directory}) does not exist! Using default {cls.__name__} instead", logging.ERROR, depth=1)
                 ret_val = cls.Default()
             # Case 2a: Didn't find file, search for template
             # elif search_templates:
@@ -224,7 +225,7 @@ class Schema(abc.ABC):
                 Logger.Log(f"Could not load {cls.__name__} at {_schema_path / schema_file_name}, the file was empty! Using default {cls.__name__} instead", logging.ERROR, depth=1)
                 ret_val = cls.Default()
             else:
-                ret_val = cls._fromDict(name=schema_name, unparsed_elements=schema_contents)
+                ret_val = cls._fromDict(name=file_name, unparsed_elements=schema_contents)
 
         return ret_val
 
