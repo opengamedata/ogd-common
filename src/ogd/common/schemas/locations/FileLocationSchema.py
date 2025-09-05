@@ -57,14 +57,14 @@ class FileLocationSchema(LocationSchema):
             self._filename    = filename
         # 2. Otherwise, try to get as full path as first try. If it return something, then we've got what we need.
         else:
-            parsed_path = self._parsePath(unparsed_elements=unparsed_elements)
+            parsed_path = self._parsePath(unparsed_elements=unparsed_elements, schema_name=name)
             if parsed_path:
                 self._folder_path = parsed_path[0]
                 self._filename    = parsed_path[1]
         # 3. If there wasn't a full path, then we move on to just parse folder and filename from dict directly.
             else:
-                self._folder_path = folder_path or self._parsePath(unparsed_elements=unparsed_elements)
-                self._filename    = filename    or self._parseFilename(unparsed_elements=unparsed_elements)
+                self._folder_path = folder_path or self._parsePath(unparsed_elements=unparsed_elements, schema_name=name)
+                self._filename    = filename    or self._parseFilename(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -141,15 +141,15 @@ class FileLocationSchema(LocationSchema):
         _filename    : str
 
         # 2. Otherwise, try to get as full path as first try. If it return something, then we've got what we need.
-        parsed_path = cls._parsePath(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+        parsed_path = cls._parsePath(unparsed_elements=unparsed_elements, key_overrides=key_overrides, schema_name=name)
         _used = {"path"}
         if parsed_path:
             _folder_path = parsed_path[0]
             _filename    = parsed_path[1]
         # 3. If there wasn't a full path, then we move on to just parse folder and filename from dict directly.
         else:
-            _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
-            _filename    = cls._parseFilename(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
+            _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override, schema_name=name)
+            _filename    = cls._parseFilename(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override, schema_name=name)
             # if we didn't find a folder, but the file has a '/' in it, we should be able to get file separate from path.
             if _folder_path is None and _filename is not None and "/" in _filename:
                 _full_path = Path(_filename)
