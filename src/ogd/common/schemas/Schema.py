@@ -100,7 +100,7 @@ class Schema(abc.ABC):
     @classmethod
     def Load(cls, schema_name:str, search_path:Optional[Path | str]=None):
         class_dir = Path(inspect.getfile(cls)).parent
-        raw_search_directories = ["./", "./.ogd", Path.home(), Path.home() / ".ogd", class_dir, class_dir / "presets"] + cls._loadDirectories(file_name=schema_name)
+        raw_search_directories = ["./", "./.ogd", Path.home(), Path.home() / ".ogd", class_dir, class_dir / "presets"] + cls._loadDirectories(schema_name=schema_name)
         search_directories = [Path(dir) for dir in raw_search_directories]
         if search_path:
             search_directories.insert(0, Path(search_path))
@@ -255,7 +255,7 @@ class Schema(abc.ABC):
         return cls._fromDict(name=template_name, unparsed_elements=template_contents)
 
     @classmethod
-    def _loadDirectories(cls, file_name:str) -> List[str | Path]:
+    def _loadDirectories(cls, schema_name:str) -> List[str | Path]:
         """Private function that can be optionally overridden to define additional directories in which cls.Load(...) searches for a file from which to load an instance of the class.
 
         These extra directories are treated as optional places to search,
