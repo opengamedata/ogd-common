@@ -164,7 +164,7 @@ class TableSchema(Schema):
 
         # declare and initialize vars
         # self._schema            : Optional[Dict[str, Any]] = all_elements
-        self._table_columns : List[ColumnSchema] = columns    or self._parseColumns(unparsed_elements=unparsed_elements)
+        self._table_columns : List[ColumnSchema] = columns    or self._parseColumns(unparsed_elements=unparsed_elements, schema_name=name)
 
         # after loading the file, take the stuff we need and store.
         super().__init__(name=name, other_elements=other_elements)
@@ -267,7 +267,7 @@ class TableSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseColumns(unparsed_elements:Map) -> List[ColumnSchema]:
+    def _parseColumns(unparsed_elements:Map, schema_name:Optional[str]=None) -> List[ColumnSchema]:
         ret_val : List[ColumnSchema]
 
         _column_json_list = TableSchema.ParseElement(
@@ -275,7 +275,8 @@ class TableSchema(Schema):
             valid_keys=["columns"],
             to_type=list,
             default_value=None,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if _column_json_list:
             ret_val = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), unparsed_elements=column) for column in _column_json_list]

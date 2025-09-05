@@ -69,8 +69,8 @@ class MySQLConfig(DataStoreConfig):
         unparsed_elements : Map = other_elements or {}
 
         self._db_location : URLLocationSchema  = db_location   or self._parseLocation(unparsed_elements=unparsed_elements)
-        self._credential  : PasswordCredential = db_credential or self._parseCredential(unparsed_elements=unparsed_elements)
-        self._ssh_cfg     : SSHConfig          = ssh_cfg       or self._parseSSHConfig(unparsed_elements=unparsed_elements)
+        self._credential  : PasswordCredential = db_credential or self._parseCredential(unparsed_elements=unparsed_elements, schema_name=name)
+        self._ssh_cfg     : SSHConfig          = ssh_cfg       or self._parseSSHConfig(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=other_elements)
 
     @property
@@ -172,7 +172,7 @@ class MySQLConfig(DataStoreConfig):
         )
 
     @staticmethod
-    def _parseCredential(unparsed_elements:Map) -> PasswordCredential:
+    def _parseCredential(unparsed_elements:Map, schema_name:Optional[str]=None) -> PasswordCredential:
         ret_val : PasswordCredential
 
         _cred_elements = MySQLConfig.ParseElement(
@@ -180,7 +180,8 @@ class MySQLConfig(DataStoreConfig):
             valid_keys=["DB_CONFIG"],
             to_type=dict,
             default_value=None,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if _cred_elements:
             ret_val = PasswordCredential.FromDict(name="MySQLCredential", unparsed_elements=_cred_elements)
@@ -191,7 +192,7 @@ class MySQLConfig(DataStoreConfig):
         return ret_val
 
     @staticmethod
-    def _parseSSHConfig(unparsed_elements:Map) -> SSHConfig:
+    def _parseSSHConfig(unparsed_elements:Map, schema_name:Optional[str]=None) -> SSHConfig:
         ret_val : SSHConfig
 
         _ssh_elements = MySQLConfig.ParseElement(
@@ -199,7 +200,8 @@ class MySQLConfig(DataStoreConfig):
             valid_keys=["SSH_CONFIG"],
             to_type=dict,
             default_value=None,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if _ssh_elements:
             ret_val = SSHConfig.FromDict(name="MySQLSSHConfig", unparsed_elements=_ssh_elements)

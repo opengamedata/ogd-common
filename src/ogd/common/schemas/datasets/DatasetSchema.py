@@ -116,28 +116,28 @@ class DatasetSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._key                 : DatasetKey     = key                 or DatasetKey.FromDateRange(game_id=game_id, start_date=start_date, end_date=end_date)
+        self._key                 : DatasetKey     = key                 or DatasetKey(game_id=game_id, from_date=start_date, to_date=end_date)
     # 1. Set dates
-        self._date_modified       : date | str     = date_modified       or self._parseDateModified(unparsed_elements=unparsed_elements)
-        self._start_date          : date | str     = start_date          or self._parseStartDate(unparsed_elements=unparsed_elements)
-        self._end_date            : date | str     = end_date            or self._parseEndDate(unparsed_elements=unparsed_elements)
+        self._date_modified       : date | str     = date_modified       or self._parseDateModified(unparsed_elements=unparsed_elements, schema_name=name)
+        self._start_date          : date | str     = start_date          or self._parseStartDate(unparsed_elements=unparsed_elements, schema_name=name)
+        self._end_date            : date | str     = end_date            or self._parseEndDate(unparsed_elements=unparsed_elements, schema_name=name)
     # 2. Set metadata
-        self._ogd_revision        : str            = ogd_revision        or self._parseOGDRevision(unparsed_elements=unparsed_elements)
-        self._filters             : Dict[str, str | Filter] = filters    or self._parseFilters(unparsed_elements=unparsed_elements)
-        self._session_ct          : Optional[int]  = session_ct          or self._parseSessionCount(unparsed_elements=unparsed_elements)
-        self._player_ct           : Optional[int]  = player_ct           or self._parsePlayerCount(unparsed_elements=unparsed_elements)
+        self._ogd_revision        : str            = ogd_revision        or self._parseOGDRevision(unparsed_elements=unparsed_elements, schema_name=name)
+        self._filters             : Dict[str, str | Filter] = filters    or self._parseFilters(unparsed_elements=unparsed_elements, schema_name=name)
+        self._session_ct          : Optional[int]  = session_ct          or self._parseSessionCount(unparsed_elements=unparsed_elements, schema_name=name)
+        self._player_ct           : Optional[int]  = player_ct           or self._parsePlayerCount(unparsed_elements=unparsed_elements, schema_name=name)
     # 3. Set file/template paths
-        self._all_events_file       : Optional[Path] = events_file         or self._parseAllEventsFile(unparsed_elements=unparsed_elements)
-        self._game_events_file      : Optional[Path] = raw_file            or self._parseGameEventsFile(unparsed_elements=unparsed_elements)
-        self._events_template       : Optional[Path] = events_template     or self._parseEventsTemplate(unparsed_elements=unparsed_elements)
-        self._all_features_file     : Optional[Path] = all_feats_file      or self._parseAllFeaturesFile(unparsed_elements=unparsed_elements)
-        self._all_features_template : Optional[Path] = all_feats_template  or self._parseAllFeaturesTemplate(unparsed_elements=unparsed_elements)
-        self._sessions_file         : Optional[Path] = sessions_file       or self._parseSessionsFile(unparsed_elements=unparsed_elements)
-        self._sessions_template     : Optional[Path] = sessions_template   or self._parseSessionsTemplate(unparsed_elements=unparsed_elements)
-        self._players_file          : Optional[Path] = players_file        or self._parsePlayersFile(unparsed_elements=unparsed_elements)
-        self._players_template      : Optional[Path] = players_template    or self._parsePlayersTemplate(unparsed_elements=unparsed_elements)
-        self._population_file       : Optional[Path] = population_file     or self._parsePopulationFile(unparsed_elements=unparsed_elements)
-        self._population_template   : Optional[Path] = population_template or self._parsePopulationTemplate(unparsed_elements=unparsed_elements)
+        self._all_events_file       : Optional[Path] = events_file         or self._parseAllEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
+        self._game_events_file      : Optional[Path] = raw_file            or self._parseGameEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
+        self._events_template       : Optional[Path] = events_template     or self._parseEventsTemplate(unparsed_elements=unparsed_elements, schema_name=name)
+        self._all_features_file     : Optional[Path] = all_feats_file      or self._parseAllFeaturesFile(unparsed_elements=unparsed_elements, schema_name=name)
+        self._all_features_template : Optional[Path] = all_feats_template  or self._parseAllFeaturesTemplate(unparsed_elements=unparsed_elements, schema_name=name)
+        self._sessions_file         : Optional[Path] = sessions_file       or self._parseSessionsFile(unparsed_elements=unparsed_elements, schema_name=name)
+        self._sessions_template     : Optional[Path] = sessions_template   or self._parseSessionsTemplate(unparsed_elements=unparsed_elements, schema_name=name)
+        self._players_file          : Optional[Path] = players_file        or self._parsePlayersFile(unparsed_elements=unparsed_elements, schema_name=name)
+        self._players_template      : Optional[Path] = players_template    or self._parsePlayersTemplate(unparsed_elements=unparsed_elements, schema_name=name)
+        self._population_file       : Optional[Path] = population_file     or self._parsePopulationFile(unparsed_elements=unparsed_elements, schema_name=name)
+        self._population_template   : Optional[Path] = population_template or self._parsePopulationTemplate(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
 
     def __str__(self) -> str:
@@ -150,7 +150,7 @@ class DatasetSchema(Schema):
         return self._key
     @property
     def DatasetID(self) -> str:
-        return self.Key._original_key
+        return str(self.Key)
 
     @property
     def DateModified(self) -> date | str:
@@ -382,7 +382,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         :return: _description_
         :rtype: DatasetSchema
         """
-        _key                 : DatasetKey     = DatasetKey(raw_key=name)
+        _key                 : DatasetKey     = DatasetKey.FromString(raw_key=name)
 
         return DatasetSchema(name=name, key=_key,
                              game_id=None,
@@ -450,7 +450,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseDateModified(unparsed_elements:Map) -> date | str:
+    def _parseDateModified(unparsed_elements:Map, schema_name:Optional[str]=None) -> date | str:
         """Function to obtain the modified date from a dictionary.
 
         :param unparsed_elements: _description_
@@ -464,7 +464,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             valid_keys=["date_modified"],
             to_type=datetime,
             default_value=DatasetSchema._DEFAULT_DATE_MODIFIED,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(date_modified, datetime):
             ret_val = date_modified.date()
@@ -486,7 +487,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseStartDate(unparsed_elements:Map) -> date | str:
+    def _parseStartDate(unparsed_elements:Map, schema_name:Optional[str]=None) -> date | str:
         """Function to obtain the start date from a dictionary.
 
         :param unparsed_elements: _description_
@@ -500,7 +501,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             valid_keys=["start_date"],
             to_type=datetime,
             default_value=DatasetSchema._DEFAULT_START_DATE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
         if isinstance(start_date, datetime):
@@ -523,7 +525,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseEndDate(unparsed_elements:Map) -> date | str:
+    def _parseEndDate(unparsed_elements:Map, schema_name:Optional[str]=None) -> date | str:
         """Function to obtain the end date from a dictionary.
 
         :param unparsed_elements: _description_
@@ -537,7 +539,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             valid_keys=["end_date"],
             to_type=datetime,
             default_value=DatasetSchema._DEFAULT_END_DATE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
         if isinstance(end_date, datetime):
@@ -560,47 +563,51 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseOGDRevision(unparsed_elements:Map) -> str:
+    def _parseOGDRevision(unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
         return DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["ogd_revision"],
             to_type=str,
             default_value=DatasetSchema._DEFAULT_OGD_REVISION,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseSessionCount(unparsed_elements:Map) -> Optional[int]:
+    def _parseSessionCount(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[int]:
         return DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["sessions"],
             to_type=int,
             default_value=DatasetSchema._DEFAULT_SESSION_COUNT,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parsePlayerCount(unparsed_elements:Map) -> Optional[int]:
+    def _parsePlayerCount(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[int]:
         return DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["players"],
             to_type=int,
             default_value=DatasetSchema._DEFAULT_PLAYER_COUNT,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseFilters(unparsed_elements:Map) -> Dict[str, Filter | str]:
+    def _parseFilters(unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, Filter | str]:
         return DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["filters"],
             to_type=dict,
             default_value=DatasetSchema._DEFAULT_FILTERS,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseGameEventsFile(unparsed_elements:Map) -> Optional[Path]:
+    def _parseGameEventsFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
         ret_val : Optional[Path]
 
         raw_val : Path | str = DatasetSchema.ParseElement(
@@ -608,7 +615,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             valid_keys=["events_file"],
             to_type=[Path, str],
             default_value=DatasetSchema._DEFAULT_RAW_FILE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(raw_val, Path):
             ret_val = raw_val
@@ -621,7 +629,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseAllEventsFile(unparsed_elements:Map) -> Optional[Path]:
+    def _parseAllEventsFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
         ret_val : Optional[Path]
 
         evt_val : Path | str = DatasetSchema.ParseElement(
@@ -629,7 +637,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             valid_keys=["all_events_file"],
             to_type=[Path, str],
             default_value=DatasetSchema._DEFAULT_EVENTS_FILE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(evt_val, Path):
             ret_val = evt_val
@@ -642,7 +651,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseAllFeaturesFile(unparsed_elements:Map) -> Optional[Path]:
+    def _parseAllFeaturesFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
         ret_val : Optional[Path]
 
         feats_val : Path | str = DatasetSchema.ParseElement(
@@ -650,7 +659,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             valid_keys=["all_features_file", "features_file"],
             to_type=[Path, str],
             default_value=DatasetSchema._DEFAULT_ALL_FEATS_FILE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(feats_val, Path):
             ret_val = feats_val
@@ -663,7 +673,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseSessionsFile(unparsed_elements:Map) -> Optional[Path]:
+    def _parseSessionsFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
         ret_val : Optional[Path]
 
         sess_val : Path | str = DatasetSchema.ParseElement(
@@ -671,7 +681,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             valid_keys=["sessions_file"],
             to_type=[Path, str],
             default_value=DatasetSchema._DEFAULT_SESSIONS_FILE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(sess_val, Path):
             ret_val = sess_val
@@ -684,7 +695,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parsePlayersFile(unparsed_elements:Map) -> Optional[Path]:
+    def _parsePlayersFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
         ret_val : Optional[Path]
 
         play_val : Path | str = DatasetSchema.ParseElement(
@@ -692,7 +703,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             valid_keys=["players_file"],
             to_type=[Path, str],
             default_value=DatasetSchema._DEFAULT_PLAYERS_FILE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(play_val, Path):
             ret_val = play_val
@@ -705,7 +717,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parsePopulationFile(unparsed_elements:Map) -> Optional[Path]:
+    def _parsePopulationFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
         ret_val : Optional[Path]
 
         pop_val : Path | str = DatasetSchema.ParseElement(
@@ -713,7 +725,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             valid_keys=["population_file"],
             to_type=[Path, str],
             default_value=DatasetSchema._DEFAULT_POPULATION_FILE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(pop_val, Path):
             ret_val = pop_val
@@ -727,7 +740,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
 
     @staticmethod
-    def _parseEventsTemplate(unparsed_elements:Map) -> Optional[Path]:
+    def _parseEventsTemplate(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
         ret_val : Optional[Path]
 
         events_tplate : Path | str = DatasetSchema.ParseElement(
@@ -735,7 +748,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             valid_keys=["events_template"],
             to_type=[Path, str],
             default_value=DatasetSchema._DEFAULT_EVENTS_TEMPLATE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(events_tplate, Path):
             ret_val = events_tplate
@@ -748,7 +762,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseAllFeaturesTemplate(unparsed_elements:Map) -> Optional[Path]:
+    def _parseAllFeaturesTemplate(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
         ret_val : Optional[Path]
 
         all_feats_tplate : Path | str = DatasetSchema.ParseElement(
@@ -756,7 +770,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             valid_keys=["all_features_template", "features_template"],
             to_type=[Path, str],
             default_value=DatasetSchema._DEFAULT_ALL_FEATS_TEMPLATE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(all_feats_tplate, Path):
             ret_val = all_feats_tplate
@@ -769,7 +784,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseSessionsTemplate(unparsed_elements:Map) -> Optional[Path]:
+    def _parseSessionsTemplate(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
         ret_val : Optional[Path]
 
         sessions_tplate : Path | str = DatasetSchema.ParseElement(
@@ -777,7 +792,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             valid_keys=["sessions_template"],
             to_type=[Path, str],
             default_value=DatasetSchema._DEFAULT_SESSIONS_TEMPLATE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(sessions_tplate, Path):
             ret_val = sessions_tplate
@@ -790,7 +806,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parsePlayersTemplate(unparsed_elements:Map) -> Optional[Path]:
+    def _parsePlayersTemplate(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
         ret_val : Optional[Path]
 
         players_tplate : Path | str = DatasetSchema.ParseElement(
@@ -798,7 +814,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             valid_keys=["players_template"],
             to_type=[Path, str],
             default_value=DatasetSchema._DEFAULT_PLAYERS_TEMPLATE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(players_tplate, Path):
             ret_val = players_tplate
@@ -811,7 +828,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parsePopulationTemplate(unparsed_elements:Map) -> Optional[Path]:
+    def _parsePopulationTemplate(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
         ret_val : Optional[Path]
 
         pop_tplate : Path | str = DatasetSchema.ParseElement(
@@ -819,7 +836,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             valid_keys=["population_template"],
             to_type=[Path, str],
             default_value=DatasetSchema._DEFAULT_POPULATION_TEMPLATE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(pop_tplate, Path):
             ret_val = pop_tplate

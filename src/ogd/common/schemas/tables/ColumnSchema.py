@@ -40,9 +40,9 @@ class ColumnSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._readable    : str = readable    or self._parseReadable(unparsed_elements=unparsed_elements)
-        self._value_type  : str = value_type  or self._parseValueType(unparsed_elements=unparsed_elements)
-        self._description : str = description or self._parseDescription(unparsed_elements=unparsed_elements)
+        self._readable    : str = readable    or self._parseReadable(unparsed_elements=unparsed_elements, schema_name=name)
+        self._value_type  : str = value_type  or self._parseValueType(unparsed_elements=unparsed_elements, schema_name=name)
+        self._description : str = description or self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -126,37 +126,41 @@ class ColumnSchema(Schema):
             valid_keys=["name"],
             to_type=str,
             default_value=name,
-            remove_target=True
+            remove_target=True,
+            schema_name=name
         )
     
     @staticmethod
-    def _parseReadable(unparsed_elements:Map):
+    def _parseReadable(unparsed_elements:Map, schema_name:Optional[str]=None):
         return ColumnSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["readable", "human_readable"],
             to_type=str,
             default_value=ColumnSchema._DEFAULT_READABLE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
     
     @staticmethod
-    def _parseDescription(unparsed_elements:Map):
+    def _parseDescription(unparsed_elements:Map, schema_name:Optional[str]=None):
         return ColumnSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["description"],
             to_type=str,
             default_value=ColumnSchema._DEFAULT_DESCRIPTION,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
     
     @staticmethod
-    def _parseValueType(unparsed_elements:Map):
+    def _parseValueType(unparsed_elements:Map, schema_name:Optional[str]=None):
         return ColumnSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["type"],
             to_type=str,
             default_value=ColumnSchema._DEFAULT_VALUE_TYPE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
     # *** PRIVATE METHODS ***

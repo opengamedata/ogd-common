@@ -94,11 +94,11 @@ class LoggingSpecificationSchema(Schema):
 
     # 1. define instance vars
         self._game_id     : str                  = game_id
-        self._enum_defs   : Dict[str, List[str]] = enum_defs       or self._parseEnumDefs(unparsed_elements=unparsed_elements)
-        self._game_state  : Map                  = game_state      or self._parseGameState(unparsed_elements=unparsed_elements)
-        self._user_data   : Map                  = user_data       or self._parseUserData(unparsed_elements=unparsed_elements)
-        self._event_list  : List[EventSchema]    = event_list      or self._parseEventList(unparsed_elements=unparsed_elements)
-        self._log_version : int                  = logging_version or self._parseLogVersion(unparsed_elements=unparsed_elements)
+        self._enum_defs   : Dict[str, List[str]] = enum_defs       or self._parseEnumDefs(unparsed_elements=unparsed_elements, schema_name=name)
+        self._game_state  : Map                  = game_state      or self._parseGameState(unparsed_elements=unparsed_elements, schema_name=name)
+        self._user_data   : Map                  = user_data       or self._parseUserData(unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_list  : List[EventSchema]    = event_list      or self._parseEventList(unparsed_elements=unparsed_elements, schema_name=name)
+        self._log_version : int                  = logging_version or self._parseLogVersion(unparsed_elements=unparsed_elements, schema_name=name)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -253,7 +253,7 @@ class LoggingSpecificationSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseEnumDefs(unparsed_elements:Map) -> Dict[str, List[str]]:
+    def _parseEnumDefs(unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, List[str]]:
         """_summary_
 
         TODO : Fully parse this, rather than just getting dictionary.
@@ -270,7 +270,8 @@ class LoggingSpecificationSchema(Schema):
             valid_keys=["enums"],
             to_type=dict,
             default_value=LoggingSpecificationSchema._DEFAULT_ENUMS,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(enums_list, dict):
             ret_val = enums_list
@@ -280,7 +281,7 @@ class LoggingSpecificationSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseGameState(unparsed_elements:Map) -> Dict[str, DataElementSchema]:
+    def _parseGameState(unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, DataElementSchema]:
         ret_val : Dict[str, DataElementSchema]
 
         game_state = LoggingSpecificationSchema.ParseElement(
@@ -288,7 +289,8 @@ class LoggingSpecificationSchema(Schema):
             valid_keys=["game_state"],
             to_type=dict,
             default_value=LoggingSpecificationSchema._DEFAULT_GAME_STATE,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         ret_val = {
             name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
@@ -298,7 +300,7 @@ class LoggingSpecificationSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseUserData(unparsed_elements:Map) -> Dict[str, DataElementSchema]:
+    def _parseUserData(unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, DataElementSchema]:
         ret_val : Dict[str, DataElementSchema]
 
         user_data = LoggingSpecificationSchema.ParseElement(
@@ -306,7 +308,8 @@ class LoggingSpecificationSchema(Schema):
             valid_keys=["user_data"],
             to_type=dict,
             default_value=LoggingSpecificationSchema._DEFAULT_USER_DATA,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         ret_val = {
             name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
@@ -316,7 +319,7 @@ class LoggingSpecificationSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseEventList(unparsed_elements:Map) -> List[EventSchema]:
+    def _parseEventList(unparsed_elements:Map, schema_name:Optional[str]=None) -> List[EventSchema]:
         ret_val : List[EventSchema]
 
         events_list = LoggingSpecificationSchema.ParseElement(
@@ -324,7 +327,8 @@ class LoggingSpecificationSchema(Schema):
             valid_keys=["events"],
             to_type=dict,
             default_value=LoggingSpecificationSchema._DEFAULT_EVENT_LIST,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         ret_val = [
             EventSchema.FromDict(name=key, unparsed_elements=val) for key,val in events_list.items()
@@ -333,13 +337,14 @@ class LoggingSpecificationSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseLogVersion(unparsed_elements:Map) -> int:
+    def _parseLogVersion(unparsed_elements:Map, schema_name:Optional[str]=None) -> int:
         return LoggingSpecificationSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["logging_version", "log_version"],
             to_type=int,
             default_value=LoggingSpecificationSchema._DEFAULT_LOG_VERSION,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
 
