@@ -116,28 +116,28 @@ class DatasetSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._key                 : DatasetKey     = key                 or DatasetKey(game_id=game_id, from_date=start_date, to_date=end_date)
+        self._key                 : DatasetKey     = key               if key is not None else DatasetKey(game_id=game_id, from_date=start_date, to_date=end_date)
     # 1. Set dates
-        self._date_modified       : date | str     = date_modified       or self._parseDateModified(unparsed_elements=unparsed_elements, schema_name=name)
-        self._start_date          : date | str     = start_date          or self._parseStartDate(unparsed_elements=unparsed_elements, schema_name=name)
-        self._end_date            : date | str     = end_date            or self._parseEndDate(unparsed_elements=unparsed_elements, schema_name=name)
+        self._date_modified       : date | str     = date_modified    if date_modified is not None else self._parseDateModified(unparsed_elements=unparsed_elements, schema_name=name)
+        self._start_date          : date | str     = start_date       if start_date    is not None else self._parseStartDate(unparsed_elements=unparsed_elements, schema_name=name)
+        self._end_date            : date | str     = end_date         if end_date      is not None else self._parseEndDate(unparsed_elements=unparsed_elements, schema_name=name)
     # 2. Set metadata
-        self._ogd_revision        : str            = ogd_revision        or self._parseOGDRevision(unparsed_elements=unparsed_elements, schema_name=name)
-        self._filters             : Dict[str, str | Filter] = filters    or self._parseFilters(unparsed_elements=unparsed_elements, schema_name=name)
-        self._session_ct          : Optional[int]  = session_ct          or self._parseSessionCount(unparsed_elements=unparsed_elements, schema_name=name)
-        self._player_ct           : Optional[int]  = player_ct           or self._parsePlayerCount(unparsed_elements=unparsed_elements, schema_name=name)
+        self._ogd_revision        : str            = ogd_revision     if ogd_revision is not None else self._parseOGDRevision(unparsed_elements=unparsed_elements, schema_name=name)
+        self._filters             : Dict[str, str | Filter] = filters if filters      is not None else self._parseFilters(unparsed_elements=unparsed_elements, schema_name=name)
+        self._session_ct          : Optional[int]  = session_ct       if session_ct   is not None else self._parseSessionCount(unparsed_elements=unparsed_elements, schema_name=name)
+        self._player_ct           : Optional[int]  = player_ct        if player_ct    is not None else self._parsePlayerCount(unparsed_elements=unparsed_elements, schema_name=name)
     # 3. Set file/template paths
-        self._all_events_file       : Optional[Path] = events_file         or self._parseAllEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._game_events_file      : Optional[Path] = raw_file            or self._parseGameEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._events_template       : Optional[Path] = events_template     or self._parseEventsTemplate(unparsed_elements=unparsed_elements, schema_name=name)
-        self._all_features_file     : Optional[Path] = all_feats_file      or self._parseAllFeaturesFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._all_features_template : Optional[Path] = all_feats_template  or self._parseAllFeaturesTemplate(unparsed_elements=unparsed_elements, schema_name=name)
-        self._sessions_file         : Optional[Path] = sessions_file       or self._parseSessionsFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._sessions_template     : Optional[Path] = sessions_template   or self._parseSessionsTemplate(unparsed_elements=unparsed_elements, schema_name=name)
-        self._players_file          : Optional[Path] = players_file        or self._parsePlayersFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._players_template      : Optional[Path] = players_template    or self._parsePlayersTemplate(unparsed_elements=unparsed_elements, schema_name=name)
-        self._population_file       : Optional[Path] = population_file     or self._parsePopulationFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._population_template   : Optional[Path] = population_template or self._parsePopulationTemplate(unparsed_elements=unparsed_elements, schema_name=name)
+        self._all_events_file       : Optional[Path] = events_file         if events_file         is not None else self._parseAllEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
+        self._game_events_file      : Optional[Path] = raw_file            if raw_file            is not None else self._parseGameEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
+        self._events_template       : Optional[Path] = events_template     if events_template     is not None else self._parseEventsTemplate(unparsed_elements=unparsed_elements, schema_name=name)
+        self._all_features_file     : Optional[Path] = all_feats_file      if all_feats_file      is not None else self._parseAllFeaturesFile(unparsed_elements=unparsed_elements, schema_name=name)
+        self._all_features_template : Optional[Path] = all_feats_template  if all_feats_template  is not None else self._parseAllFeaturesTemplate(unparsed_elements=unparsed_elements, schema_name=name)
+        self._sessions_file         : Optional[Path] = sessions_file       if sessions_file       is not None else self._parseSessionsFile(unparsed_elements=unparsed_elements, schema_name=name)
+        self._sessions_template     : Optional[Path] = sessions_template   if sessions_template   is not None else self._parseSessionsTemplate(unparsed_elements=unparsed_elements, schema_name=name)
+        self._players_file          : Optional[Path] = players_file        if players_file        is not None else self._parsePlayersFile(unparsed_elements=unparsed_elements, schema_name=name)
+        self._players_template      : Optional[Path] = players_template    if players_template    is not None else self._parsePlayersTemplate(unparsed_elements=unparsed_elements, schema_name=name)
+        self._population_file       : Optional[Path] = population_file     if population_file     is not None else self._parsePopulationFile(unparsed_elements=unparsed_elements, schema_name=name)
+        self._population_template   : Optional[Path] = population_template if population_template is not None else self._parsePopulationTemplate(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
 
     def __str__(self) -> str:

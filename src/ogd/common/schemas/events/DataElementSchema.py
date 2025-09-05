@@ -50,9 +50,9 @@ class DataElementSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._type        : str                      = element_type or self._parseElementType(unparsed_elements=unparsed_elements, schema_name=name)
-        self._description : str                      = description  or self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
-        self._details     : Optional[Dict[str, str]] = details      or self._parseDetails(unparsed_elements=unparsed_elements, schema_name=name)
+        self._type        : str                      = element_type if element_type is not None else self._parseElementType(unparsed_elements=unparsed_elements, schema_name=name)
+        self._description : str                      = description  if description  is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
+        self._details     : Optional[Dict[str, str]] = details      if details      is not None else self._parseDetails(unparsed_elements=unparsed_elements, schema_name=name)
 
         super().__init__(name=name, other_elements=other_elements)
 
