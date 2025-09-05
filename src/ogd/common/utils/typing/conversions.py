@@ -90,7 +90,10 @@ def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed 
                 ret_val = ToFloat(name=name, value=value)
             case 'PATH' | pathlib.Path:
                 ret_val = ToPath(name=name, value=value)
-            case 'DATETIME' | datetime.datetime | datetime.date:
+            case 'DATE' | datetime.date:
+                raw_dt  = ToDatetime(name=name, value=value)
+                ret_val = raw_dt.date() if raw_dt is not None else None
+            case 'DATETIME' | datetime.datetime:
                 ret_val = ToDatetime(name=name, value=value)
             case 'TIMEDELTA' | datetime.timedelta:
                 ret_val = ToTimedelta(name=name, value=value)
@@ -624,6 +627,9 @@ def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element") -> A
                 ret_val = ToFloat(name=name, value=value)
             case 'PATH' | pathlib.Path:
                 ret_val = ToPath(name=name, value=value)
+            case 'DATE' | datetime.date:
+                raw_dt  = ToDatetime(name=name, value=value)
+                ret_val = raw_dt.date() if raw_dt is not None else None
             case 'DATETIME' | datetime.datetime:
                 ret_val = ToDatetime(name=name, value=value)
             case 'TIMEDELTA' | datetime.timedelta:
