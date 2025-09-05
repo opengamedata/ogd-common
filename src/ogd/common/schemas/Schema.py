@@ -100,7 +100,8 @@ class Schema(abc.ABC):
     @classmethod
     def Load(cls, file_name:str, search_path:Optional[Path | str]=None):
         class_dir = Path(inspect.getfile(cls)).parent
-        search_directories = [Path(x) for x in ["./", "./.ogd", Path.home(), Path.home() / ".ogd", class_dir, class_dir / "presets"]]
+        raw_search_directories = ["./", "./.ogd", Path.home(), Path.home() / ".ogd", class_dir, class_dir / "presets"] + cls._loadDirectories()
+        search_directories = [Path(dir) for dir in raw_search_directories]
         if search_path:
             search_directories.insert(0, Path(search_path))
 
@@ -116,7 +117,7 @@ class Schema(abc.ABC):
                 return cls._schemaFromTemplate(template_name=file_name, directory=directory / "templates")
         # 3. If we still didn't find it, notify user, and use class default instead.
         Logger.Log(f"Unable to load {cls.__name__} at {Path(search_path or "./") / file_name}, and did not find {file_name} or {f'{file_name}.template'} in any standard search directory!  Using default {cls.__name__} instead", logging.WARNING, depth=1)
-        ret_val = cls.Default()
+        return cls.Default()
 
     @classmethod
     def FromFile(cls, schema_name:str, schema_path:Path | str, search_templates:bool=False) -> Self:
@@ -234,7 +235,7 @@ class Schema(abc.ABC):
         try:
             template_contents = fileio.loadJSONFile(filename=template_name, path=directory, autocorrect_extension=False)
         except FileNotFoundError:
-            _msg = f"Unable to load schema template at {directory / template_name}, {template_name} does not exist!."
+            _msg = f"Unable to load {cls.__name__} template at {directory / template_name}, {template_name} does not exist!."
             Logger.Log(_msg, logging.WARN, depth=1)
             print(f"(via print) {_msg}.")
         else:
@@ -251,4 +252,17 @@ class Schema(abc.ABC):
                 else:
                     Logger.Log(f"Successfully copied {template_name} from template.", logging.DEBUG, depth=2)
         return cls._fromDict(name=template_name, unparsed_elements=template_contents)
+
+    @classmethod
+    def _loadDirectories(cls) -> List[str | Path]:
+        """Private function that can be optionally overridden to define additional directories in which cls.Load(...) searches for a file from which to load an instance of the class.
+
+        These extra directories are treated as optional places to search,
+        and so have a lower priority than the main search paths (./, ~/, etc.)
+
+        :return: A list of nonstandard directories in which to search for a file from which to load an instance of the class.
+        :rtype: List[str | Path]
+        """
+        return []
+
     # *** PRIVATE METHODS ***
