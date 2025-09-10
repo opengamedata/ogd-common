@@ -99,22 +99,26 @@ class Schema(abc.ABC):
 
     @classmethod
     def Load(cls, schema_name:str, search_path:Optional[Path | str]=None):
+        schema_file_name : str = f"{schema_name}.json" if not schema_name.lower().endswith(".json") else schema_name
+
         class_dir = Path(inspect.getfile(cls)).parent
         raw_search_directories = ["./", "./.ogd", Path.home(), Path.home() / ".ogd", class_dir, class_dir / "presets"] + cls._loadDirectories(schema_name=schema_name)
         search_directories = [Path(dir) for dir in raw_search_directories]
+
         if search_path:
             search_directories.insert(0, Path(search_path))
 
         # 1. First, check all valid directories for the file.
         for directory in search_directories:
-            if (Path(directory) / schema_name).is_file():
-                return cls.FromFile(file_name=schema_name, directory=directory)
+            if (Path(directory) / schema_file_name).is_file():
+                return cls.FromFile(file_name=schema_file_name, directory=directory)
         # 2. If we didn't find it, repeat search, but looking for templates
         for directory in search_directories:
-            if (directory / schema_name).is_file():
-                return cls._schemaFromTemplate(template_name=schema_name, directory=directory)
-            elif (directory / "templates" / schema_name).is_file():
-                return cls._schemaFromTemplate(template_name=schema_name, directory=directory / "templates")
+            schema_template_name = f"{schema_file_name}.template"
+            if (directory / schema_template_name).is_file():
+                return cls._schemaFromTemplate(template_name=schema_template_name, directory=directory)
+            elif (directory / "templates" / schema_template_name).is_file():
+                return cls._schemaFromTemplate(template_name=schema_template_name, directory=directory / "templates")
         # 3. If we still didn't find it, notify user, and use class default instead.
         Logger.Log(f"Unable to load {cls.__name__} at {Path(search_path or "./") / schema_name}, and did not find {schema_name} or {f'{schema_name}.template'} in any standard search directory!  Using default {cls.__name__} instead", logging.WARNING, depth=1)
         return cls.Default()
