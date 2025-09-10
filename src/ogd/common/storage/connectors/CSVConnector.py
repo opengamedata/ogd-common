@@ -99,7 +99,8 @@ class CSVConnector(StorageConnector):
             f.close()
 
         self._secondary_files[mode.name] = None
-        self._with_secondary_files.remove(mode)
+        if mode in self._with_secondary_files:
+            self._with_secondary_files.remove(mode)
 
     # *** PROPERTIES ***
 
