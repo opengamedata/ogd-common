@@ -45,7 +45,7 @@ class URLLocationSchema(LocationSchema):
         """
         fallbacks : Map = other_elements or {}
 
-        self._url = self._toURL(url=url, fallbacks=fallbacks)
+        self._url = self._toURL(url=url, fallbacks=fallbacks, schema_name=name)
         super().__init__(name=name, other_elements=fallbacks)
 
     @property
@@ -68,7 +68,7 @@ class URLLocationSchema(LocationSchema):
 
     @property
     def Location(self) -> str:
-        _port = f":{self.Port}" if self.Port else ""
+        # _port = f":{self.Port}" if self.Port else ""
         return urlunparse(self._url)
 
     @property
@@ -104,10 +104,10 @@ class URLLocationSchema(LocationSchema):
         :rtype: URLLocationSchema
         """
         # 1. First, we try to get as a URL from dict as first try. If it returns something, then we've got it.
-        url = cls._parseURL(unparsed_elements=unparsed_elements, key_overrides=key_overrides)
+        url = cls._parseURL(unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides)
         _used = {"url"}
         if not url:
-            url = cls._parseSplitURL(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
+            url = cls._parseSplitURL(unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
             _used = _used.union({"host", "port", "path"})
 
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
@@ -125,18 +125,19 @@ class URLLocationSchema(LocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _toURL(url:Optional[ParseResult | str], fallbacks:Map) -> ParseResult:
+    def _toURL(url:Optional[ParseResult | str], fallbacks:Map, schema_name:Optional[str]=None) -> ParseResult:
         ret_val : ParseResult
         if isinstance(url, ParseResult):
             ret_val = url
         elif isinstance(url, str):
             ret_val = urlparse(url=url)
         else:
-            ret_val = URLLocationSchema._parseURL(unparsed_elements=fallbacks) or URLLocationSchema._parseSplitURL(unparsed_elements=fallbacks)
+            ret_val = URLLocationSchema._parseURL(unparsed_elements=fallbacks, schema_name=schema_name) or URLLocationSchema._parseSplitURL(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
     def _parseURL(unparsed_elements:Map,
+                  schema_name:Optional[str]=None,
                   key_overrides:Optional[Dict[str, str]]=None) -> Optional[ParseResult]:
         """Attempt to parse from a straight-up URL element.
 
@@ -155,7 +156,8 @@ class URLLocationSchema(LocationSchema):
             valid_keys=search_keys,
             to_type=str,
             default_value=None, # default to None, if it doesn't exist we return None
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         ret_val = urlparse(raw_url) if raw_url else None
 
@@ -163,6 +165,7 @@ class URLLocationSchema(LocationSchema):
 
     @staticmethod
     def _parseSplitURL(unparsed_elements:Map,
+                       schema_name:Optional[str]=None,
                        key_overrides:Optional[Dict[str, str]]=None,
                        default_override:Optional["URLLocationSchema"]=None) -> ParseResult:
         default_keys : List[str]
@@ -176,7 +179,8 @@ class URLLocationSchema(LocationSchema):
             valid_keys=search_keys,
             to_type=str,
             default_value=default_scheme,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
         default_keys = ["host"]
@@ -187,7 +191,8 @@ class URLLocationSchema(LocationSchema):
             valid_keys=search_keys,
             to_type=str,
             default_value=default_host,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
         default_keys = ["port"]
@@ -198,7 +203,8 @@ class URLLocationSchema(LocationSchema):
             valid_keys=search_keys,
             to_type=int,
             default_value=default_port,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         _port_str = f":{_port}" if _port else ""
 
@@ -210,7 +216,8 @@ class URLLocationSchema(LocationSchema):
             valid_keys=search_keys,
             to_type=str,
             default_value=default_path,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
         return ParseResult(scheme=_scheme, netloc=f"{_host}{_port_str}", path=_path, params="", query="", fragment="")

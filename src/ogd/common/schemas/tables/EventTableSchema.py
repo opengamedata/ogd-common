@@ -66,7 +66,7 @@ class EventTableSchema(TableSchema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._column_map : EventMapSchema = column_map or self._parseColumnMap(unparsed_elements=unparsed_elements)
+        self._column_map : EventMapSchema = column_map or self._parseColumnMap(unparsed_elements=unparsed_elements, schema_name=name)
         # a couple other vars used in the row->event conversion
         self._latest_session : Optional[str] = None
         self._next_index     : int           = 0
@@ -318,7 +318,7 @@ class EventTableSchema(TableSchema):
     # *** PRIVATE METHODS ***
 
     @staticmethod
-    def _parseColumnMap(unparsed_elements:Map) -> EventMapSchema:
+    def _parseColumnMap(unparsed_elements:Map, schema_name:Optional[str]=None) -> EventMapSchema:
         ret_val : EventMapSchema
 
         raw_map = TableSchema.ParseElement(
@@ -326,7 +326,8 @@ class EventTableSchema(TableSchema):
             valid_keys=["column_map"],
             to_type=dict,
             default_value=None,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if raw_map:
             ret_val = EventMapSchema.FromDict(name="ColumnMap", unparsed_elements=raw_map)

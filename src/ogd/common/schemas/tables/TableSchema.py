@@ -164,7 +164,7 @@ class TableSchema(Schema):
 
         # declare and initialize vars
         # self._schema            : Optional[Dict[str, Any]] = all_elements
-        self._table_columns : List[ColumnSchema] = columns    or self._parseColumns(unparsed_elements=unparsed_elements)
+        self._table_columns : List[ColumnSchema] = columns if columns is not None else self._parseColumns(unparsed_elements=unparsed_elements, schema_name=name)
 
         # after loading the file, take the stuff we need and store.
         super().__init__(name=name, other_elements=other_elements)
@@ -185,17 +185,6 @@ class TableSchema(Schema):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     # *** PUBLIC STATICS ***
-
-    @classmethod
-    def FromFile(cls, schema_name:str, schema_path:Optional[str | Path]=None) -> "TableSchema":
-        ret_val : Schema
-
-        schema_path = schema_path or TableSchema._DEFAULT_SCHEMA_PATH
-        ret_val = cls._fromFile(schema_name=schema_name, schema_path=Path(schema_path))
-        if isinstance(ret_val, TableSchema):
-            return ret_val
-        else:
-            raise ValueError(f"TableSchema's call to _fromFile yielded a Schema of different type ({type(ret_val)})!")
 
     # *** PUBLIC METHODS ***
 
@@ -267,7 +256,7 @@ class TableSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseColumns(unparsed_elements:Map) -> List[ColumnSchema]:
+    def _parseColumns(unparsed_elements:Map, schema_name:Optional[str]=None) -> List[ColumnSchema]:
         ret_val : List[ColumnSchema]
 
         _column_json_list = TableSchema.ParseElement(
@@ -275,7 +264,8 @@ class TableSchema(Schema):
             valid_keys=["columns"],
             to_type=list,
             default_value=None,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if _column_json_list:
             ret_val = [ColumnSchema.FromDict(name=column.get("name", "UNKNOWN COLUMN NAME"), unparsed_elements=column) for column in _column_json_list]
@@ -283,3 +273,15 @@ class TableSchema(Schema):
             ret_val = TableSchema._DEFAULT_COLUMNS
 
         return ret_val
+
+    @classmethod
+    def _loadDirectories(cls, schema_name:str) -> List[str | Path]:
+        """Private function that can be optionally overridden to define additional directories in which cls.Load(...) searches for a file from which to load an instance of the class.
+
+        These extra directories are treated as optional places to search,
+        and so have a lower priority than the main search paths (./, ~/, etc.)
+
+        :return: A list of nonstandard directories in which to search for a file from which to load an instance of the class.
+        :rtype: List[str | Path]
+        """
+        return [cls._DEFAULT_SCHEMA_PATH]

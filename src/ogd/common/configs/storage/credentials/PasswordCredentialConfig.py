@@ -37,8 +37,8 @@ class PasswordCredential(CredentialConfig):
         :type other_elements: Optional[Map], optional
         """
         fallbacks : Map = other_elements or {}
-        self._user = username or self._parseUser(unparsed_elements=fallbacks)
-        self._pass = password or self._parsePass(unparsed_elements=fallbacks)
+        self._user = username if username is not None else self._parseUser(unparsed_elements=fallbacks, schema_name=name)
+        self._pass = password if username is not None else self._parsePass(unparsed_elements=fallbacks, schema_name=name)
         super().__init__(name=name, other_elements=fallbacks)
 
     @property
@@ -92,6 +92,7 @@ class PasswordCredential(CredentialConfig):
 
     @staticmethod
     def _parseUser(unparsed_elements:Map,
+                   schema_name:Optional[str]=None,
                    key_overrides:Optional[Dict[str, str]]=None,
                    default_override:Optional["PasswordCredential"]=None) -> str:
         default_keys : List[str] = ["USER"]
@@ -104,11 +105,13 @@ class PasswordCredential(CredentialConfig):
             valid_keys=search_keys,
             to_type=str,
             default_value=default_value,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
     @staticmethod
     def _parsePass(unparsed_elements:Map,
+                   schema_name:Optional[str]=None,
                    key_overrides:Optional[Dict[str, str]]=None,
                    default_override:Optional["PasswordCredential"]=None) -> str:
         default_keys : List[str] = ["PASS", "PASSWORD", "PW"]
@@ -121,7 +124,8 @@ class PasswordCredential(CredentialConfig):
             valid_keys=search_keys,
             to_type=str,
             default_value=default_value,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
 
     # *** PRIVATE METHODS ***

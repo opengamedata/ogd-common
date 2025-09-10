@@ -54,8 +54,8 @@ class SSHConfig(DataStoreConfig):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._location   : URLLocationSchema  = location       or self._parseLocation(unparsed_elements=unparsed_elements)
-        self._credential : PasswordCredential = ssh_credential or self._parseCredential(unparsed_elements=unparsed_elements)
+        self._location   : URLLocationSchema  = location       if location       is not None else self._parseLocation(unparsed_elements=unparsed_elements)
+        self._credential : PasswordCredential = ssh_credential if ssh_credential is not None else self._parseCredential(unparsed_elements=unparsed_elements)
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=other_elements)
 
     @property

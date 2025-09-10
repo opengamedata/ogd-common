@@ -52,7 +52,7 @@ class GameStateSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._game_state  : Dict[str, DataElementSchema] = game_state or self._parseGameStateElements(unparsed_elements=unparsed_elements)
+        self._game_state  : Dict[str, DataElementSchema] = game_state if game_state is not None else self._parseGameStateElements(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 
