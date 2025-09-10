@@ -132,7 +132,35 @@ class Schema(abc.ABC):
         :return: _description_
         :rtype: _type_
         """
-        return cls._fromFile(file_name=file_name, directory=directory)
+        ret_val : Schema
+
+        schema_file_name : str = f"{file_name}.json" if not file_name.lower().endswith(".json") else file_name
+        _schema_path = Path(directory)
+            
+        # 2. try to actually load the contents of the file.
+        try:
+            schema_contents = fileio.loadJSONFile(filename=schema_file_name, path=_schema_path)
+        except (ModuleNotFoundError, FileNotFoundError) as err:
+            # Case 1: Didn't find module, nothing else to try
+            if isinstance(err, ModuleNotFoundError):
+                Logger.Log(f"Unable to load {cls.__name__} at {_schema_path / schema_file_name}, module ({directory}) does not exist! Using default {cls.__name__} instead", logging.ERROR, depth=1)
+                ret_val = cls.Default()
+            # Case 2a: Didn't find file, search for template
+            # elif search_templates:
+            #     Logger.Log(f"Unable to load schema at {_schema_path / schema_file_name}, {schema_name} does not exist! Trying to load from json template instead...", logging.WARNING, depth=1)
+            #     ret_val = cls._schemaFromTemplate(directory=_schema_path, template_name=schema_file_name)
+            # Case 2b: Didn't find file, don't search for template
+            else:
+                Logger.Log(f"Unable to load {cls.__name__} at {_schema_path / schema_file_name}, {schema_file_name} does not exist! Using default {cls.__name__} instead", logging.ERROR, depth=1)
+                ret_val = cls.Default()
+        else:
+            if schema_contents is None:
+                Logger.Log(f"Could not load {cls.__name__} at {_schema_path / schema_file_name}, the file was empty! Using default {cls.__name__} instead", logging.ERROR, depth=1)
+                ret_val = cls.Default()
+            else:
+                ret_val = cls._fromDict(name=file_name, unparsed_elements=schema_contents)
+
+        return ret_val
 
     @classmethod
     def FromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> Self:
@@ -196,38 +224,6 @@ class Schema(abc.ABC):
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
-
-    @classmethod
-    def _fromFile(cls, file_name:str, directory:Path | str) -> Self:
-        ret_val : Schema
-
-        schema_file_name : str = f"{file_name}.json" if not file_name.lower().endswith(".json") else file_name
-        _schema_path = Path(directory)
-            
-        # 2. try to actually load the contents of the file.
-        try:
-            schema_contents = fileio.loadJSONFile(filename=schema_file_name, path=_schema_path)
-        except (ModuleNotFoundError, FileNotFoundError) as err:
-            # Case 1: Didn't find module, nothing else to try
-            if isinstance(err, ModuleNotFoundError):
-                Logger.Log(f"Unable to load {cls.__name__} at {_schema_path / schema_file_name}, module ({directory}) does not exist! Using default {cls.__name__} instead", logging.ERROR, depth=1)
-                ret_val = cls.Default()
-            # Case 2a: Didn't find file, search for template
-            # elif search_templates:
-            #     Logger.Log(f"Unable to load schema at {_schema_path / schema_file_name}, {schema_name} does not exist! Trying to load from json template instead...", logging.WARNING, depth=1)
-            #     ret_val = cls._schemaFromTemplate(directory=_schema_path, template_name=schema_file_name)
-            # Case 2b: Didn't find file, don't search for template
-            else:
-                Logger.Log(f"Unable to load {cls.__name__} at {_schema_path / schema_file_name}, {schema_file_name} does not exist! Using default {cls.__name__} instead", logging.ERROR, depth=1)
-                ret_val = cls.Default()
-        else:
-            if schema_contents is None:
-                Logger.Log(f"Could not load {cls.__name__} at {_schema_path / schema_file_name}, the file was empty! Using default {cls.__name__} instead", logging.ERROR, depth=1)
-                ret_val = cls.Default()
-            else:
-                ret_val = cls._fromDict(name=file_name, unparsed_elements=schema_contents)
-
-        return ret_val
 
     @classmethod
     def _schemaFromTemplate(cls, template_name:str, directory:Path) -> Self:
