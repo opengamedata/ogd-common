@@ -44,7 +44,7 @@ class EventFilterCollection:
         return ret_val
 
     @property
-    def EventNames(self) -> Filter[str]:
+    def EventNames(self) -> SetFilter[str] | NoFilter:
         """Property containing the filter for event names.
 
         :return: _description_

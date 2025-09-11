@@ -48,7 +48,7 @@ class SequencingFilterCollection:
         return ret_val
 
     @property
-    def Timestamps(self) -> Filter[datetime]:
+    def Timestamps(self) -> RangeFilter[datetime] | NoFilter:
         return self._timestamp_filter
     @Timestamps.setter
     def Timestamps(self, allowed_times:Optional[RangeFilter[datetime] | NoFilter | slice | Pair[datetime | date, datetime | date]]) -> None:

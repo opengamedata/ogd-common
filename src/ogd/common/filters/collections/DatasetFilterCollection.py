@@ -18,19 +18,19 @@ class DatasetFilterCollection:
         self._event_filters    : EventFilterCollection      = event_filters    or EventFilterCollection()
 
     @property
-    def IDFilters(self):
+    def IDFilters(self) -> IDFilterCollection:
         return self._id_filters
     
     @property
-    def Sequences(self):
+    def Sequences(self) -> SequencingFilterCollection:
         return self._sequence_filters
     
     @property
-    def Versions(self):
+    def Versions(self) -> VersioningFilterCollection:
         return self._version_filters
     
     @property
-    def Events(self):
+    def Events(self) -> EventFilterCollection:
         return self._event_filters
 
     @property
