@@ -589,11 +589,11 @@ def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
         minute_pattern : LiteralString = r"(?P<minute>\d+)"
         second_pattern : LiteralString = r"(?P<second>\d+)"
         micros_pattern : LiteralString = r"(?P<micros>\d+)"
-        pattern = re.compile(f"UTC{dir_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}.{micros_pattern}")
+        pattern = re.compile(f"UTC?{dir_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}.{micros_pattern}")
 
         match = re.fullmatch(pattern=pattern, string=time_str)
         if match:
-            ret_val = datetime.timedelta(
+            offset : datetime.timedelta = datetime.timedelta(
                 days=int(match.group("day") or 0),
                 hours=int(match.group("hour") or 0),
                 minutes=int(match.group("minute") or 0),
@@ -601,22 +601,22 @@ def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
                 microseconds=int(match.group("micros") or 0)
             )
             # if we matched the negative sign, then make the timedelta negative.
-            if match.group("neg"):
-                ret_val = -ret_val
+            if match.group("neg") == "-":
+                offset = -offset
         else:
             match = re.fullmatch(pattern=r"-?\d+", string=time_str)
             if match:
-                ret_val = datetime.timedelta(seconds=int(time_str))
+                offset = datetime.timedelta(seconds=int(time_str))
             else:
                 Logger.Log(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats.", logging.WARNING)
-    elif re.fullmatch(pattern=r"UTC[+-]\d+:\d+", string=time_str):
-        try:
-            pieces = time_str.removeprefix("UTC").split(":")
-            ret_val = datetime.timezone(datetime.timedelta(hours=int(pieces[0]), minutes=int(pieces[1])))
-        except ValueError:
-            pass
-        else:
-            return ret_val
+        MAX_OFFSET = 24*60*60
+        if offset.total_seconds() > MAX_OFFSET:
+            offset = datetime.timedelta(seconds=offset.total_seconds() % MAX_OFFSET)
+        if offset.total_seconds() < -24*60*60:
+            offset = datetime.timedelta(seconds=(offset.total_seconds() % MAX_OFFSET) - MAX_OFFSET)
+
+        ret_val = datetime.timezone(offset=offset)
+        return ret_val
     raise ValueError(f"Could not parse timezone {time_str} of type {type(time_str)}, it did not match any expected formats.")
 
 # *** PUBLIC METHODS ***
