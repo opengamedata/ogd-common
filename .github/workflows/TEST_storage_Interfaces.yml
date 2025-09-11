@@ -56,8 +56,16 @@ jobs:
         username: ${{ secrets.VPN_USER }}
         password: ${{ secrets.VPN_PASS }}
         endpoint: "soe.vpn.wisc.edu"
+    - name: Set up Google Cloud
+      if: ${{ matrix.testbed }} == 'test_BigQueryInterface'
+      uses: google-github-actions/auth@v3
+      with:
+        project_id: ${{ inputs.ogd_id }}
+        credentials_json: ${{ inputs.ogd_key }}
+        create_credentials_file: true
+        export_environment_variables: true
 
-  # 3. Perform export
+  # 3. Execute testbed
     - name: Execute ${{ matrix.testbed }} testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
