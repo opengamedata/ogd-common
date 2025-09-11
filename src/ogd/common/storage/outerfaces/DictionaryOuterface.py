@@ -65,26 +65,26 @@ class DictionaryOuterface(Outerface):
                 self._out['populations'] = { "cols" : [], "vals" : self._pops }
 
     @override
-    def _writeGameEventsHeader(self, header:List[str]) -> None:
+    def _setupGameEventsTable(self, header:List[str]) -> None:
         self._out['raw_events']['cols'] = header
 
     @override
-    def _writeAllEventsHeader(self, header:List[str]) -> None:
+    def _setupDetectorEventsTable(self, header:List[str]) -> None:
         self._out['all_events']['cols'] = header
 
-    def _writeAllFeaturesHeader(self, header:List[str]) -> None:
+    def _setupAllFeaturesTable(self, header:List[str]) -> None:
         self._out['all_features']['cols'] = header
 
     @override
-    def _writeSessionHeader(self, header:List[str]) -> None:
+    def _setupSessionTable(self, header:List[str]) -> None:
         self._out['sessions']['cols'] = header
 
     @override
-    def _writePlayerHeader(self, header:List[str]) -> None:
+    def _setupPlayerTable(self, header:List[str]) -> None:
         self._out['players']['cols'] = header
 
     @override
-    def _writePopulationHeader(self, header:List[str]) -> None:
+    def _setupPopulationTable(self, header:List[str]) -> None:
         self._out['populations']['cols'] = header
 
     @override

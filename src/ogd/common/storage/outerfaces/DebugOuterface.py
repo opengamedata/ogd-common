@@ -44,27 +44,27 @@ class DebugOuterface(Outerface):
             case ExportMode.POPULATION:
                 self._display("No longer outputting population data to debug stream.")
 
-    def _writeGameEventsHeader(self, header:List[str]) -> None:
+    def _setupGameEventsTable(self, header:List[str]) -> None:
         self._display("Raw events header:")
         self._display(header)
 
-    def _writeAllEventsHeader(self, header:List[str]) -> None:
+    def _setupDetectorEventsTable(self, header:List[str]) -> None:
         self._display("Processed events header:")
         self._display(header)
 
-    def _writeAllFeaturesHeader(self, header:List[str]) -> None:
+    def _setupAllFeaturesTable(self, header:List[str]) -> None:
         self._display("All Feature header:")
         self._display(header)
 
-    def _writeSessionHeader(self, header:List[str]) -> None:
+    def _setupSessionTable(self, header:List[str]) -> None:
         self._display("Sessions header:")
         self._display(header)
 
-    def _writePlayerHeader(self, header:List[str]) -> None:
+    def _setupPlayerTable(self, header:List[str]) -> None:
         self._display("Player header:")
         self._display(header)
 
-    def _writePopulationHeader(self, header:List[str]) -> None:
+    def _setupPopulationTable(self, header:List[str]) -> None:
         self._display("Population header:")
         self._display(header)
 

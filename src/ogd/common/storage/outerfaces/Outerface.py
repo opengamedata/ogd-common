@@ -47,34 +47,32 @@ class Outerface:
 
 
     @abc.abstractmethod
-    def _writeGameEventsHeader(self, header:List[str]) -> None:
-        # pylint: disable-next=protected-access
-        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
-
-
-    @abc.abstractmethod
-    def _writeAllEventsHeader(self, header:List[str]) -> None:
-        # pylint: disable-next=protected-access
-        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
-
-
-    @abc.abstractmethod
-    def _writeAllFeaturesHeader(self, header:List[str]) -> None:
+    def _setupGameEventsTable(self, header:List[str]) -> None:
         # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
-    def _writeSessionHeader(self, header:List[str]) -> None:
+    def _setupDetectorEventsTable(self, header:List[str]) -> None:
         # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
-    def _writePlayerHeader(self, header:List[str]) -> None:
+    def _setupAllFeaturesTable(self, header:List[str]) -> None:
         # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
-    def _writePopulationHeader(self, header:List[str]) -> None:
+    def _setupSessionTable(self, header:List[str]) -> None:
+        # pylint: disable-next=protected-access
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
+
+    @abc.abstractmethod
+    def _setupPlayerTable(self, header:List[str]) -> None:
+        # pylint: disable-next=protected-access
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
+
+    @abc.abstractmethod
+    def _setupPopulationTable(self, header:List[str]) -> None:
         # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
@@ -85,11 +83,6 @@ class Outerface:
 
     @abc.abstractmethod
     def _writeAllEventLines(self, events:List[ExportRow]) -> None:
-        # pylint: disable-next=protected-access
-        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
-
-    @abc.abstractmethod
-    def _writeAllFeaturesLines(self, feature_lines:List[ExportRow]) -> None:
         # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
@@ -150,22 +143,22 @@ class Outerface:
         if mode in self.ExportModes:
             match (mode):
                 case ExportMode.EVENTS:
-                    self._writeGameEventsHeader(header=header or [])
+                    self._setupGameEventsTable(header=header or [])
                     Logger.Log(f"Wrote event header for {self.Config.Location} events", depth=3)
                 case ExportMode.DETECTORS:
-                    self._writeAllEventsHeader(header=header or [])
+                    self._setupDetectorEventsTable(header=header or [])
                     Logger.Log(f"Wrote processed event header for {self.Config.Location} events", depth=3)
                 case ExportMode.FEATURES:
-                    self._writeAllFeaturesHeader(header=Feature.ColumnNames())
+                    self._setupAllFeaturesTable(header=Feature.ColumnNames())
                     Logger.Log(f"Wrote all-features header for {self.Config.Location} features", depth=3)
                 case ExportMode.SESSION:
-                    self._writeSessionHeader(header=header or [])
+                    self._setupSessionTable(header=header or [])
                     Logger.Log(f"Wrote session feature header for {self.Config.Location} sessions", depth=3)
                 case ExportMode.PLAYER:
-                    self._writePlayerHeader(header=header or [])
+                    self._setupPlayerTable(header=header or [])
                     Logger.Log(f"Wrote player feature header for {self.Config.Location} players", depth=3)
                 case ExportMode.POPULATION:
-                    self._writePopulationHeader(header=header or [])
+                    self._setupPopulationTable(header=header or [])
                     Logger.Log(f"Wrote population feature header for {self.Config.Location} populations", depth=3)
                 case _:
                     Logger.Log(f"Failed to write header for unrecognized export mode {mode}!", level=logging.WARN, depth=3)
@@ -193,9 +186,6 @@ class Outerface:
         if isinstance(self.Config.TableSchema, FeatureTableSchema):
             if mode in self.ExportModes:
                 match (mode):
-                    case ExportMode.FEATURES:
-                        self._writeAllFeaturesLines(feature_lines=features.FeatureLines)
-                        Logger.Log(f"Wrote {len(features.FeatureLines)} {self.Config.Location} feature lines", depth=3)
                     case ExportMode.SESSION:
                         self._writeSessionLines(session_lines=features.SessionLines)
                         Logger.Log(f"Wrote {len(features.SessionLines)} {self.Config.Location} session lines", depth=3)
