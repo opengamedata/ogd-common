@@ -449,10 +449,12 @@ def ToList(name:str, value:Any, force:bool=False) -> Optional[List]:
         ret_val = None
     return ret_val
 
-def ToJSON(name:str, value:Any, force:bool=False) -> Optional[Dict]:
+def ToJSON(name:str, value:Any, force:bool=False, sort:bool=False) -> Optional[Dict]:
     """Attempt to turn a given value into a JSON-style dictionary
 
     Returns None if the value type was not recognized.
+
+    .. TODO: Add a 'sanitize' param to purge anything that looks like an IP address or other pii
 
     :param name: An identifier for the value, used for debug outputs.
     :type name: str
@@ -489,6 +491,8 @@ def ToJSON(name:str, value:Any, force:bool=False) -> Optional[Dict]:
     except JSONDecodeError as err:
         Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to JSON, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
         ret_val = None
+    if sort and ret_val is not None:
+        ret_val = dict(sorted(ret_val.items()))
     return ret_val
 
 def BoolFromString(bool_str:str) -> bool:
