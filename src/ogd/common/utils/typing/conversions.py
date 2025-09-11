@@ -16,6 +16,7 @@ from typing import Any, Dict, List, LiteralString, Optional, Type
 
 from json.decoder import JSONDecodeError
 ## import 3rd-party libraries
+from pandas import Timedelta
 from pandas._libs.tslibs import timestamps, timedeltas
 from dateutil import parser
 ## import local files
@@ -572,7 +573,8 @@ def TimedeltaFromString(time_str:str) -> Optional[datetime.timedelta]:
             if match:
                 ret_val = datetime.timedelta(seconds=int(time_str))
             else:
-                Logger.Log(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats.", logging.WARNING)
+                Logger.Log(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats. Parsing with Pandas instead.", logging.WARNING)
+                ret_val = Timedelta(time_str).to_pytimedelta()
     
     return ret_val
 
@@ -583,13 +585,13 @@ def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
         return None
     else:
         utc_pattern    : LiteralString = r"(?P<utc>UTC)"
-        dir_pattern    : LiteralString = r"(?P<dir>+|-)"
+        dir_pattern    : LiteralString = r"(?P<dir>\+|-)"
         day_pattern    : LiteralString = r"(?:(?P<day>\d+)\s+day(?:s)?,\s+)"
         hour_pattern   : LiteralString = r"(?P<hour>\d+)"
         minute_pattern : LiteralString = r"(?P<minute>\d+)"
         second_pattern : LiteralString = r"(?P<second>\d+)"
         micros_pattern : LiteralString = r"(?P<micros>\d+)"
-        pattern = re.compile(f"UTC?{dir_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}.{micros_pattern}")
+        pattern = re.compile(f"{utc_pattern}?{dir_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}.{micros_pattern}")
 
         match = re.fullmatch(pattern=pattern, string=time_str)
         if match:
@@ -601,14 +603,15 @@ def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
                 microseconds=int(match.group("micros") or 0)
             )
             # if we matched the negative sign, then make the timedelta negative.
-            if match.group("neg") == "-":
+            if match.group("dir") == "-":
                 offset = -offset
         else:
             match = re.fullmatch(pattern=r"-?\d+", string=time_str)
             if match:
                 offset = datetime.timedelta(seconds=int(time_str))
             else:
-                Logger.Log(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats.", logging.WARNING)
+                Logger.Log(f"Could not directly parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats. Trying with Pandas instead", logging.WARNING)
+                offset = Timedelta(time_str).to_pytimedelta()
         MAX_OFFSET = 24*60*60
         if offset.total_seconds() > MAX_OFFSET:
             offset = datetime.timedelta(seconds=offset.total_seconds() % MAX_OFFSET)
