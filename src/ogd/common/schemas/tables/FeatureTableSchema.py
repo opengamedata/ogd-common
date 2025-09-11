@@ -174,8 +174,8 @@ class FeatureTableSchema(TableSchema):
         
 
         # 1. Get Feature info
-        idx = self._indexFromMapping(self.ColumnMap.FeatureNameColumn)
-        feat_name = self._valueFromRow(row=row, indices=idx,  concatenator=concatenator, fallback=None)
+        idx = self.IndexFromMapping(self.ColumnMap.FeatureNameColumn)
+        feat_name = self.ColumnValueFromRow(row=row, indices=idx,  concatenator=concatenator, fallback=None)
         if not isinstance(feat_name, str):
             if "feat_name" not in self._conversion_warnings:
                 _msg = f"{self.Name} feature table schema set feat_name as {type(feat_name)}, but feat_name should be a string"
@@ -183,8 +183,8 @@ class FeatureTableSchema(TableSchema):
             self._conversion_warnings["feat_name"] += 1
             feat_name = str(feat_name)
 
-        idx = self._indexFromMapping(self.ColumnMap.FeatureTypeColumn)
-        feat_type = self._valueFromRow(row=row, indices=idx,  concatenator=concatenator, fallback=None)
+        idx = self.IndexFromMapping(self.ColumnMap.FeatureTypeColumn)
+        feat_type = self.ColumnValueFromRow(row=row, indices=idx,  concatenator=concatenator, fallback=None)
         if not isinstance(feat_type, str):
             if "feat_type" not in self._conversion_warnings:
                 _msg = f"{self.Name} feature table schema set feat_type as {type(feat_type)}, but feat_type should be a string"
@@ -193,8 +193,8 @@ class FeatureTableSchema(TableSchema):
             feat_type = str(feat_type)
 
         # 2. Get game unit info
-        idx = self._indexFromMapping(self.ColumnMap.GameUnitColumn)
-        game_unit = self._valueFromRow(row=row, indices=idx,  concatenator=concatenator, fallback=None)
+        idx = self.IndexFromMapping(self.ColumnMap.GameUnitColumn)
+        game_unit = self.ColumnValueFromRow(row=row, indices=idx,  concatenator=concatenator, fallback=None)
         if not isinstance(game_unit, str):
             if "game_unit" not in self._conversion_warnings:
                 _msg = f"{self.Name} feature table schema set game_unit as {type(game_unit)}, but game_unit should be a string"
@@ -202,8 +202,8 @@ class FeatureTableSchema(TableSchema):
             self._conversion_warnings["game_unit"] += 1
             game_unit = str(game_unit)
 
-        idx = self._indexFromMapping(self.ColumnMap.GameUnitIndexColumn)
-        unit_index = self._valueFromRow(row=row, indices=idx,  concatenator=concatenator, fallback=None)
+        idx = self.IndexFromMapping(self.ColumnMap.GameUnitIndexColumn)
+        unit_index = self.ColumnValueFromRow(row=row, indices=idx,  concatenator=concatenator, fallback=None)
         if not isinstance(unit_index, int):
             if "unit_index" not in self._conversion_warnings:
                 _msg = f"{self.Name} feature table schema set unit_index as {type(unit_index)}, but unit_index should be a string"
@@ -212,8 +212,8 @@ class FeatureTableSchema(TableSchema):
             unit_index = str(unit_index)
 
         # 3. Get ID data
-        idx = self._indexFromMapping(self.ColumnMap.AppIDColumn)
-        app_id = self._valueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=None)
+        idx = self.IndexFromMapping(self.ColumnMap.AppIDColumn)
+        app_id = self.ColumnValueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=None)
         if not isinstance(app_id, str):
             if "app_id" not in self._conversion_warnings:
                 _msg = f"{self.Name} event table schema set app_id as {type(app_id)}, but app_id should be a string"
@@ -221,8 +221,8 @@ class FeatureTableSchema(TableSchema):
             self._conversion_warnings["app_id"] += 1
             app_id = str(app_id)
 
-        idx = self._indexFromMapping(self.ColumnMap.UserIDColumn)
-        user_id = self._valueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=None)
+        idx = self.IndexFromMapping(self.ColumnMap.UserIDColumn)
+        user_id = self.ColumnValueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=None)
         if user_id is not None and not isinstance(user_id, str):
             if "uid" not in self._conversion_warnings:
                 _msg = f"{self.Name} event table schema set user_id as {type(user_id)}, but user_id should be a string"
@@ -230,8 +230,8 @@ class FeatureTableSchema(TableSchema):
             self._conversion_warnings["uid"] += 1
             user_id = str(user_id)
 
-        idx = self._indexFromMapping(self.ColumnMap.SessionIDColumn)
-        sess_id = self._valueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=None)
+        idx = self.IndexFromMapping(self.ColumnMap.SessionIDColumn)
+        sess_id = self.ColumnValueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=None)
         if not isinstance(sess_id, str):
             if "sess_id" not in self._conversion_warnings:
                 _msg = f"{self.Name} event table schema set session_id as {type(sess_id)}, but session_id should be a string"
@@ -240,11 +240,11 @@ class FeatureTableSchema(TableSchema):
             sess_id = str(sess_id)
 
         # 4. Get feature-specific data
-        idx = self._indexFromMapping(self.ColumnMap.SubfeaturesColumn)
-        subfeats = self._valueFromRow(row=row, indices=idx,   concatenator=concatenator, fallback=None)
+        idx = self.IndexFromMapping(self.ColumnMap.SubfeaturesColumn)
+        subfeats = self.ColumnValueFromRow(row=row, indices=idx,   concatenator=concatenator, fallback=None)
 
-        idx = self._indexFromMapping(self.ColumnMap.ValuesColumn)
-        values = self._valueFromRow(row=row, indices=idx,   concatenator=concatenator, fallback=None)
+        idx = self.IndexFromMapping(self.ColumnMap.ValuesColumn)
+        values = self.ColumnValueFromRow(row=row, indices=idx,   concatenator=concatenator, fallback=None)
 
         return Feature(name=feat_name, feature_type=feat_type,
                        game_unit=game_unit, game_unit_index=unit_index,
