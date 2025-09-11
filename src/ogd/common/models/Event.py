@@ -1,10 +1,14 @@
 ## import standard libraries
-from datetime import datetime, timezone
+import builtins
+from datetime import datetime, timedelta, timezone
 from enum import IntEnum
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 # import local files
+from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.models.GameData import GameData
-from ogd.common.utils.typing import Map
+from ogd.common.models import SemanticVersion as SV
+from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import Map, conversions, Version
 
 class EventSource(IntEnum):
     """Enum for the possible sources of an event - a game, or a generator.
@@ -19,11 +23,11 @@ class Event(GameData):
     Basically, whenever we fetch data, the TableConfig will be used to map columns to the required elements of an Event.
     Then the extractors etc. can just access columns in a direct manner.
     """
-    def __init__(self, app_id:str,          user_id:Optional[str],          session_id:str,
-                 app_version:Optional[str], app_branch:Optional[str],       log_version:Optional[str],     
-                 timestamp:datetime,        time_offset:Optional[timezone], event_sequence_index:Optional[int],
-                 event_name:str,            event_source:"EventSource",     event_data:Map,
-                 game_state:Optional[Map],  user_data:Optional[Map]):
+    def __init__(self, app_id:str,              user_id:Optional[str],          session_id:str,
+                 app_version:Optional[Version], app_branch:Optional[str],       log_version:Optional[Version],     
+                 timestamp:datetime,            time_offset:Optional[timezone], event_sequence_index:Optional[int],
+                 event_name:str,                event_source:"EventSource",     event_data:Map,
+                 game_state:Optional[Map],      user_data:Optional[Map]):
         """Constructor for an Event struct
 
         :param app_id: _description_
@@ -55,11 +59,10 @@ class Event(GameData):
         :param user_data: _description_
         :type user_data: Optional[Map]
         """
-        # TODO: event source, e.g. from game or from detector
         super().__init__(app_id=app_id,           user_id=user_id,       session_id=session_id)
-        self.app_version          : str           = app_version if app_version is not None else "0"
+        self.app_version          : Version       = app_version if app_version is not None else SV.SemanticVersion(0)
         self.app_branch           : str           = app_branch  if app_branch  is not None else "main"
-        self.log_version          : str           = log_version if log_version is not None else "0"
+        self.log_version          : Version       = log_version if log_version is not None else SV.SemanticVersion(0)
         self.timestamp            : datetime      = timestamp
         self.time_offset          : Optional[timezone] = time_offset
         self.event_sequence_index : Optional[int] = event_sequence_index
@@ -95,11 +98,27 @@ class Event(GameData):
         _str_elems = [str(elem) for elem in _elems]
         return hash("".join(_str_elems))
 
-    def FallbackDefaults(self, app_id:Optional[str]=None, index:Optional[int]=None):
-        if self.app_id == None and app_id != None:
-            self.app_id = app_id
-        if self.event_sequence_index == None:
-            self.event_sequence_index = index
+    def ApplyFallbackDefaults(self, app_id:Optional[str]=None, index:Optional[int]=None, in_place:bool=True) -> "Event":
+        ret_val : Event
+
+        if in_place:
+            if self.app_id == None and app_id != None:
+                self.app_id = app_id
+            if self.event_sequence_index == None:
+                self.event_sequence_index = index
+            ret_val = self
+        else:
+            ret_val = Event(
+                app_id               = self.app_id               if self.app_id is not None or app_id is None else app_id,
+                event_sequence_index = self.event_sequence_index if self.event_sequence_index is not None     else index,
+
+                user_id=self.UserID, session_id=self.SessionID,
+                app_version=self.AppVersion, app_branch=self.AppBranch, log_version=self.LogVersion,
+                timestamp=self.Timestamp, time_offset=self.TimeOffset,
+                event_name=self.EventName, event_source=self.EventSource, event_data=self.EventData,
+                game_state=self.GameState, user_data=self.UserData
+            )
+        return ret_val
 
     @staticmethod
     def FromJSON(json_data:Dict) -> "Event":
@@ -129,6 +148,133 @@ class Event(GameData):
             event_sequence_index=json_data.get("event_sequence_index", json_data).get("session_n", None)
         )
 
+    @classmethod
+    def FromRow(cls, row:Tuple, schema:EventTableSchema, fallbacks:Map={}) -> "Event":
+        """Function to convert a row to an Event, based on the loaded schema.
+        In general, columns specified in the schema's column_map are mapped to corresponding elements of the Event.
+        If the column_map gave a list, rather than a single column name, the values from each column are concatenated in order with '.' character separators.
+        Finally, the concatenated values (or single value) are parsed according to the type required by Event.
+        One exception: For event_data, we expect to create a Dict object, so each column in the list will have its value parsed according to the type in 'columns',
+            and placed into a dict mapping the original column name to the parsed value (unless the parsed value is a dict, then it is merged into the top-level dict).
+
+        .. TODO Use conversions utils to deal with the types we're getting from the row.
+
+        :param row: _description_
+        :type row: Tuple
+        :param concatenator: _description_, defaults to '.'
+        :type concatenator: str, optional
+        :param fallbacks: _description_, defaults to {}
+        :type fallbacks: Map, optional
+        :raises TypeError: _description_
+        :return: _description_
+        :rtype: Event
+        """
+        ret_val : Event
+
+        # define vars to be passed as params
+        app_id      : str
+        user_id     : Optional[str]
+        sess_id     : str
+        app_ver     : Version
+        app_br      : str
+        log_ver     : Version
+        tstamp      : datetime
+        offset      : Optional[timezone]
+        event_index : Optional[int]
+        ename       : str
+        edata       : Map
+        state       : Optional[Map]
+        udata       : Optional[Map]
+
+        # 1. Get ID data
+        app_id = schema.ColumnValueFromRow(row=row, mapping=schema.Map.AppIDColumn, concatenator=".",
+                                           column_name="app_id", expected_type=str, fallback=fallbacks.get("app_id"))
+        if not isinstance(app_id, str):
+            app_id = conversions.ToString(name="app_id", value=app_id)
+
+        user_id = schema.ColumnValueFromRow(row=row, mapping=schema.Map.UserIDColumn, concatenator=".",
+                                            column_name="app_id", expected_type=str, fallback=fallbacks.get("user_id"))
+        if user_id is not None and not isinstance(user_id, str):
+            user_id = conversions.ToString(name="user_id", value=user_id)
+
+        sess_id = schema.ColumnValueFromRow(row=row, mapping=schema.Map.SessionIDColumn, concatenator=".",
+                                            column_name="sess_id", expected_type=str, fallback=fallbacks.get("session_id"))
+        if not isinstance(sess_id, str):
+            sess_id = conversions.ToString(name="session_id", value=sess_id)
+        if cls._latest_session != sess_id:
+            cls._latest_session = sess_id
+            cls._next_index = 0
+
+        # 2. Get versioning data
+        expected_types = [str, int, SV.SemanticVersion]
+        log_ver = schema.ColumnValueFromRow(row=row, mapping=schema.Map.LogVersionColumn, concatenator=".",
+                                            column_name="log_ver", expected_type=SV.SemanticVersion, fallback=fallbacks.get('log_version', "0"))
+        if not any(isinstance(log_ver, t) for t in expected_types):
+            log_ver = SV.SemanticVersion.FromString(semver=str(log_ver))
+
+        app_ver = schema.ColumnValueFromRow(row=row, mapping=schema.Map.AppVersionColumn, concatenator=".",
+                                            column_name="app_ver", expected_type=SV.SemanticVersion, fallback=fallbacks.get('app_version'))
+        if not any(isinstance(app_ver, t) for t in expected_types):
+            app_ver = SV.SemanticVersion.FromString(semver=str(app_ver))
+
+        app_br = schema.ColumnValueFromRow(row=row, mapping=schema.Map.AppBranchColumn, concatenator=".",
+                                           column_name="app_br", expected_type=str, fallback=fallbacks.get('app_branch'))
+        if not isinstance(app_br, str):
+            app_br = conversions.ToString(name="app_branch", value=app_br)
+
+        # 3. Get sequencing data
+
+        # TODO: go bac to isostring function; need 0-padding on ms first, though.
+        # Not sure how old this to-do is though, it may not be relevant anymore.
+        tstamp  = schema.ColumnValueFromRow(row=row, mapping=schema.Map.TimestampColumn, concatenator=".",
+                                            column_name="timestamp", expected_type=datetime, fallback=None)
+        if not isinstance(tstamp, datetime):
+            tstamp = conversions.ToDatetime(name="timestamp", value=tstamp, force=True)
+
+        offset = schema.ColumnValueFromRow(row=row, mapping=schema.Map.TimeOffsetColumn, concatenator=".",
+                                           column_name="offset", expected_type=str, fallback=fallbacks.get('time_offset'))
+        if isinstance(offset, timedelta):
+            offset = conversions.ToTimedelta(name="offset", value=offset, force=True)
+
+        event_index = schema.ColumnValueFromRow(row=row, mapping=schema.Map.EventSequenceIndexColumn, concatenator=".",
+                                                column_name="index", expected_type=int, fallback=fallbacks.get('event_sequence_index', cls._next_index))
+        if not isinstance(event_index, int):
+            event_index = conversions.ToInt(name="event_sequence_index", value=event_index or cls._next_index, force=True)
+
+        # 4. Get event-specific data
+        ename   = schema.ColumnValueFromRow(row=row, mapping=schema.Map.EventNameColumn, concatenator=".",
+                                            column_name="ename", expected_type=str, fallback=fallbacks.get('event_name'))
+        if not isinstance(ename, str):
+            ename = conversions.ToString(name="event_name", value=ename)
+
+        esrc = schema.ColumnValueFromRow(row=row, mapping=schema.Map.EventSourceColumn, concatenator=".",
+                                         column_name="esrc", expected_type=str, fallback=fallbacks.get('event_source', EventSource.GAME))
+        if not isinstance(esrc, EventSource):
+            esrc = EventSource.GENERATED if esrc == "GENERATED" else EventSource.GAME
+
+        raw_data = schema.ColumnValueFromRow(row=row, mapping=schema.Map.EventDataColumn, concatenator=".",
+                                             column_name="edata", expected_type=dict, fallback=fallbacks.get('event_data'))
+        edata   = conversions.ToJSON(name="event_data", value=raw_data, force=True, sort=True) or {}
+
+        # 5. Get context data
+
+        udata   = schema.ColumnValueFromRow(row=row, mapping=schema.Map.UserDataColumn, concatenator=".",
+                                            column_name="udata", expected_type=dict, fallback=fallbacks.get('user_data'))
+
+        raw_state = schema.ColumnValueFromRow(row=row, mapping=schema.Map.GameStateColumn, concatenator=".",
+                                            column_name="state", expected_type=dict, fallback=fallbacks.get('game_state'))
+        state     = conversions.ToJSON(name="game_state", value=raw_state, force=True, sort=True) or {}
+
+        ret_val = Event(app_id=app_id, user_id=user_id, session_id=sess_id,
+                        timestamp=tstamp, time_offset=offset, event_sequence_index=event_index,
+                        event_name=ename, event_source=esrc, event_data=edata,
+                        app_version=app_ver, app_branch=app_br, log_version=log_ver,
+                        user_data=udata, game_state=state, )
+        ret_val.ApplyFallbackDefaults(index=cls._next_index)
+        cls._next_index = (event_index or cls._next_index) + 1
+
+        return ret_val
+
     @staticmethod
     def ColumnNames() -> List[str]:
         """_summary_
@@ -152,10 +298,10 @@ class Event(GameData):
         :return: The list of values.
         :rtype: List[Union[str, datetime, timezone, Map, int, None]]
         """
-        return [self.session_id,  self.app_id,             self.timestamp,   self.event_name,
-                self.event_data,  self.event_source.name,  self.app_version, self.app_branch,
-                self.log_version, self.TimeOffsetString,   self.user_id,     self.user_data,
-                self.game_state,  self.event_sequence_index]
+        return [self.session_id,       self.app_id,             self.timestamp,        self.event_name,
+                self.event_data,       self.event_source.name,  self.AppVersionString, self.app_branch,
+                self.LogVersionString, self.TimeOffsetString,   self.user_id,          self.user_data,
+                self.game_state,       self.event_sequence_index]
 
     @property
     def Hash(self) -> int:
@@ -164,8 +310,8 @@ class Event(GameData):
         return self._hash
 
     @property
-    def AppVersion(self) -> str:
-        """The semantic versioning string for the game that generated this Event.
+    def AppVersion(self) -> Version:
+        """The semantic versioning value for the game that generated this Event.
 
         Some legacy games may use a single integer or a string similar to AppID in this column.
 
@@ -173,6 +319,14 @@ class Event(GameData):
         :rtype: str
         """
         return self.app_version
+    @property
+    def AppVersionString(self) -> str:
+        """The semantic versioning string for the game that generated this Event.
+
+        :return: The semantic versioning string for the game that generated this Event
+        :rtype: str
+        """
+        return str(self.AppVersion)
 
     @property
     def AppBranch(self) -> str:
@@ -187,7 +341,7 @@ class Event(GameData):
         return self.app_branch
 
     @property
-    def LogVersion(self) -> str:
+    def LogVersion(self) -> Version:
         """The version of the logging schema implemented in the game that generated the Event
 
         For most games, this is a single integer; however, semantic versioning is valid for this column as well.
@@ -196,6 +350,14 @@ class Event(GameData):
         :rtype: str
         """
         return self.log_version
+    @property
+    def LogVersionString(self) -> str:
+        """The versioning string of the logging schema implemented in the game that generated the Event.
+
+        :return: The semantic versioning string for the logging schema implemented in the game that generated the Event
+        :rtype: str
+        """
+        return str(self.LogVersion)
 
     @property
     def Timestamp(self) -> datetime:
