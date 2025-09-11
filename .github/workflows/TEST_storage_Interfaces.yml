@@ -60,8 +60,8 @@ jobs:
       if: ${{ matrix.testbed }} == 'test_BigQueryInterface'
       uses: google-github-actions/auth@v3
       with:
-        project_id: ${{ inputs.ogd_id }}
-        credentials_json: ${{ inputs.ogd_key }}
+        project_id: ${{ secrets.OGD_BQ_PROJECT_ID }}
+        credentials_json: ${{ secrets.OGD_ARCHIVER_BQ_KEY }}
         create_credentials_file: true
         export_environment_variables: true
 
