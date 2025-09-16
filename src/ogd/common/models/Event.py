@@ -223,9 +223,6 @@ class Event(GameData):
             app_br = conversions.ToString(name="app_branch", value=app_br)
 
         # 3. Get sequencing data
-
-        # TODO: go bac to isostring function; need 0-padding on ms first, though.
-        # Not sure how old this to-do is though, it may not be relevant anymore.
         tstamp  = schema.ColumnValueFromRow(row=row, mapping=schema.Map.TimestampColumn, concatenator=".",
                                             column_name="timestamp", expected_type=datetime, fallback=None)
         if not isinstance(tstamp, datetime):
