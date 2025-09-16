@@ -32,7 +32,7 @@ class CSVConnector(StorageConnector):
         self._with_zipping         : bool                     = with_zipping
         self._zip_paths            : Dict[str,Optional[Path]] = {mode.name:None for mode in CSVConnector._VALID_SECONDARY_FILES}
 
-    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+    # *** PROPERTIES ***
 
     @property
     def StoreConfig(self) -> FileStoreConfig:
@@ -53,6 +53,8 @@ class CSVConnector(StorageConnector):
     @property
     def ZipPaths(self) -> Dict[str, Optional[Path]]:
         return self._zip_paths
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     def _open(self, writeable:bool=True) -> bool:
         ret_val = True
@@ -101,8 +103,6 @@ class CSVConnector(StorageConnector):
         self._secondary_files[mode.name] = None
         if mode in self._with_secondary_files:
             self._with_secondary_files.remove(mode)
-
-    # *** PROPERTIES ***
 
     # *** PRIVATE STATICS ***
 
