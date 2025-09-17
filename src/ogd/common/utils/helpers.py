@@ -1,7 +1,15 @@
-from zipfile import ZipFile
-import pandas as pd
 from collections.abc import Mapping
 from functools import partial
+from typing import Any, Callable, List, Optional
+from zipfile import ZipFile
+
+import pandas as pd
+
+def find(compare:Any, in_list:List[Any]) -> int:
+    if not callable(compare):
+        y = compare
+        compare = lambda x : x == y
+    return in_list.index(next(elem for elem in in_list if compare(elem)))
 
 
 # paste from feature_utils.py
