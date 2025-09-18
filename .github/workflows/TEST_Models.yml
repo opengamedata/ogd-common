@@ -25,6 +25,7 @@ jobs:
       matrix:
         testbed: [
           test_DatasetKey,
+          test_Event,
           test_EventSet,
           test_Feature,
           test_SemanticVersion,
