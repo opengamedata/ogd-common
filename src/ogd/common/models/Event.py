@@ -1,13 +1,12 @@
 ## import standard libraries
-import builtins
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 # import local files
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
+from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapElement
 from ogd.common.models.GameData import GameData
 from ogd.common.models import SemanticVersion as SV
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions, Version
 
 class EventSource(IntEnum):
@@ -470,7 +469,28 @@ class Event(GameData):
     def ToRow(self, schema:EventTableSchema) -> Tuple:
         ret_val : List = [None]*len(schema.Columns)
 
-        idx = schema.ColumnMap.AppIDColumn
+        all_elems : Dict[str, Tuple[Any, ColumnMapElement]] = {
+            "app_id"     : (self.AppID, schema.Map.AppIDColumn),
+            "user_id"    : (self.UserID, schema.Map.UserIDColumn),
+            "session_id" : (self.SessionID, schema.Map.SessionIDColumn),
+            "log_ver"    : (self.LogVersion, schema.Map.LogVersionColumn),
+            "app_ver"    : (self.AppVersion, schema.Map.AppVersionColumn),
+            "app_branch" : (self.AppBranch, schema.Map.AppBranchColumn),
+            "timestamp"  : (self.Timestamp, schema.Map.TimestampColumn),
+            "offset"     : (self.TimeOffset, schema.Map.TimeOffsetColumn),
+            "index"      : (self.EventSequenceIndex, schema.Map.EventSequenceIndexColumn),
+            "event_name" : (self.EventName, schema.Map.EventNameColumn),
+            "event_src"  : (self.EventSource, schema.Map.EventSourceColumn),
+            "event_data" : (self.EventData, schema.Map.EventDataColumn),
+            "user_data"  : (self.UserData, schema.Map.UserDataColumn),
+            "game_state" : (self.GameState, schema.Map.GameStateColumn)
+        }
+
+        for key, details in all_elems.items():
+            mapped = schema.ColumnValueToRow(raw_value=details[0], mapping=details[1],
+                                            concatenator=".", element_name=key)
+            for idx, val in mapped.items():
+                ret_val[idx] = val
             
         return tuple(ret_val)
 

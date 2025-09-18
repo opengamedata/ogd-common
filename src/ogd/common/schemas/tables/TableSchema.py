@@ -1,15 +1,17 @@
 ## import standard libraries
 import abc
+import builtins
 import json
 import logging
 from collections import Counter
 from pathlib import Path
-from typing import Any, Dict, Final, List, Optional, Tuple, Type, TypeAlias
+from typing import Any, Callable, Dict, Final, List, Optional, Tuple, Type, TypeAlias
 ## import local files
 from ogd.common.schemas.tables import presets
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapElement
+from ogd.common.utils.helpers import find
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map, conversions
 
@@ -216,6 +218,31 @@ class TableSchema(Schema):
         else:
             ret_val = fallback
         return ret_val
+
+    def ColumnValueToRow(self, raw_value:Any, mapping:ColumnMapElement, concatenator:str, element_name:Optional[str]) -> Dict[int, Any]:
+        ret_val : Dict[int, Any] = {}
+
+        if isinstance(mapping, str):
+            ret_val[self.ColumnNames.index(mapping)] = raw_value
+        elif isinstance(mapping, list):
+            if isinstance(raw_value, str):
+                indices = [self.ColumnNames.index(col) for col in mapping]
+                pieces = raw_value.split(concatenator, len(indices))
+                for i in range(len(pieces)):
+                    ret_val[indices[i]] = pieces[i]
+            else:
+                idx = self.ColumnNames.index(mapping[0])
+                _msg = f"{element_name} of type {type(raw_value)} was not splittable, {self.Name} will reverse-map it to the {self.Columns[idx].Name} column, instead of splitting amongst {mapping}"
+                Logger.Log(_msg)
+                ret_val[idx] = raw_value
+        elif isinstance(mapping, dict):
+            # TODO : support reversing the mapping of dict data
+            idx = self.ColumnNames.index(list(mapping.keys())[0])
+            _msg = f"Reverse-mapping is not supported generally for dicts, {self.Name} will map {element_name} to the {self.Columns[idx].Name}, rather than splitting amongst {mapping}"
+            Logger.Log(_msg)
+            ret_val[idx] = raw_value
+
+        return ret_val
     
     def IndexFromMapping(self, mapping:ColumnMapElement) -> ColumnMapIndex:
         """Function to take a ColumnMapElement and turn it into a ColumnMapIndex
@@ -243,7 +270,7 @@ class TableSchema(Schema):
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***
-    
+
     def _formatMappedColumn(self, index:ColumnMapIndex):
         """Takes a column mapping index, and returns a nicely-formatted string of the columns included in the index.
 
