@@ -68,14 +68,29 @@ class ColumnMapSchema(Schema):
 
     @property
     def AppIDColumn(self) -> Optional[ColumnMapElement]:
+        """The column(s) of the storage table that is/are mapped to AppID
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._app_id
 
     @property
     def UserIDColumn(self) -> Optional[ColumnMapElement]:
+        """The column(s) of the storage table that is/are mapped to UserID
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._user_id
 
     @property
     def SessionIDColumn(self) -> Optional[ColumnMapElement]:
+        """The column(s) of the storage table that is/are mapped to SessionID
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._session_id
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
