@@ -17,14 +17,15 @@ class EventSource(IntEnum):
 
 ## @class Event
 class Event(GameData):
-
-    # *** BUILT-INS & PROPERTIES ***
-
     """
     Completely dumb struct that enforces a particular structure for the data we get from a source.
     Basically, whenever we fetch data, the TableConfig will be used to map columns to the required elements of an Event.
     Then the extractors etc. can just access columns in a direct manner.
     """
+
+    # *** BUILT-INS & PROPERTIES ***
+    _latest_session = None
+    _latest_index   = 0
     def __init__(self, app_id:str,              user_id:Optional[str],          session_id:str,
                  app_version:Optional[Version], app_branch:Optional[str],       log_version:Optional[Version],     
                  timestamp:datetime,            time_offset:Optional[timezone], event_sequence_index:Optional[int],
@@ -401,7 +402,7 @@ class Event(GameData):
         offset = schema.ColumnValueFromRow(row=row, mapping=schema.Map.TimeOffsetColumn, concatenator=".",
                                            column_name="offset", expected_type=str, fallback=fallbacks.get('time_offset'))
         if isinstance(offset, timedelta):
-            offset = conversions.ToTimedelta(name="offset", value=offset, force=True)
+            offset = conversions.ToTimezone(name="offset", value=offset, force=True)
 
         event_index = schema.ColumnValueFromRow(row=row, mapping=schema.Map.EventSequenceIndexColumn, concatenator=".",
                                                 column_name="index", expected_type=int, fallback=fallbacks.get('event_sequence_index', cls._next_index))
