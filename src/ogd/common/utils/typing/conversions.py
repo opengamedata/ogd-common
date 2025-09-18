@@ -557,7 +557,7 @@ def TimedeltaFromString(time_str:str) -> Optional[datetime.timedelta]:
         minute_pattern : LiteralString = r"(?P<minute>\d+)"
         second_pattern : LiteralString = r"(?P<second>\d+)"
         micros_pattern : LiteralString = r"(?P<micros>\d+)"
-        pattern = re.compile(f"{neg_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}.{micros_pattern}")
+        pattern = re.compile(f"{neg_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}\\.{micros_pattern}")
 
         match = re.fullmatch(pattern=pattern, string=time_str)
         if match:
@@ -583,21 +583,23 @@ def TimedeltaFromString(time_str:str) -> Optional[datetime.timedelta]:
 def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
     ret_val : Optional[datetime.timezone]
 
+    offset : Optional[datetime.timedelta] = None
     if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
         return None
     else:
         utc_pattern    : LiteralString = r"(?P<utc>UTC)"
-        dir_pattern    : LiteralString = r"(?P<dir>+|-)"
+        dir_pattern    : LiteralString = r"(?P<dir>\+|-)"
         day_pattern    : LiteralString = r"(?:(?P<day>\d+)\s+day(?:s)?,\s+)"
         hour_pattern   : LiteralString = r"(?P<hour>\d+)"
         minute_pattern : LiteralString = r"(?P<minute>\d+)"
         second_pattern : LiteralString = r"(?P<second>\d+)"
         micros_pattern : LiteralString = r"(?P<micros>\d+)"
-        pattern = re.compile(f"UTC?{dir_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}.{micros_pattern}")
+        raw_pattern = f"{utc_pattern}?{dir_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}(\\.{micros_pattern})?"
+        pattern = re.compile(raw_pattern)
 
         match = re.fullmatch(pattern=pattern, string=time_str)
         if match:
-            offset : datetime.timedelta = datetime.timedelta(
+            offset = datetime.timedelta(
                 days=int(match.group("day") or 0),
                 hours=int(match.group("hour") or 0),
                 minutes=int(match.group("minute") or 0),
@@ -605,21 +607,22 @@ def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
                 microseconds=int(match.group("micros") or 0)
             )
             # if we matched the negative sign, then make the timedelta negative.
-            if match.group("neg") == "-":
-                offset = -offset
+            if match.group("dir") == "-":
+                offset = -1*offset
         else:
             match = re.fullmatch(pattern=r"-?\d+", string=time_str)
             if match:
                 offset = datetime.timedelta(seconds=int(time_str))
             else:
                 Logger.Log(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats.", logging.WARNING)
-        MAX_OFFSET = 24*60*60
-        if offset.total_seconds() > MAX_OFFSET:
-            offset = datetime.timedelta(seconds=offset.total_seconds() % MAX_OFFSET)
-        if offset.total_seconds() < -24*60*60:
-            offset = datetime.timedelta(seconds=(offset.total_seconds() % MAX_OFFSET) - MAX_OFFSET)
+        if offset:
+            MAX_OFFSET = 24*60*60
+            if offset.total_seconds() > MAX_OFFSET:
+                offset = datetime.timedelta(seconds=offset.total_seconds() % MAX_OFFSET)
+            if offset.total_seconds() < -24*60*60:
+                offset = datetime.timedelta(seconds=(offset.total_seconds() % MAX_OFFSET) - MAX_OFFSET)
 
-        ret_val = datetime.timezone(offset=offset)
+        ret_val = datetime.timezone(offset=offset) if offset is not None else None
         return ret_val
     raise ValueError(f"Could not parse timezone {time_str} of type {type(time_str)}, it did not match any expected formats.")
 
