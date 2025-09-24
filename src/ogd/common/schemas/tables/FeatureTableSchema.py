@@ -8,7 +8,7 @@ from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.tables.FeatureMapSchema import FeatureMapSchema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils import typing
 
 ## @class TableSchema
 class FeatureTableSchema(TableSchema):
@@ -22,7 +22,7 @@ class FeatureTableSchema(TableSchema):
     def __init__(self, name,
                  column_map:Optional[FeatureMapSchema],
                  columns:Optional[List[ColumnSchema]],
-                 other_elements:Optional[Map]=None
+                 other_elements:Optional[typing.Map]=None
         ):
         """Constructor for the TableSchema class.
         Given a database connection and a game data request,
@@ -63,7 +63,7 @@ class FeatureTableSchema(TableSchema):
         :param is_legacy: [description], defaults to False
         :type is_legacy: bool, optional
         """
-        unparsed_elements : Map = other_elements or {}
+        unparsed_elements : typing.Map = other_elements or {}
 
         self._column_map : FeatureMapSchema = column_map if column_map is not None else self._parseColumnMap(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, columns=columns, other_elements=unparsed_elements)
@@ -121,7 +121,7 @@ class FeatureTableSchema(TableSchema):
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "FeatureTableSchema":
+    def _fromDict(cls, name:str, unparsed_elements:typing.Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "FeatureTableSchema":
         """Function to generate a TableSchema from a dictionary.
 
         The structure is assumed to be as follows:
@@ -151,7 +151,7 @@ class FeatureTableSchema(TableSchema):
     # *** PUBLIC METHODS ***
 
     _conversion_warnings = Counter()
-    def FeatureFromRow(self, row:Tuple, concatenator:str = '.', fallbacks:Map={}) -> Feature:
+    def FeatureFromRow(self, row:Tuple, concatenator:str = '.', fallbacks:typing.Map={}) -> Feature:
         """Function to convert a row to a Feature, based on the loaded schema.
         In general, columns specified in the schema's column_map are mapped to corresponding elements of the Event.
         If the column_map gave a list, rather than a single column name, the values from each column are concatenated in order with '.' character separators.
@@ -269,7 +269,7 @@ class FeatureTableSchema(TableSchema):
     # *** PRIVATE METHODS ***
 
     @staticmethod
-    def _parseColumnMap(unparsed_elements:Map, schema_name:Optional[str]=None) -> FeatureMapSchema:
+    def _parseColumnMap(unparsed_elements:typing.Map, schema_name:Optional[str]=None) -> FeatureMapSchema:
         ret_val : FeatureMapSchema
 
         raw_map = TableSchema.ParseElement(
