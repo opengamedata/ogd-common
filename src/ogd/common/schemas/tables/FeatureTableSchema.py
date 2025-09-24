@@ -81,6 +81,19 @@ class FeatureTableSchema(TableSchema):
         :rtype: Dict[str, Union[int, List[int], Dict[str, int], None]]
         """
         return self._column_map
+    @property
+    def Map(self) -> FeatureMapSchema:
+        """Alias for ColumnMap property
+
+        Mapping from Event element names to the indices of the database columns mapped to them.
+        There may be a single index, indicating a 1-to-1 mapping of a database column to the element;
+        There may be a list of indices, indicating multiple columns will be concatenated to form the element value;
+        There may be a further mapping of keys to indices, indicating multiple columns will be joined into a JSON object, with keys mapped to values found at the columns with given indices.
+
+        :return: The dictionary mapping of element names to indices.
+        :rtype: Dict[str, Union[int, List[int], Dict[str, int], None]]
+        """
+        return self.ColumnMap
 
     @property
     def AsMarkdown(self) -> str:
