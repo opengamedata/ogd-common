@@ -489,7 +489,7 @@ class Event(GameData):
 
         for key, details in all_elems.items():
             mapped = schema.ColumnValueToRow(raw_value=details[0], mapping=details[1],
-                                            concatenator=".", element_name=key)
+                                             concatenator=".",     element_name=key)
             for idx, val in mapped.items():
                 ret_val[idx] = val
             
