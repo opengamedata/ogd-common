@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Self
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.tables.EventMapSchema import EventMapSchema
-from ogd.common.utils.typing import Map
+from ogd.common.utils import typing
 
 ## @class TableSchema
 class EventTableSchema(TableSchema):
@@ -18,7 +18,7 @@ class EventTableSchema(TableSchema):
     def __init__(self, name,
                  column_map:Optional[EventMapSchema],
                  columns:Optional[List[ColumnSchema]],
-                 other_elements:Optional[Map]=None
+                 other_elements:Optional[typing.Map]=None
         ):
         """Constructor for the TableSchema class.
         Given a database connection and a game data request,
@@ -59,7 +59,7 @@ class EventTableSchema(TableSchema):
         :param is_legacy: [description], defaults to False
         :type is_legacy: bool, optional
         """
-        unparsed_elements : Map = other_elements or {}
+        unparsed_elements : typing.Map = other_elements or {}
 
         self._column_map : EventMapSchema = column_map or self._parseColumnMap(unparsed_elements=unparsed_elements, schema_name=name)
         # a couple other vars used in the row->event conversion
@@ -120,7 +120,7 @@ class EventTableSchema(TableSchema):
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "EventTableSchema":
+    def _fromDict(cls, name:str, unparsed_elements:typing.Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "EventTableSchema":
         """Function to generate a TableSchema from a dictionary.
 
         The structure is assumed to be as follows:
@@ -154,7 +154,7 @@ class EventTableSchema(TableSchema):
     # *** PRIVATE METHODS ***
 
     @staticmethod
-    def _parseColumnMap(unparsed_elements:Map, schema_name:Optional[str]=None) -> EventMapSchema:
+    def _parseColumnMap(unparsed_elements:typing.Map, schema_name:Optional[str]=None) -> EventMapSchema:
         ret_val : EventMapSchema
 
         raw_map = TableSchema.ParseElement(
