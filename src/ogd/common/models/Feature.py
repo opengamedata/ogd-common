@@ -4,7 +4,7 @@ from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.models.GameData import GameData
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapElement
-from ogd.common.utils.typing import Map, conversions
+from ogd.common.utils.typing import ExportRow, Map, conversions
 
 class Feature(GameData):
     """
@@ -59,7 +59,7 @@ class Feature(GameData):
     # *** PROPERTIES ***
 
     @property
-    def ColumnValues(self) -> List[List[Any]]:
+    def ColumnValues(self) -> List[Tuple[Any, ...]]:
         """A list of all values for the row, in order they appear in the `ColumnNames` function.
 
         .. todo:: Technically, this should be string representations of each, but we're technically not enforcing that yet.
@@ -68,10 +68,10 @@ class Feature(GameData):
         :rtype: List[Union[str, datetime, timezone, Map, int, None]]
         """
         return [
-            [
+            (
                 feat_name,  self.FeatureType, self.GameUnit,  self.GameUnitIndex,
                 self.AppID, self.UserID,      self.SessionID, self.ValueMap.get(feat_name)
-            ]
+            )
             for feat_name in self.FeatureNames
         ]
 
@@ -182,7 +182,7 @@ class Feature(GameData):
         )
 
     @classmethod
-    def FromRow(cls, row:Tuple, schema:FeatureTableSchema, fallbacks:Map={}) -> "Feature":
+    def FromRow(cls, row:ExportRow, schema:FeatureTableSchema, fallbacks:Map={}) -> "Feature":
         """Function to convert a row to an Event, based on the loaded schema.
         In general, columns specified in the schema's column_map are mapped to corresponding elements of the Event.
         If the column_map gave a list, rather than a single column name, the values from each column are concatenated in order with '.' character separators.
@@ -273,7 +273,7 @@ class Feature(GameData):
 
     # *** PUBLIC METHODS ***
 
-    def ToRow(self, schema:FeatureTableSchema) -> Tuple:
+    def ToRow(self, schema:FeatureTableSchema) -> ExportRow:
         ret_val : List = [None]*len(schema.Columns)
 
         all_maps : List[Dict[int, Any]] = [

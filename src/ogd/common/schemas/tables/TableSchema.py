@@ -13,7 +13,7 @@ from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapElement
 from ogd.common.utils.helpers import find
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map, conversions
+from ogd.common.utils.typing import ExportRow, Map, conversions
 
 ColumnMapIndex   : TypeAlias = Optional[int | List[int] | Dict[str,int]]
 
@@ -192,7 +192,7 @@ class TableSchema(Schema):
     # *** PUBLIC METHODS ***
 
     _conversion_warnings = Counter()
-    def ColumnValueFromRow(self, row:Tuple, mapping:ColumnMapElement, concatenator:str, column_name:Optional[str]=None, expected_type:Optional[Type]=None, fallback:Any=None) -> Any:
+    def ColumnValueFromRow(self, row:ExportRow, mapping:ColumnMapElement, concatenator:str, column_name:Optional[str]=None, expected_type:Optional[Type]=None, fallback:Any=None) -> Any:
         ret_val : Any
         if mapping is not None:
             indices = self.IndexFromMapping(mapping)

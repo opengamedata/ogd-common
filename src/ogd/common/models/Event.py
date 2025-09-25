@@ -7,7 +7,7 @@ from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapElement
 from ogd.common.models.GameData import GameData
 from ogd.common.models import SemanticVersion as SV
-from ogd.common.utils.typing import Map, conversions, Version
+from ogd.common.utils.typing import ExportRow, Map, conversions, Version
 
 class EventSource(IntEnum):
     """Enum for the possible sources of an event - a game, or a generator.
@@ -105,7 +105,7 @@ class Event(GameData):
     # *** PROPERTIES ***
 
     @property
-    def ColumnValues(self) -> List[Union[str, datetime, timezone, Map, int, None]]:
+    def ColumnValues(self) -> Tuple[Optional[str | datetime | timezone | Map | int], ...]:
         """A list of all values for the row, in order they appear in the `ColumnNames` function.
 
         .. todo:: Technically, this should be string representations of each, but we're technically not enforcing that yet.
@@ -113,10 +113,10 @@ class Event(GameData):
         :return: The list of values.
         :rtype: List[Union[str, datetime, timezone, Map, int, None]]
         """
-        return [self.session_id,       self.app_id,             self.timestamp,        self.event_name,
+        return (self.session_id,       self.app_id,             self.timestamp,        self.event_name,
                 self.event_data,       self.event_source.name,  self.AppVersionString, self.app_branch,
                 self.LogVersionString, self.TimeOffsetString,   self.user_id,          self.user_data,
-                self.game_state,       self.event_sequence_index]
+                self.game_state,       self.event_sequence_index)
 
     @property
     def Hash(self) -> int:
@@ -321,7 +321,7 @@ class Event(GameData):
         )
 
     @classmethod
-    def FromRow(cls, row:Tuple, schema:EventTableSchema, fallbacks:Map={}) -> "Event":
+    def FromRow(cls, row:ExportRow, schema:EventTableSchema, fallbacks:Map={}) -> "Event":
         """Function to convert a row to an Event, based on the loaded schema.
         In general, columns specified in the schema's column_map are mapped to corresponding elements of the Event.
         If the column_map gave a list, rather than a single column name, the values from each column are concatenated in order with '.' character separators.
@@ -468,7 +468,7 @@ class Event(GameData):
             )
         return ret_val
 
-    def ToRow(self, schema:EventTableSchema) -> Tuple:
+    def ToRow(self, schema:EventTableSchema) -> ExportRow:
         ret_val : List = [None]*len(schema.Columns)
 
         all_elems : Dict[str, Tuple[Any, ColumnMapElement]] = {
