@@ -24,6 +24,7 @@ class Event(GameData):
     """
 
     # *** BUILT-INS & PROPERTIES ***
+
     _latest_session = None
     _latest_index   = 0
     def __init__(self, app_id:str,              user_id:Optional[str],          session_id:str,
@@ -364,7 +365,7 @@ class Event(GameData):
             app_id = conversions.ToString(name="app_id", value=app_id)
 
         user_id = schema.ColumnValueFromRow(row=row, mapping=schema.Map.UserIDColumn, concatenator=".",
-                                            column_name="app_id", expected_type=str, fallback=fallbacks.get("user_id"))
+                                            column_name="user_id", expected_type=str, fallback=fallbacks.get("user_id"))
         if user_id is not None and not isinstance(user_id, str):
             user_id = conversions.ToString(name="user_id", value=user_id)
 
