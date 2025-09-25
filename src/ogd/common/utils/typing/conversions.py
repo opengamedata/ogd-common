@@ -397,6 +397,8 @@ def ToTimezone(name:str, value:Any, force:bool=False) -> Optional[datetime.timez
     match type(value):
         case datetime.timezone:
             ret_val = value
+        case datetime.timedelta:
+            ret_val = datetime.timezone(value)
         case builtins.str:
             ret_val = TimezoneFromString(time_str=value)
         case _:
