@@ -72,7 +72,7 @@ class test_EventSet(TestCase):
             store_config=None
         )
         CSVI = CSVInterface(config=_cfg, fail_fast=False)
-        cls.events : EventSet = CSVI.GetEventCollection(filters=DatasetFilterCollection(), fallbacks={})
+        cls.events : EventSet = CSVI.GetEventSet(filters=DatasetFilterCollection(), fallbacks={})
 
     @staticmethod
     def RunAll():
