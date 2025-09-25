@@ -9,7 +9,7 @@ from pprint import pformat
 from typing import Dict, List, Optional, Tuple, Union
 
 ## import external libraries
-from deprecated import deprecated
+from deprecated.sphinx import deprecated
 
 # import local files
 from ogd.common.filters.RangeFilter import RangeFilter
@@ -193,6 +193,7 @@ class Interface(abc.ABC):
             Logger.Log(f"Could not retrieve Event data from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
 
         return EventSet(events=events, filters=filters)
+
     @deprecated(version='2.0.9', reason="This function is being replaced with GetEventSet, you should use it instead")
     def GetEventCollection(self, filters:DatasetFilterCollection, fallbacks:Map) -> EventSet:
         """DEPRECATED Alias for GetEventSet.
