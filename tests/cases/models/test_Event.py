@@ -53,13 +53,13 @@ class test_Event(TestCase):
         self.assertEqual(self.event.ColumnNames(), _elems)
 
     def test_ColumnValues(self):
-        _elems = [
+        _elems = (
             "1234567890", "AQUALAB",   datetime.datetime(year=2025, month=1, day=1, hour=10, minute=0, second=0, microsecond=500), "session_start", 
             {},           "GAME",      "1.0", "main",
             "3",          "UTC+02:00", "GreenGiant", {},
             {},           1
-        ]
-        self.assertIsInstance(self.event.ColumnValues, list)
+        )
+        self.assertIsInstance(self.event.ColumnValues, tuple)
         self.assertEqual(self.event.ColumnValues, _elems)
 
     def test_AppVersion(self):
@@ -76,7 +76,7 @@ class test_Event(TestCase):
             "session_start", {}, "GAME", {}, "1.0", "main", 3, 1, "127.0.0.0", "fake user agent"
         )
         _event = Event.FromRow(row=_row, schema=_schema, fallbacks={"app_id":"AQUALAB"})
-        _elems = [
+        _elems = (
             "1234567890",    "AQUALAB",
             datetime.datetime(year=2025, month=1, day=1, hour=10, minute=0, second=0, microsecond=500000),
             "session_start", 
@@ -84,7 +84,7 @@ class test_Event(TestCase):
             "GAME",          "1.0",        "main",
             "3",             "UTC+02:00",  "GreenGiant",
             {},              {},           1
-        ]
+        )
         self.assertEqual(_event.ColumnValues, _elems)
 
     def test_ToRow_MySQL(self):
