@@ -28,7 +28,7 @@ class test_Event(TestCase):
             app_version="1.0",
             app_branch="main",
             log_version=3,
-            timestamp=datetime.datetime(year=2025, month=1, day=1, hour=10, minute=0, second=0),
+            timestamp=datetime.datetime(year=2025, month=1, day=1, hour=10, minute=0, second=0, microsecond=500),
             time_offset=datetime.timezone(datetime.timedelta(hours=2)),
             event_sequence_index=1,
             event_name="session_start",
@@ -71,15 +71,32 @@ class test_Event(TestCase):
     def test_FromRow_MySQL(self):
         _schema = EventTableSchema.Load(schema_name="OPENGAMEDATA_MYSQL")
         _row = (
-            1, "1234567890", "GreenGiant", {}, datetime.datetime(2025, 1, 1, 9, 59, 59),
-            500, datetime.timedelta(hours=2),  datetime.datetime(2025, 1, 1, 10, 0, 0),
+            1, "1234567890", "GreenGiant", {}, datetime.datetime(2025, 1, 1, 10, 0, 0),
+            500, datetime.timedelta(hours=2),  datetime.datetime(2025, 1, 1, 10, 0, 1),
             "session_start", {}, "GAME", {}, "1.0", "main", 3, 1, "127.0.0.0", "fake user agent"
         )
         _event = Event.FromRow(row=_row, schema=_schema, fallbacks={"app_id":"AQUALAB"})
         _elems = [
-            "1234567890", "AQUALAB",   datetime.datetime(year=2025, month=1, day=1, hour=9, minute=59, second=59, microsecond=500000), "session_start", 
-            {"server_time":datetime.datetime(2025, 1, 1, 10, 0, 0)},           "GAME",      "1.0", "main",
-            "3",          "UTC+02:00", "GreenGiant", {},
-            {},           1
+            "1234567890",    "AQUALAB",
+            datetime.datetime(year=2025, month=1, day=1, hour=10, minute=0, second=0, microsecond=500000),
+            "session_start", 
+            {"server_time":datetime.datetime(2025, 1, 1, 10, 0, 1)},
+            "GAME",          "1.0",        "main",
+            "3",             "UTC+02:00",  "GreenGiant",
+            {},              {},           1
         ]
         self.assertEqual(_event.ColumnValues, _elems)
+
+    def test_ToRow_MySQL(self):
+        _schema = EventTableSchema.Load(schema_name="OPENGAMEDATA_MYSQL")
+        _row = (
+            None,            "1234567890",     "GreenGiant", {},
+            datetime.datetime(2025, 1, 1, 10, 0, 0, 500),
+            None,
+            datetime.timezone(datetime.timedelta(hours=2)),  None,
+            "session_start", {},               None,         {},
+            "1.0",           "main",           3,            1,
+            None,            None
+        )
+        _elems = self.event.ToRow(schema=_schema)
+        self.assertEqual(_elems, _row)
