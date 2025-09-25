@@ -51,6 +51,7 @@ class test_MySQLConnector(TestCase):
         self.assertIsInstance(is_open, bool)
         self.assertEqual(is_open, success)
 
+    @unittest.skip("Skipping until we determine a good way to guarantee there's something to connect to in testing environment.")
     def test_Connection(self):
         client = self.test_connector.Connection
         self.assertIsNone(client)
