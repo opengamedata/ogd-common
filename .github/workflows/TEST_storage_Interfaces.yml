@@ -4,6 +4,11 @@ run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' &
 on:
   workflow_dispatch:
   workflow_call:
+    secrets:
+      VPN_USER:
+        required: true
+      VPN_PASS:
+        required: true
   push:
     paths:
     # repo-wide dependencies
