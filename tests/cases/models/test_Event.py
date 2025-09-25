@@ -54,7 +54,7 @@ class test_Event(TestCase):
 
     def test_ColumnValues(self):
         _elems = [
-            "1234567890", "AQUALAB",   datetime.datetime(year=2025, month=1, day=1, hour=10, minute=0, second=0), "session_start", 
+            "1234567890", "AQUALAB",   datetime.datetime(year=2025, month=1, day=1, hour=10, minute=0, second=0, microsecond=500), "session_start", 
             {},           "GAME",      "1.0", "main",
             "3",          "UTC+02:00", "GreenGiant", {},
             {},           1
