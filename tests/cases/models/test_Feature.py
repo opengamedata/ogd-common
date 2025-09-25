@@ -49,14 +49,14 @@ class test_Feature(TestCase):
 
     def test_ColumnValues(self):
         _elems = [
-            [
+            (
                 "TestFeature", "SomeTypeOfFeature", "*",              "*", 
                 "AQUALAB",     "GreenGiant",        "20250101012345", "Value"
-            ],
-            [
+            ),
+            (
                 "Foo",     "SomeTypeOfFeature", "*",              "*", 
                 "AQUALAB", "GreenGiant",        "20250101012345", "Bar"
-            ]
+            )
         ]
         self.assertIsInstance(self.feature.ColumnValues, list)
         self.assertEqual(self.feature.ColumnValues, _elems)

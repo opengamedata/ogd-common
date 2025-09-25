@@ -8,6 +8,9 @@ from datetime import datetime, time, timedelta
 from pprint import pformat
 from typing import Dict, List, Optional, Tuple, Union
 
+## import external libraries
+from deprecated.sphinx import deprecated
+
 # import local files
 from ogd.common.filters.RangeFilter import RangeFilter
 from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
@@ -153,9 +156,28 @@ class Interface(abc.ABC):
             Logger.Log(f"Could not retrieve data versions from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val
 
-    def GetEventCollection(self, filters:DatasetFilterCollection, fallbacks:Map) -> EventSet:
-        _events : List[Event] = []
+    def GetEventSet(self, filters:DatasetFilterCollection, fallbacks:Map) -> EventSet:
+        """Get a set of events based on the given filters.
 
+        :param filters: _description_
+        :type filters: DatasetFilterCollection
+        :param fallbacks: _description_
+        :type fallbacks: Map
+        :return: _description_
+        :rtype: EventSet
+        """
+        def convert(row, schema:EventTableSchema, fallbacks:Map) -> Optional[Event]:
+            try:
+                return Event.FromRow(row=row, schema=schema, fallbacks=fallbacks)
+            except Exception as err: # pylint: disable=broad-exception-caught
+                if self._fail_fast:
+                    Logger.Log(f"Error while converting row to Event! Cancelling data retrieval.\nFull error: {err}\nRow data: {pformat(row)}", logging.ERROR, depth=2)
+                    raise err
+                else:
+                    Logger.Log(f"Error while converting row ({row}) to Event! This row will be skipped.\nFull error: {err}", logging.WARNING, depth=2)
+                    return None
+
+        events : List[Event] = []
         if self.Connector.IsOpen:
             self._safeguardFilters(filters=filters)
             if isinstance(self.Config.TableSchema, EventTableSchema):
@@ -163,28 +185,52 @@ class Interface(abc.ABC):
                 Logger.Log(_msg, logging.INFO, depth=3)
 
                 rows = self._getEventRows(filters=filters)
-                for row in rows:
-                    try:
-                        event = self.Config.TableSchema.EventFromRow(row, fallbacks=fallbacks)
-                        # in case event index was not given, we should fall back on using the order it came to us.
-                    except Exception as err: # pylint: disable=broad-exception-caught
-                        if self._fail_fast:
-                            Logger.Log(f"Error while converting row to Event! Cancelling data retrieval.\nFull error: {err}\nRow data: {pformat(row)}", logging.ERROR, depth=2)
-                            raise err
-                        else:
-                            Logger.Log(f"Error while converting row ({row}) to Event! This row will be skipped.\nFull error: {err}", logging.WARNING, depth=2)
-                    else:
-                        _events.append(event)
+                events = [event for row in rows if (event := convert(row=row, schema=self.Config.TableSchema, fallbacks=fallbacks)) is not None]
+
             else:
                 Logger.Log(f"Could not retrieve Event data from {self.Connector.ResourceName}, this interface is not configured for Event data!", logging.WARNING, depth=3)
         else:
             Logger.Log(f"Could not retrieve Event data from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
 
-        return EventSet(events=_events, filters=filters)
+        return EventSet(events=events, filters=filters)
 
-    def GetFeatureCollection(self, filters:DatasetFilterCollection, fallbacks:Map) -> FeatureSet:
-        _features : List[Feature] = []
+    @deprecated(version='2.0.9', reason="This function is being replaced with GetEventSet, you should use it instead")
+    def GetEventCollection(self, filters:DatasetFilterCollection, fallbacks:Map) -> EventSet:
+        """DEPRECATED Alias for GetEventSet.
 
+        Get a set of events based on the given filters.
+
+        :param filters: _description_
+        :type filters: DatasetFilterCollection
+        :param fallbacks: _description_
+        :type fallbacks: Map
+        :return: _description_
+        :rtype: EventSet
+        """
+        return self.GetEventSet(filters=filters, fallbacks=fallbacks)
+
+    def GetFeatureSet(self, filters:DatasetFilterCollection, fallbacks:Map) -> FeatureSet:
+        """Get a set of features based on the given filters.
+
+        :param filters: _description_
+        :type filters: DatasetFilterCollection
+        :param fallbacks: _description_
+        :type fallbacks: Map
+        :return: _description_
+        :rtype: FeatureSet
+        """
+        def convert(row, schema:FeatureTableSchema, fallbacks:Map) -> Optional[Feature]:
+            try:
+                return Feature.FromRow(row=row, schema=schema, fallbacks=fallbacks)
+            except Exception as err: # pylint: disable=broad-exception-caught
+                if self._fail_fast:
+                    Logger.Log(f"Error while converting row to Feature! Cancelling data retrieval.\nFull error: {err}\nRow data: {pformat(row)}", logging.ERROR, depth=2)
+                    raise err
+                else:
+                    Logger.Log(f"Error while converting row ({row}) to Feature! This row will be skipped.\nFull error: {err}", logging.WARNING, depth=2)
+                    return None
+
+        features : List[Feature] = []
         if self.Connector.IsOpen:
             self._safeguardFilters(filters=filters)
             if isinstance(self.Config.TableSchema, FeatureTableSchema):
@@ -192,24 +238,28 @@ class Interface(abc.ABC):
                 Logger.Log(_msg, logging.INFO, depth=3)
 
                 rows = self._getFeatureRows(filters=filters)
-                for row in rows:
-                    try:
-                        feature = self.Config.TableSchema.FeatureFromRow(row, fallbacks=fallbacks)
-                        # in case event index was not given, we should fall back on using the order it came to us.
-                    except Exception as err: # pylint: disable=broad-exception-caught
-                        if self._fail_fast:
-                            Logger.Log(f"Error while converting row to Feature! Cancelling data retrieval.\nFull error: {err}\nRow data: {pformat(row)}", logging.ERROR, depth=2)
-                            raise err
-                        else:
-                            Logger.Log(f"Error while converting row ({row}) to Feature! This row will be skipped.\nFull error: {err}", logging.WARNING, depth=2)
-                    else:
-                        _features.append(feature)
+                features = [feature for row in rows if (feature := convert(row=row, schema=self.Config.TableSchema, fallbacks=fallbacks)) is not None]
             else:
                 Logger.Log(f"Could not retrieve Feature data from {self.Connector.ResourceName}, this interface is not configured for Feature data!", logging.WARNING, depth=3)
         else:
             Logger.Log(f"Could not retrieve Feature data from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
 
-        return FeatureSet(features=_features, filters=filters)
+        return FeatureSet(features=features, filters=filters)
+
+    @deprecated(version='2.0.9', reason="This function is being replaced with GetFeatureSet, you should use it instead")
+    def GetFeatureCollection(self, filters:DatasetFilterCollection, fallbacks:Map) -> FeatureSet:
+        """DEPRECATED Alias for GetFeatureSet.
+
+        Get a set of features based on the given filters.
+
+        :param filters: _description_
+        :type filters: DatasetFilterCollection
+        :param fallbacks: _description_
+        :type fallbacks: Map
+        :return: _description_
+        :rtype: FeatureSet
+        """
+        return self.GetFeatureSet(filters=filters, fallbacks=fallbacks)
 
     # *** PRIVATE STATICS ***
 

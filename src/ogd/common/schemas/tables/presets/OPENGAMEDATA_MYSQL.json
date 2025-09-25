@@ -58,7 +58,7 @@
             "name": "client_offset",
             "readable": "Client Time Offset",
             "description": "The time difference between local client time and GMT",
-            "type": "timedelta"
+            "type": "timezone"
         },
         {
             "name": "server_time",

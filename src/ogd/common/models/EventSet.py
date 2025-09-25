@@ -1,8 +1,9 @@
 ## import standard libraries
-from typing import List
+from typing import List, Optional
 # import local files
 from ogd.common.filters.collections import *
 from ogd.common.models.Event import Event, EventSource
+from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.utils.typing import ExportRow
 
 class EventSet:
@@ -50,12 +51,10 @@ class EventSet:
     def GameEvents(self) -> List[Event]:
         return [event for event in self.Events if event.EventSource == EventSource.GAME]
 
-    @property
-    def EventLines(self) -> List[ExportRow]:
-        return [event.ColumnValues for event in self.Events]
-    @property
-    def GameEventLines(self) -> List[ExportRow]:
-        return [event.ColumnValues for event in self.GameEvents]
+    def EventLines(self, schema:Optional[EventTableSchema]) -> List[ExportRow]:
+        return [event.ToRow(schema=schema) if schema is not None else event.ColumnValues for event in self.Events]
+    def GameEventLines(self, schema:Optional[EventTableSchema]) -> List[ExportRow]:
+        return [event.ToRow(schema=schema) if schema is not None else event.ColumnValues for event in self.GameEvents]
 
     @property
     def Filters(self) -> DatasetFilterCollection:

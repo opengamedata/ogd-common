@@ -86,17 +86,17 @@ class EventMapSchema(ColumnMapSchema):
 
         super().__init__(name=name, app_id=app_id, user_id=user_id, session_id=session_id,
                          other_elements=unparsed_elements)
-        self._app_version          : ColumnMapElement = app_version          or self._parseAppVersion(unparsed_elements=self._raw_map)
-        self._app_branch           : ColumnMapElement = app_branch           or self._parseAppBranch(unparsed_elements=self._raw_map)
-        self._log_version          : ColumnMapElement = log_version          or self._parseLogVersion(unparsed_elements=self._raw_map)
-        self._timestamp            : ColumnMapElement = timestamp            or self._parseTimestamp(unparsed_elements=unparsed_elements)
-        self._time_offset          : ColumnMapElement = time_offset          or self._parseTimeoffset(unparsed_elements=unparsed_elements)
-        self._event_sequence_index : ColumnMapElement = event_sequence_index or self._parseSequenceIndex(unparsed_elements=unparsed_elements)
-        self._event_name           : ColumnMapElement = event_name           or self._parseEventName(unparsed_elements=unparsed_elements)
-        self._event_source         : ColumnMapElement = event_source         or self._parseEventSource(unparsed_elements=unparsed_elements)
-        self._event_data           : ColumnMapElement = event_data           or self._parseEventData(unparsed_elements=unparsed_elements)
-        self._game_state           : ColumnMapElement = game_state           or self._parseGameState(unparsed_elements=unparsed_elements)
-        self._user_data            : ColumnMapElement = user_data            or self._parseUserData(unparsed_elements=unparsed_elements)
+        self._app_version          : ColumnMapElement = app_version          if app_version          is not None else self._parseAppVersion(unparsed_elements=self._raw_map, schema_name=name)
+        self._app_branch           : ColumnMapElement = app_branch           if app_branch           is not None else self._parseAppBranch(unparsed_elements=self._raw_map, schema_name=name)
+        self._log_version          : ColumnMapElement = log_version          if log_version          is not None else self._parseLogVersion(unparsed_elements=self._raw_map, schema_name=name)
+        self._timestamp            : ColumnMapElement = timestamp            if timestamp            is not None else self._parseTimestamp(unparsed_elements=unparsed_elements, schema_name=name)
+        self._time_offset          : ColumnMapElement = time_offset          if time_offset          is not None else self._parseTimeoffset(unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_sequence_index : ColumnMapElement = event_sequence_index if event_sequence_index is not None else self._parseSequenceIndex(unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_name           : ColumnMapElement = event_name           if event_name           is not None else self._parseEventName(unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_source         : ColumnMapElement = event_source         if event_source         is not None else self._parseEventSource(unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_data           : ColumnMapElement = event_data           if event_data           is not None else self._parseEventData(unparsed_elements=unparsed_elements, schema_name=name)
+        self._game_state           : ColumnMapElement = game_state           if game_state           is not None else self._parseGameState(unparsed_elements=unparsed_elements, schema_name=name)
+        self._user_data            : ColumnMapElement = user_data            if user_data            is not None else self._parseUserData(unparsed_elements=unparsed_elements, schema_name=name)
 
     def __eq__(self, other:"EventMapSchema"):
         if not isinstance(other, EventMapSchema):
@@ -119,46 +119,101 @@ class EventMapSchema(ColumnMapSchema):
 
     @property
     def AppVersionColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to AppVersion
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._app_version
 
     @property
     def AppBranchColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to AppBranch
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._app_branch
 
     @property
     def LogVersionColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to LogVersion
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._log_version
 
     @property
     def TimestampColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to Timestamp
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._timestamp
 
     @property
     def EventNameColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to EventName
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._event_name
 
     @property
     def EventDataColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to EventData
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._event_data
 
     @property
     def EventSourceColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to EventSource
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._event_source
 
     @property
     def TimeOffsetColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to TimeOffset
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._time_offset
 
     @property
     def UserDataColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to UserData
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._user_data
 
     @property
     def GameStateColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to GameState
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._game_state
 
     @property
     def EventSequenceIndexColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to Event Sequence Index
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._event_sequence_index
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -236,111 +291,122 @@ class EventMapSchema(ColumnMapSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseAppVersion(unparsed_elements:Map) -> Optional[ColumnMapElement]:
+    def _parseAppVersion(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["app_version"],
             to_type=[str, list, dict],
             default_value=None,
-            remove_target=False
+            remove_target=False,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseAppBranch(unparsed_elements:Map) -> Optional[ColumnMapElement]:
+    def _parseAppBranch(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["app_branch", "app_flavor"],
             to_type=[str, list, dict],
             default_value=None,
-            remove_target=False
+            remove_target=False,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseLogVersion(unparsed_elements:Map) -> Optional[ColumnMapElement]:
+    def _parseLogVersion(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["log_version"],
             to_type=[str, list, dict],
             default_value=None,
-            remove_target=False
+            remove_target=False,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseTimestamp(unparsed_elements:Map) -> Optional[ColumnMapElement]:
+    def _parseTimestamp(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["timestamp"],
             to_type=[str, list, dict],
             default_value=None,
-            remove_target=False
+            remove_target=False,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseTimeoffset(unparsed_elements:Map) -> Optional[ColumnMapElement]:
+    def _parseTimeoffset(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["offset", "time_offset", "timezone", "time_zone"],
             to_type=[str, list, dict],
             default_value=None,
-            remove_target=False
+            remove_target=False,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseSequenceIndex(unparsed_elements:Map) -> Optional[ColumnMapElement]:
+    def _parseSequenceIndex(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["event_sequence_index", "event_index", "sequence_index"],
             to_type=[str, list, dict],
             default_value=None,
-            remove_target=False
+            remove_target=False,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseEventName(unparsed_elements:Map) -> Optional[ColumnMapElement]:
+    def _parseEventName(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["event_name", "event_type"],
             to_type=[str, list, dict],
             default_value=None,
-            remove_target=False
+            remove_target=False,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseEventSource(unparsed_elements:Map) -> Optional[ColumnMapElement]:
+    def _parseEventSource(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["event_source", "source"],
             to_type=[str, list, dict],
             default_value=None,
-            remove_target=False
+            remove_target=False,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseEventData(unparsed_elements:Map) -> Optional[ColumnMapElement]:
+    def _parseEventData(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["event_data"],
             to_type=[str, list, dict],
             default_value=None,
-            remove_target=False
+            remove_target=False,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseGameState(unparsed_elements:Map) -> Optional[ColumnMapElement]:
+    def _parseGameState(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["game_state"],
             to_type=[str, list, dict],
             default_value=None,
-            remove_target=False
+            remove_target=False,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseUserData(unparsed_elements:Map) -> Optional[ColumnMapElement]:
+    def _parseUserData(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["user_data", "player_data"],
             to_type=[str, list, dict],
             default_value=None,
-            remove_target=False
+            remove_target=False,
+            schema_name=schema_name
         )

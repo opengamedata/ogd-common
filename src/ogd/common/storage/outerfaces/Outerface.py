@@ -170,10 +170,12 @@ class Outerface:
             if mode in self.ExportModes:
                 match (mode):
                     case ExportMode.EVENTS:
-                        self._writeGameEventLines(events=events.GameEventLines)
-                        Logger.Log(f"Wrote {len(events.GameEventLines)} {self.Config.Location} events", depth=3)
+                        lines = events.GameEventLines(schema=self.Config.TableSchema)
+                        self._writeGameEventLines(events=lines)
+                        Logger.Log(f"Wrote {len(lines)} {self.Config.Location} events", depth=3)
                     case ExportMode.DETECTORS:
-                        self._writeAllEventLines(events=events.EventLines)
+                        lines = events.EventLines(schema=self.Config.TableSchema)
+                        self._writeAllEventLines(events=lines)
                         Logger.Log(f"Wrote {len(events)} {self.Config.Location} processed events", depth=3)
                     case _:
                         Logger.Log(f"Failed to write lines for unrecognized Event export mode {mode}!", level=logging.WARN, depth=3)
@@ -187,14 +189,17 @@ class Outerface:
             if mode in self.ExportModes:
                 match (mode):
                     case ExportMode.SESSION:
-                        self._writeSessionLines(session_lines=features.SessionLines)
-                        Logger.Log(f"Wrote {len(features.SessionLines)} {self.Config.Location} session lines", depth=3)
+                        lines = features.SessionLines(schema=self.Config.TableSchema)
+                        self._writeSessionLines(session_lines=lines)
+                        Logger.Log(f"Wrote {len(lines)} {self.Config.Location} session lines", depth=3)
                     case ExportMode.PLAYER:
-                        self._writePlayerLines(player_lines=features.PlayerLines)
-                        Logger.Log(f"Wrote {len(features.PlayerLines)} {self.Config.Location} player lines", depth=3)
+                        lines = features.PlayerLines(schema=self.Config.TableSchema)
+                        self._writePlayerLines(player_lines=lines)
+                        Logger.Log(f"Wrote {len(lines)} {self.Config.Location} player lines", depth=3)
                     case ExportMode.POPULATION:
-                        self._writePopulationLines(population_lines=features.PopulationLines)
-                        Logger.Log(f"Wrote {len(features.PopulationLines)} {self.Config.Location} population lines", depth=3)
+                        lines = features.PopulationLines(schema=self.Config.TableSchema)
+                        self._writePopulationLines(population_lines=lines)
+                        Logger.Log(f"Wrote {len(lines)} {self.Config.Location} population lines", depth=3)
                     case _:
                         Logger.Log(f"Failed to write lines for unrecognized Feature export mode {mode}!", level=logging.WARN, depth=3)
             else:

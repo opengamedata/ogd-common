@@ -259,7 +259,7 @@ class test_EventTableSchema(TestCase):
 
     def test_FromFile_preset(self):
         # try to load from default location
-        _schema = EventTableSchema.FromFile(schema_name="OGD_EVENT_FILE")
+        _schema = EventTableSchema.FromFile(file_name="OGD_EVENT_FILE", directory=EventTableSchema._DEFAULT_SCHEMA_PATH)
         self.assertIsInstance(_schema, EventTableSchema)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "OGD_EVENT_FILE")

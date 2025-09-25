@@ -49,48 +49,9 @@ class GameData(abc.ABC):
         :param log_version: _description_
         :type log_version: Optional[str]
         """
-        # TODO: event source, e.g. from game or from detector
         self.app_id               : str           = app_id
         self.user_id              : Optional[str] = user_id
         self.session_id           : Optional[str] = session_id
-
-    @staticmethod
-    def CompareVersions(a:str, b:str, version_separator='.') -> int:
-        a_parts : Optional[List[int]]
-        b_parts : Optional[List[int]]
-        try:
-            a_parts = [int(i) for i in a.split(version_separator)]
-        except ValueError:
-            a_parts = None
-        try:
-            b_parts = [int(i) for i in b.split(version_separator)]
-        except ValueError:
-            b_parts = None
-
-        if a_parts is not None and b_parts is not None:
-            for i in range(0, min(len(a_parts), len(b_parts))):
-                if a_parts[i] < b_parts[i]:
-                    return -1
-                elif a_parts[i] > b_parts[i]:
-                    return 1
-            if len(a_parts) < len(b_parts):
-                return -1
-            elif len(a_parts) > len(b_parts):
-                return 1
-            else:
-                return 0
-        else:
-            # try to do some sort of sane handling in case we got null values for a version
-            if a_parts is None and b_parts is None:
-                Logger.Log(f"Got invalid values of {a} & {b} for versions a & b!", logging.ERROR)
-                return 0
-            elif a_parts is None:
-                Logger.Log(f"Got invalid value of {a} for version a!", logging.ERROR)
-                return 1
-            elif b_parts is None:
-                Logger.Log(f"Got invalid value of {b} for version b!", logging.ERROR)
-                return -1
-        return 0 # should never reach here; just putting this here to satisfy linter
 
     @property
     def AppID(self) -> str:
@@ -137,3 +98,62 @@ class GameData(abc.ABC):
         :rtype: Optional[str]
         """
         return self.user_id
+
+    # *** PUBLIC STATICS ***
+
+    @staticmethod
+    def CompareVersions(a:str, b:str, version_separator='.') -> int:
+        """Function to compare version strings.
+
+        TODO : replace all uses of this function with SemanticVersion object operations
+
+        :param a: _description_
+        :type a: str
+        :param b: _description_
+        :type b: str
+        :param version_separator: _description_, defaults to '.'
+        :type version_separator: str, optional
+        :return: _description_
+        :rtype: int
+        """
+        a_parts : Optional[List[int]]
+        b_parts : Optional[List[int]]
+        try:
+            a_parts = [int(i) for i in a.split(version_separator)]
+        except ValueError:
+            a_parts = None
+        try:
+            b_parts = [int(i) for i in b.split(version_separator)]
+        except ValueError:
+            b_parts = None
+
+        if a_parts is not None and b_parts is not None:
+            for i in range(0, min(len(a_parts), len(b_parts))):
+                if a_parts[i] < b_parts[i]:
+                    return -1
+                elif a_parts[i] > b_parts[i]:
+                    return 1
+            if len(a_parts) < len(b_parts):
+                return -1
+            elif len(a_parts) > len(b_parts):
+                return 1
+            else:
+                return 0
+        else:
+            # try to do some sort of sane handling in case we got null values for a version
+            if a_parts is None and b_parts is None:
+                Logger.Log(f"Got invalid values of {a} & {b} for versions a & b!", logging.ERROR)
+                return 0
+            elif a_parts is None:
+                Logger.Log(f"Got invalid value of {a} for version a!", logging.ERROR)
+                return 1
+            elif b_parts is None:
+                Logger.Log(f"Got invalid value of {b} for version b!", logging.ERROR)
+                return -1
+        return 0 # should never reach here; just putting this here to satisfy linter
+
+    # *** PUBLIC METHODS ***
+
+    # *** PRIVATE STATICS ***
+
+    # *** PRIVATE METHODS ***

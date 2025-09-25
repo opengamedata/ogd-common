@@ -47,9 +47,9 @@ class ColumnMapSchema(Schema):
         # declare and initialize vars
         self._raw_map : Map = other_elements or {}
 
-        self._app_id     : ColumnMapElement = app_id     or self._parseAppID(unparsed_elements=self._raw_map)
-        self._user_id    : ColumnMapElement = user_id    or self._parseUserID(unparsed_elements=self._raw_map)
-        self._session_id : ColumnMapElement = session_id or self._parseSessionID(unparsed_elements=self._raw_map)
+        self._app_id     : ColumnMapElement = app_id     if app_id     is not None else self._parseAppID(unparsed_elements=self._raw_map, schema_name=name)
+        self._user_id    : ColumnMapElement = user_id    if user_id    is not None else self._parseUserID(unparsed_elements=self._raw_map, schema_name=name)
+        self._session_id : ColumnMapElement = session_id if session_id is not None else self._parseSessionID(unparsed_elements=self._raw_map, schema_name=name)
 
         # after loading the file, take the stuff we need and store.
         super().__init__(name=name, other_elements=other_elements)
@@ -59,7 +59,7 @@ class ColumnMapSchema(Schema):
         """Mapping from Event element names to the indices of the database columns mapped to them.
         There may be a single index, indicating a 1-to-1 mapping of a database column to the element;
         There may be a list of indices, indicating multiple columns will be concatenated to form the element value;
-        There may be a further mapping of keys to indicies, indicating multiple columns will be joined into a JSON object, with keys mapped to values found at the columns with given indices.
+        There may be a further mapping of keys to indices, indicating multiple columns will be joined into a JSON object, with keys mapped to values found at the columns with given indices.
 
         :return: The dictionary mapping of element names to indices.
         :rtype: Dict[str, Union[int, List[int], Dict[str, int], None]]
@@ -68,14 +68,29 @@ class ColumnMapSchema(Schema):
 
     @property
     def AppIDColumn(self) -> Optional[ColumnMapElement]:
+        """The column(s) of the storage table that is/are mapped to AppID
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._app_id
 
     @property
     def UserIDColumn(self) -> Optional[ColumnMapElement]:
+        """The column(s) of the storage table that is/are mapped to UserID
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._user_id
 
     @property
     def SessionIDColumn(self) -> Optional[ColumnMapElement]:
+        """The column(s) of the storage table that is/are mapped to SessionID
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._session_id
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -108,33 +123,36 @@ class ColumnMapSchema(Schema):
     # *** PRIVATE STATICS ***
     
     @staticmethod
-    def _parseAppID(unparsed_elements:Map) -> Optional[str | List[str]]:
+    def _parseAppID(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[str | List[str]]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["app_id", "game_id"],
             to_type=[str, list, dict],
             default_value=None,
-            remove_target=False
+            remove_target=False,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseUserID(unparsed_elements:Map) -> Optional[str | List[str]]:
+    def _parseUserID(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[str | List[str]]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["user_id", "player_id"],
             to_type=[str, list, dict],
             default_value=None,
-            remove_target=False
+            remove_target=False,
+            schema_name=schema_name
         )
 
     @staticmethod
-    def _parseSessionID(unparsed_elements:Map) -> Optional[str | List[str]]:
+    def _parseSessionID(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[str | List[str]]:
         return ColumnMapSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["session_id"],
             to_type=[str, list, dict],
             default_value=None,
-            remove_target=False
+            remove_target=False,
+            schema_name=schema_name
         )
 
     # *** PRIVATE METHODS ***

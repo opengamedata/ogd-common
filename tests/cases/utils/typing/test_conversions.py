@@ -215,6 +215,18 @@ class test_ToTimezone(TestCase):
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, _val)
 
+    def test_timezone_str(self):
+        _val = "6:00:00"
+        _tz = conversions.ToTimezone(name="ToTimezoneVal", value=_val)
+        self.assertIsInstance(_tz, datetime.timezone)
+        self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=21600)))
+
+    def test_timezone_bad_str(self):
+        _val = "-1 day, 23:59:45.600000"
+        _tz = conversions.ToTimezone(name="ToTimezoneVal", value=_val)
+        self.assertIsInstance(_tz, datetime.timezone)
+        self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-86385.6)))
+
 class test_ToList(TestCase):
     def test_normal_list(self):
         _elems = [1, 2.2, "3"]

@@ -44,8 +44,8 @@ class DatabaseLocationSchema(LocationSchema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._db_name    : str           = database_name or self._parseDatabaseName(unparsed_elements=unparsed_elements)
-        self._table_name : Optional[str] = table_name    or self._parseTableName(unparsed_elements=unparsed_elements)
+        self._db_name    : str           = database_name if database_name is not None else self._parseDatabaseName(unparsed_elements=unparsed_elements, schema_name=name)
+        self._table_name : Optional[str] = table_name    if table_name    is not None else self._parseTableName(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -102,8 +102,8 @@ class DatabaseLocationSchema(LocationSchema):
         :return: _description_
         :rtype: DatabaseLocationSchema
         """
-        _db_name    : str           = cls._parseDatabaseName(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
-        _table_name : Optional[str] = cls._parseTableName(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
+        _db_name    : str           = cls._parseDatabaseName(unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
+        _table_name : Optional[str] = cls._parseTableName(unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
         return DatabaseLocationSchema(name=name, database_name=_db_name, table_name=_table_name, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
@@ -114,6 +114,7 @@ class DatabaseLocationSchema(LocationSchema):
 
     @staticmethod
     def _parseTableName(unparsed_elements:Map,
+                        schema_name:Optional[str]=None,
                         key_overrides:Optional[Dict[str, str]]=None,
                         default_override:Optional["DatabaseLocationSchema"]=None) -> Optional[str]:
         default_keys : List[str] = ["table", "table_name"]
@@ -126,11 +127,14 @@ class DatabaseLocationSchema(LocationSchema):
             valid_keys=search_keys,
             to_type=str,
             default_value=default_value,
-            remove_target=True
+            remove_target=True,
+            optional_element=True,
+            schema_name=schema_name
         )
 
     @staticmethod
     def _parseDatabaseName(unparsed_elements:Map,
+                           schema_name:Optional[str]=None,
                            key_overrides:Optional[Dict[str, str]]=None,
                            default_override:Optional["DatabaseLocationSchema"]=None) -> str:
         default_keys : List[str] = ["database"]
@@ -143,5 +147,6 @@ class DatabaseLocationSchema(LocationSchema):
             valid_keys=search_keys,
             to_type=str,
             default_value=default_value,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )

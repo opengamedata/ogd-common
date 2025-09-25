@@ -58,8 +58,8 @@ class BigQueryConfig(DataStoreConfig):
         """
         fallbacks : Map = other_elements or {}
 
-        self._location   : DatabaseLocationSchema = self._toLocation(location=location, fallbacks=fallbacks)
-        self._credential : KeyCredential          = self._toCredential(credential=credential, fallbacks=fallbacks)
+        self._location   : DatabaseLocationSchema = self._toLocation(location=location, fallbacks=fallbacks, schema_name=name)
+        self._credential : KeyCredential          = self._toCredential(credential=credential, fallbacks=fallbacks, schema_name=name)
 
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=fallbacks)
 
@@ -133,7 +133,7 @@ class BigQueryConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _toLocation(location:Optional[DatabaseLocationSchema | Map | str], fallbacks:Map) -> DatabaseLocationSchema:
+    def _toLocation(location:Optional[DatabaseLocationSchema | Map | str], fallbacks:Map, schema_name:Optional[str]=None) -> DatabaseLocationSchema:
         ret_val : DatabaseLocationSchema
         if isinstance(location, DatabaseLocationSchema):
             ret_val = location
@@ -142,11 +142,11 @@ class BigQueryConfig(DataStoreConfig):
         elif isinstance(location, str):
             ret_val = DatabaseLocationSchema(name="BQDatabaseLocation", database_name=location, table_name=None)
         else:
-            ret_val = BigQueryConfig._parseLocation(unparsed_elements=fallbacks)
+            ret_val = BigQueryConfig._parseLocation(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
-    def _toCredential(credential:Optional[KeyCredential | Map | str], fallbacks:Map) -> KeyCredential:
+    def _toCredential(credential:Optional[KeyCredential | Map | str], fallbacks:Map, schema_name:Optional[str]=None) -> KeyCredential:
         ret_val : KeyCredential
         if isinstance(credential, KeyCredential):
             ret_val = credential
@@ -155,11 +155,11 @@ class BigQueryConfig(DataStoreConfig):
         elif isinstance(credential, str):
             ret_val = KeyCredential(name="BQCredential", location=credential)
         else:
-            ret_val = BigQueryConfig._parseCredential(unparsed_elements=fallbacks)
+            ret_val = BigQueryConfig._parseCredential(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
-    def _parseLocation(unparsed_elements:Map) -> DatabaseLocationSchema:
+    def _parseLocation(unparsed_elements:Map, schema_name:Optional[str]=None) -> DatabaseLocationSchema:
         ret_val : DatabaseLocationSchema
 
         # First check for project ID or dataset ID given directly
@@ -168,7 +168,8 @@ class BigQueryConfig(DataStoreConfig):
             valid_keys=["PROJECT_ID", "DATASET_ID"],
             to_type=str,
             default_value=None,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         # If we found it, use to construct
         if project_id:
@@ -180,7 +181,7 @@ class BigQueryConfig(DataStoreConfig):
         return ret_val
 
     @staticmethod
-    def _parseCredential(unparsed_elements:Map) -> KeyCredential:
+    def _parseCredential(unparsed_elements:Map, schema_name:Optional[str]=None) -> KeyCredential:
         ret_val : KeyCredential
 
         raw_credential = BigQueryConfig.ParseElement(
@@ -188,7 +189,8 @@ class BigQueryConfig(DataStoreConfig):
             valid_keys=["PROJECT_KEY"],
             to_type=[dict, str],
             default_value=BigQueryConfig._DEFAULT_CREDENTIAL,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if isinstance(raw_credential, dict):
             ret_val = KeyCredential.FromDict(name="KeyCredential", unparsed_elements=raw_credential)

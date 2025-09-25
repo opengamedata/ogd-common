@@ -16,6 +16,7 @@ from typing import Any, Dict, List, LiteralString, Optional, Type
 
 from json.decoder import JSONDecodeError
 ## import 3rd-party libraries
+from pandas import Timedelta
 from pandas._libs.tslibs import timestamps, timedeltas
 from dateutil import parser
 ## import local files
@@ -90,7 +91,10 @@ def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed 
                 ret_val = ToFloat(name=name, value=value)
             case 'PATH' | pathlib.Path:
                 ret_val = ToPath(name=name, value=value)
-            case 'DATETIME' | datetime.datetime | datetime.date:
+            case 'DATE' | datetime.date:
+                raw_dt  = ToDatetime(name=name, value=value)
+                ret_val = raw_dt.date() if raw_dt is not None else None
+            case 'DATETIME' | datetime.datetime:
                 ret_val = ToDatetime(name=name, value=value)
             case 'TIMEDELTA' | datetime.timedelta:
                 ret_val = ToTimedelta(name=name, value=value)
@@ -374,6 +378,8 @@ def ToTimedelta(name:str, value:Any, force:bool=False) -> Optional[datetime.time
 def ToTimezone(name:str, value:Any, force:bool=False) -> Optional[datetime.timezone]:
     """Attempt to turn a given value into a timezone
 
+    .. TODO use timedelta from string, possibly, and then create timezone from the delta
+
     Returns None if the value type was not recognized.
 
     :param name: An identifier for the value, used for debug outputs.
@@ -391,6 +397,8 @@ def ToTimezone(name:str, value:Any, force:bool=False) -> Optional[datetime.timez
     match type(value):
         case datetime.timezone:
             ret_val = value
+        case datetime.timedelta:
+            ret_val = datetime.timezone(value)
         case builtins.str:
             ret_val = TimezoneFromString(time_str=value)
         case _:
@@ -446,10 +454,12 @@ def ToList(name:str, value:Any, force:bool=False) -> Optional[List]:
         ret_val = None
     return ret_val
 
-def ToJSON(name:str, value:Any, force:bool=False) -> Optional[Dict]:
+def ToJSON(name:str, value:Any, force:bool=False, sort:bool=False) -> Optional[Dict]:
     """Attempt to turn a given value into a JSON-style dictionary
 
     Returns None if the value type was not recognized.
+
+    .. TODO: Add a 'sanitize' param to purge anything that looks like an IP address or other pii
 
     :param name: An identifier for the value, used for debug outputs.
     :type name: str
@@ -486,6 +496,8 @@ def ToJSON(name:str, value:Any, force:bool=False) -> Optional[Dict]:
     except JSONDecodeError as err:
         Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to JSON, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
         ret_val = None
+    if sort and ret_val is not None:
+        ret_val = dict(sorted(ret_val.items()))
     return ret_val
 
 def BoolFromString(bool_str:str) -> bool:
@@ -539,17 +551,17 @@ def DatetimeFromString(time_str:str) -> Optional[datetime.datetime]:
 def TimedeltaFromString(time_str:str) -> Optional[datetime.timedelta]:
     ret_val : Optional[datetime.timedelta]
 
-    neg_pattern    : LiteralString = r"(?P<neg>-)"
-    day_pattern    : LiteralString = r"(?:(?P<day>\d+)\s+day(?:s)?,\s+)"
-    hour_pattern   : LiteralString = r"(?P<hour>\d+)"
-    minute_pattern : LiteralString = r"(?P<minute>\d+)"
-    second_pattern : LiteralString = r"(?P<second>\d+)"
-    micros_pattern : LiteralString = r"(?P<micros>\d+)"
-    pattern = re.compile(f"{neg_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}.{micros_pattern}")
-
     if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
         ret_val = None
     else:
+        neg_pattern    : LiteralString = r"(?P<neg>-)"
+        day_pattern    : LiteralString = r"(?:(?P<day>\d+)\s+day(?:s)?,\s+)"
+        hour_pattern   : LiteralString = r"(?P<hour>\d+)"
+        minute_pattern : LiteralString = r"(?P<minute>\d+)"
+        second_pattern : LiteralString = r"(?P<second>\d+)"
+        micros_pattern : LiteralString = r"(?P<micros>\d+)"
+        pattern = re.compile(f"{neg_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}\\.{micros_pattern}")
+
         match = re.fullmatch(pattern=pattern, string=time_str)
         if match:
             ret_val = datetime.timedelta(
@@ -567,23 +579,55 @@ def TimedeltaFromString(time_str:str) -> Optional[datetime.timedelta]:
             if match:
                 ret_val = datetime.timedelta(seconds=int(time_str))
             else:
-                Logger.Log(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats.", logging.WARNING)
+                Logger.Log(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats. Parsing with Pandas instead.", logging.WARNING)
+                ret_val = Timedelta(time_str).to_pytimedelta()
     
     return ret_val
 
 def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
     ret_val : Optional[datetime.timezone]
 
+    offset : Optional[datetime.timedelta] = None
     if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
         return None
-    elif re.fullmatch(pattern=r"UTC[+-]\d+:\d+", string=time_str):
-        try:
-            pieces = time_str.removeprefix("UTC").split(":")
-            ret_val = datetime.timezone(datetime.timedelta(hours=int(pieces[0]), minutes=int(pieces[1])))
-        except ValueError:
-            pass
+    else:
+        utc_pattern    : LiteralString = r"(?P<utc>UTC)"
+        dir_pattern    : LiteralString = r"(?P<dir>\+|-)"
+        day_pattern    : LiteralString = r"(?:(?P<day>\d+)\s+day(?:s)?,\s+)"
+        hour_pattern   : LiteralString = r"(?P<hour>\d+)"
+        minute_pattern : LiteralString = r"(?P<minute>\d+)"
+        second_pattern : LiteralString = r"(?P<second>\d+)"
+        micros_pattern : LiteralString = r"(?P<micros>\d+)"
+        raw_pattern = f"{utc_pattern}?{dir_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}(\\.{micros_pattern})?"
+        pattern = re.compile(raw_pattern)
+
+        match = re.fullmatch(pattern=pattern, string=time_str)
+        if match:
+            offset = datetime.timedelta(
+                days=int(match.group("day") or 0),
+                hours=int(match.group("hour") or 0),
+                minutes=int(match.group("minute") or 0),
+                seconds=int(match.group("second") or 0),
+                microseconds=int(match.group("micros") or 0)
+            )
+            # if we matched the negative sign, then make the timedelta negative.
+            if match.group("dir") == "-":
+                offset = -1*offset
         else:
-            return ret_val
+            match = re.fullmatch(pattern=r"-?\d+", string=time_str)
+            if match:
+                offset = datetime.timedelta(seconds=int(time_str))
+            else:
+                Logger.Log(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats.", logging.WARNING)
+        if offset:
+            MAX_OFFSET = 24*60*60
+            if offset.total_seconds() > MAX_OFFSET:
+                offset = datetime.timedelta(seconds=offset.total_seconds() % MAX_OFFSET)
+            if offset.total_seconds() < -24*60*60:
+                offset = datetime.timedelta(seconds=(offset.total_seconds() % MAX_OFFSET) - MAX_OFFSET)
+
+        ret_val = datetime.timezone(offset=offset) if offset is not None else None
+        return ret_val
     raise ValueError(f"Could not parse timezone {time_str} of type {type(time_str)}, it did not match any expected formats.")
 
 # *** PUBLIC METHODS ***
@@ -624,6 +668,9 @@ def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element") -> A
                 ret_val = ToFloat(name=name, value=value)
             case 'PATH' | pathlib.Path:
                 ret_val = ToPath(name=name, value=value)
+            case 'DATE' | datetime.date:
+                raw_dt  = ToDatetime(name=name, value=value)
+                ret_val = raw_dt.date() if raw_dt is not None else None
             case 'DATETIME' | datetime.datetime:
                 ret_val = ToDatetime(name=name, value=value)
             case 'TIMEDELTA' | datetime.timedelta:

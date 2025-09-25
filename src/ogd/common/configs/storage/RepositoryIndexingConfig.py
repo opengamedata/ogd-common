@@ -48,9 +48,9 @@ class RepositoryIndexingConfig(Config):
         """
         fallbacks : Map = other_elements or {}
 
-        self._local_dir     : DirectoryLocationSchema     = self._toLocalDir(local_dir=local_dir, fallbacks=fallbacks)
-        self._remote_url    : Optional[URLLocationSchema] = self._toRemoteURL(remote_url=remote_url, fallbacks=fallbacks)
-        self._templates_url : URLLocationSchema           = self._toTemplatesURL(templates_url=templates_url, fallbacks=fallbacks)
+        self._local_dir     : DirectoryLocationSchema     = self._toLocalDir(local_dir=local_dir, fallbacks=fallbacks, schema_name=name)
+        self._remote_url    : Optional[URLLocationSchema] = self._toRemoteURL(remote_url=remote_url, fallbacks=fallbacks, schema_name=name)
+        self._templates_url : URLLocationSchema           = self._toTemplatesURL(templates_url=templates_url, fallbacks=fallbacks, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -114,7 +114,7 @@ class RepositoryIndexingConfig(Config):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _toLocalDir(local_dir:Optional[DirectoryLocationSchema | Map | Path | str], fallbacks:Map) -> DirectoryLocationSchema:
+    def _toLocalDir(local_dir:Optional[DirectoryLocationSchema | Map | Path | str], fallbacks:Map, schema_name:Optional[str]=None) -> DirectoryLocationSchema:
         ret_val : DirectoryLocationSchema
         if isinstance(local_dir, DirectoryLocationSchema):
             ret_val = local_dir
@@ -123,11 +123,11 @@ class RepositoryIndexingConfig(Config):
         elif isinstance(local_dir, str) or isinstance(local_dir, str):
             ret_val = DirectoryLocationSchema(name="RepositoryDirectory", folder_path=local_dir)
         else:
-            ret_val = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=fallbacks)
+            ret_val = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
-    def _toRemoteURL(remote_url:Optional[URLLocationSchema | Map | str], fallbacks:Map) -> URLLocationSchema:
+    def _toRemoteURL(remote_url:Optional[URLLocationSchema | Map | str], fallbacks:Map, schema_name:Optional[str]=None) -> URLLocationSchema:
         ret_val : URLLocationSchema
         if isinstance(remote_url, URLLocationSchema):
             ret_val = remote_url
@@ -136,11 +136,11 @@ class RepositoryIndexingConfig(Config):
         elif isinstance(remote_url, str):
             ret_val = URLLocationSchema(name="RemoteRepoURL", url=remote_url)
         else:
-            ret_val = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=fallbacks)
+            ret_val = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
-    def _toTemplatesURL(templates_url:Optional[URLLocationSchema | Map | str], fallbacks:Map) -> URLLocationSchema:
+    def _toTemplatesURL(templates_url:Optional[URLLocationSchema | Map | str], fallbacks:Map, schema_name:Optional[str]=None) -> URLLocationSchema:
         ret_val : URLLocationSchema
         if isinstance(templates_url, URLLocationSchema):
             ret_val = templates_url
@@ -149,11 +149,11 @@ class RepositoryIndexingConfig(Config):
         elif isinstance(templates_url, str):
             ret_val = URLLocationSchema(name="TemplatesURL", url=templates_url)
         else:
-            ret_val = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=fallbacks)
+            ret_val = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
-    def _parseLocalDir(unparsed_elements:Map) -> DirectoryLocationSchema:
+    def _parseLocalDir(unparsed_elements:Map, schema_name:Optional[str]=None) -> DirectoryLocationSchema:
         ret_val : DirectoryLocationSchema
 
         raw_base = RepositoryIndexingConfig.ParseElement(
@@ -161,7 +161,8 @@ class RepositoryIndexingConfig(Config):
             valid_keys=["files_base", "local_dir", "folder", "path"],
             to_type=[Path, str, dict],
             default_value=None,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if raw_base:
             if isinstance(raw_base, Path):
@@ -176,7 +177,7 @@ class RepositoryIndexingConfig(Config):
         return ret_val
 
     @staticmethod
-    def _parseRemoteURL(unparsed_elements:Map) -> URLLocationSchema:
+    def _parseRemoteURL(unparsed_elements:Map, schema_name:Optional[str]=None) -> URLLocationSchema:
         ret_val : URLLocationSchema
 
         raw_url = RepositoryIndexingConfig.ParseElement(
@@ -184,7 +185,8 @@ class RepositoryIndexingConfig(Config):
             valid_keys=["remote_url", "url"],
             to_type=[str, dict],
             default_value=None,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if raw_url:
             if isinstance(raw_url, str):
@@ -197,7 +199,7 @@ class RepositoryIndexingConfig(Config):
         return ret_val
 
     @staticmethod
-    def _parseTemplatesURL(unparsed_elements:Map) -> URLLocationSchema:
+    def _parseTemplatesURL(unparsed_elements:Map, schema_name:Optional[str]=None) -> URLLocationSchema:
         ret_val : URLLocationSchema
 
         raw_url = RepositoryIndexingConfig.ParseElement(
@@ -205,7 +207,8 @@ class RepositoryIndexingConfig(Config):
             valid_keys=["templates_url", "url"],
             to_type=[str, dict],
             default_value=None,
-            remove_target=True
+            remove_target=True,
+            schema_name=schema_name
         )
         if raw_url:
             if isinstance(raw_url, str):

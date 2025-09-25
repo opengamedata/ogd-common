@@ -1,10 +1,11 @@
 ## import standard libraries
 from itertools import chain
-from typing import List
+from typing import List, Optional
 # import local files
 from ogd.common.filters.collections import *
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.models.Feature import Feature
+from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.utils.typing import ExportRow
 
 class FeatureSet:
@@ -59,7 +60,7 @@ class FeatureSet:
     def SessionFeatures(self) -> List[Feature]:
         return [feature for feature in self.Features if feature.ExportMode == ExportMode.SESSION]
 
-    def FeatureLines(self, as_pivot:bool=True) -> List[ExportRow]:
+    def FeatureLines(self, schema:Optional[FeatureTableSchema], as_pivot:bool=True) -> List[ExportRow]:
         """Property to get all the "ExportRow" lines of the features within the set.
 
         :return: _description_
@@ -69,17 +70,20 @@ class FeatureSet:
 
         if as_pivot:
             # Since each feature returns a list of rows, we need to chain them to a single list
-            ret_val = list(chain.from_iterable(feature.ColumnValues for feature in self.Features))
+            ret_val = list(chain.from_iterable(feature.ToRow(schema=schema) if schema else feature.ColumnValues for feature in self.Features))
         else:
             ret_val = []
         
         return ret_val
-    def PopulationLines(self, as_pivot:bool=True) -> List[ExportRow]:
-        return list(chain.from_iterable(feature.ColumnValues for feature in self.PopulationFeatures))
-    def PlayerLines(self, as_pivot:bool=True) -> List[ExportRow]:
-        return list(chain.from_iterable(feature.ColumnValues for feature in self.PlayerFeatures))
-    def SessionLines(self, as_pivot:bool=True) -> List[ExportRow]:
-        return list(chain.from_iterable(feature.ColumnValues for feature in self.SessionFeatures))
+
+    def PopulationLines(self, schema:Optional[FeatureTableSchema], as_pivot:bool=True) -> List[ExportRow]:
+        return list(chain.from_iterable(feature.ToRow(schema=schema) if schema else feature.ColumnValues for feature in self.PopulationFeatures))
+
+    def PlayerLines(self, schema:Optional[FeatureTableSchema], as_pivot:bool=True) -> List[ExportRow]:
+        return list(chain.from_iterable(feature.ToRow(schema=schema) if schema else feature.ColumnValues for feature in self.PlayerFeatures))
+
+    def SessionLines(self, schema:Optional[FeatureTableSchema], as_pivot:bool=True) -> List[ExportRow]:
+        return list(chain.from_iterable(feature.ToRow(schema=schema) if schema else feature.ColumnValues for feature in self.SessionFeatures))
 
     @property
     def Filters(self) -> DatasetFilterCollection:
