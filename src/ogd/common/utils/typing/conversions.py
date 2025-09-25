@@ -16,6 +16,7 @@ from typing import Any, Dict, List, LiteralString, Optional, Type
 
 from json.decoder import JSONDecodeError
 ## import 3rd-party libraries
+from pandas import Timedelta
 from pandas._libs.tslibs import timestamps, timedeltas
 from dateutil import parser
 ## import local files
@@ -576,7 +577,8 @@ def TimedeltaFromString(time_str:str) -> Optional[datetime.timedelta]:
             if match:
                 ret_val = datetime.timedelta(seconds=int(time_str))
             else:
-                Logger.Log(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats.", logging.WARNING)
+                Logger.Log(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats. Parsing with Pandas instead.", logging.WARNING)
+                ret_val = Timedelta(time_str).to_pytimedelta()
     
     return ret_val
 
