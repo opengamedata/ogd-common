@@ -1,14 +1,10 @@
 ## import standard libraries
-import logging
-from collections import Counter
-from typing import Any, Dict, List, Tuple, Optional, Self
+from typing import Dict, List, Optional, Self
 ## import local files
-from ogd.common.models.Feature import Feature
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
 from ogd.common.schemas.tables.FeatureMapSchema import FeatureMapSchema
-from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils import typing
 
 ## @class TableSchema
 class FeatureTableSchema(TableSchema):
@@ -22,7 +18,7 @@ class FeatureTableSchema(TableSchema):
     def __init__(self, name,
                  column_map:Optional[FeatureMapSchema],
                  columns:Optional[List[ColumnSchema]],
-                 other_elements:Optional[Map]=None
+                 other_elements:Optional[typing.Map]=None
         ):
         """Constructor for the TableSchema class.
         Given a database connection and a game data request,
@@ -63,7 +59,7 @@ class FeatureTableSchema(TableSchema):
         :param is_legacy: [description], defaults to False
         :type is_legacy: bool, optional
         """
-        unparsed_elements : Map = other_elements or {}
+        unparsed_elements : typing.Map = other_elements or {}
 
         self._column_map : FeatureMapSchema = column_map if column_map is not None else self._parseColumnMap(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, columns=columns, other_elements=unparsed_elements)
@@ -75,12 +71,25 @@ class FeatureTableSchema(TableSchema):
         """Mapping from Event element names to the indices of the database columns mapped to them.
         There may be a single index, indicating a 1-to-1 mapping of a database column to the element;
         There may be a list of indices, indicating multiple columns will be concatenated to form the element value;
-        There may be a further mapping of keys to indicies, indicating multiple columns will be joined into a JSON object, with keys mapped to values found at the columns with given indices.
+        There may be a further mapping of keys to indices, indicating multiple columns will be joined into a JSON object, with keys mapped to values found at the columns with given indices.
 
         :return: The dictionary mapping of element names to indices.
         :rtype: Dict[str, Union[int, List[int], Dict[str, int], None]]
         """
         return self._column_map
+    @property
+    def Map(self) -> FeatureMapSchema:
+        """Alias for ColumnMap property
+
+        Mapping from Event element names to the indices of the database columns mapped to them.
+        There may be a single index, indicating a 1-to-1 mapping of a database column to the element;
+        There may be a list of indices, indicating multiple columns will be concatenated to form the element value;
+        There may be a further mapping of keys to indices, indicating multiple columns will be joined into a JSON object, with keys mapped to values found at the columns with given indices.
+
+        :return: The dictionary mapping of element names to indices.
+        :rtype: Dict[str, Union[int, List[int], Dict[str, int], None]]
+        """
+        return self.ColumnMap
 
     @property
     def AsMarkdown(self) -> str:
@@ -108,7 +117,7 @@ class FeatureTableSchema(TableSchema):
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "FeatureTableSchema":
+    def _fromDict(cls, name:str, unparsed_elements:typing.Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "FeatureTableSchema":
         """Function to generate a TableSchema from a dictionary.
 
         The structure is assumed to be as follows:
@@ -137,126 +146,12 @@ class FeatureTableSchema(TableSchema):
 
     # *** PUBLIC METHODS ***
 
-    _conversion_warnings = Counter()
-    def FeatureFromRow(self, row:Tuple, concatenator:str = '.', fallbacks:Map={}) -> Feature:
-        """Function to convert a row to a Feature, based on the loaded schema.
-        In general, columns specified in the schema's column_map are mapped to corresponding elements of the Event.
-        If the column_map gave a list, rather than a single column name, the values from each column are concatenated in order with '.' character separators.
-        Finally, the concatenated values (or single value) are parsed according to the type required by Event.
-        One exception: For event_data, we expect to create a Dict object, so each column in the list will have its value parsed according to the type in 'columns',
-            and placed into a dict mapping the original column name to the parsed value (unless the parsed value is a dict, then it is merged into the top-level dict).
-
-        .. TODO Use conversions utils to deal with the types we're getting from the row.
-
-        :param row: _description_
-        :type row: Tuple
-        :param concatenator: _description_, defaults to '.'
-        :type concatenator: str, optional
-        :param fallbacks: _description_, defaults to {}
-        :type fallbacks: Map, optional
-        :raises TypeError: _description_
-        :return: _description_
-        :rtype: Event
-        """
-        if not isinstance(self.ColumnMap, FeatureMapSchema):
-            raise TypeError(f"{self.Name} contains a mapping for Features, not Events!")
-
-        # define vars to be passed as params
-        feat_name  : str
-        feat_type  : str
-        game_unit  : str
-        unit_index : int
-        app_id     : str
-        user_id    : Optional[str]
-        sess_id    : str
-        subfeats   : List[str] 
-        values     : List[Any]
-        
-
-        # 1. Get Feature info
-        idx = self._indexFromMapping(self.ColumnMap.FeatureNameColumn)
-        feat_name = self._valueFromRow(row=row, indices=idx,  concatenator=concatenator, fallback=None)
-        if not isinstance(feat_name, str):
-            if "feat_name" not in self._conversion_warnings:
-                _msg = f"{self.Name} feature table schema set feat_name as {type(feat_name)}, but feat_name should be a string"
-                Logger.Log(_msg, logging.WARN)
-            self._conversion_warnings["feat_name"] += 1
-            feat_name = str(feat_name)
-
-        idx = self._indexFromMapping(self.ColumnMap.FeatureTypeColumn)
-        feat_type = self._valueFromRow(row=row, indices=idx,  concatenator=concatenator, fallback=None)
-        if not isinstance(feat_type, str):
-            if "feat_type" not in self._conversion_warnings:
-                _msg = f"{self.Name} feature table schema set feat_type as {type(feat_type)}, but feat_type should be a string"
-                Logger.Log(_msg, logging.WARN)
-            self._conversion_warnings["feat_type"] += 1
-            feat_type = str(feat_type)
-
-        # 2. Get game unit info
-        idx = self._indexFromMapping(self.ColumnMap.GameUnitColumn)
-        game_unit = self._valueFromRow(row=row, indices=idx,  concatenator=concatenator, fallback=None)
-        if not isinstance(game_unit, str):
-            if "game_unit" not in self._conversion_warnings:
-                _msg = f"{self.Name} feature table schema set game_unit as {type(game_unit)}, but game_unit should be a string"
-                Logger.Log(_msg, logging.WARN)
-            self._conversion_warnings["game_unit"] += 1
-            game_unit = str(game_unit)
-
-        idx = self._indexFromMapping(self.ColumnMap.GameUnitIndexColumn)
-        unit_index = self._valueFromRow(row=row, indices=idx,  concatenator=concatenator, fallback=None)
-        if not isinstance(unit_index, int):
-            if "unit_index" not in self._conversion_warnings:
-                _msg = f"{self.Name} feature table schema set unit_index as {type(unit_index)}, but unit_index should be a string"
-                Logger.Log(_msg, logging.WARN)
-            self._conversion_warnings["unit_index"] += 1
-            unit_index = str(unit_index)
-
-        # 3. Get ID data
-        idx = self._indexFromMapping(self.ColumnMap.AppIDColumn)
-        app_id = self._valueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=None)
-        if not isinstance(app_id, str):
-            if "app_id" not in self._conversion_warnings:
-                _msg = f"{self.Name} event table schema set app_id as {type(app_id)}, but app_id should be a string"
-                Logger.Log(_msg, logging.WARN)
-            self._conversion_warnings["app_id"] += 1
-            app_id = str(app_id)
-
-        idx = self._indexFromMapping(self.ColumnMap.UserIDColumn)
-        user_id = self._valueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=None)
-        if user_id is not None and not isinstance(user_id, str):
-            if "uid" not in self._conversion_warnings:
-                _msg = f"{self.Name} event table schema set user_id as {type(user_id)}, but user_id should be a string"
-                Logger.Log(_msg, logging.WARN)
-            self._conversion_warnings["uid"] += 1
-            user_id = str(user_id)
-
-        idx = self._indexFromMapping(self.ColumnMap.SessionIDColumn)
-        sess_id = self._valueFromRow(row=row, indices=idx, concatenator=concatenator, fallback=None)
-        if not isinstance(sess_id, str):
-            if "sess_id" not in self._conversion_warnings:
-                _msg = f"{self.Name} event table schema set session_id as {type(sess_id)}, but session_id should be a string"
-                Logger.Log(_msg, logging.WARN)
-            self._conversion_warnings["sess_id"] += 1
-            sess_id = str(sess_id)
-
-        # 4. Get feature-specific data
-        idx = self._indexFromMapping(self.ColumnMap.SubfeaturesColumn)
-        subfeats = self._valueFromRow(row=row, indices=idx,   concatenator=concatenator, fallback=None)
-
-        idx = self._indexFromMapping(self.ColumnMap.ValuesColumn)
-        values = self._valueFromRow(row=row, indices=idx,   concatenator=concatenator, fallback=None)
-
-        return Feature(name=feat_name, feature_type=feat_type,
-                       game_unit=game_unit, game_unit_index=unit_index,
-                       app_id=app_id, user_id=user_id, session_id=sess_id,
-                       subfeatures=subfeats, values=values)
-
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***
 
     @staticmethod
-    def _parseColumnMap(unparsed_elements:Map, schema_name:Optional[str]=None) -> FeatureMapSchema:
+    def _parseColumnMap(unparsed_elements:typing.Map, schema_name:Optional[str]=None) -> FeatureMapSchema:
         ret_val : FeatureMapSchema
 
         raw_map = TableSchema.ParseElement(

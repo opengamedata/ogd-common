@@ -1,16 +1,19 @@
 ## import standard libraries
 import abc
+import builtins
 import json
 import logging
+from collections import Counter
 from pathlib import Path
-from typing import Any, Dict, Final, List, Optional, Tuple, TypeAlias
+from typing import Any, Callable, Dict, Final, List, Optional, Tuple, Type, TypeAlias
 ## import local files
 from ogd.common.schemas.tables import presets
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapElement
+from ogd.common.utils.helpers import find
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map, conversions
+from ogd.common.utils.typing import ExportRow, Map, conversions
 
 ColumnMapIndex   : TypeAlias = Optional[int | List[int] | Dict[str,int]]
 
@@ -188,10 +191,86 @@ class TableSchema(Schema):
 
     # *** PUBLIC METHODS ***
 
+    _conversion_warnings = Counter()
+    def ColumnValueFromRow(self, row:ExportRow, mapping:ColumnMapElement, concatenator:str, column_name:Optional[str]=None, expected_type:Optional[Type]=None, fallback:Any=None) -> Any:
+        ret_val : Any
+        if mapping is not None:
+            indices = self.IndexFromMapping(mapping)
+            if isinstance(indices, int):
+                # if there's a single index, use parse to get the value it is stated to be
+                # print(f"About to parse value {row[indices]} as type {self.Columns[indices]},\nFull list from row is {row},\nFull list of columns is {self.Columns},\nwith names {self.ColumnNames}")
+                ret_val = conversions.ConvertToType(value=row[indices], to_type=self.Columns[indices].ValueType)
+            elif isinstance(indices, list):
+                ret_val = concatenator.join([str(row[index]) for index in indices])
+            elif isinstance(indices, dict):
+                ret_val = {}
+                for key,column_index in indices.items():
+                    if column_index > len(row):
+                        Logger.Log(f"Got column index of {column_index} for column {key}, but row only has {len(row)} columns!", logging.ERROR)
+                    _val = conversions.ConvertToType(value=row[column_index], to_type=self._table_columns[column_index].ValueType)
+                    ret_val.update(_val if isinstance(_val, dict) else {key:_val})
+
+            if column_name and expected_type and not isinstance(ret_val, expected_type):
+                if column_name not in self._conversion_warnings:
+                    _msg = f"{self.Name} event table schema set {column_name} as {type(ret_val)}, but {column_name} was requested to use type {expected_type.__name__}"
+                    Logger.Log(_msg, logging.WARN)
+                self._conversion_warnings[column_name] += 1
+        else:
+            ret_val = fallback
+        return ret_val
+
+    def ColumnValueToRow(self, raw_value:Any, mapping:ColumnMapElement, concatenator:str, element_name:Optional[str]) -> Dict[int, Any]:
+        ret_val : Dict[int, Any] = {}
+
+        if isinstance(mapping, str):
+            ret_val[self.ColumnNames.index(mapping)] = raw_value
+        elif isinstance(mapping, list):
+            if isinstance(raw_value, str):
+                indices = [self.ColumnNames.index(col) for col in mapping]
+                pieces = raw_value.split(concatenator, len(indices))
+                for i in range(len(pieces)):
+                    ret_val[indices[i]] = pieces[i]
+            else:
+                idx = self.ColumnNames.index(mapping[0])
+                _msg = f"{element_name} of type {type(raw_value)} was not splittable, {self.Name} will reverse-map it to the {self.Columns[idx].Name} column, instead of splitting amongst {mapping}"
+                Logger.Log(_msg)
+                ret_val[idx] = raw_value
+        elif isinstance(mapping, dict):
+            # TODO : support reversing the mapping of dict data
+            idx = self.ColumnNames.index(list(mapping.keys())[0])
+            _msg = f"Reverse-mapping is not supported generally for dicts, {self.Name} will map {element_name} to the {self.Columns[idx].Name}, rather than splitting amongst {mapping}"
+            Logger.Log(_msg)
+            ret_val[idx] = raw_value
+
+        return ret_val
+    
+    def IndexFromMapping(self, mapping:ColumnMapElement) -> ColumnMapIndex:
+        """Function to take a ColumnMapElement and turn it into a ColumnMapIndex
+
+        The only real difference is that a ColumnMapElement is a string, list of strings, or string mapping,
+        which indicates which columns are mapped to a particular element,
+        while a ColumnMapIndex is given in terms of integer indices (for a row)
+
+        :param mapping: _description_
+        :type mapping: ColumnMapElement
+        :return: _description_
+        :rtype: ColumnMapIndex
+        """
+        ret_val : ColumnMapIndex = None
+
+        if isinstance(mapping, str):
+            ret_val = self.ColumnNames.index(mapping)
+        elif isinstance(mapping, list):
+            ret_val = [self.ColumnNames.index(col_name) for col_name in mapping]
+        elif isinstance(mapping, dict):
+            ret_val = {key:self.ColumnNames.index(val) for key,val in mapping.items()}
+
+        return ret_val
+
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***
-    
+
     def _formatMappedColumn(self, index:ColumnMapIndex):
         """Takes a column mapping index, and returns a nicely-formatted string of the columns included in the index.
 
@@ -221,38 +300,6 @@ class TableSchema(Schema):
         else:
             raise TypeError(f"Column mapping can not be type {type(index)}!")
         
-        return ret_val
-    
-    def _indexFromMapping(self, mapping:ColumnMapElement) -> ColumnMapIndex:
-        ret_val : ColumnMapIndex = None
-
-        if isinstance(mapping, str):
-            ret_val = self.ColumnNames.index(mapping)
-        elif isinstance(mapping, list):
-            ret_val = [self.ColumnNames.index(col_name) for col_name in mapping]
-        elif isinstance(mapping, dict):
-            ret_val = {key:self.ColumnNames.index(val) for key,val in mapping.items()}
-
-        return ret_val
-
-    def _valueFromRow(self, row:Tuple, indices:Optional[ColumnMapIndex], concatenator:str, fallback:Any) -> Any:
-        ret_val : Any
-        if indices is not None:
-            if isinstance(indices, int):
-                # if there's a single index, use parse to get the value it is stated to be
-                # print(f"About to parse value {row[indices]} as type {self.Columns[indices]},\nFull list from row is {row},\nFull list of columns is {self.Columns},\nwith names {self.ColumnNames}")
-                ret_val = conversions.ConvertToType(value=row[indices], to_type=self.Columns[indices].ValueType)
-            elif isinstance(indices, list):
-                ret_val = concatenator.join([str(row[index]) for index in indices])
-            elif isinstance(indices, dict):
-                ret_val = {}
-                for key,column_index in indices.items():
-                    if column_index > len(row):
-                        Logger.Log(f"Got column index of {column_index} for column {key}, but row only has {len(row)} columns!", logging.ERROR)
-                    _val = conversions.ConvertToType(value=row[column_index], to_type=self._table_columns[column_index].ValueType)
-                    ret_val.update(_val if isinstance(_val, dict) else {key:_val})
-        else:
-            ret_val = fallback
         return ret_val
 
     @staticmethod

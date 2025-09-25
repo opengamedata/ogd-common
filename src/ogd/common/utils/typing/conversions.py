@@ -397,6 +397,8 @@ def ToTimezone(name:str, value:Any, force:bool=False) -> Optional[datetime.timez
     match type(value):
         case datetime.timezone:
             ret_val = value
+        case datetime.timedelta:
+            ret_val = datetime.timezone(value)
         case builtins.str:
             ret_val = TimezoneFromString(time_str=value)
         case _:
@@ -452,10 +454,12 @@ def ToList(name:str, value:Any, force:bool=False) -> Optional[List]:
         ret_val = None
     return ret_val
 
-def ToJSON(name:str, value:Any, force:bool=False) -> Optional[Dict]:
+def ToJSON(name:str, value:Any, force:bool=False, sort:bool=False) -> Optional[Dict]:
     """Attempt to turn a given value into a JSON-style dictionary
 
     Returns None if the value type was not recognized.
+
+    .. TODO: Add a 'sanitize' param to purge anything that looks like an IP address or other pii
 
     :param name: An identifier for the value, used for debug outputs.
     :type name: str
@@ -492,6 +496,8 @@ def ToJSON(name:str, value:Any, force:bool=False) -> Optional[Dict]:
     except JSONDecodeError as err:
         Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to JSON, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
         ret_val = None
+    if sort and ret_val is not None:
+        ret_val = dict(sorted(ret_val.items()))
     return ret_val
 
 def BoolFromString(bool_str:str) -> bool:
@@ -554,7 +560,7 @@ def TimedeltaFromString(time_str:str) -> Optional[datetime.timedelta]:
         minute_pattern : LiteralString = r"(?P<minute>\d+)"
         second_pattern : LiteralString = r"(?P<second>\d+)"
         micros_pattern : LiteralString = r"(?P<micros>\d+)"
-        pattern = re.compile(f"{neg_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}.{micros_pattern}")
+        pattern = re.compile(f"{neg_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}\\.{micros_pattern}")
 
         match = re.fullmatch(pattern=pattern, string=time_str)
         if match:
@@ -581,6 +587,7 @@ def TimedeltaFromString(time_str:str) -> Optional[datetime.timedelta]:
 def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
     ret_val : Optional[datetime.timezone]
 
+    offset : Optional[datetime.timedelta] = None
     if time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
         return None
     else:
@@ -591,11 +598,12 @@ def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
         minute_pattern : LiteralString = r"(?P<minute>\d+)"
         second_pattern : LiteralString = r"(?P<second>\d+)"
         micros_pattern : LiteralString = r"(?P<micros>\d+)"
-        pattern = re.compile(f"{utc_pattern}?{dir_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}.{micros_pattern}")
+        raw_pattern = f"{utc_pattern}?{dir_pattern}?{day_pattern}?{hour_pattern}:{minute_pattern}:{second_pattern}(\\.{micros_pattern})?"
+        pattern = re.compile(raw_pattern)
 
         match = re.fullmatch(pattern=pattern, string=time_str)
         if match:
-            offset : datetime.timedelta = datetime.timedelta(
+            offset = datetime.timedelta(
                 days=int(match.group("day") or 0),
                 hours=int(match.group("hour") or 0),
                 minutes=int(match.group("minute") or 0),
@@ -604,21 +612,21 @@ def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
             )
             # if we matched the negative sign, then make the timedelta negative.
             if match.group("dir") == "-":
-                offset = -offset
+                offset = -1*offset
         else:
             match = re.fullmatch(pattern=r"-?\d+", string=time_str)
             if match:
                 offset = datetime.timedelta(seconds=int(time_str))
             else:
-                Logger.Log(f"Could not directly parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats. Trying with Pandas instead", logging.WARNING)
-                offset = Timedelta(time_str).to_pytimedelta()
-        MAX_OFFSET = 24*60*60
-        if offset.total_seconds() > MAX_OFFSET:
-            offset = datetime.timedelta(seconds=offset.total_seconds() % MAX_OFFSET)
-        if offset.total_seconds() < -24*60*60:
-            offset = datetime.timedelta(seconds=(offset.total_seconds() % MAX_OFFSET) - MAX_OFFSET)
+                Logger.Log(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats.", logging.WARNING)
+        if offset:
+            MAX_OFFSET = 24*60*60
+            if offset.total_seconds() > MAX_OFFSET:
+                offset = datetime.timedelta(seconds=offset.total_seconds() % MAX_OFFSET)
+            if offset.total_seconds() < -24*60*60:
+                offset = datetime.timedelta(seconds=(offset.total_seconds() % MAX_OFFSET) - MAX_OFFSET)
 
-        ret_val = datetime.timezone(offset=offset)
+        ret_val = datetime.timezone(offset=offset) if offset is not None else None
         return ret_val
     raise ValueError(f"Could not parse timezone {time_str} of type {type(time_str)}, it did not match any expected formats.")
 

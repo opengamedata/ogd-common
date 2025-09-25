@@ -119,46 +119,101 @@ class EventMapSchema(ColumnMapSchema):
 
     @property
     def AppVersionColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to AppVersion
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._app_version
 
     @property
     def AppBranchColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to AppBranch
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._app_branch
 
     @property
     def LogVersionColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to LogVersion
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._log_version
 
     @property
     def TimestampColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to Timestamp
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._timestamp
 
     @property
     def EventNameColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to EventName
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._event_name
 
     @property
     def EventDataColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to EventData
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._event_data
 
     @property
     def EventSourceColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to EventSource
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._event_source
 
     @property
     def TimeOffsetColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to TimeOffset
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._time_offset
 
     @property
     def UserDataColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to UserData
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._user_data
 
     @property
     def GameStateColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to GameState
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._game_state
 
     @property
     def EventSequenceIndexColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to Event Sequence Index
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._event_sequence_index
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***

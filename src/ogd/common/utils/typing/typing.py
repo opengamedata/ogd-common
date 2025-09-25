@@ -7,12 +7,12 @@ It also contains a `conversions` class that works to reasonably robustly convert
 import abc
 import datetime
 import sys
-from typing import Any, Dict, List, TypeVar, Tuple
+from typing import Any, Dict, TypeVar, Tuple
 ## import local files
 from ogd.common.models.SemanticVersion import SemanticVersion
 
 type Map        = Dict[str, Any]
-type ExportRow  = List[Any]
+type ExportRow  = Tuple[Any, ...]
 type Pair[A, B] = Tuple[A, B]
 type Version    = int | str | SemanticVersion
 type Date       = datetime.datetime | datetime.date

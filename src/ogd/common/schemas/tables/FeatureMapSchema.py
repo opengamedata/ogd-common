@@ -77,18 +77,38 @@ class FeatureMapSchema(ColumnMapSchema):
 
     @property
     def FeatureNameColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to Feature Name
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._feature_name
 
     @property
     def FeatureTypeColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to Feature Type
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._feature_type
 
     @property
     def GameUnitColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to Game Unit
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._game_unit
 
     @property
     def GameUnitIndexColumn(self) -> ColumnMapElement:
+        """The column(s) of the storage table that is/are mapped to Game Unit Index
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._game_unit_index
 
     @property

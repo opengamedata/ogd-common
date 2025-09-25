@@ -57,6 +57,7 @@ jobs:
     name: Interface Testbeds
     needs: build
     uses: ./.github/workflows/TEST_storage_Interfaces.yml
+    secrets: inherit
 
   # Run testbeds in utils module
 

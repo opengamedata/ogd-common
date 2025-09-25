@@ -59,7 +59,7 @@ class ColumnMapSchema(Schema):
         """Mapping from Event element names to the indices of the database columns mapped to them.
         There may be a single index, indicating a 1-to-1 mapping of a database column to the element;
         There may be a list of indices, indicating multiple columns will be concatenated to form the element value;
-        There may be a further mapping of keys to indicies, indicating multiple columns will be joined into a JSON object, with keys mapped to values found at the columns with given indices.
+        There may be a further mapping of keys to indices, indicating multiple columns will be joined into a JSON object, with keys mapped to values found at the columns with given indices.
 
         :return: The dictionary mapping of element names to indices.
         :rtype: Dict[str, Union[int, List[int], Dict[str, int], None]]
@@ -68,14 +68,29 @@ class ColumnMapSchema(Schema):
 
     @property
     def AppIDColumn(self) -> Optional[ColumnMapElement]:
+        """The column(s) of the storage table that is/are mapped to AppID
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._app_id
 
     @property
     def UserIDColumn(self) -> Optional[ColumnMapElement]:
+        """The column(s) of the storage table that is/are mapped to UserID
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._user_id
 
     @property
     def SessionIDColumn(self) -> Optional[ColumnMapElement]:
+        """The column(s) of the storage table that is/are mapped to SessionID
+
+        :return: _description_
+        :rtype: Optional[ColumnMapElement]
+        """
         return self._session_id
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
