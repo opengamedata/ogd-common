@@ -41,12 +41,17 @@ class EventSet:
         for event in self.Events:
             yield event
 
-    def __getitem__(self, key:int | str):
+    def __getitem__(self, key:int | str) -> Event:
+        ret_val : Event
+
         if isinstance(key, int):
-            return self.Events[key]
+            ret_val = self.Events[key]
         elif isinstance(key, str):
             compare : Callable[[Event], bool] = lambda evt : evt.EventName == key
-            return find(compare=compare, in_list=self.Events)
+            index   : int = find(compare=compare, in_list=self.Events)
+            ret_val = self.Events[index]
+        
+        return ret_val
 
     @property
     def Events(self) -> List[Event]:

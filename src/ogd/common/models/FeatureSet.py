@@ -44,12 +44,17 @@ class FeatureSet:
         for event in self.Features:
             yield event
 
-    def __getitem__(self, key:int | str):
+    def __getitem__(self, key:int | str) -> Feature:
+        ret_val : Feature
+
         if isinstance(key, int):
-            return self.Features[key]
+            ret_val = self.Features[key]
         elif isinstance(key, str):
             compare : Callable[[Feature], bool] = lambda feat : feat.Name == key
-            return find(compare=compare, in_list=self.Features)
+            index   : int = find(compare=compare, in_list=self.Features)
+            ret_val = self.Features[index]
+
+        return ret_val
 
     @property
     def Features(self) -> List[Feature]:
