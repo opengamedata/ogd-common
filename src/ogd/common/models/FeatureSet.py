@@ -52,12 +52,27 @@ class FeatureSet:
 
     @property
     def PopulationFeatures(self) -> List[Feature]:
+        """Property to get the list of all feature objects with a population-level aggregation.
+
+        :return: _description_
+        :rtype: List[Feature]
+        """
         return [feature for feature in self.Features if feature.ExportMode == ExportMode.POPULATION]
     @property
     def PlayerFeatures(self) -> List[Feature]:
+        """Property to get the list of all feature objects with a player-level aggregation.
+
+        :return: _description_
+        :rtype: List[Feature]
+        """
         return [feature for feature in self.Features if feature.ExportMode == ExportMode.PLAYER]
     @property
     def SessionFeatures(self) -> List[Feature]:
+        """Property to get the list of all feature objects with a session-level aggregation.
+
+        :return: _description_
+        :rtype: List[Feature]
+        """
         return [feature for feature in self.Features if feature.ExportMode == ExportMode.SESSION]
 
     def FeatureLines(self, schema:Optional[FeatureTableSchema], as_pivot:bool=True) -> List[ExportRow]:
