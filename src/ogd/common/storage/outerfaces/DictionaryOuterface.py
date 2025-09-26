@@ -26,13 +26,14 @@ class DictionaryOuterface(Outerface):
         :type out_dict: Dict[str, Dict[str, Union[List[str], List[ExportRow]]]]
         """
         super().__init__(table_config=table_config, export_modes=export_modes)
-        self._raw_evts : List[ExportRow] = []
-        self._all_evts : List[ExportRow] = []
-        self._sess     : List[ExportRow] = []
-        self._plrs     : List[ExportRow] = []
-        self._pops     : List[ExportRow] = []
-        self._meta     : Dict[str, Any]  = {}
-        self._out      : OutputDict = out_dict or self._defaultOutDict()
+        self._raw_evts  : List[ExportRow] = []
+        self._all_evts  : List[ExportRow] = []
+        self._all_feats : List[ExportRow] = []
+        self._sess      : List[ExportRow] = []
+        self._plrs      : List[ExportRow] = []
+        self._pops      : List[ExportRow] = []
+        self._meta      : Dict[str, Any]  = {}
+        self._out       : OutputDict = out_dict or self._defaultOutDict()
         # self.Open()
 
     # *** IMPLEMENT ABSTRACTS ***
@@ -40,6 +41,10 @@ class DictionaryOuterface(Outerface):
     @property
     def Connector(self) -> None:
         return None
+
+    @property
+    def Output(self) -> OutputDict:
+        return self._out
 
     def _removeExportMode(self, mode:ExportMode):
         match mode:
@@ -60,23 +65,26 @@ class DictionaryOuterface(Outerface):
                 self._out['populations'] = { "cols" : [], "vals" : self._pops }
 
     @override
-    def _writeGameEventsHeader(self, header:List[str]) -> None:
+    def _setupGameEventsTable(self, header:List[str]) -> None:
         self._out['raw_events']['cols'] = header
 
     @override
-    def _writeAllEventsHeader(self, header:List[str]) -> None:
+    def _setupDetectorEventsTable(self, header:List[str]) -> None:
         self._out['all_events']['cols'] = header
 
+    def _setupAllFeaturesTable(self, header:List[str]) -> None:
+        self._out['all_features']['cols'] = header
+
     @override
-    def _writeSessionHeader(self, header:List[str]) -> None:
+    def _setupSessionTable(self, header:List[str]) -> None:
         self._out['sessions']['cols'] = header
 
     @override
-    def _writePlayerHeader(self, header:List[str]) -> None:
+    def _setupPlayerTable(self, header:List[str]) -> None:
         self._out['players']['cols'] = header
 
     @override
-    def _writePopulationHeader(self, header:List[str]) -> None:
+    def _setupPopulationTable(self, header:List[str]) -> None:
         self._out['populations']['cols'] = header
 
     @override
@@ -94,6 +102,9 @@ class DictionaryOuterface(Outerface):
         # since it maps to self._evts.
         # Similar for the other functions here.
         self._all_evts += events
+
+    def _writeAllFeaturesLines(self, feature_lines:List[ExportRow]) -> None:
+        self._all_feats += feature_lines
 
     @override
     def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
@@ -123,9 +134,10 @@ class DictionaryOuterface(Outerface):
 
     def _defaultOutDict(self) -> OutputDict:
         return {
-            'raw_events'  : { "cols" : [], "vals" : self._raw_evts },
-            'all_events'  : { "cols" : [], "vals" : self._all_evts },
-            'sessions'    : { "cols" : [], "vals" : self._sess },
-            'players'     : { "cols" : [], "vals" : self._plrs },
-            'populations' : { "cols" : [], "vals" : self._pops }
+            'raw_events'   : { "cols" : [], "vals" : self._raw_evts  },
+            'all_events'   : { "cols" : [], "vals" : self._all_evts  },
+            'all_features' : { "cols" : [], "vals" : self._all_feats },
+            'sessions'     : { "cols" : [], "vals" : self._sess },
+            'players'      : { "cols" : [], "vals" : self._plrs },
+            'populations'  : { "cols" : [], "vals" : self._pops }
         }

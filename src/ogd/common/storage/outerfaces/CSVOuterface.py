@@ -104,7 +104,7 @@ class CSVOuterface(Outerface):
     def _removeExportMode(self, mode:ExportMode):
         self.Connector.RemoveSecondaryFile(mode=mode)
 
-    def _writeGameEventsHeader(self, header:List[str]) -> None:
+    def _setupGameEventsTable(self, header:List[str]) -> None:
         cols = CSVOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
         f = self.Connector.SecondaryFiles.get(ExportMode.EVENTS.name, None)
@@ -114,7 +114,7 @@ class CSVOuterface(Outerface):
             Logger.Log("No raw_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
-    def _writeAllEventsHeader(self, header:List[str]) -> None:
+    def _setupDetectorEventsTable(self, header:List[str]) -> None:
         cols = CSVOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
         if self.Connector.File is not None:
@@ -123,7 +123,11 @@ class CSVOuterface(Outerface):
             Logger.Log("No processed_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
-    def _writeSessionHeader(self, header:List[str]) -> None:
+    def _setupAllFeaturesTable(self, header:List[str]) -> None:
+        # TODO : CSVOuterface is currently in this weird hardcoded situation, so not yet supporting the 'all features' format
+        pass
+
+    def _setupSessionTable(self, header:List[str]) -> None:
         cols = CSVOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
         f = self.Connector.SecondaryFiles.get(ExportMode.SESSION.name, None)
@@ -133,7 +137,7 @@ class CSVOuterface(Outerface):
             Logger.Log("No session file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
-    def _writePlayerHeader(self, header:List[str]) -> None:
+    def _setupPlayerTable(self, header:List[str]) -> None:
         cols = CSVOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
         f = self.Connector.SecondaryFiles.get(ExportMode.PLAYER.name, None)
@@ -143,7 +147,7 @@ class CSVOuterface(Outerface):
             Logger.Log("No player file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
-    def _writePopulationHeader(self, header:List[str]) -> None:
+    def _setupPopulationTable(self, header:List[str]) -> None:
         cols = CSVOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
         f = self.Connector.SecondaryFiles.get(ExportMode.POPULATION.name, None)
@@ -172,6 +176,10 @@ class CSVOuterface(Outerface):
         else:
             Logger.Log("No processed_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(event_lines))
+
+    def _writeAllFeaturesLines(self, feature_lines:List[ExportRow]) -> None:
+        # TODO : CSVOuterface is currently in this weird hardcoded situation, so not yet supporting the 'all features' format
+        pass
 
     def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
         # self._sess_count += len(sessions)

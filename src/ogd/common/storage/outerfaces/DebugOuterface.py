@@ -44,23 +44,27 @@ class DebugOuterface(Outerface):
             case ExportMode.POPULATION:
                 self._display("No longer outputting population data to debug stream.")
 
-    def _writeGameEventsHeader(self, header:List[str]) -> None:
+    def _setupGameEventsTable(self, header:List[str]) -> None:
         self._display("Raw events header:")
         self._display(header)
 
-    def _writeAllEventsHeader(self, header:List[str]) -> None:
+    def _setupDetectorEventsTable(self, header:List[str]) -> None:
         self._display("Processed events header:")
         self._display(header)
 
-    def _writeSessionHeader(self, header:List[str]) -> None:
+    def _setupAllFeaturesTable(self, header:List[str]) -> None:
+        self._display("All Feature header:")
+        self._display(header)
+
+    def _setupSessionTable(self, header:List[str]) -> None:
         self._display("Sessions header:")
         self._display(header)
 
-    def _writePlayerHeader(self, header:List[str]) -> None:
+    def _setupPlayerTable(self, header:List[str]) -> None:
         self._display("Player header:")
         self._display(header)
 
-    def _writePopulationHeader(self, header:List[str]) -> None:
+    def _setupPopulationTable(self, header:List[str]) -> None:
         self._display("Population header:")
         self._display(header)
 
@@ -73,6 +77,11 @@ class DebugOuterface(Outerface):
         self._display("Processed event data:")
         _lengths = [len(elem) for elem in events]
         self._display(f"{len(events)} processed events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
+
+    def _writeAllFeaturesLines(self, feature_lines:List[ExportRow]) -> None:
+        self._display("Feature data:")
+        _lengths = [len(elem) for elem in feature_lines]
+        self._display(f"{len(feature_lines)} events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
 
     def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
         self._display("Session data:")
