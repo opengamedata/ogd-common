@@ -1,12 +1,13 @@
 ## import standard libraries
 from itertools import chain
-from typing import List, Optional
+from typing import Callable, List, Optional
 # import local files
 from ogd.common.filters.collections import *
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.models.Feature import Feature
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.utils.typing import ExportRow
+from ogd.common.utils.helpers import find
 
 class FeatureSet:
     """Dumb struct that primarily just contains an ordered list of events.
@@ -42,6 +43,13 @@ class FeatureSet:
     def __iter__(self):
         for event in self.Features:
             yield event
+
+    def __getitem__(self, key:int | str):
+        if isinstance(key, int):
+            return self.Features[key]
+        elif isinstance(key, str):
+            compare : Callable[[Feature], bool] = lambda feat : feat.Name == key
+            return find(compare=compare, in_list=self.Features)
 
     @property
     def Features(self) -> List[Feature]:
