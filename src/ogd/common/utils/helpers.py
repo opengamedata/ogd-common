@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from functools import partial
-from typing import Any, Callable, List, Optional, TypeVar
+from typing import Callable, List, TypeVar
 from zipfile import ZipFile
 
 import pandas as pd
