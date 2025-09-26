@@ -1,10 +1,11 @@
 ## import standard libraries
-from typing import List, Optional
+from typing import Callable, List, Optional
 # import local files
 from ogd.common.filters.collections import *
 from ogd.common.models.Event import Event, EventSource
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.utils.typing import ExportRow
+from ogd.common.utils.helpers import find
 
 class EventSet:
     """Dumb struct that primarily just contains an ordered list of events.
@@ -39,6 +40,18 @@ class EventSet:
     def __iter__(self):
         for event in self.Events:
             yield event
+
+    def __getitem__(self, key:int | str) -> Event:
+        ret_val : Event
+
+        if isinstance(key, int):
+            ret_val = self.Events[key]
+        elif isinstance(key, str):
+            compare : Callable[[Event], bool] = lambda evt : evt.EventName == key
+            index   : int = find(compare=compare, in_list=self.Events)
+            ret_val = self.Events[index]
+        
+        return ret_val
 
     @property
     def Events(self) -> List[Event]:
