@@ -87,6 +87,11 @@ class Outerface:
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
+    def _writeAllFeatureLines(self, feature_lines:List[ExportRow]) -> None:
+        # pylint: disable-next=protected-access
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
+
+    @abc.abstractmethod
     def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
         # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
@@ -184,21 +189,30 @@ class Outerface:
         else:
             Logger.Log(f"Could not write events from {type(self).__name__}, outerface was not configured for a Events table!", logging.WARNING, depth=3)
 
-    def WriteFeatures(self, features:FeatureSet, mode:ExportMode) -> None:
+    def WriteFeatures(self, features:FeatureSet, mode:ExportMode, as_pivot:bool=False) -> None:
         if isinstance(self.Config.TableSchema, FeatureTableSchema):
             if mode in self.ExportModes:
                 match (mode):
                     case ExportMode.SESSION:
-                        lines = features.SessionLines(schema=self.Config.TableSchema)
-                        self._writeSessionLines(session_lines=lines)
+                        lines = features.SessionLines(schema=self.Config.TableSchema, as_pivot=True)
+                        self._writeAllFeatureLines(feature_lines=lines)
+                        self._writeSessionLines(
+                            session_lines = lines if as_pivot else features.SessionLines(schema=self.Config.TableSchema, as_pivot=False)
+                        )
                         Logger.Log(f"Wrote {len(lines)} {self.Config.Location} session lines", depth=3)
                     case ExportMode.PLAYER:
-                        lines = features.PlayerLines(schema=self.Config.TableSchema)
-                        self._writePlayerLines(player_lines=lines)
+                        lines = features.PlayerLines(schema=self.Config.TableSchema, as_pivot=True)
+                        self._writeAllFeatureLines(feature_lines=lines)
+                        self._writePlayerLines(
+                            player_lines = lines if as_pivot else features.PlayerLines(schema=self.Config.TableSchema, as_pivot=False)
+                        )
                         Logger.Log(f"Wrote {len(lines)} {self.Config.Location} player lines", depth=3)
                     case ExportMode.POPULATION:
-                        lines = features.PopulationLines(schema=self.Config.TableSchema)
-                        self._writePopulationLines(population_lines=lines)
+                        lines = features.PopulationLines(schema=self.Config.TableSchema, as_pivot=True)
+                        self._writeAllFeatureLines(feature_lines=lines)
+                        self._writePopulationLines(
+                            population_lines = lines if as_pivot else features.PopulationLines(schema=self.Config.TableSchema, as_pivot=False)
+                        )
                         Logger.Log(f"Wrote {len(lines)} {self.Config.Location} population lines", depth=3)
                     case _:
                         Logger.Log(f"Failed to write lines for unrecognized Feature export mode {mode}!", level=logging.WARN, depth=3)
