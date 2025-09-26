@@ -92,13 +92,40 @@ class FeatureSet:
         return ret_val
 
     def PopulationLines(self, schema:Optional[FeatureTableSchema], as_pivot:bool=True) -> List[ExportRow]:
-        return list(chain.from_iterable(feature.ToRow(schema=schema) if schema else feature.ColumnValues for feature in self.PopulationFeatures))
+        ret_val : List[ExportRow] = []
+
+        if as_pivot:
+            # Since each feature returns a list of rows, we need to chain them to a single list
+            ret_val = list(chain.from_iterable(feature.ToRow(schema=schema) if schema else feature.ColumnValues for feature in self.PopulationFeatures))
+        else:
+            # TODO : rewrite this to actually do something other than pivot-style when we want old format
+            ret_val = list(chain.from_iterable(feature.ToRow(schema=schema) if schema else feature.ColumnValues for feature in self.PopulationFeatures))
+
+        return ret_val
 
     def PlayerLines(self, schema:Optional[FeatureTableSchema], as_pivot:bool=True) -> List[ExportRow]:
-        return list(chain.from_iterable(feature.ToRow(schema=schema) if schema else feature.ColumnValues for feature in self.PlayerFeatures))
+        ret_val : List[ExportRow] = []
+
+        if as_pivot:
+            # Since each feature returns a list of rows, we need to chain them to a single list
+            ret_val = list(chain.from_iterable(feature.ToRow(schema=schema) if schema else feature.ColumnValues for feature in self.PlayerFeatures))
+        else:
+            # TODO : rewrite this to actually do something other than pivot-style when we want old format
+            ret_val = list(chain.from_iterable(feature.ToRow(schema=schema) if schema else feature.ColumnValues for feature in self.PlayerFeatures))
+
+        return ret_val
 
     def SessionLines(self, schema:Optional[FeatureTableSchema], as_pivot:bool=True) -> List[ExportRow]:
-        return list(chain.from_iterable(feature.ToRow(schema=schema) if schema else feature.ColumnValues for feature in self.SessionFeatures))
+        ret_val : List[ExportRow] = []
+
+        if as_pivot:
+            # Since each feature returns a list of rows, we need to chain them to a single list
+            ret_val = list(chain.from_iterable(feature.ToRow(schema=schema) if schema else feature.ColumnValues for feature in self.SessionFeatures))
+        else:
+            # TODO : rewrite this to actually do something other than pivot-style when we want old format
+            ret_val = list(chain.from_iterable(feature.ToRow(schema=schema) if schema else feature.ColumnValues for feature in self.SessionFeatures))
+
+        return ret_val
 
     @property
     def Filters(self) -> DatasetFilterCollection:
