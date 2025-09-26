@@ -1,13 +1,14 @@
 from collections.abc import Mapping
 from functools import partial
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, List, Optional, TypeVar
 from zipfile import ZipFile
 
 import pandas as pd
 
-def find(compare:Any, in_list:List[Any]) -> int:
+T = TypeVar("T")
+def find(compare:T | Callable[[T], bool], in_list:List[T]) -> int:
     if not callable(compare):
-        y = compare
+        y : T = compare
         compare = lambda x : x == y
     return in_list.index(next(elem for elem in in_list if compare(elem)))
 
