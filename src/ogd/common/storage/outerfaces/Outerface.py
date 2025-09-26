@@ -145,6 +145,20 @@ class Outerface:
         Logger.Log(f"Removed mode {mode} from {type(self).__name__} output.", logging.INFO)
 
     def WriteHeader(self, mode:ExportMode, header:Optional[List[str]]=None):
+        """Write the header to the table for a given export type.
+
+        If the table does not exist, the outerface will attempt to create it.
+
+        .. TODO : Sort out a better way to make sure the header and output format are the same,
+        i.e. if write calls are going to specify pivot format, we should allow that to be specified when calling here,
+        rather than needing to get the pivot format header and pass in, then later just say "as_pivot=True" when sending in data.
+        Solution might be to put this responsibility on the FeatureSet as well, since it's in a better spot to say what's what.
+
+        :param mode: _description_
+        :type mode: ExportMode
+        :param header: _description_, defaults to None
+        :type header: Optional[List[str]], optional
+        """
         if mode in self.ExportModes:
             match (mode):
                 case ExportMode.EVENTS:
