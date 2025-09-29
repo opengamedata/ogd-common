@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Dict, Optional, IO
+from typing import Final, IO, Optional, Set
 from zipfile import ZipFile
 ## import local files
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
@@ -10,6 +10,8 @@ from ogd.common.utils.Logger import Logger
 class CSVConnector(StorageConnector):
 
     # *** BUILT-INS & PROPERTIES ***
+    _DEFAULT_EXTENSION : Final[str]      = "tsv"
+    _VALID_EXTENSIONS  : Final[Set[str]] = {"tsv", "csv"}
 
     def __init__(self, config:FileStoreConfig,
                  with_zipping:bool=False):
@@ -33,7 +35,7 @@ class CSVConnector(StorageConnector):
     @property
     def FileExtension(self) -> str:
         candidate_ext = self.StoreConfig.FileExtension
-        return candidate_ext if candidate_ext in ["tsv", "csv"] else "tsv"
+        return candidate_ext if candidate_ext in CSVConnector._VALID_EXTENSIONS else CSVConnector._DEFAULT_EXTENSION
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
