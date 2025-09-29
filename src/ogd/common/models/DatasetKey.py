@@ -80,7 +80,7 @@ class DatasetKey:
         date_clause = f"{self._from_date.strftime('%Y%m%d')}_to_{self._to_date.strftime('%Y%m%d')}" if self._from_date and self._to_date else None
         has_id = any([id is not None for id in [self._session_id, self._session_id_file, self._player_id, self._player_id_file, self._full_file]])
         id_clause = f"from_{self._session_id or self._session_id_file or self._player_id or self._player_id_file or self._full_file}" if has_id else None
-        pieces : List[str] = [x for x in [self._game_id, id_clause, date_clause] if x is not None]
+        pieces : List[str] = [x for x in [self.GameID.replace("_", "-"), id_clause, date_clause] if x is not None]
         return "_".join(pieces)
     
     @property
@@ -122,7 +122,7 @@ class DatasetKey:
         :return: _description_
         :rtype: _type_
         """
-        game_id_pattern = r"[A-Z1-9_]+"
+        game_id_pattern = r"[A-Z1-9_\-]+"
         game_id_group   = f"(?P<game_id>{game_id_pattern})"
         id_pattern      = r"from_[\w_]+"
         id_group        = f"(?P<id_only>{id_pattern})"
@@ -134,7 +134,7 @@ class DatasetKey:
         idtype_pattern = r"(?P<singlesession>\d+)|(?P<singleplayer>[A-Za-z]+)|(?P<file>.+)"
         match = re.match(pattern=pattern, string=raw_key)
         if match:
-            _game_id : str = match.group('game_id')
+            _game_id    : str = match.group('game_id')
             _from_date  : Optional[date] = None
             _to_date    : Optional[date] = None
             _session_id : Optional[str]  = None
@@ -160,7 +160,7 @@ class DatasetKey:
                 _file_name  = id_match.group("file")
         else:
             raise ValueError(f"{raw_key} is not a valid DatasetKey!")
-        return DatasetKey(game_id=_game_id, from_date=_from_date, to_date=_to_date, session_id=_session_id, player_id=_player_id, full_file=_file_name)
+        return DatasetKey(game_id=_game_id.replace("-", "_"), from_date=_from_date, to_date=_to_date, session_id=_session_id, player_id=_player_id, full_file=_file_name)
 
     #endregion
 
