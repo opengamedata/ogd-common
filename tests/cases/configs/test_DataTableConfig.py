@@ -35,8 +35,8 @@ class test_DataTableConfig(TestCase):
         }
         cls.test_schema = DataTableConfig(
             name="Game Source Schema",
-            store_name="AQUALAB_BQ",
-            schema_name="OPENGAMEDATA_BIGQUERY",
+            store="AQUALAB_BQ",
+            table_schema="OPENGAMEDATA_BIGQUERY",
             table_location=DatabaseLocationSchema(name="DBLocation", database_name="aqualab", table_name="aqualab_daily"),
             other_elements={ "foo":"bar" }
         )
