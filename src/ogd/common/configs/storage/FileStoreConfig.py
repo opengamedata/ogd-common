@@ -86,7 +86,7 @@ class FileStoreConfig(DataStoreConfig):
         return self.Filename.rsplit(".", maxsplit=1)[-1]
 
     @property
-    def Filepath(self) -> str | Path:
+    def Filepath(self) -> Path:
         """The full path to the file targeted by the FileStoreConfig
 
         :return: _description_
