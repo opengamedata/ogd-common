@@ -1,5 +1,7 @@
 import logging
+from pathlib import Path
 from typing import Dict, Optional, IO
+from zipfile import ZipFile
 ## import local files
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.storage.connectors.StorageConnector import StorageConnector
@@ -10,14 +12,13 @@ class CSVConnector(StorageConnector):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, config:FileStoreConfig,
-                 with_zipping:bool=False,
-                 existing_meta:Optional[Dict]=None):
+                 with_zipping:bool=False):
         # set up data from params
         super().__init__()
-        self._config               : FileStoreConfig          = config
-        self._file                 : Optional[IO]             = None
-        self._existing_meta        : Dict                     = existing_meta or {}
-        self._with_zipping         : bool                     = with_zipping
+        self._config       : FileStoreConfig   = config
+        self._file         : Optional[IO]      = None
+        self._with_zipping : bool              = with_zipping
+        self._zip_file     : Optional[ZipFile] = None
 
     # *** PROPERTIES ***
 
@@ -38,16 +39,27 @@ class CSVConnector(StorageConnector):
 
     def _open(self, writeable:bool=True) -> bool:
         ret_val = True
-        try:
-            if self._with_zipping:
-                # expect a zip file, and try to open file within zip
-                pass
+
+        # expect a zip file, and try to open file within zip, based on conventions
+        # if it fails, we're fine with erroring out.
+        # If file wasn't actually a zip, but a csv/tsv, then fall back on normal behavior.
+        if self.StoreConfig.FileExtension == "zip":
+            if not self._with_zipping:
+                Logger.Log("CSVConnector was given a zip file but not set to open with zipping. Attempting to open from the zip file anyway...", logging.WARNING)
+            try:
+                self._zip_file = ZipFile(file=self.StoreConfig.Filepath, mode="w" if writeable else "r")
+            except FileNotFoundError:
+                Logger.Log(f"Could not find file {self.StoreConfig.Filepath}.", logging.ERROR)
+                ret_val = False
             else:
-                # assume we're given a tsv/csv
-                self._file = open(self.StoreConfig.Filepath, mode="w+" if writeable else "r", encoding="utf-8")
-        except FileNotFoundError:
-            Logger.Log(f"Could not find file {self.StoreConfig.Filepath}.", logging.ERROR)
-            ret_val = False
+                try:
+                    inner_path = f"{self.StoreConfig.Filepath.stem.split("_")[:-2]}/{self.StoreConfig.Filepath.stem}.{self.FileExtension}"
+                    self._file = self._zip_file.open(name=inner_path)
+                except FileNotFoundError:
+                    Logger.Log(f"Could not find file {inner_path} within {self.StoreConfig.Filepath}.", logging.ERROR)
+                    ret_val = False
+        else:
+            ret_val = self._openCSV(path=self.StoreConfig.Filepath, writeable=writeable)
 
         return ret_val
 
@@ -55,6 +67,8 @@ class CSVConnector(StorageConnector):
         Logger.Log("Closing TSV connector...")
         if self.File:
             self.File.close()
+        if self._zip_file:
+            self._zip_file.close()
         self._is_open = False
         return True
 
@@ -65,3 +79,15 @@ class CSVConnector(StorageConnector):
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***
+
+    def _openCSV(self, path:str | Path, writeable:bool) -> bool:
+        ret_val = True
+
+        # assume we're given a tsv/csv, open as normal.
+        try:
+            self._file = open(path, mode="w+" if writeable else "r", encoding="utf-8")
+        except FileNotFoundError:
+            Logger.Log(f"Could not find file {path}.", logging.ERROR)
+            ret_val = False
+
+        return ret_val
