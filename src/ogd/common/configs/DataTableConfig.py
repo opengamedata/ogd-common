@@ -1,8 +1,9 @@
 # import standard libraries
+import builtins
 from typing import Dict, Final, LiteralString, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
-from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
+from ogd.common.configs.storage.DatasetRepositoryConfig import DataStoreConfig
 from ogd.common.schemas.tables.TableSchemaFactory import TableSchemaFactory
 from ogd.common.schemas.tables import TableSchema as ts
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
@@ -37,10 +38,9 @@ class DataTableConfig(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,
-                 store_name:Optional[str],
-                 schema_name:Optional[str],
+                 store:Optional[DataStoreConfig | str], table_schema:Optional[ts.TableSchema | str],
                  table_location:Optional[DatabaseLocationSchema],
-                 store_config:Optional[DataStoreConfig]=None, table_schema:Optional[ts.TableSchema]=None,
+                 data_stores:Dict[str, DataStoreConfig]={},
                  other_elements:Optional[Map]=None):
         """Constructor for the `DataTableConfig` class.
         
@@ -72,11 +72,26 @@ class DataTableConfig(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._store_name     : str                       = store_name     if store_name     is not None else self._parseStoreName(unparsed_elements=unparsed_elements, schema_name=name)
-        self._store_config   : Optional[DataStoreConfig] = store_config
-        self._schema_name    : str                       = schema_name    if schema_name    is not None else self._parseTableSchemaName(unparsed_elements=unparsed_elements, schema_name=name)
-        self._table_schema   : ts.TableSchema            = table_schema   if table_schema   is not None else TableSchemaFactory.FromFile(filename=self._schema_name)
-        self._table_location : DatabaseLocationSchema    = table_location if table_location is not None else self._parseTableLocation(unparsed_elements=unparsed_elements)
+        # Declare instance vars
+        self._store_name     : str
+        self._store_config   : Optional[DataStoreConfig]
+        self._schema_name    : str
+        self._table_schema   : ts.TableSchema
+        self._table_location : DatabaseLocationSchema
+
+        if isinstance(store, DataStoreConfig):
+            self._store_config = store
+            self._store_name   = store.Name
+        else:
+            self._store_name   = store if store is not None else self._parseStoreName(unparsed_elements=unparsed_elements, schema_name=name)
+            self._store_config = data_stores.get(self._store_name)
+        if isinstance(table_schema, ts.TableSchema):
+            self._table_schema = table_schema
+            self._schema_name  = table_schema.Name
+        else:
+            self._schema_name  = table_schema if table_schema is not None else self._parseTableSchemaName(unparsed_elements=unparsed_elements, schema_name=name)
+            self._table_schema = TableSchemaFactory.FromFile(filename=self._schema_name)
+        self._table_location = table_location if table_location is not None else self._parseTableLocation(unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -174,10 +189,8 @@ class DataTableConfig(Schema):
     def Default(cls) -> "DataTableConfig":
         return DataTableConfig(
             name="DefaultDataTableConfig",
-            store_name=cls._DEFAULT_STORE_NAME,
-            store_config=None,
-            schema_name=cls._DEFAULT_TABLE_SCHEMA_NAME,
-            table_schema=None,
+            store=cls._DEFAULT_STORE_NAME,
+            table_schema=cls._DEFAULT_TABLE_SCHEMA_NAME,
             table_location=cls._DEFAULT_TABLE_LOC,
             other_elements={}
         )
@@ -202,7 +215,7 @@ class DataTableConfig(Schema):
         :return: _description_
         :rtype: DataTableConfig
         """
-        return DataTableConfig(name=name, store_name=None, schema_name=None,
+        return DataTableConfig(name=name, store=None, table_schema=None,
                                 table_location=None, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***

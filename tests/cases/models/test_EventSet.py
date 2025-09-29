@@ -66,10 +66,9 @@ class test_EventSet(TestCase):
         # 2. Set up local instance of testing class
         _cfg = DataTableConfig(
             name="FILE SOURCE",
-            store_name=None,
-            schema_name="OGD_EVENT_FILE",
+            store=None,
+            table_schema="OGD_EVENT_FILE",
             table_location=DatabaseLocationSchema(name="TestLocation", database_name="location", table_name=None),
-            store_config=None
         )
         CSVI = CSVInterface(config=_cfg, fail_fast=False)
         cls.events : EventSet = CSVI.GetEventSet(filters=DatasetFilterCollection(), fallbacks={})
