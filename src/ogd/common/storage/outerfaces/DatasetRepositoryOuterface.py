@@ -27,7 +27,7 @@ from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
 
-class CSVOuterface(Outerface):
+class DatasetRepositoryOuterface(Outerface):
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -75,6 +75,20 @@ class CSVOuterface(Outerface):
             raise ValueError(f"CSVInterface config was for a connector other than CSV/TSV files! Found config type {type(self.Config.StoreConfig)}")
         self.Connector.Open()
 
+
+        # logic for opening files
+        for mode in self._with_files:
+            suffix = self._FILE_SUFFIXES[mode.name]
+            if isinstance(self._location, DirectoryLocationSchema):
+                filename = self._location.FolderPath / f"{base_file_name}_{suffix}.{self.FileExtension}"
+            _zip  = self.StoreConfig.Folder / f"{base_file_name}_{suffix}.zip"
+            try:
+                self._files[mode.name] = open(file, "w+", encoding="utf-8")
+            except FileNotFoundError:
+                Logger.Log(f"Could not find file {file}.", logging.ERROR)
+            else:
+                self._zip_paths[mode.name] = _zip
+
         # then set up our paths, and ensure each exists.
         # finally, generate file names.
 
@@ -105,7 +119,7 @@ class CSVOuterface(Outerface):
         self.Connector.RemoveSecondaryFile(mode=mode)
 
     def _setupGameEventsTable(self, header:List[str]) -> None:
-        cols = CSVOuterface._cleanSpecialChars(vals=header)
+        cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
         f = self.Connector.SecondaryFiles.get(ExportMode.EVENTS.name, None)
         if f is not None:
@@ -115,7 +129,7 @@ class CSVOuterface(Outerface):
             sys.stdout.write("".join(cols_line))
 
     def _setupDetectorEventsTable(self, header:List[str]) -> None:
-        cols = CSVOuterface._cleanSpecialChars(vals=header)
+        cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
         if self.Connector.File is not None:
             self.Connector.File.writelines(cols_line)
@@ -128,7 +142,7 @@ class CSVOuterface(Outerface):
         pass
 
     def _setupSessionTable(self, header:List[str]) -> None:
-        cols = CSVOuterface._cleanSpecialChars(vals=header)
+        cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
         f = self.Connector.SecondaryFiles.get(ExportMode.SESSION.name, None)
         if f is not None:
@@ -138,7 +152,7 @@ class CSVOuterface(Outerface):
             sys.stdout.write("".join(cols_line))
 
     def _setupPlayerTable(self, header:List[str]) -> None:
-        cols = CSVOuterface._cleanSpecialChars(vals=header)
+        cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
         f = self.Connector.SecondaryFiles.get(ExportMode.PLAYER.name, None)
         if f is not None:
@@ -148,7 +162,7 @@ class CSVOuterface(Outerface):
             sys.stdout.write("".join(cols_line))
 
     def _setupPopulationTable(self, header:List[str]) -> None:
-        cols = CSVOuterface._cleanSpecialChars(vals=header)
+        cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
         f = self.Connector.SecondaryFiles.get(ExportMode.POPULATION.name, None)
         if f is not None:
@@ -158,7 +172,7 @@ class CSVOuterface(Outerface):
             sys.stdout.write("".join(cols_line))
 
     def _writeGameEventLines(self, events:List[ExportRow]) -> None:
-        event_strs = [CSVOuterface._cleanSpecialChars(vals=[str(item) for item in event]) for event in events]
+        event_strs = [DatasetRepositoryOuterface._cleanSpecialChars(vals=[str(item) for item in event]) for event in events]
         event_lines = ["\t".join(event) + "\n" for event in event_strs]
         f = self.Connector.SecondaryFiles.get(ExportMode.EVENTS.name, None)
         if f is not None:
@@ -168,7 +182,7 @@ class CSVOuterface(Outerface):
             sys.stdout.write("".join(event_lines))
 
     def _writeAllEventLines(self, events:List[ExportRow]) -> None:
-        event_strs = [CSVOuterface._cleanSpecialChars(vals=[str(item) for item in event]) for event in events]
+        event_strs = [DatasetRepositoryOuterface._cleanSpecialChars(vals=[str(item) for item in event]) for event in events]
         event_lines = ["\t".join(event) + "\n" for event in event_strs]
         f = self.Connector.SecondaryFiles.get(ExportMode.DETECTORS.name, None)
         if f is not None:
@@ -183,7 +197,7 @@ class CSVOuterface(Outerface):
 
     def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
         # self._sess_count += len(sessions)
-        _clean_lines = [CSVOuterface._cleanSpecialChars(vals=feat) for feat in session_lines]
+        _clean_lines = [DatasetRepositoryOuterface._cleanSpecialChars(vals=feat) for feat in session_lines]
         final_lines = ["\t".join(sess) + "\n" for sess in _clean_lines]
         if self.Connector.File is not None:
             self.Connector.File.writelines(final_lines)
@@ -195,7 +209,7 @@ class CSVOuterface(Outerface):
             sys.stdout.write("".join(final_lines))
 
     def _writePlayerLines(self, player_lines:List[ExportRow]) -> None:
-        _clean_lines = [CSVOuterface._cleanSpecialChars(vals=play) for play in player_lines]
+        _clean_lines = [DatasetRepositoryOuterface._cleanSpecialChars(vals=play) for play in player_lines]
         final_lines = ["\t".join(play) + "\n" for play in _clean_lines]
         if self.Connector.File is not None:
             self.Connector.File.writelines(final_lines)
@@ -207,7 +221,7 @@ class CSVOuterface(Outerface):
             sys.stdout.write("".join(final_lines))
 
     def _writePopulationLines(self, population_lines:List[ExportRow]) -> None:
-        _clean_lines = [CSVOuterface._cleanSpecialChars(vals=pop) for pop in population_lines]
+        _clean_lines = [DatasetRepositoryOuterface._cleanSpecialChars(vals=pop) for pop in population_lines]
         final_lines = ["\t".join(pop) + "\n" for pop in _clean_lines]
         if self.Connector.File is not None:
             self.Connector.File.writelines(final_lines)
@@ -308,7 +322,7 @@ class CSVOuterface(Outerface):
     #  @param date_range    The range of dates included in the exported data.
     #  @param num_sess      The number of sessions included in the recent export.
     def _updateFileExportList(self, file_indexing:RepositoryIndexingConfig, dataset_schema:DatasetSchema) -> None:
-        CSVOuterface._backupFileExportList(self._repository.LocalDirectory.FolderPath)
+        DatasetRepositoryOuterface._backupFileExportList(self._repository.LocalDirectory.FolderPath)
         file_index = {}
         existing_datasets = {}
         try:
