@@ -28,7 +28,7 @@ def loadJSONFile(filename:str, path:Path = Path("./"), search_in_src:bool = Fals
     :type search_in_src: bool, optional
     :param autocorrect_extension: When False, overrides default behavior and will not append .json to a filename with other extension, defaults to True
     :type autocorrect_extension: bool, optional
-    :raises err: _description_
+    :raises err: ModuleNotFoundError | FileNotFoundError
     :return: A python object parsed from the JSON.
     :rtype: Dict[Any, Any]
     """
