@@ -1,5 +1,5 @@
 ## import standard libraries
-from typing import Dict, Final, List, Optional, Self
+from typing import Dict, Final, Optional, Self
 ## import local files
 from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
