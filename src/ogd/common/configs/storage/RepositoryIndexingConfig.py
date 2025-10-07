@@ -21,7 +21,7 @@ class RepositoryIndexingConfig(Config):
                  remote_url:Optional[URLLocationSchema | Map | str],
                  templates_url:Optional[URLLocationSchema | Map | str],
                  other_elements:Optional[Map]=None):
-        """Constructor for the `IndexingConfig` class.
+        """Constructor for the `RepositoryIndexingConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
 
