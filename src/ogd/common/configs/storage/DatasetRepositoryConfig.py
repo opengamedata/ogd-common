@@ -130,7 +130,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
     @classmethod
     def Default(cls) -> "DatasetRepositoryConfig":
         return DatasetRepositoryConfig(
-            name="CONFIG NOT FOUND",
+            name="DefaultDatasetRepositoryConfig",
             indexing=cls._DEFAULT_INDEXING,
             datasets=cls._DEFAULT_DATASETS,
             other_elements={}
@@ -146,9 +146,9 @@ class DatasetRepositoryConfig(DataStoreConfig):
         if isinstance(indexing, RepositoryIndexingConfig):
             ret_val = indexing
         elif isinstance(indexing, dict):
-            ret_val = RepositoryIndexingConfig.FromDict(name="DatasetRepositoryIndex", unparsed_elements=fallbacks)
+            ret_val = RepositoryIndexingConfig.FromDict(name=f"{schema_name}Index", unparsed_elements=fallbacks)
         elif isinstance(indexing, Path) | isinstance(indexing, str):
-            ret_val = RepositoryIndexingConfig(name="DatasetRepositoryIndex", local_dir=indexing, remote_url=None, templates_url=None)
+            ret_val = RepositoryIndexingConfig(name=f"{schema_name}Index", local_dir=indexing, remote_url=None, templates_url=None)
         else:
             ret_val = DatasetRepositoryConfig._parseIndexingConfig(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
@@ -165,7 +165,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
             remove_target=True,
             schema_name=schema_name
         )
-        ret_val = RepositoryIndexingConfig.FromDict(name="RepositoryIndex", unparsed_elements=raw_config)
+        ret_val = RepositoryIndexingConfig.FromDict(name=f"{schema_name}Index", unparsed_elements=raw_config)
 
         return ret_val
 
