@@ -8,7 +8,7 @@ import sys
 from git.repo import Repo
 from git.exc import InvalidGitRepositoryError, NoSuchPathError
 from pathlib import Path
-from typing import Any, List, Optional, override, Set
+from typing import Any, List, Optional, override, Set, Tuple
 # 3rd-party imports
 # import local files
 # from ogd import games
@@ -250,11 +250,12 @@ class CSVOuterface(Outerface):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _cleanSpecialChars(vals:List[Any], tab_width:int=3) -> List[str]:
+    def _cleanSpecialChars(vals:List[Any] | Tuple[Any], tab_width:int=3) -> Tuple[str,...]:
+        ret_val : List[str] = [""]*len(vals)
         # check all return values for strings, and ensure no newlines or tabs get through, as they could throw off our outputs.
-        for i in range(len(vals)):
-            vals[i] = str(vals[i]).replace('\n', ' ').replace('\t', ' '*tab_width)
-        return vals
+        for i,val in enumerate(vals):
+            ret_val[i] = str(val).replace('\n', ' ').replace('\t', ' '*tab_width)
+        return tuple(ret_val)
 
     # *** PRIVATE METHODS ***
 
