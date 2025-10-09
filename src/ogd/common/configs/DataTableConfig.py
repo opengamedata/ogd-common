@@ -146,7 +146,7 @@ class DataTableConfig(Schema):
         self._table_schema = schema
 
     @property
-    def Location(self) -> DatabaseLocationSchema:
+    def TableLocation(self) -> DatabaseLocationSchema:
         """The DatabaseLocationSchema for this DataTableConfig.
 
         This DatabaseLocationSchema contains information on how to locate the configured data table within its data store.
@@ -182,7 +182,7 @@ class DataTableConfig(Schema):
     def AsMarkdown(self) -> str:
         ret_val : str
 
-        ret_val = f"{self.Name}: _{self.TableSchemaName}_ format, source {self.StoreName} : {self.Location.Location}"
+        ret_val = f"{self.Name}: _{self.TableSchemaName}_ format, source {self.StoreName} : {self.TableLocation.Location}"
         return ret_val
 
     @classmethod

@@ -60,7 +60,7 @@ class BigQueryInterface(Interface):
         :return: The full path from project ID to table name, if properly set in configuration, else the literal string "INVALID SOURCE SCHEMA".
         :rtype: str
         """
-        return f"{self.Connector.StoreConfig.Location.DatabaseName}.{self.Config.Location.Location}_*"
+        return f"{self.Connector.StoreConfig.Location.DatabaseName}.{self.Config.TableLocation.Location}_*"
 
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***

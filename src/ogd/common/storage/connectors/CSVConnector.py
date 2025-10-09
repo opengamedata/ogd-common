@@ -64,6 +64,7 @@ class CSVConnector(StorageConnector):
             Logger.Log(f"Could not find file {self.StoreConfig.Filepath}.", logging.ERROR)
             ret_val = False
         else:
+            # FIXME : This is dumb, we should have a way to use the DatasetKey. Also, StoreConfig.Filename currently doesn't have the hash included. For features, it at least has _feature at end, though maybe that shouldn't be there yet either...
             base_file_name : str  = "_".join(self.StoreConfig.Filename.split("_")[:-1])
 
             for mode in CSVConnector._VALID_SECONDARY_FILES:
