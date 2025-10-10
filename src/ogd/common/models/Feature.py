@@ -273,7 +273,7 @@ class Feature(GameData):
 
     # *** PUBLIC METHODS ***
 
-    def ToRow(self, schema:FeatureTableSchema) -> List[ExportRow]:
+    def ToRows(self, schema:FeatureTableSchema) -> List[ExportRow]:
         ret_val : List = []
 
         for i,name in enumerate(self.Subfeatures):
