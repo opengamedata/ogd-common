@@ -56,16 +56,10 @@
             "type": "str"
         },
         {
-            "name": "subfeatures",
-            "readable": "Subfeatures",
-            "description": "List of all sub-features included with the base Feature data",
-            "type": "List[str]"
-        },
-        {
-            "name": "values",
-            "readable": "Feature Values",
-            "description": "Values of the base feature and subfeatures as a list",
-            "type": "List[Any]"
+            "name": "value",
+            "readable": "Feature Value",
+            "description": "Value of the base feature.",
+            "type": "Any"
         }
     ]
 }
