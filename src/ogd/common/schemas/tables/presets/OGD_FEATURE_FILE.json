@@ -8,8 +8,7 @@
         "app_id"          : "app_id",
         "user_id"         : "user_id",
         "session_id"      : "session_id",
-        "subfeatures"     : "subfeatures",
-        "values"          : "values"
+        "value"           : "value"
     },
 
     "columns": [
