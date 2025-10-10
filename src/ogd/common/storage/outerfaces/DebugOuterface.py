@@ -31,6 +31,7 @@ class DebugOuterface(Outerface):
     def Connector(self) -> None:
         return None
 
+    @override
     def _removeExportMode(self, mode:ExportMode):
         match mode:
             case ExportMode.EVENTS:
@@ -44,55 +45,67 @@ class DebugOuterface(Outerface):
             case ExportMode.POPULATION:
                 self._display("No longer outputting population data to debug stream.")
 
+    @override
     def _setupGameEventsTable(self, header:List[str]) -> None:
         self._display("Raw events header:")
         self._display(header)
 
+    @override
     def _setupDetectorEventsTable(self, header:List[str]) -> None:
         self._display("Processed events header:")
         self._display(header)
 
+    @override
     def _setupAllFeaturesTable(self, header:List[str]) -> None:
         self._display("All Feature header:")
         self._display(header)
 
+    @override
     def _setupSessionTable(self, header:List[str]) -> None:
         self._display("Sessions header:")
         self._display(header)
 
+    @override
     def _setupPlayerTable(self, header:List[str]) -> None:
         self._display("Player header:")
         self._display(header)
 
+    @override
     def _setupPopulationTable(self, header:List[str]) -> None:
         self._display("Population header:")
         self._display(header)
 
+    @override
     def _writeGameEventLines(self, events:List[ExportRow]) -> None:
         self._display("Raw event data:")
         _lengths = [len(elem) for elem in events]
         self._display(f"{len(events)} raw events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
 
+    @override
     def _writeAllEventLines(self, events:List[ExportRow]) -> None:
         self._display("Processed event data:")
         _lengths = [len(elem) for elem in events]
         self._display(f"{len(events)} processed events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
 
-    def _writeAllFeaturesLines(self, feature_lines:List[ExportRow]) -> None:
+    @override
+    def _writeAllFeatureLines(self, feature_lines:List[ExportRow]) -> None:
         self._display("Feature data:")
         _lengths = [len(elem) for elem in feature_lines]
         self._display(f"{len(feature_lines)} events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
 
+    @override
     def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
         self._display("Session data:")
         _lengths = [len(elem) for elem in session_lines]
         self._display(f"{len(session_lines)} events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
 
+    @override
     def _writePlayerLines(self, player_lines:List[ExportRow]) -> None:
         self._display("Player data:")
         _lengths = [len(elem) for elem in player_lines]
         self._display(f"{len(player_lines)} events, average length {sum(_lengths) / len(_lengths) if len(_lengths) > 0 else 'N/A'}")
 
+    @override
     def _writePopulationLines(self, population_lines:List[ExportRow]) -> None:
         self._display("Population data:")
         _lengths = [len(elem) for elem in population_lines]

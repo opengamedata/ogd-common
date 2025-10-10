@@ -46,6 +46,7 @@ class DictionaryOuterface(Outerface):
     def Output(self) -> OutputDict:
         return self._out
 
+    @override
     def _removeExportMode(self, mode:ExportMode):
         match mode:
             case ExportMode.EVENTS:
@@ -72,6 +73,7 @@ class DictionaryOuterface(Outerface):
     def _setupDetectorEventsTable(self, header:List[str]) -> None:
         self._out['all_events']['cols'] = header
 
+    @override
     def _setupAllFeaturesTable(self, header:List[str]) -> None:
         self._out['all_features']['cols'] = header
 
@@ -103,7 +105,8 @@ class DictionaryOuterface(Outerface):
         # Similar for the other functions here.
         self._all_evts += events
 
-    def _writeAllFeaturesLines(self, feature_lines:List[ExportRow]) -> None:
+    @override
+    def _writeAllFeatureLines(self, feature_lines:List[ExportRow]) -> None:
         self._all_feats += feature_lines
 
     @override

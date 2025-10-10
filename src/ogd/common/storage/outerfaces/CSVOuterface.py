@@ -101,9 +101,11 @@ class CSVOuterface(Outerface):
 
     # *** IMPLEMENT ABSTRACTS ***
 
+    @override
     def _removeExportMode(self, mode:ExportMode):
         self.Connector.RemoveSecondaryFile(mode=mode)
 
+    @override
     def _setupGameEventsTable(self, header:List[str]) -> None:
         cols = CSVOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
@@ -114,6 +116,7 @@ class CSVOuterface(Outerface):
             Logger.Log("No raw_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
+    @override
     def _setupDetectorEventsTable(self, header:List[str]) -> None:
         cols = CSVOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
@@ -123,10 +126,12 @@ class CSVOuterface(Outerface):
             Logger.Log("No processed_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
+    @override
     def _setupAllFeaturesTable(self, header:List[str]) -> None:
         # TODO : CSVOuterface is currently in this weird hardcoded situation, so not yet supporting the 'all features' format
         pass
 
+    @override
     def _setupSessionTable(self, header:List[str]) -> None:
         cols = CSVOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
@@ -137,6 +142,7 @@ class CSVOuterface(Outerface):
             Logger.Log("No session file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
+    @override
     def _setupPlayerTable(self, header:List[str]) -> None:
         cols = CSVOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
@@ -147,6 +153,7 @@ class CSVOuterface(Outerface):
             Logger.Log("No player file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
+    @override
     def _setupPopulationTable(self, header:List[str]) -> None:
         cols = CSVOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
@@ -157,6 +164,7 @@ class CSVOuterface(Outerface):
             Logger.Log("No population file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
+    @override
     def _writeGameEventLines(self, events:List[ExportRow]) -> None:
         event_strs = [CSVOuterface._cleanSpecialChars(vals=[str(item) for item in event]) for event in events]
         event_lines = ["\t".join(event) + "\n" for event in event_strs]
@@ -167,6 +175,7 @@ class CSVOuterface(Outerface):
             Logger.Log("No raw_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(event_lines))
 
+    @override
     def _writeAllEventLines(self, events:List[ExportRow]) -> None:
         event_strs = [CSVOuterface._cleanSpecialChars(vals=[str(item) for item in event]) for event in events]
         event_lines = ["\t".join(event) + "\n" for event in event_strs]
@@ -177,10 +186,12 @@ class CSVOuterface(Outerface):
             Logger.Log("No processed_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(event_lines))
 
-    def _writeAllFeaturesLines(self, feature_lines:List[ExportRow]) -> None:
+    @override
+    def _writeAllFeatureLines(self, feature_lines:List[ExportRow]) -> None:
         # TODO : CSVOuterface is currently in this weird hardcoded situation, so not yet supporting the 'all features' format
         pass
 
+    @override
     def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
         # self._sess_count += len(sessions)
         _clean_lines = [CSVOuterface._cleanSpecialChars(vals=feat) for feat in session_lines]
@@ -194,6 +205,7 @@ class CSVOuterface(Outerface):
             Logger.Log("No session file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(final_lines))
 
+    @override
     def _writePlayerLines(self, player_lines:List[ExportRow]) -> None:
         _clean_lines = [CSVOuterface._cleanSpecialChars(vals=play) for play in player_lines]
         final_lines = ["\t".join(play) + "\n" for play in _clean_lines]
@@ -206,6 +218,7 @@ class CSVOuterface(Outerface):
             Logger.Log("No player file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(final_lines))
 
+    @override
     def _writePopulationLines(self, population_lines:List[ExportRow]) -> None:
         _clean_lines = [CSVOuterface._cleanSpecialChars(vals=pop) for pop in population_lines]
         final_lines = ["\t".join(pop) + "\n" for pop in _clean_lines]
