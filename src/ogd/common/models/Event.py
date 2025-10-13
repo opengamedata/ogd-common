@@ -398,12 +398,12 @@ class Event(GameData):
         tstamp  = schema.ColumnValueFromRow(row=row, mapping=schema.Map.TimestampColumn, concatenator=".",
                                             column_name="timestamp", expected_type=datetime, fallback=None)
         if not isinstance(tstamp, datetime):
-            tstamp = conversions.ToDatetime(name="timestamp", value=tstamp, force=True)
+            tstamp = conversions.time.ToDatetime(name="timestamp", value=tstamp, force=True)
 
         offset = schema.ColumnValueFromRow(row=row, mapping=schema.Map.TimeOffsetColumn, concatenator=".",
                                            column_name="offset", expected_type=str, fallback=fallbacks.get('time_offset'))
         if isinstance(offset, timedelta):
-            offset = conversions.ToTimezone(name="offset", value=offset, force=True)
+            offset = conversions.time.ToTimezone(name="offset", value=offset, force=True)
 
         event_index = schema.ColumnValueFromRow(row=row, mapping=schema.Map.EventSequenceIndexColumn, concatenator=".",
                                                 column_name="index", expected_type=int, fallback=fallbacks.get('event_sequence_index', cls._next_index))
