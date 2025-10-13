@@ -654,6 +654,32 @@ class time:
 
     @staticmethod
     def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
+        """Extract a timezone from a string representing an offset from UTC, or return None if the string was not a valid timezone offset.
+
+        Formats we explicitly support (i.e. formats we unit test against).
+        A +/- indicates we test both positive and negative timedeltas with given format:
+        * HH:MM:SS (+/-)
+        * HH:MM (+/-)
+        * UTC+HH:MM:SS
+        * UTC-HH:MM:SS
+        * D day, HH:MM:SS.mmmmmm (+/-)
+        * D days, HH:MM:SS.mmmmmm (+/-)
+
+        *Note* : Based on the formats above, a string with a single colon (:) will be interpreted as clock time, i.e. hours and minutes.  
+        *For Example* : 1:23 will be interpreted as one (1) hour, twenty-three (23) minutes.
+
+        The function will apply the following approaches, with the following priority:
+        1. Check if the input string represents a 'null' value of some kind
+        2. Apply a regex matching the "UTC[+/-]D day[s], HH:MM:SS.mmmm" format, and reasonable derivatives (e.g. UTC+HH:MM:SS)
+        3. Apply a regex matching against a single integer, interpreted as the number of seconds for the offset from UTC
+        4. Apply general parsing with the `conversions.time.TimedeltaFromString(...)` function, to obtain an offset from UTC.
+            This may catch some formats missed by the regex approaches.
+
+        :param time_str: _description_
+        :type time_str: str
+        :return: _description_
+        :rtype: Optional[datetime.timedelta]
+        """
         ret_val : Optional[datetime.timezone]
 
         offset : Optional[datetime.timedelta] = None
