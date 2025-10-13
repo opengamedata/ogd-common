@@ -618,7 +618,7 @@ def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
             if match:
                 offset = datetime.timedelta(seconds=int(time_str))
             else:
-                Logger.Log(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats.", logging.WARNING)
+                Logger.Log(f"Could not parse timezone {time_str} of type {type(time_str)}, it did not match any expected formats.", logging.WARNING)
         if offset:
             MAX_OFFSET = 24*60*60
             if offset.total_seconds() > MAX_OFFSET:
