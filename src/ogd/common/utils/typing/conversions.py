@@ -668,7 +668,6 @@ class time:
             if ret_val is None:
                 Logger.Log(f"Could not parse timezone '{time_str}' of type {type(time_str)}, it did not match any expected formats.", logging.WARNING)
 
-            ret_val = datetime.timezone(offset=offset) if offset is not None else None
             return ret_val
 
     class TimedeltaParser:
