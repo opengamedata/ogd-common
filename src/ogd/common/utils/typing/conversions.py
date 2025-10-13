@@ -579,7 +579,7 @@ def TimedeltaFromString(time_str:str) -> Optional[datetime.timedelta]:
             if match:
                 ret_val = datetime.timedelta(seconds=int(time_str))
             else:
-                Logger.Log(f"Could not parse timedelta {time_str} of type {type(time_str)}, it did not match any expected formats. Parsing with Pandas instead.", logging.WARNING)
+                Logger.Log(f"Could not parse timedelta '{time_str}' of type {type(time_str)}, it did not match any expected formats. Parsing with Pandas instead.", logging.WARNING)
                 ret_val = Timedelta(time_str).to_pytimedelta()
     
     return ret_val
@@ -618,7 +618,7 @@ def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
             if match:
                 offset = datetime.timedelta(seconds=int(time_str))
             else:
-                Logger.Log(f"Could not parse timezone {time_str} of type {type(time_str)}, it did not match any expected formats.", logging.WARNING)
+                Logger.Log(f"Could not parse timezone '{time_str}' of type {type(time_str)}, it did not match any expected formats.", logging.WARNING)
         if offset:
             MAX_OFFSET = 24*60*60
             if offset.total_seconds() > MAX_OFFSET:
@@ -628,7 +628,6 @@ def TimezoneFromString(time_str:str) -> Optional[datetime.timezone]:
 
         ret_val = datetime.timezone(offset=offset) if offset is not None else None
         return ret_val
-    raise ValueError(f"Could not parse timezone {time_str} of type {type(time_str)}, it did not match any expected formats.")
 
 # *** PUBLIC METHODS ***
 
