@@ -137,93 +137,93 @@ class test_ToPath(TestCase):
 class test_ToDatetime(TestCase):
     def test_normal_datetime(self):
         _val = datetime.datetime(2020, 1, 1)
-        _dt = conversions.ToDatetime(name="ToDatetimeVal", value=_val)
+        _dt = conversions.time.ToDatetime(name="ToDatetimeVal", value=_val)
         self.assertIsInstance(_dt, datetime.datetime)
         self.assertEqual(_dt, _val)
 
     def test_string_YYYYMMDD(self):
         _str = "20250102 12:34:56.789000"
-        _dt = conversions.ToDatetime(name="ToDatetimeVal", value=_str)
+        _dt = conversions.time.ToDatetime(name="ToDatetimeVal", value=_str)
         self.assertIsInstance(_dt, datetime.datetime)
         self.assertEqual(_dt, datetime.datetime(2025, 1, 2, 12, 34, 56, 789000))
 
     def test_string_YYYYMMDD_dashes(self):
         _str = "2025-01-02 12:34:56.789000"
-        _dt = conversions.ToDatetime(name="ToDatetimeVal", value=_str)
+        _dt = conversions.time.ToDatetime(name="ToDatetimeVal", value=_str)
         self.assertIsInstance(_dt, datetime.datetime)
         self.assertEqual(_dt, datetime.datetime(2025, 1, 2, 12, 34, 56, 789000))
 
     def test_string_YYYYMMDD_slashes(self):
         _str = "2025/01/02 12:34:56.789000"
-        _dt = conversions.ToDatetime(name="ToDatetimeVal", value=_str)
+        _dt = conversions.time.ToDatetime(name="ToDatetimeVal", value=_str)
         self.assertIsInstance(_dt, datetime.datetime)
         self.assertEqual(_dt, datetime.datetime(2025, 1, 2, 12, 34, 56, 789000))
 
     def test_string_MMDDYYYY_dashes(self):
         _str = "01-02-2025 12:34:56.789000"
-        _dt = conversions.ToDatetime(name="ToDatetimeVal", value=_str)
+        _dt = conversions.time.ToDatetime(name="ToDatetimeVal", value=_str)
         self.assertIsInstance(_dt, datetime.datetime)
         self.assertEqual(_dt, datetime.datetime(2025, 1, 2, 12, 34, 56, 789000))
 
     def test_string_MMDDYYYY_slashes(self):
         _str = "01/02/2025 12:34:56.789000"
-        _dt = conversions.ToDatetime(name="ToDatetimeVal", value=_str)
+        _dt = conversions.time.ToDatetime(name="ToDatetimeVal", value=_str)
         self.assertIsInstance(_dt, datetime.datetime)
         self.assertEqual(_dt, datetime.datetime(2025, 1, 2, 12, 34, 56, 789000))
 
     def test_string_YYYYMMDD_dashes_notime(self):
         _str = "2025-01-02"
-        _dt = conversions.ToDatetime(name="ToDatetimeVal", value=_str)
+        _dt = conversions.time.ToDatetime(name="ToDatetimeVal", value=_str)
         self.assertIsInstance(_dt, datetime.datetime)
         self.assertEqual(_dt, datetime.datetime(2025, 1, 2, 0, 0, 0, 0))
 
 class test_ToTimedelta(TestCase):
     def test_normal_timedelta(self):
         _val = datetime.timedelta(hours=1)
-        _td = conversions.ToTimedelta(name="ToTimedeltaVal", value=_val)
+        _td = conversions.time.ToTimedelta(name="ToTimedeltaVal", value=_val)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, _val)
 
     def test_HHMMSS(self):
         _str = "1:02:03.456000"
-        _td = conversions.ToTimedelta(name="ToTimedeltaVal", value=_str)
+        _td = conversions.time.ToTimedelta(name="ToTimedeltaVal", value=_str)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, datetime.timedelta(hours=1, minutes=2, seconds=3, microseconds=456000))
 
     def test_HHMMSS_negative(self):
         _str = "-1:02:03.456000"
-        _td = conversions.ToTimedelta(name="ToTimedeltaVal", value=_str)
+        _td = conversions.time.ToTimedelta(name="ToTimedeltaVal", value=_str)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, -datetime.timedelta(hours=1, minutes=2, seconds=3, microseconds=456000))
 
     def test_DHHMMSS(self):
         _str = "1 day, 2:03:04.456000"
-        _td = conversions.ToTimedelta(name="ToTimedeltaVal", value=_str)
+        _td = conversions.time.ToTimedelta(name="ToTimedeltaVal", value=_str)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, datetime.timedelta(days=1, hours=2, minutes=3, seconds=4, microseconds=456000))
 
     def test_DHHMMSS_negative(self):
         _str = "-1 day, 2:03:04.456000"
-        _td = conversions.ToTimedelta(name="ToTimedeltaVal", value=_str)
+        _td = conversions.time.ToTimedelta(name="ToTimedeltaVal", value=_str)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, -datetime.timedelta(days=1, hours=2, minutes=3, seconds=4, microseconds=456000))
 
 class test_ToTimezone(TestCase):
     def test_normal_timezone(self):
         _val = datetime.timezone(datetime.timedelta(hours=1))
-        _tz = conversions.ToTimezone(name="ToTimezoneVal", value=_val)
+        _tz = conversions.time.ToTimezone(name="ToTimezoneVal", value=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, _val)
 
     def test_timezone_str(self):
         _val = "6:00:00"
-        _tz = conversions.ToTimezone(name="ToTimezoneVal", value=_val)
+        _tz = conversions.time.ToTimezone(name="ToTimezoneVal", value=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=21600)))
 
     def test_timezone_bad_str(self):
         _val = "-1 day, 23:59:45.600000"
-        _tz = conversions.ToTimezone(name="ToTimezoneVal", value=_val)
+        _tz = conversions.time.ToTimezone(name="ToTimezoneVal", value=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-86385.6)))
 
