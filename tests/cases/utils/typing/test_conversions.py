@@ -178,7 +178,7 @@ class test_ToDatetime(TestCase):
         self.assertEqual(_dt, datetime.datetime(2025, 1, 2, 0, 0, 0, 0))
 
 class test_ToTimedelta(TestCase):
-    def test_normal_timezone(self):
+    def test_normal_timedelta(self):
         _val = datetime.timedelta(hours=1)
         _td = conversions.ToTimedelta(name="ToTimedeltaVal", value=_val)
         self.assertIsInstance(_td, datetime.timedelta)
@@ -224,6 +224,110 @@ class test_ToTimezone(TestCase):
     def test_timezone_bad_str(self):
         _val = "-1 day, 23:59:45.600000"
         _tz = conversions.ToTimezone(name="ToTimezoneVal", value=_val)
+        self.assertIsInstance(_tz, datetime.timezone)
+        self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-86385.6)))
+
+class test_TimedeltaFromString(TestCase):
+    def test_HHMMSS(self):
+        _str = "1:02:03.456000"
+        _td = conversions.time.TimedeltaFromString(time_str=_str)
+        self.assertIsInstance(_td, datetime.timedelta)
+        self.assertEqual(_td, datetime.timedelta(hours=1, minutes=2, seconds=3, microseconds=456000))
+
+    def test_HHMMSS_negative(self):
+        _str = "-1:02:03.456000"
+        _td = conversions.time.TimedeltaFromString(time_str=_str)
+        self.assertIsInstance(_td, datetime.timedelta)
+        self.assertEqual(_td, -datetime.timedelta(hours=1, minutes=2, seconds=3, microseconds=456000))
+
+    def test_DHHMMSS(self):
+        _str = "1 day, 2:03:04.456000"
+        _td = conversions.time.TimedeltaFromString(time_str=_str)
+        self.assertIsInstance(_td, datetime.timedelta)
+        self.assertEqual(_td, datetime.timedelta(days=1, hours=2, minutes=3, seconds=4, microseconds=456000))
+
+    def test_multiday_DHHMMSS_negative(self):
+        _str = "-2 days, 2:03:04.456000"
+        _td = conversions.time.TimedeltaFromString(time_str=_str)
+        self.assertIsInstance(_td, datetime.timedelta)
+        self.assertEqual(_td, -datetime.timedelta(days=2, hours=2, minutes=3, seconds=4, microseconds=456000))
+
+    def test_multiday_DHHMMSS(self):
+        _str = "2 days, 2:03:04.456000"
+        _td = conversions.time.TimedeltaFromString(time_str=_str)
+        self.assertIsInstance(_td, datetime.timedelta)
+        self.assertEqual(_td, datetime.timedelta(days=2, hours=2, minutes=3, seconds=4, microseconds=456000))
+
+    def test_DHHMMSS_negative(self):
+        _str = "-1 day, 2:03:04.456000"
+        _td = conversions.time.TimedeltaFromString(time_str=_str)
+        self.assertIsInstance(_td, datetime.timedelta)
+        self.assertEqual(_td, -datetime.timedelta(days=1, hours=2, minutes=3, seconds=4, microseconds=456000))
+
+    def test_HHMM(self):
+        _val = "1:23"
+        _td = conversions.time.TimedeltaFromString(time_str=_val)
+        self.assertIsInstance(_td, datetime.timedelta)
+        self.assertEqual(_td, datetime.timedelta(seconds=4980))
+
+    def test_negative_HHMM(self):
+        _val = "-1:23"
+        _td = conversions.time.TimedeltaFromString(time_str=_val)
+        self.assertIsInstance(_td, datetime.timedelta)
+        self.assertEqual(_td, datetime.timedelta(seconds=-4980))
+
+class test_TimezoneFromString(TestCase):
+    def test_HHMMSS(self):
+        _val = "6:00:00"
+        _tz = conversions.time.TimezoneFromString(time_str=_val)
+        self.assertIsInstance(_tz, datetime.timezone)
+        self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=21600)))
+
+    def test_negative_HHMMSS(self):
+        _val = "-6:00:00"
+        _tz = conversions.time.TimezoneFromString(time_str=_val)
+        self.assertIsInstance(_tz, datetime.timezone)
+        self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-21600)))
+
+    def test_HHMM(self):
+        _val = "6:00"
+        _tz = conversions.time.TimezoneFromString(time_str=_val)
+        self.assertIsInstance(_tz, datetime.timezone)
+        self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=21600)))
+
+    def test_negative_HHMM(self):
+        _val = "-6:00"
+        _tz = conversions.time.TimezoneFromString(time_str=_val)
+        self.assertIsInstance(_tz, datetime.timezone)
+        self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-21600)))
+
+    def test_utc_HHMMSS(self):
+        _val = "UTC+6:00:00"
+        _tz = conversions.time.TimezoneFromString(time_str=_val)
+        self.assertIsInstance(_tz, datetime.timezone)
+        self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=21600)))
+
+    def test_utc_negative_HHMMSS(self):
+        _val = "UTC-6:00:00"
+        _tz = conversions.time.TimezoneFromString(time_str=_val)
+        self.assertIsInstance(_tz, datetime.timezone)
+        self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-21600)))
+
+    def test_utc_HHMM(self):
+        _val = "UTC+6:00"
+        _tz = conversions.time.TimezoneFromString(time_str=_val)
+        self.assertIsInstance(_tz, datetime.timezone)
+        self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=21600)))
+
+    def test_utc_negative_HHMM(self):
+        _val = "UTC-6:00"
+        _tz = conversions.time.TimezoneFromString(time_str=_val)
+        self.assertIsInstance(_tz, datetime.timezone)
+        self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-21600)))
+
+    def test_timezone_bad_str(self):
+        _val = "-1 day, 23:59:45.600000"
+        _tz = conversions.time.TimezoneFromString(time_str=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-86385.6)))
 
