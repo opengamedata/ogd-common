@@ -795,6 +795,8 @@ class time:
         def FromTimedeltaString(time_str:str) -> Optional[datetime.timezone]:
             ret_val = None
 
+            time_str = time_str.removeprefix("UTC")
+            time_str = time_str.removeprefix("+")
             offset = time.TimedeltaFromString(time_str=time_str)
             if offset:
                 ret_val = time.TimezoneParser._offsetToTimezone(offset=offset)
