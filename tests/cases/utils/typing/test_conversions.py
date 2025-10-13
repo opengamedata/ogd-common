@@ -325,8 +325,14 @@ class test_TimezoneFromString(TestCase):
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-21600)))
 
-    def test_timezone_bad_str(self):
+    def test__DHHMMSS(self):
         _val = "-1 day, 23:59:45.600000"
+        _tz = conversions.time.TimezoneFromString(time_str=_val)
+        self.assertIsInstance(_tz, datetime.timezone)
+        self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-86385.6)))
+
+    def test_multiday_DHHMMSS(self):
+        _val = "-2 days, 23:59:45.600000"
         _tz = conversions.time.TimezoneFromString(time_str=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-86385.6)))
