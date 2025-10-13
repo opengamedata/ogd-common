@@ -90,14 +90,14 @@ def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed 
             case 'PATH' | pathlib.Path:
                 ret_val = ToPath(name=name, value=value)
             case 'DATE' | datetime.date:
-                raw_dt  = ToDatetime(name=name, value=value)
+                raw_dt  = time.ToDatetime(name=name, value=value)
                 ret_val = raw_dt.date() if raw_dt is not None else None
             case 'DATETIME' | datetime.datetime:
-                ret_val = ToDatetime(name=name, value=value)
+                ret_val = time.ToDatetime(name=name, value=value)
             case 'TIMEDELTA' | datetime.timedelta:
-                ret_val = ToTimedelta(name=name, value=value)
+                ret_val = time.ToTimedelta(name=name, value=value)
             case 'TIMEZONE' | datetime.timezone:
-                ret_val = ToTimezone(name=name, value=value)
+                ret_val = time.ToTimezone(name=name, value=value)
             case 'JSON' | 'DICT' | builtins.dict | typing.Dict:
                 ret_val = ToJSON(name=name, value=value)
             case 'LIST' | builtins.list | typing.List:
@@ -293,123 +293,6 @@ def ToPath(name:str, value:Any, force:bool=False) -> Optional[pathlib.Path]:
         ret_val = None
     return ret_val
 
-def ToDatetime(name:str, value:Any, force:bool=False) -> Optional[datetime.datetime]:
-    """Attempt to turn a given value into a datetime
-
-    Returns None if the value type was not recognized.
-
-    :param name: An identifier for the value, used for debug outputs.
-    :type name: str
-    :param value: The value to parse to a datetime representation
-    :type value: Any
-    :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
-        If False, return None when such cases arise. If True, attempt to use `DatetimeFromString` converter on the string of `value`.
-        Defaults to False.
-    :type force: bool
-    :return: The datetime representation of value, if type of value was recognized, else None
-    :rtype: Optional[datetime]
-    """
-    ret_val : Optional[datetime.datetime]
-
-    match type(value):
-        case datetime.datetime:
-            ret_val = value
-        case datetime.date:
-            midnight = datetime.datetime.min.time()
-            ret_val = datetime.datetime.combine(date=value, time=midnight)
-            Logger.Log(f"{name} was a date value, defaulting to midnight of the given date: {ret_val}", logging.WARN)
-        case builtins.str:
-            ret_val = DatetimeFromString(time_str=value)
-        case timestamps.Timestamp:
-            ret_val = value.to_pydatetime()
-        case _:
-            base_msg : str = f"{name} was unexpected type {type(value)}, expected a datetime or string!"
-            if force:
-                ret_val = DatetimeFromString(str(value))
-                msg = f"{base_msg} Defaulting to DatetimeFromString(str(value)) == {ret_val}."
-            else:
-                ret_val = None
-                msg = f"{base_msg} Defaulting to None."
-            Logger.Log(msg, logging.WARN)
-    return ret_val
-
-def ToTimedelta(name:str, value:Any, force:bool=False) -> Optional[datetime.timedelta]:
-    """Attempt to turn a given value into a timedelta
-
-    Returns None if the value type was not recognized.
-
-    :param name: An identifier for the value, used for debug outputs.
-    :type name: str
-    :param value: The value to parse to a timedelta representation
-    :type value: Any
-    :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
-        If False, return None when such cases arise. If True, attempt to use `TimedeltaFromString` converter on the string of `value`.
-        Defaults to False.
-    :type force: bool
-    :return: The timedelta representation of value, if type of value was recognized, else None
-    :rtype: Optional[timedelta]
-    """
-    ret_val : Optional[datetime.timedelta]
-    match type(value):
-        case datetime.timedelta:
-            ret_val = value
-        case datetime.time:
-            ret_val = value - datetime.datetime.min.time()
-            Logger.Log(f"{name} was a time value, treating the time is difference from 0: {ret_val}", logging.WARN)
-        case builtins.str:
-            ret_val = time.TimedeltaFromString(time_str=value)
-        case builtins.int:
-            ret_val = datetime.timedelta(seconds=value)
-        case timedeltas.Timedelta:
-            ret_val = value.to_pytimedelta()
-        case _:
-            base_msg : str = f"{name} was unexpected type {type(value)}, expected a timedelta, time, or string!"
-            if force:
-                ret_val = time.TimedeltaFromString(str(value))
-                msg = f"{base_msg} Defaulting to TimedeltaFromString(str(value)) == {ret_val}."
-            else:
-                ret_val = None
-                msg = f"{base_msg} Defaulting to None."
-            Logger.Log(msg, logging.WARN)
-    return ret_val
-
-def ToTimezone(name:str, value:Any, force:bool=False) -> Optional[datetime.timezone]:
-    """Attempt to turn a given value into a timezone
-
-    .. TODO use timedelta from string, possibly, and then create timezone from the delta
-
-    Returns None if the value type was not recognized.
-
-    :param name: An identifier for the value, used for debug outputs.
-    :type name: str
-    :param value: The value to parse to a timezone representation
-    :type value: Any
-    :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
-        If False, return None when such cases arise. If True, attempt to use `TimezoneFromString` convertor on the string of `value`.
-        Defaults to False.
-    :type force: bool
-    :return: The timezone representation of value, if type of value was recognized, else None
-    :rtype: Optional[timezone]
-    """
-    ret_val : Optional[datetime.timezone]
-    match type(value):
-        case datetime.timezone:
-            ret_val = value
-        case datetime.timedelta:
-            ret_val = datetime.timezone(value)
-        case builtins.str:
-            ret_val = time.TimezoneFromString(time_str=value)
-        case _:
-            base_msg : str = f"{name} was unexpected type {type(value)}, expected a float, int, or string!"
-            if force:
-                ret_val = time.TimezoneFromString(str(value))
-                msg = f"{base_msg} Defaulting to TimezoneFromString(str(value)) == {ret_val}."
-            else:
-                ret_val = None
-                msg = f"{base_msg} Defaulting to None."
-            Logger.Log(msg, logging.WARN)
-    return ret_val
-
 def ToList(name:str, value:Any, force:bool=False) -> Optional[List]:
     """Attempt to turn a given value into a list
 
@@ -580,14 +463,14 @@ def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element") -> A
             case 'PATH' | pathlib.Path:
                 ret_val = ToPath(name=name, value=value)
             case 'DATE' | datetime.date:
-                raw_dt  = ToDatetime(name=name, value=value)
+                raw_dt  = time.ToDatetime(name=name, value=value)
                 ret_val = raw_dt.date() if raw_dt is not None else None
             case 'DATETIME' | datetime.datetime:
-                ret_val = ToDatetime(name=name, value=value)
+                ret_val = time.ToDatetime(name=name, value=value)
             case 'TIMEDELTA' | datetime.timedelta:
-                ret_val = ToTimedelta(name=name, value=value)
+                ret_val = time.ToTimedelta(name=name, value=value)
             case 'TIMEZONE' | datetime.timezone:
-                ret_val = ToTimezone(name=name, value=value)
+                ret_val = time.ToTimezone(name=name, value=value)
             case 'JSON' | 'DICT' | builtins.dict | typing.Dict:
                 ret_val = ToJSON(name=name, value=value)
             case 'LIST' | builtins.list | typing.List:
@@ -602,6 +485,127 @@ def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element") -> A
     return ret_val
 
 class time:
+
+    @staticmethod
+    def ToDatetime(name:str, value:Any, force:bool=False) -> Optional[datetime.datetime]:
+        """Attempt to turn a given value into a datetime
+
+        Returns None if the value type was not recognized.
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a datetime representation
+        :type value: Any
+        :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
+            If False, return None when such cases arise. If True, attempt to use `DatetimeFromString` converter on the string of `value`.
+            Defaults to False.
+        :type force: bool
+        :return: The datetime representation of value, if type of value was recognized, else None
+        :rtype: Optional[datetime]
+        """
+        ret_val : Optional[datetime.datetime]
+
+        match type(value):
+            case datetime.datetime:
+                ret_val = value
+            case datetime.date:
+                midnight = datetime.datetime.min.time()
+                ret_val = datetime.datetime.combine(date=value, time=midnight)
+                Logger.Log(f"{name} was a date value, defaulting to midnight of the given date: {ret_val}", logging.WARN)
+            case builtins.str:
+                ret_val = DatetimeFromString(time_str=value)
+            case timestamps.Timestamp:
+                ret_val = value.to_pydatetime()
+            case _:
+                base_msg : str = f"{name} was unexpected type {type(value)}, expected a datetime or string!"
+                if force:
+                    ret_val = DatetimeFromString(str(value))
+                    msg = f"{base_msg} Defaulting to DatetimeFromString(str(value)) == {ret_val}."
+                else:
+                    ret_val = None
+                    msg = f"{base_msg} Defaulting to None."
+                Logger.Log(msg, logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToTimedelta(name:str, value:Any, force:bool=False) -> Optional[datetime.timedelta]:
+        """Attempt to turn a given value into a timedelta
+
+        Returns None if the value type was not recognized.
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a timedelta representation
+        :type value: Any
+        :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
+            If False, return None when such cases arise. If True, attempt to use `TimedeltaFromString` converter on the string of `value`.
+            Defaults to False.
+        :type force: bool
+        :return: The timedelta representation of value, if type of value was recognized, else None
+        :rtype: Optional[timedelta]
+        """
+        ret_val : Optional[datetime.timedelta]
+        match type(value):
+            case datetime.timedelta:
+                ret_val = value
+            case datetime.time:
+                ret_val = value - datetime.datetime.min.time()
+                Logger.Log(f"{name} was a time value, treating the time is difference from 0: {ret_val}", logging.WARN)
+            case builtins.str:
+                ret_val = time.TimedeltaFromString(time_str=value)
+            case builtins.int:
+                ret_val = datetime.timedelta(seconds=value)
+            case timedeltas.Timedelta:
+                ret_val = value.to_pytimedelta()
+            case _:
+                base_msg : str = f"{name} was unexpected type {type(value)}, expected a timedelta, time, or string!"
+                if force:
+                    ret_val = time.TimedeltaFromString(str(value))
+                    msg = f"{base_msg} Defaulting to TimedeltaFromString(str(value)) == {ret_val}."
+                else:
+                    ret_val = None
+                    msg = f"{base_msg} Defaulting to None."
+                Logger.Log(msg, logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def ToTimezone(name:str, value:Any, force:bool=False) -> Optional[datetime.timezone]:
+        """Attempt to turn a given value into a timezone
+
+        .. TODO use timedelta from string, possibly, and then create timezone from the delta
+
+        Returns None if the value type was not recognized.
+
+        :param name: An identifier for the value, used for debug outputs.
+        :type name: str
+        :param value: The value to parse to a timezone representation
+        :type value: Any
+        :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
+            If False, return None when such cases arise. If True, attempt to use `TimezoneFromString` convertor on the string of `value`.
+            Defaults to False.
+        :type force: bool
+        :return: The timezone representation of value, if type of value was recognized, else None
+        :rtype: Optional[timezone]
+        """
+        ret_val : Optional[datetime.timezone]
+        match type(value):
+            case datetime.timezone:
+                ret_val = value
+            case datetime.timedelta:
+                ret_val = datetime.timezone(value)
+            case builtins.str:
+                ret_val = time.TimezoneFromString(time_str=value)
+            case _:
+                base_msg : str = f"{name} was unexpected type {type(value)}, expected a float, int, or string!"
+                if force:
+                    ret_val = time.TimezoneFromString(str(value))
+                    msg = f"{base_msg} Defaulting to TimezoneFromString(str(value)) == {ret_val}."
+                else:
+                    ret_val = None
+                    msg = f"{base_msg} Defaulting to None."
+                Logger.Log(msg, logging.WARN)
+        return ret_val
+
     @staticmethod
     def TimedeltaFromString(time_str:str) -> Optional[datetime.timedelta]:
         """Extract a timedelta from a string, or return None if the string was not a valid timedelta.
