@@ -50,7 +50,7 @@ class RepositoryIndexingConfig(Config):
         fallbacks : Map = other_elements or {}
 
         self._local_dir     : DirectoryLocationSchema     = self._toLocalDir(local_dir=local_dir, fallbacks=fallbacks, schema_name=name)
-        self._public_url    : Optional[URLLocationSchema] = self._toRemoteURL(remote_url=public_url, fallbacks=fallbacks, schema_name=name)
+        self._public_url    : Optional[URLLocationSchema] = self._toPublicURL(public_url=public_url, fallbacks=fallbacks, schema_name=name)
         self._templates_url : URLLocationSchema           = self._toTemplatesURL(templates_url=templates_url, fallbacks=fallbacks, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
 
@@ -134,14 +134,14 @@ class RepositoryIndexingConfig(Config):
         return ret_val
 
     @staticmethod
-    def _toRemoteURL(remote_url:Optional[URLLocationSchema | Map | str], fallbacks:Map, schema_name:Optional[str]=None) -> URLLocationSchema:
+    def _toPublicURL(public_url:Optional[URLLocationSchema | Map | str], fallbacks:Map, schema_name:Optional[str]=None) -> URLLocationSchema:
         ret_val : URLLocationSchema
-        if isinstance(remote_url, URLLocationSchema):
-            ret_val = remote_url
-        elif isinstance(remote_url, dict):
-            ret_val = URLLocationSchema.FromDict(name=f"{schema_name}RemoteRepoURL", unparsed_elements=remote_url)
-        elif isinstance(remote_url, str):
-            ret_val = URLLocationSchema(name=f"{schema_name}RemoteRepoURL", url=remote_url)
+        if isinstance(public_url, URLLocationSchema):
+            ret_val = public_url
+        elif isinstance(public_url, dict):
+            ret_val = URLLocationSchema.FromDict(name=f"{schema_name}RemoteRepoURL", unparsed_elements=public_url)
+        elif isinstance(public_url, str):
+            ret_val = URLLocationSchema(name=f"{schema_name}RemoteRepoURL", url=public_url)
         else:
             ret_val = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val

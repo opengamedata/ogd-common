@@ -257,13 +257,13 @@ class DatasetRepositoryOuterface(Outerface):
             self._writeMetadataFile(dataset_schema=dataset_schema)
             if isinstance(self._repository.Location, DirectoryLocationSchema):
                 _local_dir = self._repository.Location
-                _remote_url = None
+                _public_url = None
             else: # we got a URL base
                 _local_dir = None
-                _remote_url = self._repository.Location
+                _public_url = self._repository.Location
             _file_index = RepositoryIndexingConfig(name="IndexingConfig",
                                              local_dir=_local_dir,
-                                             public_url=_remote_url,
+                                             public_url=_public_url,
                                              templates_url=URLLocationSchema.FromDict(name="TemplateURL", unparsed_elements={"URL" : self._repository.TemplatesBase.Location})
             )
             self._updateFileExportList(file_indexing=_file_index, dataset_schema=dataset_schema)
