@@ -21,7 +21,7 @@ from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
-from ogd.common.storage.connectors.CSVConnector import CSVConnector
+from ogd.common.storage.connectors.DatasetRepositoryConnector import DatasetRepositoryConnector
 from ogd.common.storage.outerfaces.Outerface import Outerface
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
@@ -34,8 +34,8 @@ class DatasetRepositoryOuterface(Outerface):
     def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode],
                  repository:DatasetRepositoryConfig, dataset_key:str | DatasetKey,
                  with_separate_feature_files:bool=True, with_zipping:bool=True,
-                 store:Optional[CSVConnector]=None):
-        self._store : CSVConnector
+                 store:Optional[DatasetRepositoryConnector]=None):
+        self._store : DatasetRepositoryConnector
 
         super().__init__(table_config=table_config, export_modes=export_modes)
         self._repository                  : DatasetRepositoryConfig = repository
@@ -65,14 +65,14 @@ class DatasetRepositoryOuterface(Outerface):
         if store:
             self._store = store
         elif isinstance(self.Config.StoreConfig, FileStoreConfig):
-            self._store = CSVConnector(
+            self._store = DatasetRepositoryConnector(
                 config               = self.Config.StoreConfig,
                 with_secondary_files = export_modes if with_separate_feature_files else set(),
                 with_zipping         = self._with_zipping,
                 existing_meta        = existing_meta
             )
         else:
-            raise ValueError(f"CSVInterface config was for a connector other than CSV/TSV files! Found config type {type(self.Config.StoreConfig)}")
+            raise ValueError(f"DatasetRepositoryOuterface config was for a connector other than a DatasetRepositoryConnector! Found config type {type(self.Config.StoreConfig)}")
         self.Connector.Open()
 
 
