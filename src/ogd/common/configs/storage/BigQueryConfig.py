@@ -138,9 +138,9 @@ class BigQueryConfig(DataStoreConfig):
         if isinstance(location, DatabaseLocationSchema):
             ret_val = location
         elif isinstance(location, dict):
-            ret_val = DatabaseLocationSchema.FromDict(name="BQDatabaseLocation", unparsed_elements=location)
+            ret_val = DatabaseLocationSchema.FromDict(name=f"{schema_name}DatabaseLocation", unparsed_elements=location)
         elif isinstance(location, str):
-            ret_val = DatabaseLocationSchema(name="BQDatabaseLocation", database_name=location, table_name=None)
+            ret_val = DatabaseLocationSchema(name=f"{schema_name}DatabaseLocation", database_name=location, table_name=None)
         else:
             ret_val = BigQueryConfig._parseLocation(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
@@ -151,9 +151,9 @@ class BigQueryConfig(DataStoreConfig):
         if isinstance(credential, KeyCredential):
             ret_val = credential
         elif isinstance(credential, dict):
-            ret_val = KeyCredential.FromDict(name="BQCredential", unparsed_elements=credential)
+            ret_val = KeyCredential.FromDict(name=f"{schema_name}Credential", unparsed_elements=credential)
         elif isinstance(credential, str):
-            ret_val = KeyCredential(name="BQCredential", location=credential)
+            ret_val = KeyCredential(name=f"{schema_name}Credential", location=credential)
         else:
             ret_val = BigQueryConfig._parseCredential(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
@@ -193,9 +193,13 @@ class BigQueryConfig(DataStoreConfig):
             schema_name=schema_name
         )
         if isinstance(raw_credential, dict):
-            ret_val = KeyCredential.FromDict(name="KeyCredential", unparsed_elements=raw_credential)
+            ret_val = KeyCredential.FromDict(name=f"{schema_name}KeyCredential", unparsed_elements=raw_credential)
         elif isinstance(raw_credential, str):
-            ret_val = KeyCredential(name="BigQueryConfigCredential", location=FileLocationSchema.FromDict(name="BQCredentialLocation", unparsed_elements={"file":raw_credential}), other_elements=None)
+            ret_val = KeyCredential(
+                name=f"{schema_name}ConfigCredential",
+                location=FileLocationSchema.FromDict(name=f"{schema_name}CredentialLocation",
+                unparsed_elements={"file":raw_credential}), other_elements=None
+            )
         return ret_val
 
     # *** PRIVATE METHODS ***

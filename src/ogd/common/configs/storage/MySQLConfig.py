@@ -68,7 +68,7 @@ class MySQLConfig(DataStoreConfig):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._db_location : URLLocationSchema  = db_location   if db_location   is not None else self._parseLocation(unparsed_elements=unparsed_elements)
+        self._db_location : URLLocationSchema  = db_location   if db_location   is not None else self._parseLocation(unparsed_elements=unparsed_elements, schema_name=name)
         self._credential  : PasswordCredential = db_credential if db_credential is not None else self._parseCredential(unparsed_elements=unparsed_elements, schema_name=name)
         self._ssh_cfg     : SSHConfig          = ssh_cfg       if ssh_cfg       is not None else self._parseSSHConfig(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=other_elements)
@@ -164,9 +164,9 @@ class MySQLConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseLocation(unparsed_elements:Map) -> URLLocationSchema:
+    def _parseLocation(unparsed_elements:Map, schema_name:Optional[str]=None) -> URLLocationSchema:
         return URLLocationSchema.FromDict(
-            name = "DBHostLocation",
+            name = f"{schema_name}HostLocation",
             unparsed_elements=unparsed_elements,
             key_overrides={"host" : "DB_HOST", "port" : "DB_PORT"}
         )
@@ -184,10 +184,10 @@ class MySQLConfig(DataStoreConfig):
             schema_name=schema_name
         )
         if _cred_elements:
-            ret_val = PasswordCredential.FromDict(name="MySQLCredential", unparsed_elements=_cred_elements)
+            ret_val = PasswordCredential.FromDict(name=f"{schema_name}Credential", unparsed_elements=_cred_elements)
         else:
             _overrides = {"USER":"DB_USER", "PASS":"DB_PASS", "PW":"DB_PW"}
-            ret_val = PasswordCredential.FromDict(name="MySQLCredential", unparsed_elements=unparsed_elements, key_overrides=_overrides)
+            ret_val = PasswordCredential.FromDict(name=f"{schema_name}Credential", unparsed_elements=unparsed_elements, key_overrides=_overrides)
 
         return ret_val
 
@@ -204,9 +204,9 @@ class MySQLConfig(DataStoreConfig):
             schema_name=schema_name
         )
         if _ssh_elements:
-            ret_val = SSHConfig.FromDict(name="MySQLSSHConfig", unparsed_elements=_ssh_elements)
+            ret_val = SSHConfig.FromDict(name=f"{schema_name}SSHConfig", unparsed_elements=_ssh_elements)
         else:
-            ret_val = SSHConfig.FromDict(name="MySQLCredential", unparsed_elements=unparsed_elements)
+            ret_val = SSHConfig.FromDict(name=f"{schema_name}Credential", unparsed_elements=unparsed_elements)
 
         return ret_val
 

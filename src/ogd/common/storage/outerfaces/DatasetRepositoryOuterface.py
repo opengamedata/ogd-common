@@ -8,7 +8,7 @@ import sys
 from git.repo import Repo
 from git.exc import InvalidGitRepositoryError, NoSuchPathError
 from pathlib import Path
-from typing import Any, List, Optional, override, Set
+from typing import Any, List, Optional, override, Set, Tuple
 # 3rd-party imports
 # import local files
 # from ogd import games
@@ -115,9 +115,11 @@ class DatasetRepositoryOuterface(Outerface):
 
     # *** IMPLEMENT ABSTRACTS ***
 
+    @override
     def _removeExportMode(self, mode:ExportMode):
         self.Connector.RemoveSecondaryFile(mode=mode)
 
+    @override
     def _setupGameEventsTable(self, header:List[str]) -> None:
         cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
@@ -128,6 +130,7 @@ class DatasetRepositoryOuterface(Outerface):
             Logger.Log("No raw_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
+    @override
     def _setupDetectorEventsTable(self, header:List[str]) -> None:
         cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
@@ -137,10 +140,12 @@ class DatasetRepositoryOuterface(Outerface):
             Logger.Log("No processed_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
+    @override
     def _setupAllFeaturesTable(self, header:List[str]) -> None:
         # TODO : CSVOuterface is currently in this weird hardcoded situation, so not yet supporting the 'all features' format
         pass
 
+    @override
     def _setupSessionTable(self, header:List[str]) -> None:
         cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
@@ -151,6 +156,7 @@ class DatasetRepositoryOuterface(Outerface):
             Logger.Log("No session file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
+    @override
     def _setupPlayerTable(self, header:List[str]) -> None:
         cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
@@ -161,6 +167,7 @@ class DatasetRepositoryOuterface(Outerface):
             Logger.Log("No player file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
+    @override
     def _setupPopulationTable(self, header:List[str]) -> None:
         cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
@@ -171,6 +178,7 @@ class DatasetRepositoryOuterface(Outerface):
             Logger.Log("No population file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
+    @override
     def _writeGameEventLines(self, events:List[ExportRow]) -> None:
         event_strs = [DatasetRepositoryOuterface._cleanSpecialChars(vals=[str(item) for item in event]) for event in events]
         event_lines = ["\t".join(event) + "\n" for event in event_strs]
@@ -181,6 +189,7 @@ class DatasetRepositoryOuterface(Outerface):
             Logger.Log("No raw_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(event_lines))
 
+    @override
     def _writeAllEventLines(self, events:List[ExportRow]) -> None:
         event_strs = [DatasetRepositoryOuterface._cleanSpecialChars(vals=[str(item) for item in event]) for event in events]
         event_lines = ["\t".join(event) + "\n" for event in event_strs]
@@ -191,10 +200,12 @@ class DatasetRepositoryOuterface(Outerface):
             Logger.Log("No processed_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(event_lines))
 
-    def _writeAllFeaturesLines(self, feature_lines:List[ExportRow]) -> None:
+    @override
+    def _writeAllFeatureLines(self, feature_lines:List[ExportRow]) -> None:
         # TODO : CSVOuterface is currently in this weird hardcoded situation, so not yet supporting the 'all features' format
         pass
 
+    @override
     def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
         # self._sess_count += len(sessions)
         _clean_lines = [DatasetRepositoryOuterface._cleanSpecialChars(vals=feat) for feat in session_lines]
@@ -208,6 +219,7 @@ class DatasetRepositoryOuterface(Outerface):
             Logger.Log("No session file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(final_lines))
 
+    @override
     def _writePlayerLines(self, player_lines:List[ExportRow]) -> None:
         _clean_lines = [DatasetRepositoryOuterface._cleanSpecialChars(vals=play) for play in player_lines]
         final_lines = ["\t".join(play) + "\n" for play in _clean_lines]
@@ -220,6 +232,7 @@ class DatasetRepositoryOuterface(Outerface):
             Logger.Log("No player file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(final_lines))
 
+    @override
     def _writePopulationLines(self, population_lines:List[ExportRow]) -> None:
         _clean_lines = [DatasetRepositoryOuterface._cleanSpecialChars(vals=pop) for pop in population_lines]
         final_lines = ["\t".join(pop) + "\n" for pop in _clean_lines]
@@ -264,11 +277,12 @@ class DatasetRepositoryOuterface(Outerface):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _cleanSpecialChars(vals:List[Any], tab_width:int=3) -> List[str]:
+    def _cleanSpecialChars(vals:List[Any] | Tuple[Any], tab_width:int=3) -> Tuple[str,...]:
+        ret_val : List[str] = [""]*len(vals)
         # check all return values for strings, and ensure no newlines or tabs get through, as they could throw off our outputs.
-        for i in range(len(vals)):
-            vals[i] = str(vals[i]).replace('\n', ' ').replace('\t', ' '*tab_width)
-        return vals
+        for i,val in enumerate(vals):
+            ret_val[i] = str(val).replace('\n', ' ').replace('\t', ' '*tab_width)
+        return tuple(ret_val)
 
     # *** PRIVATE METHODS ***
 

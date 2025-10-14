@@ -58,7 +58,7 @@ class MySQLInterface(Interface):
                     params += app_ids
             query = textwrap.dedent(f"""
                 SELECT DISTINCT(`{id_col}`)
-                FROM `{self.Config.Location.Location}`
+                FROM `{self.Config.TableLocation.Location}`
                 {where_clause}
             """)
             data = MySQLInterface.Query(cursor=self.Connector.Cursor, query=query, params=tuple(params))
@@ -85,7 +85,7 @@ class MySQLInterface(Interface):
                     params += app_ids
             query = textwrap.dedent(f"""
                 SELECT MIN(`server_time`), MAX(`server_time`)
-                FROM `{self.Config.Location.Location}`
+                FROM `{self.Config.TableLocation.Location}`
                 {where_clause}
             """)
 
@@ -116,7 +116,7 @@ class MySQLInterface(Interface):
                     params += app_ids
             query = textwrap.dedent(f"""
                 SELECT DISTINCT({version_col})
-                FROM `{self.Config.Location.Location}`
+                FROM `{self.Config.TableLocation.Location}`
                 {where_clause}
             """)
 
@@ -149,7 +149,7 @@ class MySQLInterface(Interface):
 
             query = textwrap.dedent(f"""
                 SELECT *
-                FROM `{self.Config.Location.Location}`
+                FROM `{self.Config.TableLocation.Location}`
                 {where_clause}
                 ORDER BY `user_id`, `session_id`, `event_sequence_index` ASC
             """)

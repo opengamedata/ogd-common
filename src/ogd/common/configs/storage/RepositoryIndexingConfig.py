@@ -119,9 +119,9 @@ class RepositoryIndexingConfig(Config):
         if isinstance(local_dir, DirectoryLocationSchema):
             ret_val = local_dir
         elif isinstance(local_dir, dict):
-            ret_val = DirectoryLocationSchema.FromDict(name="RepositoryDirectory", unparsed_elements=local_dir)
+            ret_val = DirectoryLocationSchema.FromDict(name=f"{schema_name}Directory", unparsed_elements=local_dir)
         elif isinstance(local_dir, str) or isinstance(local_dir, str):
-            ret_val = DirectoryLocationSchema(name="RepositoryDirectory", folder_path=local_dir)
+            ret_val = DirectoryLocationSchema(name=f"{schema_name}Directory", folder_path=local_dir)
         else:
             ret_val = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
@@ -132,9 +132,9 @@ class RepositoryIndexingConfig(Config):
         if isinstance(remote_url, URLLocationSchema):
             ret_val = remote_url
         elif isinstance(remote_url, dict):
-            ret_val = URLLocationSchema.FromDict(name="RemoteRepoURL", unparsed_elements=remote_url)
+            ret_val = URLLocationSchema.FromDict(name=f"{schema_name}RemoteRepoURL", unparsed_elements=remote_url)
         elif isinstance(remote_url, str):
-            ret_val = URLLocationSchema(name="RemoteRepoURL", url=remote_url)
+            ret_val = URLLocationSchema(name=f"{schema_name}RemoteRepoURL", url=remote_url)
         else:
             ret_val = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
@@ -145,9 +145,9 @@ class RepositoryIndexingConfig(Config):
         if isinstance(templates_url, URLLocationSchema):
             ret_val = templates_url
         elif isinstance(templates_url, dict):
-            ret_val = URLLocationSchema.FromDict(name="TemplatesURL", unparsed_elements=fallbacks)
+            ret_val = URLLocationSchema.FromDict(name=f"{schema_name}TemplatesURL", unparsed_elements=fallbacks)
         elif isinstance(templates_url, str):
-            ret_val = URLLocationSchema(name="TemplatesURL", url=templates_url)
+            ret_val = URLLocationSchema(name=f"{schema_name}TemplatesURL", url=templates_url)
         else:
             ret_val = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
@@ -166,11 +166,11 @@ class RepositoryIndexingConfig(Config):
         )
         if raw_base:
             if isinstance(raw_base, Path):
-                ret_val = DirectoryLocationSchema(name="LocalDir", folder_path=raw_base)
+                ret_val = DirectoryLocationSchema(name=f"{schema_name}LocalDir", folder_path=raw_base)
             elif isinstance(raw_base, str):
-                ret_val = DirectoryLocationSchema(name="LocalDir", folder_path=Path(raw_base))
+                ret_val = DirectoryLocationSchema(name=f"{schema_name}LocalDir", folder_path=Path(raw_base))
             elif isinstance(raw_base, dict):
-                ret_val = DirectoryLocationSchema.FromDict(name="LocalDir", unparsed_elements=raw_base)
+                ret_val = DirectoryLocationSchema.FromDict(name=f"{schema_name}LocalDir", unparsed_elements=raw_base)
         else:
             ret_val = RepositoryIndexingConfig._DEFAULT_LOCAL_DIR
 
@@ -190,9 +190,9 @@ class RepositoryIndexingConfig(Config):
         )
         if raw_url:
             if isinstance(raw_url, str):
-                ret_val = URLLocationSchema.FromString(name="RemoteURL", raw_url=raw_url)
+                ret_val = URLLocationSchema.FromString(name=f"{schema_name}RemoteURL", raw_url=raw_url)
             elif isinstance(raw_url, dict):
-                ret_val = URLLocationSchema.FromDict(name="RemoteURL", unparsed_elements=raw_url)
+                ret_val = URLLocationSchema.FromDict(name=f"{schema_name}RemoteURL", unparsed_elements=raw_url)
             else:
                 ret_val = RepositoryIndexingConfig._DEFAULT_REMOTE_URL
 
@@ -212,9 +212,9 @@ class RepositoryIndexingConfig(Config):
         )
         if raw_url:
             if isinstance(raw_url, str):
-                ret_val = URLLocationSchema.FromString(name="TemplatesURL", raw_url=raw_url)
+                ret_val = URLLocationSchema.FromString(name=f"{schema_name}TemplatesURL", raw_url=raw_url)
             elif isinstance(raw_url, dict):
-                ret_val = URLLocationSchema.FromDict(name="TemplatesURL", unparsed_elements=raw_url)
+                ret_val = URLLocationSchema.FromDict(name=f"{schema_name}TemplatesURL", unparsed_elements=raw_url)
             else:
                 ret_val = RepositoryIndexingConfig._DEFAULT_TEMPLATE_URL
 

@@ -273,44 +273,43 @@ class Feature(GameData):
 
     # *** PUBLIC METHODS ***
 
-    def ToRow(self, schema:FeatureTableSchema) -> ExportRow:
-        ret_val : List = [None]*len(schema.Columns)
+    def ToRows(self, schema:FeatureTableSchema) -> List[ExportRow]:
+        ret_val : List = []
 
-        all_maps : List[Dict[int, Any]] = [
-            schema.ColumnValueToRow(
-                raw_value=self.Name,          mapping=schema.Map.FeatureNameColumn, concatenator=".", element_name="feature_name"
-            ),
-            schema.ColumnValueToRow(
-                raw_value=self.Name,          mapping=schema.Map.FeatureTypeColumn, concatenator=".", element_name="feature_type"
-            ),
-            schema.ColumnValueToRow(
-                raw_value=self.FeatureType,   mapping=schema.Map.GameUnitColumn,     concatenator=".", element_name="game_unit"
-            ),
-            schema.ColumnValueToRow(
-                raw_value=self.GameUnit,      mapping=schema.Map.GameUnitIndexColumn, concatenator=".", element_name="game_unit_index"
-            ),
-            schema.ColumnValueToRow(
-                raw_value=self.GameUnitIndex, mapping=schema.Map.AppIDColumn, concatenator=".", element_name="app_id"
-            ),
-            schema.ColumnValueToRow(
-                raw_value=self.AppID,         mapping=schema.Map.UserIDColumn, concatenator=".", element_name="user_id"
-            ),
-            schema.ColumnValueToRow(
-                raw_value=self.UserID,        mapping=schema.Map.SessionIDColumn, concatenator=".", element_name="session_id"
-            ),
-            schema.ColumnValueToRow(
-                raw_value=self.SessionID,     mapping=schema.Map.SubfeaturesColumn, concatenator=", ", element_name="subfeatures"
-            ),
-            schema.ColumnValueToRow(
-                raw_value=self.Subfeatures,   mapping=schema.Map.ValuesColumn, concatenator=", ", element_name="values"
-            )
-        ]
+        for i,name in enumerate(self.Subfeatures):
+            ret_val.append([None]*len(schema.Columns))
+            all_maps : List[Dict[int, Any]] = [
+                schema.ColumnValueToRow(
+                    raw_value=name,            mapping=schema.Map.FeatureNameColumn, concatenator=".", element_name="feature_name"
+                ),
+                schema.ColumnValueToRow(
+                    raw_value=self.FeatureType,   mapping=schema.Map.FeatureTypeColumn, concatenator=".", element_name="feature_type"
+                ),
+                schema.ColumnValueToRow(
+                    raw_value=self.GameUnit,      mapping=schema.Map.GameUnitColumn,     concatenator=".", element_name="game_unit"
+                ),
+                schema.ColumnValueToRow(
+                    raw_value=self.GameUnitIndex, mapping=schema.Map.GameUnitIndexColumn, concatenator=".", element_name="game_unit_index"
+                ),
+                schema.ColumnValueToRow(
+                    raw_value=self.AppID,          mapping=schema.Map.AppIDColumn, concatenator=".", element_name="app_id"
+                ),
+                schema.ColumnValueToRow(
+                    raw_value=self.UserID,         mapping=schema.Map.UserIDColumn, concatenator=".", element_name="user_id"
+                ),
+                schema.ColumnValueToRow(
+                    raw_value=self.SessionID,      mapping=schema.Map.SessionIDColumn, concatenator=".", element_name="session_id"
+                ),
+                schema.ColumnValueToRow(
+                    raw_value=self.Values[i],      mapping=schema.Map.ValuesColumn, concatenator=", ", element_name="values"
+                )
+            ]
 
-        for mapping in all_maps:
-            for idx, val in mapping.items():
-                ret_val[idx] = val
+            for mapping in all_maps:
+                for idx, val in mapping.items():
+                    ret_val[-1][idx] = val
             
-        return tuple(ret_val)
+        return [tuple(row) for row in ret_val]
 
     # *** PRIVATE STATICS ***
 

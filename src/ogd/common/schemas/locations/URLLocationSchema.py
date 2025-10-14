@@ -157,6 +157,7 @@ class URLLocationSchema(LocationSchema):
             to_type=str,
             default_value=None, # default to None, if it doesn't exist we return None
             remove_target=True,
+            optional_element=True,
             schema_name=schema_name
         )
         ret_val = urlparse(raw_url) if raw_url else None
@@ -180,6 +181,7 @@ class URLLocationSchema(LocationSchema):
             to_type=str,
             default_value=default_scheme,
             remove_target=True,
+            optional_element=True,
             schema_name=schema_name
         )
 
@@ -217,6 +219,7 @@ class URLLocationSchema(LocationSchema):
             to_type=str,
             default_value=default_path,
             remove_target=True,
+            optional_element=True,
             schema_name=schema_name
         )
 

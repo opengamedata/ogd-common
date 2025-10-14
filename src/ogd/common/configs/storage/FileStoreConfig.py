@@ -176,7 +176,7 @@ class FileStoreConfig(DataStoreConfig):
             schema_name=schema_name
         )
         if _cred_elements:
-            ret_val = PasswordCredential.FromDict(name="FileStoreCredential", unparsed_elements=_cred_elements)
+            ret_val = PasswordCredential.FromDict(name=f"{schema_name}Credential", unparsed_elements=_cred_elements)
         else:
             ret_val = FileStoreConfig._DEFAULT_CREDENTIAL
         return ret_val
