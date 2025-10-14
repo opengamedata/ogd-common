@@ -28,7 +28,7 @@ class test_IndexingConfig(TestCase):
         cls.test_schema = RepositoryIndexingConfig(
             name="Indexing Schema",
             local_dir=DirectoryLocationSchema(name="LocalDir", folder_path=Path("./data")),
-            remote_url=URLLocationSchema(name="RemoteURL", url=urlparse("https://fieldday-web.ad.education.wisc.edu/opengamedata/")),
+            public_url=URLLocationSchema(name="RemoteURL", url=urlparse("https://fieldday-web.ad.education.wisc.edu/opengamedata/")),
             templates_url=URLLocationSchema(name="TemplateURL", url=urlparse("https://github.com/opengamedata/opengamedata-samples")),
             other_elements={ "foo":"bar" }
         )
@@ -49,7 +49,7 @@ class test_IndexingConfig(TestCase):
         self.assertEqual(_dir.FolderPath, Path("./data/"))
 
     def test_RemoteURL(self):
-        _url = self.test_schema.RemoteURL
+        _url = self.test_schema.PublicURL
         self.assertIsNotNone(_url)
         self.assertIsInstance(_url, URLLocationSchema)
         if _url:
@@ -79,7 +79,7 @@ class test_IndexingConfig(TestCase):
         """
         _dict = {
             "LOCAL_DIR"     : "./data/",
-            "REMOTE_URL"    : "https://fieldday-web.ad.education.wisc.edu/opengamedata/",
+            "PUBLIC_URL"    : "https://fieldday-web.ad.education.wisc.edu/opengamedata/",
             "TEMPLATES_URL" : "https://github.com/opengamedata/opengamedata-samples"
         }
         _schema = RepositoryIndexingConfig.FromDict(name="FILE_INDEXING", unparsed_elements=_dict)
@@ -87,9 +87,9 @@ class test_IndexingConfig(TestCase):
         self.assertEqual(_schema.Name, "FILE_INDEXING")
         self.assertIsInstance(_schema.LocalDirectory, DirectoryLocationSchema)
         self.assertEqual(_schema.LocalDirectory.FolderPath, Path("./data"))
-        self.assertIsInstance(_schema.RemoteURL, URLLocationSchema)
-        if _schema.RemoteURL:
-            self.assertEqual(_schema.RemoteURL.Location, "https://fieldday-web.ad.education.wisc.edu/opengamedata/")
+        self.assertIsInstance(_schema.PublicURL, URLLocationSchema)
+        if _schema.PublicURL:
+            self.assertEqual(_schema.PublicURL.Location, "https://fieldday-web.ad.education.wisc.edu/opengamedata/")
         self.assertIsInstance(_schema.TemplatesURL, URLLocationSchema)
         self.assertEqual(_schema.TemplatesURL.Location, "https://github.com/opengamedata/opengamedata-samples")
 

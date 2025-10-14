@@ -161,6 +161,7 @@ class DatasetRepositoryConnector(StorageConnector):
             z_path = self._zip_paths[mode.name]
             if z_path is not None:
                 with zipfile.ZipFile(z_path, "w", compression=zipfile.ZIP_DEFLATED) as zip_file:
+            # FIXME : This is dumb, we should have a way to use the DatasetKey. Also, StoreConfig.Filename currently doesn't have the hash included. For features, it at least has _feature at end, though maybe that shouldn't be there yet either...
                     base_file_name : str = "_".join(self.StoreConfig.Filename.split("_")[:-1]) # everything up to suffix
                     dataset_id     : str = "_".join(base_file_name.split("_")[:-1]) # everything up to short hash
                     file_name = f"{base_file_name}_{self._FILE_SUFFIXES[mode.name]}.{self.FileExtension}"

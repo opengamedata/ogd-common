@@ -9,8 +9,8 @@ from ogd.common.utils.typing import Map
 
 class RepositoryIndexingConfig(Config):
     _DEFAULT_LOCAL_DIR    : Final[DirectoryLocationSchema] = DirectoryLocationSchema(name="DefaultLocalDir", folder_path=Path("./data/"), other_elements={})
-    _DEFAULT_REMOTE_RAW   : Final[str]                     = "https://opengamedata.fielddaylab.wisc.edu/"
-    _DEFAULT_REMOTE_URL   : Final[URLLocationSchema]       = URLLocationSchema.FromString(name="DefaultRemoteURL", raw_url=_DEFAULT_REMOTE_RAW)
+    _DEFAULT_PUB_URL_RAW  : Final[str]                     = "https://opengamedata.fielddaylab.wisc.edu/"
+    _DEFAULT_PUBLIC_URL   : Final[URLLocationSchema]       = URLLocationSchema.FromString(name="DefaultRemoteURL", raw_url=_DEFAULT_PUB_URL_RAW)
     _DEFAULT_TEMPLATE_RAW : Final[str]                     = "https://github.com/opengamedata/opengamedata-samples"
     _DEFAULT_TEMPLATE_URL : Final[URLLocationSchema]       = URLLocationSchema.FromString(name="DefaultTemplateURL", raw_url=_DEFAULT_TEMPLATE_RAW)
 
@@ -18,7 +18,7 @@ class RepositoryIndexingConfig(Config):
 
     def __init__(self, name:str,
                  local_dir:Optional[DirectoryLocationSchema | Map | Path | str],
-                 remote_url:Optional[URLLocationSchema | Map | str],
+                 public_url:Optional[URLLocationSchema | Map | str],
                  templates_url:Optional[URLLocationSchema | Map | str],
                  other_elements:Optional[Map]=None):
         """Constructor for the `RepositoryIndexingConfig` class.
@@ -30,18 +30,19 @@ class RepositoryIndexingConfig(Config):
         ```
         {
             "LOCAL_DIR"     : "./data/",
-            "REMOTE_URL"    : "https://opengamedata.fielddaylab.wisc.edu/",
+            "PUBLIC_URL"    : "https://opengamedata.fielddaylab.wisc.edu/",
             "TEMPLATES_URL" : "https://github.com/opengamedata/opengamedata-samples"
         }
         ```
 
         :param name: _description_
         :type name: str
-        :param local_dir: _description_
+        :param local_dir: The local directory location of the repository.
         :type local_dir: Optional[Path]
-        :param remote_url: _description_
-        :type remote_url: Optional[str]
-        :param templates_url: _description_
+        :param public_url: The URL at which this repository can be publicly accessed,
+                           or None if the repository is not meant for public access.
+        :type public_url: Optional[str]
+        :param templates_url: A URL containing templates compatible with repository datasets.
         :type templates_url: Optional[str]
         :param other_elements: _description_, defaults to None
         :type other_elements: Optional[Map], optional
@@ -49,7 +50,7 @@ class RepositoryIndexingConfig(Config):
         fallbacks : Map = other_elements or {}
 
         self._local_dir     : DirectoryLocationSchema     = self._toLocalDir(local_dir=local_dir, fallbacks=fallbacks, schema_name=name)
-        self._remote_url    : Optional[URLLocationSchema] = self._toRemoteURL(remote_url=remote_url, fallbacks=fallbacks, schema_name=name)
+        self._public_url    : Optional[URLLocationSchema] = self._toRemoteURL(remote_url=public_url, fallbacks=fallbacks, schema_name=name)
         self._templates_url : URLLocationSchema           = self._toTemplatesURL(templates_url=templates_url, fallbacks=fallbacks, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
 
@@ -58,8 +59,14 @@ class RepositoryIndexingConfig(Config):
         return self._local_dir
 
     @property
-    def RemoteURL(self) -> Optional[URLLocationSchema]:
-        return self._remote_url
+    def PublicURL(self) -> Optional[URLLocationSchema]:
+        """The public-facing URL at which this repository can be accessed.
+        If the repository is not meant for public access, as is the case for local exports, this property returns None.
+
+        :return: The public-facing URL at which this repository can be accessed, if any.
+        :rtype: Optional[URLLocationSchema]
+        """
+        return self._public_url
 
     @property
     def TemplatesURL(self) -> URLLocationSchema:
@@ -72,7 +79,7 @@ class RepositoryIndexingConfig(Config):
         return RepositoryIndexingConfig(
             name            = "DefaultFileIndexingConfig",
             local_dir       = cls._DEFAULT_LOCAL_DIR,
-            remote_url      = cls._DEFAULT_REMOTE_URL,
+            public_url      = cls._DEFAULT_PUBLIC_URL,
             templates_url   = cls._DEFAULT_TEMPLATE_URL,
             other_elements  = {}
         )
@@ -85,7 +92,7 @@ class RepositoryIndexingConfig(Config):
         ```json
         {
             "LOCAL_DIR"     : "./data/",
-            "REMOTE_URL"    : "https://opengamedata.fielddaylab.wisc.edu/",
+            "PUBLIC_URL"    : "https://opengamedata.fielddaylab.wisc.edu/",
             "TEMPLATES_URL" : "https://github.com/opengamedata/opengamedata-samples"
         }
         ```
@@ -97,14 +104,14 @@ class RepositoryIndexingConfig(Config):
         :return: _description_
         :rtype: FileIndexingConfig
         """
-        return RepositoryIndexingConfig(name=name, local_dir=None, remote_url=None, templates_url=None, other_elements=unparsed_elements)
+        return RepositoryIndexingConfig(name=name, local_dir=None, public_url=None, templates_url=None, other_elements=unparsed_elements)
 
 
     @property
     def AsMarkdown(self) -> str:
         ret_val : str
 
-        ret_val = f"{self.Name} : Local=_{self.LocalDirectory}_, Remote=_{self.RemoteURL}_"
+        ret_val = f"{self.Name} : Local=_{self.LocalDirectory}_, Remote=_{self.PublicURL}_"
         return ret_val
 
     # *** PUBLIC STATICS ***
@@ -182,7 +189,7 @@ class RepositoryIndexingConfig(Config):
 
         raw_url = RepositoryIndexingConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["remote_url", "url"],
+            valid_keys=["public_url", "url", "remote_url"],
             to_type=[str, dict],
             default_value=None,
             remove_target=True,
@@ -190,11 +197,11 @@ class RepositoryIndexingConfig(Config):
         )
         if raw_url:
             if isinstance(raw_url, str):
-                ret_val = URLLocationSchema.FromString(name=f"{schema_name}RemoteURL", raw_url=raw_url)
+                ret_val = URLLocationSchema.FromString(name=f"{schema_name}PublicURL", raw_url=raw_url)
             elif isinstance(raw_url, dict):
-                ret_val = URLLocationSchema.FromDict(name=f"{schema_name}RemoteURL", unparsed_elements=raw_url)
+                ret_val = URLLocationSchema.FromDict(name=f"{schema_name}PublicURL", unparsed_elements=raw_url)
             else:
-                ret_val = RepositoryIndexingConfig._DEFAULT_REMOTE_URL
+                ret_val = RepositoryIndexingConfig._DEFAULT_PUBLIC_URL
 
         return ret_val
 

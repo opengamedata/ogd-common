@@ -62,7 +62,6 @@ class DatasetRepositoryConfig(DataStoreConfig):
     @property
     def LocalDirectory(self) -> DirectoryLocationSchema:
         """Property for the base 'path' to a set of dataset files.
-        May be an actual path, or a base URL for accessing from a file server.
 
         :return: _description_
         :rtype: Optional[str]
@@ -70,14 +69,14 @@ class DatasetRepositoryConfig(DataStoreConfig):
         return self.Indexing.LocalDirectory
 
     @property
-    def RemoteURL(self) -> Optional[URLLocationSchema]:
-        """Property for the base 'path' to a set of dataset files.
-        May be an actual path, or a base URL for accessing from a file server.
+    def PublicURL(self) -> Optional[URLLocationSchema]:
+        """The public-facing URL at which this repository can be accessed.
+        If the repository is not meant for public access, as is the case for local exports, this property returns None.
 
-        :return: _description_
+        :return: The public-facing URL at which this repository can be accessed, if any.
         :rtype: Optional[str]
         """
-        return self.Indexing.RemoteURL
+        return self.Indexing.PublicURL
 
     @property
     def TemplatesBase(self) -> URLLocationSchema:
@@ -148,7 +147,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         elif isinstance(indexing, dict):
             ret_val = RepositoryIndexingConfig.FromDict(name=f"{schema_name}Index", unparsed_elements=fallbacks)
         elif isinstance(indexing, Path) | isinstance(indexing, str):
-            ret_val = RepositoryIndexingConfig(name=f"{schema_name}Index", local_dir=indexing, remote_url=None, templates_url=None)
+            ret_val = RepositoryIndexingConfig(name=f"{schema_name}Index", local_dir=indexing, public_url=None, templates_url=None)
         else:
             ret_val = DatasetRepositoryConfig._parseIndexingConfig(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val

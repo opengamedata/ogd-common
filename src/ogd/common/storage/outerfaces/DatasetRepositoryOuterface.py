@@ -263,7 +263,7 @@ class DatasetRepositoryOuterface(Outerface):
                 _remote_url = self._repository.Location
             _file_index = RepositoryIndexingConfig(name="IndexingConfig",
                                              local_dir=_local_dir,
-                                             remote_url=_remote_url,
+                                             public_url=_remote_url,
                                              templates_url=URLLocationSchema.FromDict(name="TemplateURL", unparsed_elements={"URL" : self._repository.TemplatesBase.Location})
             )
             self._updateFileExportList(file_indexing=_file_index, dataset_schema=dataset_schema)
@@ -349,7 +349,7 @@ class DatasetRepositoryOuterface(Outerface):
             if not "CONFIG" in file_index.keys():
                 Logger.Log("No CONFIG found in file_list.json, adding default CONFIG...", logging.WARNING)
                 file_index["CONFIG"] = {
-                    "files_base" : file_indexing.RemoteURL,
+                    "files_base" : file_indexing.PublicURL,
                     "templates_base" : file_indexing.TemplatesURL
                 }
             if not dataset_schema.Key.GameID in file_index.keys():
