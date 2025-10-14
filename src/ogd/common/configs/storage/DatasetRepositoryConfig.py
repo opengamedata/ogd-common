@@ -60,7 +60,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         return str(self.Name)
 
     @property
-    def LocalDirectory(self) -> DirectoryLocationSchema:
+    def LocalDirectory(self) -> Optional[DirectoryLocationSchema]:
         """Property for the base 'path' to a set of dataset files.
 
         :return: _description_
@@ -99,7 +99,9 @@ class DatasetRepositoryConfig(DataStoreConfig):
 
     @property
     def Location(self) -> BaseLocation:
-        return self.LocalDirectory
+        return self.LocalDirectory if self.LocalDirectory is not None else \
+               self.PublicURL      if self.PublicURL      is not None else \
+               DirectoryLocationSchema.Default()
 
     @property
     def Credential(self) -> EmptyCredential:
