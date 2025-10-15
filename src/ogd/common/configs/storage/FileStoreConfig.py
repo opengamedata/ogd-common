@@ -61,6 +61,7 @@ class FileStoreConfig(DataStoreConfig):
 
         self._location    : FileLocationSchema = self._toLocation(location=location, fallbacks=fallbacks, schema_name=f"{name}Location")
         self._credential  : FileCredential     = file_credential if file_credential is not None else self._parseCredential(unparsed_elements=fallbacks, schema_name=name)
+        self._extension   : str                = self._location.Filepath.suffix
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=fallbacks)
 
     @property
@@ -70,7 +71,7 @@ class FileStoreConfig(DataStoreConfig):
         :return: _description_
         :rtype: str
         """
-        return self._location.Filename
+        return self.Location.Filename
 
     @property
     def Folder(self) -> Path:
@@ -79,11 +80,15 @@ class FileStoreConfig(DataStoreConfig):
         :return: The path to the folder containing the data store file.
         :rtype: Path
         """
-        return self._location.Folder
+        return self.Location.Folder
 
     @property
     def FileExtension(self) -> str:
-        return self.Filename.rsplit(".", maxsplit=1)[-1]
+        return self._extension
+
+    @property
+    def IsZipped(self) -> bool:
+        return self.FileExtension == "zip"
 
     @property
     def Filepath(self) -> Path:
