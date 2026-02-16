@@ -6,6 +6,7 @@ from ogd.common.configs.Config import Config
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.utils.typing import Map
+from ogd.common.utils.Logger import Logger
 
 class RepositoryIndexingConfig(Config):
     _DEFAULT_LOCAL_DIR    : Final[DirectoryLocationSchema] = DirectoryLocationSchema(name="DefaultLocalDir", folder_path=Path("./data/"), other_elements={})
@@ -171,6 +172,9 @@ class RepositoryIndexingConfig(Config):
                 ret_val = DirectoryLocationSchema(name=f"{schema_name}LocalDir", folder_path=Path(raw_base))
             elif isinstance(raw_base, dict):
                 ret_val = DirectoryLocationSchema.FromDict(name=f"{schema_name}LocalDir", unparsed_elements=raw_base)
+            else:
+                ret_val = RepositoryIndexingConfig._DEFAULT_LOCAL_DIR
+                Logger.warning(message=f"RepositoryIndexingConfig found raw_base with unexpected type {type(raw_base)}, defaulting to {ret_val}")
         else:
             ret_val = RepositoryIndexingConfig._DEFAULT_LOCAL_DIR
 
@@ -195,6 +199,9 @@ class RepositoryIndexingConfig(Config):
                 ret_val = URLLocationSchema.FromDict(name=f"{schema_name}RemoteURL", unparsed_elements=raw_url)
             else:
                 ret_val = RepositoryIndexingConfig._DEFAULT_REMOTE_URL
+                Logger.warning(message=f"RepositoryIndexingConfig found raw remote url with unexpected type {type(raw_url)}, defaulting to {ret_val}")
+        else:
+            ret_val = RepositoryIndexingConfig._DEFAULT_REMOTE_URL
 
         return ret_val
 
@@ -217,6 +224,9 @@ class RepositoryIndexingConfig(Config):
                 ret_val = URLLocationSchema.FromDict(name=f"{schema_name}TemplatesURL", unparsed_elements=raw_url)
             else:
                 ret_val = RepositoryIndexingConfig._DEFAULT_TEMPLATE_URL
+                Logger.warning(message=f"RepositoryIndexingConfig found raw templates url with unexpected type {type(raw_url)}, defaulting to {ret_val}")
+        else:
+            ret_val = RepositoryIndexingConfig._DEFAULT_TEMPLATE_URL
 
         return ret_val
 
