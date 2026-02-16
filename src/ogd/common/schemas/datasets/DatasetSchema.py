@@ -618,7 +618,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             remove_target=True,
             schema_name=schema_name
         )
-        if isinstance(raw_val, Path):
+        if isinstance(raw_val, Path) or raw_val is None:
             ret_val = raw_val
         elif isinstance(raw_val, str):
             ret_val = Path(raw_val)
@@ -640,7 +640,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             remove_target=True,
             schema_name=schema_name
         )
-        if isinstance(evt_val, Path):
+        if isinstance(evt_val, Path) or evt_val is None:
             ret_val = evt_val
         elif isinstance(evt_val, str):
             ret_val = Path(evt_val)
@@ -662,7 +662,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             remove_target=True,
             schema_name=schema_name
         )
-        if isinstance(feats_val, Path):
+        if isinstance(feats_val, Path) or feats_val is None:
             ret_val = feats_val
         elif isinstance(feats_val, str):
             ret_val = Path(feats_val)
@@ -684,7 +684,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             remove_target=True,
             schema_name=schema_name
         )
-        if isinstance(sess_val, Path):
+        if isinstance(sess_val, Path) or sess_val is None:
             ret_val = sess_val
         elif isinstance(sess_val, str):
             ret_val = Path(sess_val)
@@ -706,7 +706,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             remove_target=True,
             schema_name=schema_name
         )
-        if isinstance(play_val, Path):
+        if isinstance(play_val, Path) or play_val is None:
             ret_val = play_val
         elif isinstance(play_val, str):
             ret_val = Path(play_val)
@@ -728,7 +728,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             remove_target=True,
             schema_name=schema_name
         )
-        if isinstance(pop_val, Path):
+        if isinstance(pop_val, Path) or pop_val is None:
             ret_val = pop_val
         elif isinstance(pop_val, str):
             ret_val = Path(pop_val)
@@ -751,7 +751,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             remove_target=True,
             schema_name=schema_name
         )
-        if isinstance(events_tplate, Path):
+        if isinstance(events_tplate, Path) or events_tplate is None:
             ret_val = events_tplate
         elif isinstance(events_tplate, str):
             ret_val = Path(events_tplate)
@@ -773,7 +773,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             remove_target=True,
             schema_name=schema_name
         )
-        if isinstance(all_feats_tplate, Path):
+        if isinstance(all_feats_tplate, Path) or all_feats_tplate is None:
             ret_val = all_feats_tplate
         elif isinstance(all_feats_tplate, str):
             ret_val = Path(all_feats_tplate)
@@ -795,7 +795,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             remove_target=True,
             schema_name=schema_name
         )
-        if isinstance(sessions_tplate, Path):
+        if isinstance(sessions_tplate, Path) or sessions_tplate is None:
             ret_val = sessions_tplate
         elif isinstance(sessions_tplate, str):
             ret_val = Path(sessions_tplate)
@@ -817,7 +817,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             remove_target=True,
             schema_name=schema_name
         )
-        if isinstance(players_tplate, Path):
+        if isinstance(players_tplate, Path) or players_tplate is None:
             ret_val = players_tplate
         elif isinstance(players_tplate, str):
             ret_val = Path(players_tplate)
@@ -839,7 +839,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             remove_target=True,
             schema_name=schema_name
         )
-        if isinstance(pop_tplate, Path):
+        if isinstance(pop_tplate, Path) or pop_tplate is None:
             ret_val = pop_tplate
         elif isinstance(pop_tplate, str):
             ret_val = Path(pop_tplate)
