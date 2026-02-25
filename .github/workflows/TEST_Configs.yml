@@ -26,9 +26,9 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          test_DataTableConfig,
-          test_IndexingConfig,
-          test_TestConfig,
+          DataTableConfig,
+          IndexingConfig,
+          TestConfig,
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20
@@ -56,7 +56,7 @@ jobs:
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
         directory: "tests/cases/configs"
-        test_file: "${{ matrix.testbed }}.py"
+        test_file: "${{ matrix.testbed }}"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete
