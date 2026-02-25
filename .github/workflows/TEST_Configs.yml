@@ -21,7 +21,7 @@ concurrency:
 jobs:
 
   run_testbeds:
-    name: Run Config Schema Testbeds
+    name: Run ${{ matrix.testbed }} Testbeds
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -52,7 +52,7 @@ jobs:
   # 2. Build & configure remote environments
 
   # 3. Perform work
-    - name: Execute ${{ matrix.testbed }} testbed
+    - name: Execute testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
         directory: "tests/cases/configs/${{ matrix.testbed }}"
