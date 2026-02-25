@@ -1,7 +1,6 @@
 # import libraries
 import logging
 import unittest
-from typing import Dict
 from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
