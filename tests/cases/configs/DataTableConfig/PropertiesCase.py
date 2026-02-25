@@ -81,6 +81,3 @@ class PropertiesCase(TestCase):
         _elem_names = ["foo"]
         self.assertIsInstance(self.test_schema.NonStandardElementNames, list)
         self.assertEqual(self.test_schema.NonStandardElementNames, _elem_names)
-
-if __name__ == '__main__':
-    unittest.main()

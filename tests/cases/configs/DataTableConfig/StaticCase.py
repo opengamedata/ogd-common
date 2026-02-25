@@ -14,7 +14,7 @@ from src.ogd.common.configs.DataTableConfig import DataTableConfig
 from tests.config.t_config import settings
 
 class StaticCase(TestCase):
-    """DataTableConfig test case to check that all loading and parsing work correctly.
+    """DataTableConfig test case to check that all loading and parsing functions work correctly.
 
     The test fixture here is technically "empty", since we don't define any data initially.
     We're ultimately just testing all the static functions here, and the name "static" is slightly more descriptive than "empty," hence StaticCase.
@@ -26,10 +26,6 @@ class StaticCase(TestCase):
         _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
         _level       = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
         Logger.std_logger.setLevel(_level)
-
-    @staticmethod
-    def RunAll():
-        pass
 
     def test_FromDict(self):
         """Test case for whether the FromDict function is working properly.
@@ -111,7 +107,3 @@ class StaticCase(TestCase):
         self.assertEqual(_loc.DatabaseName, "Foo")
         self.assertIsInstance(_loc.TableName, str)
         self.assertEqual(_loc.TableName, "Bar")
-
-
-if __name__ == '__main__':
-    unittest.main()
