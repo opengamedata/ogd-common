@@ -33,10 +33,6 @@ class PropertiesCase(TestCase):
             other_elements={ "foo":"bar" }
         )
 
-    @staticmethod
-    def RunAll():
-        pass
-
     def test_Name(self):
         _str = self.test_schema.Name
         self.assertIsInstance(_str, str)
