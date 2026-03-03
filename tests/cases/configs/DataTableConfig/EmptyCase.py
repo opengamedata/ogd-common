@@ -33,6 +33,32 @@ class EmptyCase(TestCase):
         _level       = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
         Logger.std_logger.setLevel(_level)
 
+    def test_DefaultInit(self):
+        """Test case for whether initializing without parameters (using defaults) results in each item matching the defined default.
+        """
+        _dict = {
+            "source":"AQUALAB_BQ",
+            "database":"aqualab",
+            "table":"aqualab_daily",
+            "schema":"OPENGAMEDATA_BIGQUERY"
+        }
+        source_elems = {
+            "DB_TYPE"    : "FIREBASE",
+            "PROJECT_ID" : "aqualab-project",
+            "PROJECT_KEY": "./key.txt"
+        }
+        _schema = DataTableConfig.Default()
+        self.assertIsInstance(_schema.Name, str)
+        self.assertEqual(_schema.Name, "DefaultDataTableConfig")
+        self.assertIsInstance(_schema.StoreName, str)
+        self.assertEqual(_schema.StoreName, DataTableConfig._DEFAULT_STORE_NAME)
+        self.assertIsInstance(_schema.DatabaseName, str)
+        self.assertEqual(_schema.DatabaseName, DataTableConfig._DEFAULT_DB_NAME)
+        self.assertIsInstance(_schema.TableName, str)
+        self.assertEqual(_schema.TableName, DataTableConfig._DEFAULT_TABLE_NAME)
+        self.assertIsInstance(_schema.TableSchemaName, str)
+        self.assertEqual(_schema.TableSchemaName, DataTableConfig._DEFAULT_TABLE_SCHEMA_NAME)
+
     def test_FromDict(self):
         """Test case for whether the FromDict function is working properly.
 
