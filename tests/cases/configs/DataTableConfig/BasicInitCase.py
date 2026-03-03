@@ -12,8 +12,15 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.configs.DataTableConfig import DataTableConfig
 from tests.config.t_config import settings
 
-class PropertiesCase(TestCase):
-    """DataTableConfig basic test case to check that all properties work correctly.
+class BasicInitCase(TestCase):
+    """DataTableConfig test case where basic initialization is used.
+    
+    Fixture:
+    * Initialize a DataTableConfig object with hardcoded values for all `__init__(...)` params
+    
+    Case Categories:
+    * Property functions.
+        * Appropriate for this case, since we are hardcoding initial values and can then test we get them back directly.
     """
 
     @classmethod
