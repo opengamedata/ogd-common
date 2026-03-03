@@ -3,8 +3,6 @@ import logging
 import unittest
 from unittest import TestCase
 # import ogd libraries.
-from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
-from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
 from ogd.common.utils.Logger import Logger
