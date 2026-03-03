@@ -25,7 +25,7 @@ class DataTableConfig(Schema):
     .. TODO : Implement and use a smart Load(...) function of TableConfig to load schema from given name, rather than FromFile.
     """
 
-    _DEFAULT_STORE_NAME       : Final[LiteralString] = "OPENGAMEDATA_BQ"
+    _DEFAULT_STORE_NAME        : Final[LiteralString] = "OPENGAMEDATA_BQ"
     _DEFAULT_TABLE_SCHEMA_NAME : Final[LiteralString] = "OPENGAMEDATA_BIGQUERY"
     _DEFAULT_DB_NAME           : Final[LiteralString] = "UNKNOWN GAME"
     _DEFAULT_TABLE_NAME        : Final[LiteralString] = "_daily"
