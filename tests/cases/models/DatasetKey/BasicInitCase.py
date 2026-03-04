@@ -11,10 +11,15 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.models.DatasetKey import DatasetKey
 from tests.config.t_config import settings
 
-class test_DatasetKey(TestCase):
-    """Testbed for the DatasetSchema class.
-
-        TODO : Test cases for empty details
+class BasicInitCase(TestCase):
+    """DatasetKey test case where basic initialization is used.
+    
+    Fixture:
+    * Initialize a DatasetKey object with hardcoded values for all `__init__(...)` params
+    
+    Case Categories:
+    * Property functions.
+        * Appropriate for this case, since we are hardcoding initial values and can then test we get them back directly.
     """
 
     @classmethod
@@ -26,10 +31,6 @@ class test_DatasetKey(TestCase):
 
         # 2. Set up local instance of testing class
         cls.test_schema = DatasetKey(game_id="GAME_NAME", from_date="20250101", to_date="20250131")
-
-    @staticmethod
-    def RunAll():
-        pass
 
     def test_GameID(self):
         _str = self.test_schema.GameID
@@ -51,6 +52,3 @@ class test_DatasetKey(TestCase):
         self.assertEqual(_schema.GameID, self.test_schema.GameID)
         self.assertEqual(_schema.DateFrom, self.test_schema.DateFrom)
         self.assertEqual(_schema.DateTo, self.test_schema.DateTo)
-
-if __name__ == '__main__':
-    unittest.main()
