@@ -10,6 +10,11 @@ from ogd.common.utils.Logger import Logger
 # import locals
 from tests.config.t_config import settings
 
+def setUpModule():
+    _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
+    _level       = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
+    Logger.std_logger.setLevel(_level)
+
 class BasicInitCase(TestCase):
     """Event model test case where basic initialization is used.
     
@@ -30,12 +35,6 @@ class BasicInitCase(TestCase):
         Since this class currently just tests properties and "output" converter functions, we go ahead and use a single instance of Event shared across the class.
         If any tests are added that have expected side effects, initialization of the instance should be moved to a `setUp(self)` function.
         """
-        # 1. Get testing config
-        _testing_cfg = TestConfig.FromDict(name="FeatureTestConfig", unparsed_elements=settings)
-        _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
-        Logger.std_logger.setLevel(_level)
-
-        # 2. Set up local instance of testing class
         cls.event = Event(
             app_id="AQUALAB",
             user_id="GreenGiant",

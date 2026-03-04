@@ -11,6 +11,11 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.models.DatasetKey import DatasetKey
 from tests.config.t_config import settings
 
+def setUpModule():
+    _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
+    _level       = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
+    Logger.std_logger.setLevel(_level)
+
 class BasicInitCase(TestCase):
     """DatasetKey test case where basic initialization is used.
     
@@ -24,12 +29,11 @@ class BasicInitCase(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        # 1. Get testing config
-        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
-        _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
-        Logger.std_logger.setLevel(_level)
+        """Set up common attributes across the class.
 
-        # 2. Set up local instance of testing class
+        Since this class currently just tests properties, we go ahead and use a single instance of `Feature` shared across the class.
+        If any tests are added that have expected side effects, initialization of the instance should be moved to a `setUp(self)` function.
+        """
         cls.test_schema = DatasetKey(game_id="GAME_NAME", from_date="20250101", to_date="20250131")
 
     def test_GameID(self):

@@ -12,17 +12,29 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.models.EventSet import EventSet
 from tests.config.t_config import settings
 
-class test_Feature(TestCase):
-    zipped_file = ZipFile(Path("tests/data/models/BACTERIA_20210201_to_20210202_5c61198_events.zip"))
+def setUpModule():
+    _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
+    _level       = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
+    Logger.std_logger.setLevel(_level)
+
+class BasicInitCase(TestCase):
+    """Feature test case where basic initialization is used.
+    
+    Fixture:
+    * Initialize a `Feature` object with hardcoded values for all `__init__(...)` params
+    
+    Case Categories:
+    * Property functions.
+        * Appropriate for this case, since we are hardcoding initial values and can then test we get them back directly.
+    """
 
     @classmethod
     def setUpClass(cls) -> None:
-        # 1. Get testing config
-        _testing_cfg = TestConfig.FromDict(name="FeatureTestConfig", unparsed_elements=settings)
-        _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
-        Logger.std_logger.setLevel(_level)
+        """Set up common attributes across the class.
 
-        # 2. Set up local instance of testing class
+        Since this class currently just tests properties, we go ahead and use a single instance of `Feature` shared across the class.
+        If any tests are added that have expected side effects, initialization of the instance should be moved to a `setUp(self)` function.
+        """
         cls.feature = Feature(
             name="TestFeature",
             feature_type="SomeTypeOfFeature",
@@ -34,10 +46,6 @@ class test_Feature(TestCase):
             subfeatures=["Foo"],
             values=["Value", "Bar"]
         )
-
-    @staticmethod
-    def RunAll():
-        pass
 
     def test_ColumnNames(self):
         _elems = [

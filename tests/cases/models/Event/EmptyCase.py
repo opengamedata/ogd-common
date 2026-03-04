@@ -11,14 +11,12 @@ from ogd.common.utils.typing import Version
 # import locals
 from tests.config.t_config import settings
 
-class EmptyCase(TestCase):
+def setUpModule():
+    _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
+    _level       = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
+    Logger.std_logger.setLevel(_level)
 
-    @classmethod
-    def setUpClass(cls) -> None:
-        # 1. Get testing config
-        _testing_cfg = TestConfig.FromDict(name="FeatureTestConfig", unparsed_elements=settings)
-        _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
-        Logger.std_logger.setLevel(_level)
+class EmptyCase(TestCase):
 
     def test_FromRow_OGDMySQLFormat(self):
         """Test the FromRow function using the `OPENGAMEDATA_MYSQL` schema.
