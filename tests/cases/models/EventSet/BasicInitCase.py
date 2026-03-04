@@ -19,6 +19,11 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.models.EventSet import EventSet
 from tests.config.t_config import settings
 
+def setUpModule():
+    _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
+    _level       = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
+    Logger.std_logger.setLevel(_level)
+
 @unittest.skip("Not implemented")
 class BasicInitCase(TestCase):
     """_summary_
@@ -64,12 +69,6 @@ class BasicInitCase(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        # 1. Get testing config
-        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
-        _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
-        Logger.std_logger.setLevel(_level)
-
-        # 2. Set up local instance of testing class
         _cfg = DataTableConfig(
             name="FILE SOURCE",
             store=None,
