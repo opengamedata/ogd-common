@@ -20,7 +20,13 @@ from src.ogd.common.models.EventSet import EventSet
 from tests.config.t_config import settings
 
 @unittest.skip("Not implemented")
-class test_EventSet(TestCase):
+class BasicInitCase(TestCase):
+    """_summary_
+
+    TODO : This needs to actually be implemented.
+    """
+    
+    # Define some constants for convenience, I guess?
     TEST_MIN_DATE     : Final[datetime]  = datetime(year=2021, month=2, day=1, hour= 0, minute=0, second=0)
     TEST_MAX_DATE     : Final[datetime]  = datetime(year=2021, month=2, day=1, hour=10, minute=0, second=0)
     ACTUAL_MIN_DATE   : Final[datetime]  = datetime(year=2021, month=2, day=1, hour=0, minute=10, second=43)
@@ -72,10 +78,6 @@ class test_EventSet(TestCase):
         )
         CSVI = CSVInterface(config=_cfg, fail_fast=False)
         cls.events : EventSet = CSVI.GetEventSet(filters=DatasetFilterCollection(), fallbacks={})
-
-    @staticmethod
-    def RunAll():
-        pass
 
     # @unittest.skip("Not up-to-date with implementation")
     def test_iter(self):
