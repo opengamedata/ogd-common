@@ -26,6 +26,11 @@ class BasicInitCase(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        """Set up common attributes across the class.
+
+        Since this class currently just tests properties, we go ahead and use a single instance of `RepositoryIndexingConfig` shared across the class.
+        If any tests are added that have expected side effects, initialization of the instance should be moved to a `setUp(self)` function.
+        """
         # 1. Get testing config
         _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
         _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
