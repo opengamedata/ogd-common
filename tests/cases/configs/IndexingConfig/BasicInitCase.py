@@ -13,6 +13,11 @@ from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
 from tests.config.t_config import settings
 
+def setUpModule():
+    _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
+    _level       = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
+    Logger.std_logger.setLevel(_level)
+
 class BasicInitCase(TestCase):
     """RepositoryIndexingConfig test case where basic initialization is used.
     
@@ -31,12 +36,6 @@ class BasicInitCase(TestCase):
         Since this class currently just tests properties, we go ahead and use a single instance of `RepositoryIndexingConfig` shared across the class.
         If any tests are added that have expected side effects, initialization of the instance should be moved to a `setUp(self)` function.
         """
-        # 1. Get testing config
-        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
-        _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
-        Logger.std_logger.setLevel(_level)
-
-        # 2. Set up local instance of testing class
         cls.test_schema = RepositoryIndexingConfig(
             name="Indexing Schema",
             local_dir=DirectoryLocationSchema(name="LocalDir", folder_path=Path("./data")),

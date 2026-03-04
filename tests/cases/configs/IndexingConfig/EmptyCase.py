@@ -12,6 +12,11 @@ from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
 from tests.config.t_config import settings
 
+def setUpModule():
+    _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
+    _level       = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
+    Logger.std_logger.setLevel(_level)
+
 class EmptyCase(TestCase):
     """RepositoryIndexingConfig test case where no initialization is used at class level.
 
@@ -24,13 +29,6 @@ class EmptyCase(TestCase):
     * Parsing functions. 
         * We test these so as to get details of where loading fails.
     """
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        # 1. Get testing config
-        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
-        _level       = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
-        Logger.std_logger.setLevel(_level)
 
     def test_FromDict(self):
         """Test case for whether the FromDict function is working properly.
