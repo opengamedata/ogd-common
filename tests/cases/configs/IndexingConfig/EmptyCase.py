@@ -12,11 +12,17 @@ from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
 from tests.config.t_config import settings
 
-class StaticCase(TestCase):
-    """IndexingConfig test case to check that all loading and parsing functions work correctly.
+class EmptyCase(TestCase):
+    """RepositoryIndexingConfig test case where no initialization is used at class level.
 
-    The test fixture here is technically "empty", since we don't define any data initially.
-    We're ultimately just testing all the static functions here, and the name "static" is slightly more descriptive than "empty," hence StaticCase.
+    Fixture:
+    * No initialization of a RepositoryIndexingConfig object
+
+    Case Categories:
+    * Loading functions.
+        * Appropriate here since the fixture doesn't set up an object.
+    * Parsing functions. 
+        * We test these so as to get details of where loading fails.
     """
 
     @classmethod

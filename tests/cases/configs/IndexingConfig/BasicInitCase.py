@@ -13,8 +13,15 @@ from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
 from tests.config.t_config import settings
 
-class PropertiesCase(TestCase):
-    """IndexingConfig basic test case to check that all properties work correctly.
+class BasicInitCase(TestCase):
+    """RepositoryIndexingConfig test case where basic initialization is used.
+    
+    Fixture:
+    * Initialize a RepositoryIndexingConfig object with hardcoded values for all `__init__(...)` params
+    
+    Case Categories:
+    * Property functions.
+        * Appropriate for this case, since we are hardcoding initial values and can then test we get them back directly.
     """
 
     @classmethod
