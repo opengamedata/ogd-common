@@ -9,11 +9,17 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.configs.TestConfig import TestConfig as TestConfigLocal
 from tests.config.t_config import settings
 
-class StaticCase(TestCase):
-    """TestConfig test case to check that all loading and parsing functions work correctly.
+class EmptyCase(TestCase):
+    """TestConfig test case where no initialization is used at class level.
 
-    The test fixture here is technically "empty", since we don't define any data initially.
-    We're ultimately just testing all the static functions here, and the name "static" is slightly more descriptive than "empty," hence StaticCase.
+    Fixture:
+    * No initialization of a TestConfig object
+
+    Case Categories:
+    * Loading functions.
+        * Appropriate here since the fixture doesn't set up an object.
+    * Parsing functions. 
+        * We test these so as to get details of where loading fails.
     """
 
     @classmethod
