@@ -7,14 +7,29 @@ from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.models.Event import Event, EventSource
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Version
 # import locals
 from tests.config.t_config import settings
 
-class test_Event(TestCase):
+class BasicInitCase(TestCase):
+    """Event model test case where basic initialization is used.
+    
+    Fixture:
+    * Initialize an Event object with hardcoded values for all `__init__(...)` params
+    
+    Case Categories:
+    * Property functions
+        * Appropriate for this case, since we are hardcoding initial values and can then test we get them back directly.
+    * Converter functions
+        * Similar to property functions, this is a good case for checking that "output" functions that convert the data to another format give correct values from all the inputs.
+    """
 
     @classmethod
     def setUpClass(cls) -> None:
+        """Set up common attributes across the class.
+
+        Since this class currently just tests properties and "output" converter functions, we go ahead and use a single instance of Event shared across the class.
+        If any tests are added that have expected side effects, initialization of the instance should be moved to a `setUp(self)` function.
+        """
         # 1. Get testing config
         _testing_cfg = TestConfig.FromDict(name="FeatureTestConfig", unparsed_elements=settings)
         _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
@@ -37,10 +52,6 @@ class test_Event(TestCase):
             game_state={},
             user_data={}
         )
-
-    @staticmethod
-    def RunAll():
-        pass
 
     def test_ColumnNames(self):
         _elems = [
@@ -68,26 +79,12 @@ class test_Event(TestCase):
 
     # TODO : tests for other props
 
-    def test_FromRow_MySQL(self):
-        _schema = EventTableSchema.Load(schema_name="OPENGAMEDATA_MYSQL")
-        _row = (
-            1, "1234567890", "GreenGiant", {}, datetime.datetime(2025, 1, 1, 10, 0, 0),
-            500, datetime.timedelta(hours=2),  datetime.datetime(2025, 1, 1, 10, 0, 1),
-            "session_start", {}, "GAME", {}, "1.0", "main", 3, 1, "127.0.0.0", "fake user agent"
-        )
-        _event = Event.FromRow(row=_row, schema=_schema, fallbacks={"app_id":"AQUALAB"})
-        _elems = (
-            "1234567890",    "AQUALAB",
-            datetime.datetime(year=2025, month=1, day=1, hour=10, minute=0, second=0, microsecond=500000),
-            "session_start", 
-            {"server_time":datetime.datetime(2025, 1, 1, 10, 0, 1)},
-            "GAME",          "1.0",        "main",
-            "3",             "UTC+02:00",  "GreenGiant",
-            {},              {},           1
-        )
-        self.assertEqual(_event.ColumnValues, _elems)
+    def test_ToRow_OGDMySQLFormat(self):
+        """Test the ToRow function using the `OPENGAMEDATA_MYSQL` schema.
 
-    def test_ToRow_MySQL(self):
+        In particular, this schema assumes fields for the IP address and http user agent,
+        which are not present in some other input formats. In this case, we expect those elements to be empty.
+        """
         _schema = EventTableSchema.Load(schema_name="OPENGAMEDATA_MYSQL")
         _row = (
             None,            "1234567890",     "GreenGiant", {},
@@ -99,4 +96,5 @@ class test_Event(TestCase):
             None,            None
         )
         _elems = self.event.ToRow(schema=_schema)
+        self.assertIsInstance(_elems, tuple)
         self.assertEqual(_elems, _row)
