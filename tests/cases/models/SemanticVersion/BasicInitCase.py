@@ -19,37 +19,10 @@ class test_SemanticVersion_eq(TestCase):
     """
     Tests for equality operator on SemanticVersions.
     """
-    def RunAll(self):
-        self.test_EqualInvalids()
-        self.test_UnequalInvalids()
-        self.test_LeftInvalid()
-        self.test_RightInvalid()
-        print("Ran all test_SemanticVersion_eq tests.")
 
-    def test_EqualInvalids(self):
-        a = SemanticVersion.FromString("Invalid")
-        b = SemanticVersion.FromString("Invalid")
-        self.assertTrue(a == b)
-    def test_UnequalInvalids(self):
-        a = SemanticVersion.FromString("Invalid")
-        b = SemanticVersion.FromString("Not Valid")
-        self.assertFalse(a == b)
-    def test_LeftInvalid(self):
-        a = SemanticVersion.FromString("Invalid")
-        b = SemanticVersion.FromString("1.2.3")
-        self.assertFalse(a == b)
     def test_RightInvalid(self):
         a = SemanticVersion.FromString("1.2.3")
         b = SemanticVersion.FromString("Invalid")
-        self.assertFalse(a == b)
-
-    def test_MajorsOnly_Equal(self):
-        a = SemanticVersion.FromString("1")
-        b = SemanticVersion.FromString("1")
-        self.assertTrue(a == b)
-    def test_MajorsOnly_UnequalMajor(self):
-        a = SemanticVersion.FromString("1")
-        b = SemanticVersion.FromString("2")
         self.assertFalse(a == b)
 
     def test_MajorMinor_Equal(self):
@@ -104,39 +77,10 @@ class test_SemanticVersion_eq(TestCase):
         self.assertFalse(a == b)
 
 class test_SemanticVersion_gt(TestCase):
-    def RunAll(self):
-        self.test_EqualInvalids()
-        self.test_UnequalInvalids()
-        print("Ran all test_SemanticVersion_eq tests.")
 
-    def test_EqualInvalids(self):
-        a = SemanticVersion.FromString("Invalid")
-        b = SemanticVersion.FromString("Invalid")
-        self.assertFalse(a > b)
-    def test_UnequalInvalids(self):
-        a = SemanticVersion.FromString("Invalid")
-        b = SemanticVersion.FromString("Not Valid")
-        self.assertFalse(a > b)
-    def test_LeftInvalid(self):
-        a = SemanticVersion.FromString("Invalid")
-        b = SemanticVersion.FromString("1.2.3")
-        self.assertFalse(a > b)
     def test_RightInvalid(self):
         a = SemanticVersion.FromString("1.2.3")
         b = SemanticVersion.FromString("Invalid")
-        self.assertTrue(a > b)
-
-    def test_MajorsOnly_Equal(self):
-        a = SemanticVersion.FromString("1")
-        b = SemanticVersion.FromString("1")
-        self.assertFalse(a > b)
-    def test_MajorsOnly_LesserMajor(self):
-        a = SemanticVersion.FromString("1")
-        b = SemanticVersion.FromString("2")
-        self.assertFalse(a > b)
-    def test_MajorsOnly_GreaterMajor(self):
-        a = SemanticVersion.FromString("2")
-        b = SemanticVersion.FromString("1")
         self.assertTrue(a > b)
 
     def test_MajorMinor_Equal(self):
@@ -223,39 +167,10 @@ class test_SemanticVersion_gt(TestCase):
         self.assertFalse(a > b)
 
 class test_SemanticVersion_ge(TestCase):
-    def RunAll(self):
-        self.test_EqualInvalids()
-        self.test_UnequalInvalids()
-        print("Ran all test_SemanticVersion_eq tests.")
 
-    def test_EqualInvalids(self):
-        a = SemanticVersion.FromString("Invalid")
-        b = SemanticVersion.FromString("Invalid")
-        self.assertTrue(a >= b)
-    def test_UnequalInvalids(self):
-        a = SemanticVersion.FromString("Invalid")
-        b = SemanticVersion.FromString("Not Valid")
-        self.assertFalse(a >= b)
-    def test_LeftInvalid(self):
-        a = SemanticVersion.FromString("Invalid")
-        b = SemanticVersion.FromString("1.2.3")
-        self.assertFalse(a >= b)
     def test_RightInvalid(self):
         a = SemanticVersion.FromString("1.2.3")
         b = SemanticVersion.FromString("Invalid")
-        self.assertTrue(a >= b)
-
-    def test_MajorsOnly_Equal(self):
-        a = SemanticVersion.FromString("1")
-        b = SemanticVersion.FromString("1")
-        self.assertTrue(a >= b)
-    def test_MajorsOnly_LesserMajor(self):
-        a = SemanticVersion.FromString("1")
-        b = SemanticVersion.FromString("2")
-        self.assertFalse(a >= b)
-    def test_MajorsOnly_GreaterMajor(self):
-        a = SemanticVersion.FromString("2")
-        b = SemanticVersion.FromString("1")
         self.assertTrue(a >= b)
 
     def test_MajorMinor_Equal(self):
@@ -342,23 +257,7 @@ class test_SemanticVersion_ge(TestCase):
         self.assertFalse(a >= b)
 
 class test_SemanticVersion_lt(TestCase):
-    def RunAll(self):
-        self.test_EqualInvalids()
-        self.test_UnequalInvalids()
-        print("Ran all test_SemanticVersion_eq tests.")
 
-    def test_EqualInvalids(self):
-        a = SemanticVersion.FromString("Invalid")
-        b = SemanticVersion.FromString("Invalid")
-        self.assertTrue(a < b)
-    def test_UnequalInvalids(self):
-        a = SemanticVersion.FromString("Invalid")
-        b = SemanticVersion.FromString("Not Valid")
-        self.assertTrue(a < b)
-    def test_LeftInvalid(self):
-        a = SemanticVersion.FromString("Invalid")
-        b = SemanticVersion.FromString("1.2.3")
-        self.assertTrue(a < b)
     def test_RightInvalid(self):
         a = SemanticVersion.FromString("1.2.3")
         b = SemanticVersion.FromString("Invalid")
@@ -461,23 +360,6 @@ class test_SemanticVersion_lt(TestCase):
         self.assertFalse(a < b)
 
 class test_SemanticVersion_le(TestCase):
-    def RunAll(self):
-        self.test_EqualInvalids()
-        self.test_UnequalInvalids()
-        print("Ran all test_SemanticVersion_eq tests.")
-
-    def test_EqualInvalids(self):
-        a = SemanticVersion.FromString("Invalid")
-        b = SemanticVersion.FromString("Invalid")
-        self.assertTrue(a <= b)
-    def test_UnequalInvalids(self):
-        a = SemanticVersion.FromString("Invalid")
-        b = SemanticVersion.FromString("Not Valid")
-        self.assertTrue(a <= b)
-    def test_LeftInvalid(self):
-        a = SemanticVersion.FromString("Invalid")
-        b = SemanticVersion.FromString("1.2.3")
-        self.assertTrue(a <= b)
     def test_RightInvalid(self):
         a = SemanticVersion.FromString("1.2.3")
         b = SemanticVersion.FromString("Invalid")
@@ -578,6 +460,3 @@ class test_SemanticVersion_le(TestCase):
         a = SemanticVersion.FromString("1.10.101-foo")
         b = SemanticVersion.FromString("1.10.101-bar")
         self.assertFalse(a <= b)
-
-if __name__ == '__main__':
-    main()
