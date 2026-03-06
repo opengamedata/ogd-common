@@ -22,8 +22,8 @@ class BasicInitCase(TestCase):
     * Initialize a DataTableConfig object with hardcoded values for all `__init__(...)` params
     
     Case Categories:
-    * Property functions.
-        * Appropriate for this case, since we are hardcoding initial values and can then test we get them back directly.
+    * Property functions
+        * Check that we get back exactly the hardcoded values we passed in to the `__init__(...)` function.
     """
 
     @classmethod

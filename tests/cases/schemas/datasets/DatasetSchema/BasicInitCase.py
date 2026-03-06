@@ -24,7 +24,7 @@ class BasicInitCase(TestCase):
     * Initialize a DatasetSchema object with hardcoded values for all `__init__(...)` params
     
     Case Categories:
-    * Property functions.
+    * Property functions
         * Check that we get back exactly the hardcoded values we passed in to the `__init__(...)` function.
     """
 
