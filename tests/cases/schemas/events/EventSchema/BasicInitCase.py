@@ -9,31 +9,38 @@ from ogd.common.utils.Logger import Logger
 from src.ogd.common.schemas.events.EventSchema import EventSchema
 from tests.config.t_config import settings
 
-@unittest.skip("Not implemented")
-class test_EventSchema(TestCase):
-    """Testbed for the DataTableConfig class.
+def setUpModule():
+    _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
+    _level       = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
+    Logger.std_logger.setLevel(_level)
 
-        TODO : Implement and enable tests.
+@unittest.skip("Not implemented")
+class BasicInitCase(TestCase):
+    """EventSchema test case where basic initialization is used.
+    
+    TODO: Actually implement the class
+    
+    Fixture:
+    * Initialize a `EventSchema` object with hardcoded values for all `__init__(...)` params
+    
+    Case Categories:
+    * Property functions
+        * Check that we get back exactly the hardcoded values we passed in to the `__init__(...)` function.
     """
 
     @classmethod
     def setUpClass(cls) -> None:
-        # 1. Get testing config
-        _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
-        _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
-        Logger.std_logger.setLevel(_level)
+        """Set up common attributes across the class.
 
-        # 2. Set up local instance of testing class
+        Since this class currently just tests properties, we go ahead and use a single instance of `EventSchema` shared across the class.
+        If any tests are added that have expected side effects, initialization of the instance should be moved to a `setUp(self)` function.
+        """
         cls.test_schema = EventSchema(
             name="available_building Schema",
             description="",
             event_data={},
             other_elements={ "foo":"bar" }
         )
-
-    @staticmethod
-    def RunAll():
-        pass
 
     @unittest.skip("Not implemented")
     def test_Name(self):
@@ -68,22 +75,3 @@ class test_EventSchema(TestCase):
         _elem_names = ["foo"]
         self.assertIsInstance(self.test_schema.NonStandardElementNames, list)
         self.assertEqual(self.test_schema.NonStandardElementNames, _elem_names)
-
-    @unittest.skip("Not implemented")
-    def test_FromDict(self):
-        """Test case for whether the FromDict function is working properly.
-        """
-        _dict = {
-               "type" : "List[Dict]",
-               "details": {
-                  "name":"str",
-                  "price":"int"
-               },
-               "description" : "The buildings available for the player to construct"
-        }
-        _schema = EventSchema.FromDict(name="available_buildings Schema", unparsed_elements=_dict)
-        self.assertIsInstance(_schema.Name, str)
-        self.assertEqual(_schema.Name, "available_buildings Schema")
-
-if __name__ == '__main__':
-    unittest.main()
