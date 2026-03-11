@@ -5,10 +5,10 @@ from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
+from ogd.common.schemas.tables.EventMapSchema import EventMapSchema
+from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 # import locals
 from src.ogd.common.schemas.tables.EventTableSchema import EventTableSchema
-from src.ogd.common.schemas.tables.EventMapSchema import EventMapSchema
-from src.ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from tests.config.t_config import settings
 
 def setUpModule():
