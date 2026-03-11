@@ -27,28 +27,23 @@ class test_BigQueryConnector(TestCase):
     * Connection opening function
     """
 
-    @classmethod
-    def setUp(cls) -> None:
+    def setUp(self) -> None:
         _elems = {
             "DB_TYPE"    : "BIGQUERY",
             "PROJECT_ID" : "wcer-field-day-ogd-1798",
             "PROJECT_KEY": "./tests/config/ogd.json"
         }
         config = BigQueryConfig.FromDict(name="OPENGAMEDATA_BQ", unparsed_elements=_elems)
-        cls.test_connector = BigQueryConnector(config=config)
+        self.test_connector = BigQueryConnector(config=config)
 
     def test_Open(self):
-        success = self.test_connector.Open()
-        self.assertIsInstance(success, bool)
-        self.assertTrue(success)
-
-    def test_Client(self):
-        self.test_connector.Open()
-        client = self.test_connector.Client
-        self.assertIsInstance(client, bigquery.Client)
-
-    def test_Client_before_open(self):
+        # Pre-check
         self.assertIsNone(self.test_connector.Client)
 
-if __name__ == '__main__':
-    unittest.main()
+        # Test stimulus
+        success = self.test_connector.Open()
+
+        # Post-checks
+        self.assertIsInstance(success, bool)
+        self.assertTrue(success)
+        self.assertIsInstance(self.test_connector.Client, bigquery.Client)

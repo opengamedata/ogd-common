@@ -27,7 +27,6 @@ class BasicConnectionCase(TestCase):
     * Connection management functions
     """
 
-    @classmethod
     def setUp(self) -> None:
         """Set up the testbed.
         """
@@ -50,6 +49,3 @@ class BasicConnectionCase(TestCase):
         is_open = self.test_connector.IsOpen
         self.assertIsInstance(is_open, bool)
         self.assertEqual(is_open, True)
-
-if __name__ == '__main__':
-    unittest.main()
