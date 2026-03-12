@@ -29,8 +29,8 @@ jobs:
         testbed: [
           DataElementSchemaSuite,
           EventSchemaSuite,
-          GameStateSchemaSuite
-          LoggingSpecificationSchemaSuite,
+          GameStateSchemaSuite,
+          LoggingSpecificationSchemaSuite
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20
