@@ -51,15 +51,3 @@ class EmptyCase(TestCase):
     @unittest.skip("Not implemented")
     def test_getLogDFbyPath(self):
         pass
-
-@unittest.skip("Not implemented")
-class FileAPICase(TestCase):
-    """FileAPI test case where no initialization is used, on account of FileIO
-
-    Fixture:
-    * No initialization of a FileIO
-
-    Case Categories:
-    * Loading functions.
-        * Appropriate here since the fixture doesn't set up an object.
-    """
