@@ -78,17 +78,17 @@ runs:
       run: sed -i 's@"address_placeholder"@"${{ inputs.remote_url }}"@g'                   ${{ inputs.config_path }}/t_config.py
       shell: bash
     - name: Set SQL username
-      run: sed -i 's/username/${{inputs.sql_user}}/g' config/config.py
+      run: sed -i 's/username/${{inputs.sql_user}}/g' tests/config/config.py
       shell: bash
     - name: Set SQL password
-      run: sed -i 's/password/${{inputs.sql_pass}}/g' config/config.py
+      run: sed -i 's/password/${{inputs.sql_pass}}/g' tests/config/config.py
       shell: bash
     - name: Set SSH hostname
-      run: sed -i 's/hostname/${{inputs.sql_host}}/g' config/config.py
+      run: sed -i 's/hostname/${{inputs.sql_host}}/g' tests/config/config.py
       shell: bash
     - name: Set SSH username
-      run: sed -i 's/WCER AD User/${{inputs.ssh_user}}/g' config/config.py
+      run: sed -i 's/WCER AD User/${{inputs.ssh_user}}/g' tests/config/config.py
       shell: bash
     - name: Set SSH password
-      run: sed -i 's/WCER AD Password/${{inputs.ssh_pass}}/g' config/config.py
+      run: sed -i 's/WCER AD Password/${{inputs.ssh_pass}}/g' tests/config/config.py
       shell: bash
