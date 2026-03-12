@@ -20,39 +20,42 @@ from ogd.common.utils.Logger import Logger
 # import locals
 from tests.config.t_config import settings
 
-class test_BigQueryInterface(TestCase):
-    """Testbed for the DataTableConfig class.
+def setUpModule():
+    _testing_cfg = TestConfig.FromDict(name="BQTestConfig", unparsed_elements=settings)
+    _level       = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
+    Logger.std_logger.setLevel(_level)
 
-        TODO : Test more 'enabled' options/combinations.
+class OGDBigQueryCase(TestCase):
+    """Testbed for the BigQueryInterface class.
+
+    TODO : Test more 'enabled' options/combinations.
+
+    Fixture:
+    * Open a connection to BQ with basic configuration
+    
+    Case Categories:
+    * Connection management functions
     """
 
-    @classmethod
-    def setUpClass(cls) -> None:
-        # 1. Get testing config
-        _testing_cfg : TestConfig = TestConfig.FromDict(name="BQTestConfig", unparsed_elements=settings)
-        _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
-        Logger.std_logger.setLevel(_level)
-
-        # 2. Set up local instance of testing class
+    def setUp(self) -> None:
+        """_summary_
+        TODO : Check that we're actually setting up in accordance with expectations,
+        i.e. that we aren't still using an old approach to setting StoreConfig and TableSchema
+        """
         _elems = {
             "DB_TYPE"    : "BIGQUERY",
             "PROJECT_ID" : "wcer-field-day-ogd-1798",
             "PROJECT_KEY": "./tests/config/ogd.json"
         }
         store_config = BigQueryConfig.FromDict(name="OPENGAMEDATA_BQ", unparsed_elements=_elems)
-
         table_schema = EventTableSchema.FromFile(file_name="OPENGAMEDATA_BIGQUERY.json", directory="./tests/config/")
-
         _elems = { "source":"OPENGAMEDATA_BQ", "database":"aqualab", "table":"reference", "schema":"OPENGAMEDATA_BIGQUERY" }
+
         config = DataTableConfig.FromDict(name="BQStoreConfig", unparsed_elements=_elems)
         config.StoreConfig = store_config
         config.TableSchema = table_schema
 
-        cls.test_interface = BigQueryInterface(config=config, fail_fast=True, store=None)
-
-    @staticmethod
-    def RunAll():
-        pass
+        self.test_interface = BigQueryInterface(config=config, fail_fast=True, store=None)
 
     def test_AvailableIDs_sessions(self):
         _start_date = datetime(year=2025, month=7, day=1, hour=0, minute=0, second=0)
@@ -370,6 +373,3 @@ class test_BigQueryInterface(TestCase):
         self.assertEqual(range_clause.clause, "`log_version` > @log_version_max")
         self.assertIsInstance(range_clause.params, list)
         self.assertEqual(range_clause.params, [ bigquery.ScalarQueryParameter(name="log_version_max", type_="INT64", value=5) ])
-
-if __name__ == '__main__':
-    unittest.main()

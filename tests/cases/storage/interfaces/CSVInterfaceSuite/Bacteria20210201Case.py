@@ -1,11 +1,12 @@
 # import libraries
+import logging
 import unittest
 from datetime import datetime
 from pathlib import Path
 from typing import Final, List
 from unittest import TestCase
 from zipfile import ZipFile
-# import locals
+# import ogd libraries.
 from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
 from ogd.common.filters.collections.IDFilterCollection import IDFilterCollection
 from ogd.common.filters.collections.SequencingFilterCollection import SequencingFilterCollection
@@ -15,10 +16,19 @@ from ogd.common.models.enums.FilterMode import FilterMode
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
+from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.storage.interfaces.CSVInterface import CSVInterface
+from ogd.common.utils.Logger import Logger
+# import locals
+from tests.config.t_config import settings
 
-class test_CSVInterface(TestCase):
+def setUpModule():
+    _testing_cfg = TestConfig.FromDict(name="MySQLTestConfig", unparsed_elements=settings)
+    _level       = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
+    Logger.std_logger.setLevel(_level)
+
+class BacteriaCase(TestCase):
     TEST_MIN_DATE     : Final[datetime]  = datetime(year=2021, month=2, day=1, hour= 0, minute=0, second=0)
     TEST_MAX_DATE     : Final[datetime]  = datetime(year=2021, month=2, day=1, hour=10, minute=0, second=0)
     ACTUAL_MIN_DATE   : Final[datetime]  = datetime(year=2021, month=2, day=1, hour=0, minute=10, second=43)
@@ -52,27 +62,24 @@ class test_CSVInterface(TestCase):
     21010110491046644, 21010109492007536, 21010110495384436, 21010106503171890, 21010110571666436, 21010109570078116, 21010109565541068, 21010115580704280, 
     21010109572227836, 21010109583032190, 21010109583716930, 21010109585054004, 21010109584882670, 21010110000842588, 21010109593906220, 21010109593501640, 
     21010109593889650]]
-    zipped_file = ZipFile(Path("tests/cases/storage/interfaces/BACTERIA_20210201_to_20210202_5c61198_events.zip"))
 
-    def RunAll(self):
-        self.test_IDsFromDates()
-        self.test_DatesFromIDs()
-        print("Ran all test_CSVInterface tests.")
+    def setUp(self) -> None:
+        _cfg = DataTableConfig.FromDict(name="FILE SOURCE", unparsed_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
+        _store = CSVConnector(
+            config=FileStoreConfig(name="file", location=f, file_credential=None)
+        )
+        self.CSVI = CSVInterface(config=_cfg, fail_fast=False, extension='\t', store=_store)
+        self.zipped_file = ZipFile(Path("tests/data/storage/interfaces/BACTERIA_20210201_to_20210202_5c61198_events.zip"))
 
     @unittest.skip("Not up-to-date with implementation")
     def test_IDsFromDates(self):
         with self.zipped_file.open(self.zipped_file.namelist()[0]) as f:
-            _cfg = DataTableConfig.FromDict(name="FILE SOURCE", unparsed_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
-            _store = CSVConnector(
-                config=FileStoreConfig(name="file", location=f, file_credential=None)
-            )
-            CSVI = CSVInterface(config=_cfg, fail_fast=False, extension='\t', store=_store)
             filters = DatasetFilterCollection(
                 sequence_filters=SequencingFilterCollection(
                     timestamp_filter=RangeFilter(mode=FilterMode.INCLUDE, minimum=self.TEST_MIN_DATE, maximum=self.TEST_MAX_DATE)
                 )
             )
-            result_session_list = CSVI.AvailableIDs(mode=IDMode.SESSION, filters=filters)
+            result_session_list = self.CSVI.AvailableIDs(mode=IDMode.SESSION, filters=filters)
             self.assertNotEqual(result_session_list, None)
             if result_session_list is not None:
                 diff = set(result_session_list).symmetric_difference(self.TEST_SESSION_LIST)
@@ -81,15 +88,13 @@ class test_CSVInterface(TestCase):
                         session_filter=SetFilter(mode=FilterMode.INCLUDE, set_elements=set(result_session_list))
                     )
                 )
-                self.assertTrue(len(diff) > 0, f"Date range for missed items: {CSVI.AvailableDates(reverse_filters)}")
+                self.assertTrue(len(diff) > 0, f"Date range for missed items: {self.CSVI.AvailableDates(reverse_filters)}")
 
     @unittest.skip("Not up-to-date with implementation")
     def test_DatesFromIDs(self):
         with self.zipped_file.open(self.zipped_file.namelist()[0]) as f:
-            _cfg = DataTableConfig.FromDict(name="FILE SOURCE", unparsed_elements={"SCHEMA":"OGD_EVENT_FILE", "DB_TYPE":"FILE"}, data_sources={})
-            CSVI = CSVInterface(game_id='BACTERIA', config=_cfg, filepath=f, delim='\t', fail_fast=False)
-            if CSVI.Open():
-                dates = CSVI.DatesFromIDs(self.TEST_SESSION_LIST)
+            if self.CSVI.Open():
+                dates = self.CSVI.DatesFromIDs(self.TEST_SESSION_LIST)
                 self.assertEqual(dates['min'], self.ACTUAL_MIN_DATE)
                 self.assertEqual(dates['max'], self.ACTUAL_MAX_DATE)
             else:
