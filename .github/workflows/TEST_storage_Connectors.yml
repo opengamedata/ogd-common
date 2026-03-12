@@ -12,7 +12,8 @@ on:
     - 'requirements.txt'
     # specific dependencies
     - '.github/workflows/TEST_storage_Connectors.yml'
-    - 'tests/cases/schemas/tables/**'
+    - 'tests/cases/storage/connectors/**'
+    - 'tests/data/storage/connectors/**'
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-StorageConnectors
@@ -26,8 +27,8 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          test_BigQueryConnector,
-          test_MySQLConnector
+          BigQueryConnectorSuite,
+          MySQLConnectorSuite
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20
@@ -67,8 +68,8 @@ jobs:
     - name: Execute ${{ matrix.testbed }} testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/storage/connectors"
-        test_file: "${{ matrix.testbed }}.py"
+        directory: "tests/cases/storage/connectors/${{ matrix.testbed }}"
+        test_file: "*Case.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete

@@ -12,7 +12,8 @@ on:
     - 'requirements.txt'
     # specific dependencies
     - '.github/workflows/TEST_Configs.yml'
-    - 'tests/cases/configs/*.py'
+    - 'tests/cases/configs/**'
+    - 'tests/data/configs/**'
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-Configs
@@ -26,9 +27,9 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          DataTableConfig,
-          IndexingConfig,
-          TestConfig,
+          DataTableConfigSuite,
+          IndexingConfigSuite,
+          TestConfigSuite,
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20

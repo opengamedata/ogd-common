@@ -13,6 +13,7 @@ on:
     # specific dependencies
     - '.github/workflows/TEST_schemas_EventSchemas.yml'
     - 'tests/cases/schemas/events/**'
+    - 'tests/data/schemas/events/**'
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-EventSchemas
@@ -26,10 +27,10 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          test_DataElementSchema,
-          test_EventSchema,
-          test_LoggingSpecificationSchema,
-          test_GameStateSchema
+          DataElementSchemaSuite,
+          EventSchemaSuite,
+          GameStateSchemaSuite
+          LoggingSpecificationSchemaSuite,
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20
@@ -56,8 +57,8 @@ jobs:
     - name: Execute ${{ matrix.testbed }} testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/schemas/events"
-        test_file: "${{ matrix.testbed }}.py"
+        directory: "tests/cases/schemas/events/${{ matrix.testbed }}"
+        test_file: "*Case.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete

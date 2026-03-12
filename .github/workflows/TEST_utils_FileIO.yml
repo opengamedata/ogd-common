@@ -6,11 +6,13 @@ on:
   workflow_call:
   push:
     paths:
-    - '.github/workflows/TEST_utils_FileIO.yml'
+    # repo-wide dependencies
     - '.github/actions/test_config/**'
-    - 'tests/cases/schemas/config/*.py'
     - 'tests/config/**'
     - 'requirements.txt'
+    # specific dependencies
+    - '.github/workflows/TEST_utils_FileIO.yml'
+    - 'tests/cases/utils/FileIOSuite/**'
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-FileIO
@@ -44,8 +46,8 @@ jobs:
     - name: Execute FileIO Testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/utils"
-        test_file: "test_fileio.py"
+        directory: "tests/cases/utils/FileIOSuite"
+        test_file: "*Case.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete

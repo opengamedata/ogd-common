@@ -17,7 +17,8 @@ on:
     - 'requirements.txt'
     # specific dependencies
     - '.github/workflows/TEST_storage_Interfaces.yml'
-    - 'tests/cases/schemas/tables/**'
+    - 'tests/cases/storage/interfaces/**'
+    - 'tests/cases/storage/interfaces/**'
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-Interfaces
@@ -31,8 +32,8 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          test_BigQueryInterface,
-          test_CSVInterface
+          BigQueryInterfaceSuite,
+          CSVInterfaceSuite
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20
@@ -74,8 +75,8 @@ jobs:
     - name: Execute ${{ matrix.testbed }} testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/storage/interfaces"
-        test_file: "${{ matrix.testbed }}.py"
+        directory: "tests/cases/storage/interfaces/${{ matrix.testbed }}"
+        test_file: "*Case.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete
