@@ -15,33 +15,33 @@ _testing_cfg = TestConfig.FromDict(name="conversionsTestConfig", unparsed_elemen
 _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
 Logger.std_logger.setLevel(_level)
 
-class test_Capitalize(TestCase):
-    def normal_stringCase(self):
+class CapitalizeCase(TestCase):
+    def test_normal_string(self):
         _str = conversions.Capitalize(value="fOo")
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "FOO")
-    def nonstringCase(self):
+    def test_nonstring(self):
         _str = conversions.Capitalize(value=100)
         self.assertIsInstance(_str, int)
         self.assertEqual(_str, 100)
 
 @unittest.skip("Not Implemented")
-class test_ConvertToType(TestCase):
-    def null_valuesCase(self):
+class ConvertToTypeCase(TestCase):
+    def test_null_values(self):
         pass
 
-class test_ToBool(TestCase):
-    def normal_bool_trueCase(self):
+class ToBoolCase(TestCase):
+    def test_normal_bool_true(self):
         _bool = conversions.ToBool(name="ParseBoolVal", value=True)
         self.assertIsInstance(_bool, bool)
         self.assertEqual(_bool, True)
 
-    def normal_bool_falseCase(self):
+    def test_normal_bool_false(self):
         _bool = conversions.ToBool(name="ParseBoolVal", value=False)
         self.assertIsInstance(_bool, bool)
         self.assertEqual(_bool, False)
 
-    def string_trueCase(self):
+    def test_string_true(self):
         _bool = conversions.ToBool(name="ParseBoolVal", value="True")
         self.assertIsInstance(_bool, bool)
         self.assertEqual(_bool, True)
@@ -49,7 +49,7 @@ class test_ToBool(TestCase):
         self.assertIsInstance(_bool, bool)
         self.assertEqual(_bool, True)
 
-    def string_falseCase(self):
+    def test_string_false(self):
         _bool = conversions.ToBool(name="ParseBoolVal", value="False")
         self.assertIsInstance(_bool, bool)
         self.assertEqual(_bool, False)
@@ -57,13 +57,13 @@ class test_ToBool(TestCase):
         self.assertIsInstance(_bool, bool)
         self.assertEqual(_bool, False)
 
-class test_ToInt(TestCase):
-    def normal_intCase(self):
+class ToIntCase(TestCase):
+    def test_normal_int(self):
         _int = conversions.ToInt(name="ParseIntVal", value=1)
         self.assertIsInstance(_int, int)
         self.assertEqual(_int, 1)
 
-    def float_to_intCase(self):
+    def test_float_to_int(self):
         with self.subTest(msg="_parseInt: Round float up"):
             _int = conversions.ToInt(name="ParseIntVal", value=1.75)
             self.assertIsInstance(_int, int)
@@ -77,281 +77,281 @@ class test_ToInt(TestCase):
             self.assertIsInstance(_int, int)
             self.assertEqual(_int, 1)
 
-    def wrongtypeCase(self):
+    def test_wrongtype(self):
         _nan = {1:2}
         _int = conversions.ToInt(name="ParseIntVal", value=_nan)
         self.assertIsNone(_int)
 
-class test_ToFloat(TestCase):
-    def normal_floatCase(self):
+class ToFloatCase(TestCase):
+    def test_normal_float(self):
         _float = conversions.ToFloat(name="ParseFloatVal", value=1.2)
         self.assertIsInstance(_float, float)
         self.assertEqual(_float, 1.2)
 
-    def int_to_floatCase(self):
+    def test_int_to_float(self):
         _float = conversions.ToFloat(name="ParseFloatVal", value=1)
         self.assertIsInstance(_float, float)
         self.assertEqual(_float, 1.)
 
-    def wrongtypeCase(self):
+    def test_wrongtype(self):
         _nan = {1:2}
         _float = conversions.ToFloat(name="ParseFloatVal", value=_nan)
         self.assertIsNone(_float)
 
-class test_ToString(TestCase):
-    def normal_stringCase(self):
+class ToStringCase(TestCase):
+    def test_normal_string(self):
         _str = conversions.ToString(name="ParseStringVal", value="Foo")
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
-    def int_to_strCase(self):
+    def test_int_to_str(self):
         _str = conversions.ToString(name="ParseStringVal", value=123)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "123")
 
-    def dict_to_strCase(self):
+    def test_dict_to_str(self):
         _elem = {1:2}
         _elem_str = "{1: 2}"
         _str = conversions.ToString(name="ParseStringVal", value=_elem)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, _elem_str)
 
-class test_ToPath(TestCase):
-    def normal_pathCase(self):
+class ToPathCase(TestCase):
+    def test_normal_path(self):
         _val = Path("./Foo")
         _path = conversions.ToPath(name="ParsePathVal", value=_val)
         self.assertIsInstance(_path, Path)
         self.assertEqual(_path, _val)
 
-    def pathstringCase(self):
+    def test_pathstring(self):
         _elem = Path("./Foo")
         _elem_str = "./Foo"
         _path = conversions.ToPath(name="ParsePathVal", value=_elem_str)
         self.assertIsInstance(_path, Path)
         self.assertEqual(_path, _elem)
 
-    def wrongtypeCase(self):
+    def test_wrongtype(self):
         _not_path = conversions.ToPath(name="ParseStringVal", value=123)
         self.assertIsNone(_not_path)
 
-class test_ToDatetime(TestCase):
-    def normal_datetimeCase(self):
+class ToDatetimeCase(TestCase):
+    def test_normal_datetime(self):
         _val = datetime.datetime(2020, 1, 1)
         _dt = conversions.time.ToDatetime(name="ToDatetimeVal", value=_val)
         self.assertIsInstance(_dt, datetime.datetime)
         self.assertEqual(_dt, _val)
 
-    def string_YYYYMMDDCase(self):
+    def test_string_YYYYMMDD(self):
         _str = "20250102 12:34:56.789000"
         _dt = conversions.time.ToDatetime(name="ToDatetimeVal", value=_str)
         self.assertIsInstance(_dt, datetime.datetime)
         self.assertEqual(_dt, datetime.datetime(2025, 1, 2, 12, 34, 56, 789000))
 
-    def string_YYYYMMDD_dashesCase(self):
+    def test_string_YYYYMMDD_dashes(self):
         _str = "2025-01-02 12:34:56.789000"
         _dt = conversions.time.ToDatetime(name="ToDatetimeVal", value=_str)
         self.assertIsInstance(_dt, datetime.datetime)
         self.assertEqual(_dt, datetime.datetime(2025, 1, 2, 12, 34, 56, 789000))
 
-    def string_YYYYMMDD_slashesCase(self):
+    def test_string_YYYYMMDD_slashes(self):
         _str = "2025/01/02 12:34:56.789000"
         _dt = conversions.time.ToDatetime(name="ToDatetimeVal", value=_str)
         self.assertIsInstance(_dt, datetime.datetime)
         self.assertEqual(_dt, datetime.datetime(2025, 1, 2, 12, 34, 56, 789000))
 
-    def string_MMDDYYYY_dashesCase(self):
+    def test_string_MMDDYYYY_dashes(self):
         _str = "01-02-2025 12:34:56.789000"
         _dt = conversions.time.ToDatetime(name="ToDatetimeVal", value=_str)
         self.assertIsInstance(_dt, datetime.datetime)
         self.assertEqual(_dt, datetime.datetime(2025, 1, 2, 12, 34, 56, 789000))
 
-    def string_MMDDYYYY_slashesCase(self):
+    def test_string_MMDDYYYY_slashes(self):
         _str = "01/02/2025 12:34:56.789000"
         _dt = conversions.time.ToDatetime(name="ToDatetimeVal", value=_str)
         self.assertIsInstance(_dt, datetime.datetime)
         self.assertEqual(_dt, datetime.datetime(2025, 1, 2, 12, 34, 56, 789000))
 
-    def string_YYYYMMDD_dashes_notimeCase(self):
+    def test_string_YYYYMMDD_dashes_notime(self):
         _str = "2025-01-02"
         _dt = conversions.time.ToDatetime(name="ToDatetimeVal", value=_str)
         self.assertIsInstance(_dt, datetime.datetime)
         self.assertEqual(_dt, datetime.datetime(2025, 1, 2, 0, 0, 0, 0))
 
-class test_ToTimedelta(TestCase):
-    def normal_timedeltaCase(self):
+class ToTimedeltaCase(TestCase):
+    def test_normal_timedelta(self):
         _val = datetime.timedelta(hours=1)
         _td = conversions.time.ToTimedelta(name="ToTimedeltaVal", value=_val)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, _val)
 
-    def HHMMSSCase(self):
+    def test_HHMMSS(self):
         _str = "1:02:03.456000"
         _td = conversions.time.ToTimedelta(name="ToTimedeltaVal", value=_str)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, datetime.timedelta(hours=1, minutes=2, seconds=3, microseconds=456000))
 
-    def HHMMSS_negativeCase(self):
+    def test_HHMMSS_negative(self):
         _str = "-1:02:03.456000"
         _td = conversions.time.ToTimedelta(name="ToTimedeltaVal", value=_str)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, -datetime.timedelta(hours=1, minutes=2, seconds=3, microseconds=456000))
 
-    def DHHMMSSCase(self):
+    def test_DHHMMSS(self):
         _str = "1 day, 2:03:04.456000"
         _td = conversions.time.ToTimedelta(name="ToTimedeltaVal", value=_str)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, datetime.timedelta(days=1, hours=2, minutes=3, seconds=4, microseconds=456000))
 
-    def DHHMMSS_negativeCase(self):
+    def test_DHHMMSS_negative(self):
         _str = "-1 day, 2:03:04.456000"
         _td = conversions.time.ToTimedelta(name="ToTimedeltaVal", value=_str)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, -datetime.timedelta(days=1, hours=2, minutes=3, seconds=4, microseconds=456000))
 
-class test_ToTimezone(TestCase):
-    def normal_timezoneCase(self):
+class ToTimezoneCase(TestCase):
+    def test_normal_timezone(self):
         _val = datetime.timezone(datetime.timedelta(hours=1))
         _tz = conversions.time.ToTimezone(name="ToTimezoneVal", value=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, _val)
 
-    def timezone_strCase(self):
+    def test_timezone_str(self):
         _val = "6:00:00"
         _tz = conversions.time.ToTimezone(name="ToTimezoneVal", value=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=21600)))
 
-    def timezone_bad_strCase(self):
+    def test_timezone_bad_str(self):
         _val = "-1 day, 23:59:45.600000"
         _tz = conversions.time.ToTimezone(name="ToTimezoneVal", value=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-86385.6)))
 
-class test_TimedeltaFromString(TestCase):
-    def HHMMSSCase(self):
+class TimedeltaFromStringCase(TestCase):
+    def test_HHMMSS(self):
         _str = "1:02:03.456000"
         _td = conversions.time.TimedeltaFromString(time_str=_str)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, datetime.timedelta(hours=1, minutes=2, seconds=3, microseconds=456000))
 
-    def HHMMSS_negativeCase(self):
+    def test_HHMMSS_negative(self):
         _str = "-1:02:03.456000"
         _td = conversions.time.TimedeltaFromString(time_str=_str)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, -datetime.timedelta(hours=1, minutes=2, seconds=3, microseconds=456000))
 
-    def DHHMMSSCase(self):
+    def test_DHHMMSS(self):
         _str = "1 day, 2:03:04.456000"
         _td = conversions.time.TimedeltaFromString(time_str=_str)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, datetime.timedelta(days=1, hours=2, minutes=3, seconds=4, microseconds=456000))
 
-    def multiday_DHHMMSS_negativeCase(self):
+    def test_multiday_DHHMMSS_negative(self):
         _str = "-2 days, 2:03:04.456000"
         _td = conversions.time.TimedeltaFromString(time_str=_str)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, -datetime.timedelta(days=2, hours=2, minutes=3, seconds=4, microseconds=456000))
 
-    def multiday_DHHMMSSCase(self):
+    def test_multiday_DHHMMSS(self):
         _str = "2 days, 2:03:04.456000"
         _td = conversions.time.TimedeltaFromString(time_str=_str)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, datetime.timedelta(days=2, hours=2, minutes=3, seconds=4, microseconds=456000))
 
-    def DHHMMSS_negativeCase(self):
+    def test_DHHMMSS_negative(self):
         _str = "-1 day, 2:03:04.456000"
         _td = conversions.time.TimedeltaFromString(time_str=_str)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, -datetime.timedelta(days=1, hours=2, minutes=3, seconds=4, microseconds=456000))
 
-    def HHMMCase(self):
+    def test_HHMM(self):
         _val = "1:23"
         _td = conversions.time.TimedeltaFromString(time_str=_val)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, datetime.timedelta(seconds=4980))
 
-    def negative_HHMMCase(self):
+    def test_negative_HHMM(self):
         _val = "-1:23"
         _td = conversions.time.TimedeltaFromString(time_str=_val)
         self.assertIsInstance(_td, datetime.timedelta)
         self.assertEqual(_td, datetime.timedelta(seconds=-4980))
 
-class test_TimezoneFromString(TestCase):
-    def HHMMSSCase(self):
+class TimezoneFromStringCase(TestCase):
+    def test_HHMMSS(self):
         _val = "6:00:00"
         _tz = conversions.time.TimezoneFromString(time_str=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=21600)))
 
-    def negative_HHMMSSCase(self):
+    def test_negative_HHMMSS(self):
         _val = "-6:00:00"
         _tz = conversions.time.TimezoneFromString(time_str=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-21600)))
 
-    def HHMMCase(self):
+    def test_HHMM(self):
         _val = "6:00"
         _tz = conversions.time.TimezoneFromString(time_str=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=21600)))
 
-    def negative_HHMMCase(self):
+    def test_negative_HHMM(self):
         _val = "-6:00"
         _tz = conversions.time.TimezoneFromString(time_str=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-21600)))
 
-    def utc_HHMMSSCase(self):
+    def test_utc_HHMMSS(self):
         _val = "UTC+6:00:00"
         _tz = conversions.time.TimezoneFromString(time_str=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=21600)))
 
-    def utc_negative_HHMMSSCase(self):
+    def test_utc_negative_HHMMSS(self):
         _val = "UTC-6:00:00"
         _tz = conversions.time.TimezoneFromString(time_str=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-21600)))
 
-    def utc_HHMMCase(self):
+    def test_utc_HHMM(self):
         _val = "UTC+6:00"
         _tz = conversions.time.TimezoneFromString(time_str=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=21600)))
 
-    def utc_negative_HHMMCase(self):
+    def test_utc_negative_HHMM(self):
         _val = "UTC-6:00"
         _tz = conversions.time.TimezoneFromString(time_str=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-21600)))
 
-    def _DHHMMSSCase(self):
+    def test__DHHMMSS(self):
         _val = "-1 day, 23:59:45.600000"
         _tz = conversions.time.TimezoneFromString(time_str=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-86385.6)))
 
-    def multiday_DHHMMSSCase(self):
+    def test_multiday_DHHMMSS(self):
         _val = "-2 days, 23:59:45.600000"
         _tz = conversions.time.TimezoneFromString(time_str=_val)
         self.assertIsInstance(_tz, datetime.timezone)
         self.assertEqual(_tz, datetime.timezone(offset=datetime.timedelta(seconds=-86385.6)))
 
-class test_ToList(TestCase):
-    def normal_listCase(self):
+class ToListCase(TestCase):
+    def test_normal_list(self):
         _elems = [1, 2.2, "3"]
         _list = conversions.ToList(name="ToListVal", value=_elems)
         self.assertIsInstance(_list, list)
         self.assertEqual(_list, _elems)
 
-    def dictstringCase(self):
+    def test_dictstring(self):
         _elems = [1, 2.2, "3"]
         _elems_str = '[1, 2.2, "3"]'
         _list = conversions.ToList(name="ToListVal", value=_elems_str)
         self.assertIsInstance(_list, list)
         self.assertEqual(_list, _elems)
 
-    def nullstringCase(self):
+    def test_nullstring(self):
         with self.subTest(msg="ToList: string = 'None'"):
             _str = "None"
             _list = conversions.ToList(name="ToListVal", value=_str)
@@ -365,18 +365,18 @@ class test_ToList(TestCase):
             _list = conversions.ToList(name="ToListVal", value=_str)
             self.assertIsNone(_list)
 
-    def nonlistCase(self):
+    def test_nonlist(self):
         _val = 42
         _list = conversions.ToList(name="ToListVal", value=_val)
         self.assertIsNone(_list)
 
-    def bad_liststringCase(self):
+    def test_bad_liststring(self):
         _elems = "['foo', bar]"
         _list = conversions.ToList(name="ToListVal", value=_elems)
         self.assertIsNone(_list)
 
-class test_ToJSON(TestCase):
-    def normal_dictCase(self):
+class ToJSONCase(TestCase):
+    def test_normal_dict(self):
         _elems = {
             "foo":1,
             "bar":2.2,
@@ -386,7 +386,7 @@ class test_ToJSON(TestCase):
         self.assertIsInstance(_dict, dict)
         self.assertEqual(_dict, _elems)
 
-    def dictstringCase(self):
+    def test_dictstring(self):
         _elems = {
             "foo":1,
             "bar":2.2,
@@ -401,7 +401,7 @@ class test_ToJSON(TestCase):
         self.assertIsInstance(_dict, dict)
         self.assertEqual(_dict, _elems)
 
-    def nullstringCase(self):
+    def test_nullstring(self):
         with self.subTest(msg="ToJSON: string = 'None'"):
             _str = "None"
             _dict = conversions.ToJSON(name="ToJSONVal", value=_str)
@@ -415,12 +415,12 @@ class test_ToJSON(TestCase):
             _dict = conversions.ToJSON(name="ToJSONVal", value=_str)
             self.assertIsNone(_dict)
 
-    def nondictCase(self):
+    def test_nondict(self):
         _val = 42
         _dict = conversions.ToJSON(name="ToJSONVal", value=_val)
         self.assertIsNone(_dict)
 
-    def bad_dictstringCase(self):
+    def test_bad_dictstring(self):
         _elems = "{ 'foo':bar }"
         _dict = conversions.ToJSON(name="ToJSONVal", value=_elems)
         self.assertIsNone(_dict)
