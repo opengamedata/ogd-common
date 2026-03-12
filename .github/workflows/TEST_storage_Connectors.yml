@@ -45,12 +45,17 @@ jobs:
     - name: Set up Config File
       uses: ./.github/actions/test_config
       with:
-          verbose_output: "True"
-          with_schemas: "True"
+        verbose_output: "True"
+        with_schemas: "True"
+        sql_user: ${{secrets.SQL_USER}}
+        sql_pass: ${{secrets.SQL_PASS}}
+        ssh_host: ${{vars.FD_STORE_HOST}}
+        ssh_user: ${{secrets.VPN_USER}}
+        ssh_pass: ${{secrets.VPN_PASS}}
 
   # 2. Build & configure remote environments
     - name: Connect to VPN
-      if: ${{ matrix.testbed }} == 'test_MySQLConnector'
+      if: ${{ matrix.testbed == 'test_MySQLConnector' }}
       uses: opengamedata/actions-openconnect-vpn@v1.1
       with:
         username: ${{ secrets.VPN_USER }}
