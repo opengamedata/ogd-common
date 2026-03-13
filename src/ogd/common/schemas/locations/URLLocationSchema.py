@@ -75,7 +75,7 @@ class URLLocationSchema(LocationSchema):
     @property
     def Location(self) -> str:
         # _port = f":{self.Port}" if self.Port else ""
-        return urlunparse(self._url)
+        return self._url.geturl()
 
     @property
     def AsMarkdown(self) -> str:
