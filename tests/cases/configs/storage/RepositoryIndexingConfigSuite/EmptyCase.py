@@ -51,11 +51,47 @@ class EmptyCase(TestCase):
 
     # *** Tests for _parseLocalDir ***
 
-    def test_parseLocalDir(self):
+    def test_parseLocalDir_str(self):
         unparsed_elements = { "LOCAL_DIR" : "./data/" }
         result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
         self.assertIsInstance(result, DirectoryLocationSchema)
         self.assertEqual(result.FolderPath, Path("./data"))
+
+    def test_parseLocalDir_path(self):
+        unparsed_elements = { "LOCAL_DIR" : Path("./data") }
+        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        self.assertIsInstance(result, DirectoryLocationSchema)
+        self.assertEqual(result.FolderPath, Path("./data"))
+
+    def test_parseLocalDir_dict(self):
+        unparsed_elements = { "LOCAL_DIR" : {"folder":"./data"} }
+        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        self.assertIsInstance(result, DirectoryLocationSchema)
+        self.assertEqual(result.FolderPath, Path("./data"))
+
+    def test_parseLocalDir_key_filesbase(self):
+        unparsed_elements = { "files_base" : "./data/" }
+        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        self.assertIsInstance(result, DirectoryLocationSchema)
+        self.assertEqual(result.FolderPath, Path("./data"))
+
+    def test_parseLocalDir_key_folder(self):
+        unparsed_elements = { "folder" : "./data/" }
+        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        self.assertIsInstance(result, DirectoryLocationSchema)
+        self.assertEqual(result.FolderPath, Path("./data"))
+
+    def test_parseLocalDir_key_path(self):
+        unparsed_elements = { "path" : "./data/" }
+        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        self.assertIsInstance(result, DirectoryLocationSchema)
+        self.assertEqual(result.FolderPath, Path("./data"))
+
+    def test_parseLocalDir_missing(self):
+        unparsed_elements = { "fakekey" : "foo" }
+        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        self.assertIsInstance(result, DirectoryLocationSchema)
+        self.assertEqual(result, RepositoryIndexingConfig._DEFAULT_LOCAL_DIR)
 
     # *** Tests for _parseRemoteURL ***
 
@@ -93,7 +129,7 @@ class EmptyCase(TestCase):
         self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu:443/")
         self.assertNotIn("remote_url", _map)
 
-    def test_parseRemoteURL_altkey(self):
+    def test_parseRemoteURL_key_url(self):
         """Test parsing URL from the secondary key option, i.e. "url"
         """
         _map = {
@@ -104,6 +140,16 @@ class EmptyCase(TestCase):
         self.assertIsInstance(url, URLLocationSchema)
         self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
         self.assertNotIn("url", _map)
+
+    def test_parseRemoteURL_missing(self):
+        """Test that we get default remote URL when it's missing from the dict
+        """
+        _map = {
+            "fakekey" : "Bar"
+        }
+        url = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=_map)
+        self.assertIsInstance(url, URLLocationSchema)
+        self.assertEqual(url, RepositoryIndexingConfig._DEFAULT_REMOTE_URL)
 
     # *** Tests for _parseTemplatesURL ***
 
@@ -141,7 +187,7 @@ class EmptyCase(TestCase):
         self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu:443/")
         self.assertNotIn("templates_url", _map)
 
-    def test_parseTemplatesURL_tempbasekey(self):
+    def test_parseTemplatesURL_key_tempbase(self):
         """Test parsing URL from the secondary key option, i.e. "templates_base"
         """
         _map = {
@@ -153,7 +199,7 @@ class EmptyCase(TestCase):
         self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
         self.assertNotIn("templates_base", _map)
 
-    def test_parseTemplatesURL_urlkey(self):
+    def test_parseTemplatesURL_key_url(self):
         """Test parsing URL from the secondary key option, i.e. "url"
         """
         _map = {
@@ -163,4 +209,15 @@ class EmptyCase(TestCase):
         url = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=_map)
         self.assertIsInstance(url, URLLocationSchema)
         self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
+        self.assertNotIn("url", _map)
+
+    def test_parseTemplatesURL_missing(self):
+        """Test that we get default templates URL when missing from dict.
+        """
+        _map = {
+            "fakekey" : "Bar"
+        }
+        url = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=_map)
+        self.assertIsInstance(url, URLLocationSchema)
+        self.assertEqual(url, RepositoryIndexingConfig._DEFAULT_TEMPLATE_URL)
         self.assertNotIn("url", _map)
