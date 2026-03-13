@@ -24,6 +24,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/TEST_Configs.yml
 
+  testbed_storage_configs:
+    name: Storage Config Testbeds
+    needs: build
+    uses: ./.github/workflows/TEST_configs_StorageConfigs.yml
+
   # Run testbeds in models module
 
   testbed_models:
