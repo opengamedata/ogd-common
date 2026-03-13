@@ -6,11 +6,14 @@ on:
   workflow_call:
   push:
     paths:
-    - '.github/workflows/TEST_schemas_Schema.yml'
+    # repo-wide dependencies
     - '.github/actions/test_config/**'
-    - 'tests/cases/schemas/t_Schema.py'
     - 'tests/config/**'
     - 'requirements.txt'
+    # specific dependencies
+    - '.github/workflows/TEST_schemas_Schema.yml'
+    - 'tests/cases/schemas/SchemaSuite/**'
+    - 'tests/data/schemas/**'
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-Schema
@@ -44,8 +47,8 @@ jobs:
     - name: Execute testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/schemas"
-        test_file: "test_Schema.py"
+        directory: "tests/cases/schemas/SchemaSuite"
+        test_file: "*Case.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete

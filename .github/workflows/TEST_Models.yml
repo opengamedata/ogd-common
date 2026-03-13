@@ -6,11 +6,14 @@ on:
   workflow_call:
   push:
     paths:
-    - '.github/workflows/TEST_Models.yml'
+    # repo-wide dependencies
     - '.github/actions/test_config/**'
-    - 'tests/cases/models/config/*.py'
     - 'tests/config/**'
     - 'requirements.txt'
+    # specific dependencies
+    - '.github/workflows/TEST_Models.yml'
+    - 'tests/cases/models/**'
+    - 'tests/data/models/**'
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-Models
@@ -24,11 +27,11 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          test_DatasetKey,
-          test_Event,
-          test_EventSet,
-          test_Feature,
-          test_SemanticVersion,
+          DatasetKeySuite,
+          EventSetSuite,
+          EventSuite,
+          FeatureSuite,
+          SemanticVersionSuite,
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20
@@ -55,8 +58,8 @@ jobs:
     - name: Execute ${{ matrix.testbed }} Testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/models"
-        test_file: "${{ matrix.testbed }}.py"
+        directory: "tests/cases/models/${{ matrix.testbed }}"
+        test_file: "*Case.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete

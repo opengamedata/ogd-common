@@ -6,11 +6,13 @@ on:
   workflow_call:
   push:
     paths:
-    - '.github/workflows/TEST_utils_typing.yml'
+    # repo-wide dependencies
     - '.github/actions/test_config/**'
-    - 'tests/cases/models/config/*.py'
     - 'tests/config/**'
     - 'requirements.txt'
+    # specific dependencies
+    - '.github/workflows/TEST_utils_typing.yml'
+    - 'tests/cases/utils/typing/**'
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-typing
@@ -21,6 +23,13 @@ jobs:
   run_testbeds:
     name: Run `typing` Testbed
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        testbed: [
+          ConversionsSuite,
+        ]
+      fail-fast: false # we don't want to cancel just because one testbed fails.
+      max-parallel: 20
 
     steps:
   # 1. Local checkout 
@@ -44,8 +53,8 @@ jobs:
     - name: Execute typing Testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/utils/typing"
-        test_file: "test_conversions.py"
+        directory: "tests/cases/utils/typing/${{ matrix.testbed }}"
+        test_file: "*Case.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete
