@@ -3,14 +3,11 @@ name: CI Script - OGD Common
 run-name: ${{ format('{0} - {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || 'Manual Run') }}
 on:
   workflow_dispatch:
+  pull_request:
+    types: [opened, reopened]
+    branches: ["main"]
   push:
-    paths:
-    - '.github/workflows/CI_common.yml'
-    - '.github/workflows/BUILD_common.yml'
-    - '.github/actions/**'
-    - 'pyproject.toml'
-    - 'requirements.txt'
-    - 'src/**'
+    branches: ["main"]
 
 jobs:
 
@@ -26,6 +23,11 @@ jobs:
     name: Config Testbeds
     needs: build
     uses: ./.github/workflows/TEST_Configs.yml
+
+  testbed_storage_configs:
+    name: Storage Config Testbeds
+    needs: build
+    uses: ./.github/workflows/TEST_configs_StorageConfigs.yml
 
   # Run testbeds in models module
 

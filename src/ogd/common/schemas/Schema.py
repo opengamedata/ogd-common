@@ -188,18 +188,20 @@ class Schema(abc.ABC):
     def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False, optional_element:bool=False, schema_name:Optional[str]=None) -> Any:
         """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 
-        :param all_elements: A dictionary containing all elements to search through
-        :type all_elements: Map
+        :param unparsed_elements: A dictionary containing all elements to search through
+        :type unparsed_elements: Map
         :param valid_keys: A list of which keys to search for to find the desired element. This function will choose they first key in the list that appears in the `all_elements` dictionary.
         :type valid_keys: List[str]
-        :param value_type: The desired type of value to return, or list of valid types. If a list, the returned value will either be the first type in the list of which the raw value is an instance, or a parsed instance of the first item in the list.
-        :type value_type: Type | List[Type]
+        :param to_type: The desired type of value to return, or list of valid types. If a list, the returned value will either be the first type in the list of which the raw value is an instance, or a parsed instance of the first item in the list.
+        :type to_type: Type | List[Type]
         :param default_value: A default value to return, if a valid value could not be parsed.
         :type default_value: Any
         :param remove_target: Whether to remove the target element, if found; defaults to False.
         :type remove_target: bool, optional
         :param optional_element: Whether the element being parsed should be considered optional, if True then no warning will be given if the element is not found. Defaults to False
         :type optional_element: bool, optional
+        :param schema_name: The name of the schema instance for which an element is being parsed. This is used to make debug output slightly more specific.
+        :type schema_name: str, optional
         :return: The targeted value, with given type; otherwise the given default value.
         :rtype: Any
         """
