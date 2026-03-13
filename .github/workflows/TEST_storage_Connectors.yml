@@ -62,11 +62,6 @@ jobs:
         username: ${{ secrets.VPN_USER }}
         password: ${{ secrets.VPN_PASS }}
         endpoint: "soe.vpn.wisc.edu"
-    - name: Check secret
-      env:
-        BQ_AUTH: ${{ secrets.OGD_ARCHIVER_BQ_KEY }}
-      if: ${{ env.BQ_AUTH == '' }}
-      run: echo "No access to Key"
     - name: Set up Google Cloud
       if: ${{ matrix.testbed == 'BigQueryConnectorSuite' }}
       uses: google-github-actions/auth@v3
