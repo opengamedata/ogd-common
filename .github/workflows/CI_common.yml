@@ -52,6 +52,7 @@ jobs:
     name: Connector Testbeds
     needs: build
     uses: ./.github/workflows/TEST_storage_Connectors.yml
+    secrets: inherit
 
   testbed_interfaces:
     name: Interface Testbeds

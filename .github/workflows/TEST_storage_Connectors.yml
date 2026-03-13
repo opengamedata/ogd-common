@@ -12,7 +12,8 @@ on:
     - 'requirements.txt'
     # specific dependencies
     - '.github/workflows/TEST_storage_Connectors.yml'
-    - 'tests/cases/schemas/tables/**'
+    - 'tests/cases/storage/connectors/**'
+    - 'tests/data/storage/connectors/**'
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-StorageConnectors
@@ -26,8 +27,8 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          test_BigQueryConnector,
-          test_MySQLConnector
+          BigQueryConnectorSuite,
+          MySQLConnectorSuite
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20
@@ -45,25 +46,38 @@ jobs:
     - name: Set up Config File
       uses: ./.github/actions/test_config
       with:
-          verbose_output: "True"
-          with_schemas: "True"
+        verbose_output: "True"
+        with_schemas: "True"
+        sql_user: ${{secrets.SQL_USER}}
+        sql_pass: ${{secrets.SQL_PASS}}
+        ssh_host: ${{vars.FD_STORE_HOST}}
+        ssh_user: ${{secrets.VPN_USER}}
+        ssh_pass: ${{secrets.VPN_PASS}}
 
   # 2. Build & configure remote environments
     - name: Connect to VPN
-      if: ${{ matrix.testbed }} == 'test_MySQLConnector'
+      if: ${{ matrix.testbed == 'MySQLConnectorSuite' }}
       uses: opengamedata/actions-openconnect-vpn@v1.1
       with:
         username: ${{ secrets.VPN_USER }}
         password: ${{ secrets.VPN_PASS }}
         endpoint: "soe.vpn.wisc.edu"
+    - name: Set up Google Cloud
+      if: ${{ matrix.testbed == 'BigQueryConnectorSuite' }}
+      uses: google-github-actions/auth@v3
+      with:
+        project_id: ${{ secrets.OGD_BQ_PROJECT_ID }}
+        credentials_json: ${{ secrets.OGD_ARCHIVER_BQ_KEY }}
+        create_credentials_file: true
+        export_environment_variables: true
 
 
   # 3. Perform export
     - name: Execute ${{ matrix.testbed }} testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/storage/connectors"
-        test_file: "${{ matrix.testbed }}.py"
+        directory: "tests/cases/storage/connectors/${{ matrix.testbed }}"
+        test_file: "*Case.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete

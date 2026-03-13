@@ -12,7 +12,8 @@ on:
     - 'requirements.txt'
     # specific dependencies
     - '.github/workflows/TEST_Configs.yml'
-    - 'tests/cases/configs/*.py'
+    - 'tests/cases/configs/**'
+    - 'tests/data/configs/**'
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-Configs
@@ -21,27 +22,27 @@ concurrency:
 jobs:
 
   run_testbeds:
-    name: Run Config Schema Testbeds
+    name: Run ${{ matrix.testbed }} Tests
     runs-on: ubuntu-22.04
     strategy:
       matrix:
         testbed: [
-          test_DataTableConfig,
-          test_IndexingConfig,
-          test_TestConfig,
+          DataTableConfigSuite,
+          IndexingConfigSuite,
+          TestConfigSuite,
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20
 
     steps:
   # 1. Local checkout 
-    - name: Checkout repository
+    - name: Checkout Repository
       uses: actions/checkout@v4
     - name: Get Dependencies
       uses: opengamedata/setup-ogd-py-dependencies@v1.2
       with:
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
-    - name: Local self-install
+    - name: Local Self-Install
       run: python -m pip install -e .
     - name: Set up Config File
       uses: ./.github/actions/test_config
@@ -52,11 +53,11 @@ jobs:
   # 2. Build & configure remote environments
 
   # 3. Perform work
-    - name: Execute ${{ matrix.testbed }} testbed
+    - name: Execute Test Cases
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/configs"
-        test_file: "${{ matrix.testbed }}.py"
+        directory: "tests/cases/configs/${{ matrix.testbed }}"
+        test_file: "*Case.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete
