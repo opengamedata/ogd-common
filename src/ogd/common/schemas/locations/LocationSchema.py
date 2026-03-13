@@ -28,6 +28,9 @@ class LocationSchema(Schema):
     def __str__(self) -> str:
         return self.Location
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}[{self.Location}]"
+
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     # *** PUBLIC STATICS ***

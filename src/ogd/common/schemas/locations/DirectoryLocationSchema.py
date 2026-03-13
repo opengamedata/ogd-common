@@ -44,9 +44,6 @@ class DirectoryLocationSchema(LocationSchema):
         self._folder_path = self._toFolderPath(folder_path=folder_path, fallbacks=fallbacks, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
 
-    def __repr__(self):
-        return f"{self.__class__.__name__}[{self.Location}]"
-
     @property
     def FolderPath(self) -> Path:
         """The path of the folder containing the file located by this schema.
