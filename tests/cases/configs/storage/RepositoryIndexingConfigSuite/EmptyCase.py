@@ -93,6 +93,12 @@ class EmptyCase(TestCase):
         self.assertIsInstance(result, DirectoryLocationSchema)
         self.assertEqual(result, RepositoryIndexingConfig._DEFAULT_LOCAL_DIR)
 
+    def test_parseLocalDir_badtype(self):
+        unparsed_elements = { "LOCAL_DIR" : 42 }
+        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        self.assertIsInstance(result, DirectoryLocationSchema)
+        self.assertEqual(result, RepositoryIndexingConfig._DEFAULT_LOCAL_DIR)
+
     # *** Tests for _parseRemoteURL ***
 
     def test_parseRemoteURL_str(self):
