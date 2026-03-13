@@ -49,16 +49,118 @@ class EmptyCase(TestCase):
         self.assertIsInstance(_schema.TemplatesURL, URLLocationSchema)
         self.assertEqual(_schema.TemplatesURL.Location, "https://github.com/opengamedata/opengamedata-samples")
 
+    # *** Tests for _parseLocalDir ***
+
     def test_parseLocalDir(self):
         unparsed_elements = { "LOCAL_DIR" : "./data/" }
         result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
         self.assertIsInstance(result, DirectoryLocationSchema)
         self.assertEqual(result.FolderPath, Path("./data"))
 
-    @unittest.skip("Not yet implemented")
-    def test_parseRemoteURL(self):
-        pass
+    # *** Tests for _parseRemoteURL ***
 
-    @unittest.skip("Not yet implemented")
+    def test_parseRemoteURL_str(self):
+        _map = {
+            "remote_url":"https://opengamedata.fielddaylab.wisc.edu/",
+            "fakekey" : "Bar"
+        }
+        url = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=_map)
+        self.assertIsInstance(url, URLLocationSchema)
+        self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
+        self.assertNotIn("remote_url", _map)
+
+    def test_parseRemoteURL_urldict(self):
+        _map = {
+            "remote_url":{"url":"https://opengamedata.fielddaylab.wisc.edu/"},
+            "fakekey" : "Bar"
+        }
+        url = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=_map)
+        self.assertIsInstance(url, URLLocationSchema)
+        self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
+        self.assertNotIn("remote_url", _map)
+
+    def test_parseRemoteURL_spliturldict(self):
+        _map = {
+            "remote_url" : {
+                "scheme" : "https",
+                "host" : "opengamedata.fielddaylab.wisc.edu",
+                "port" : 443
+            },
+            "fakekey" : "Bar"
+        }
+        url = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=_map)
+        self.assertIsInstance(url, URLLocationSchema)
+        self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu:443/")
+        self.assertNotIn("remote_url", _map)
+
+    def test_parseRemoteURL_altkey(self):
+        """Test parsing URL from the secondary key option, i.e. "url"
+        """
+        _map = {
+            "url":"https://opengamedata.fielddaylab.wisc.edu/",
+            "fakekey" : "Bar"
+        }
+        url = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=_map)
+        self.assertIsInstance(url, URLLocationSchema)
+        self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
+        self.assertNotIn("url", _map)
+
+    # *** Tests for _parseTemplatesURL ***
+
     def test_parseTemplatesURL(self):
-        pass
+        _map = {
+            "templates_url":"https://opengamedata.fielddaylab.wisc.edu/",
+            "fakekey" : "Bar"
+        }
+        url = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=_map)
+        self.assertIsInstance(url, URLLocationSchema)
+        self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
+        self.assertNotIn("templates_url", _map)
+
+    def test_parseTemplatesURL_urldict(self):
+        _map = {
+            "templates_url":{"url":"https://opengamedata.fielddaylab.wisc.edu/"},
+            "fakekey" : "Bar"
+        }
+        url = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=_map)
+        self.assertIsInstance(url, URLLocationSchema)
+        self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
+        self.assertNotIn("templates_url", _map)
+
+    def test_parseTemplatesURL_spliturldict(self):
+        _map = {
+            "templates_url" : {
+                "scheme" : "https",
+                "host" : "opengamedata.fielddaylab.wisc.edu",
+                "port" : 443
+            },
+            "fakekey" : "Bar"
+        }
+        url = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=_map)
+        self.assertIsInstance(url, URLLocationSchema)
+        self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu:443/")
+        self.assertNotIn("templates_url", _map)
+
+    def test_parseTemplatesURL_tempbasekey(self):
+        """Test parsing URL from the secondary key option, i.e. "templates_base"
+        """
+        _map = {
+            "templates_base":"https://opengamedata.fielddaylab.wisc.edu/",
+            "fakekey" : "Bar"
+        }
+        url = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=_map)
+        self.assertIsInstance(url, URLLocationSchema)
+        self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
+        self.assertNotIn("templates_base", _map)
+
+    def test_parseTemplatesURL_urlkey(self):
+        """Test parsing URL from the secondary key option, i.e. "url"
+        """
+        _map = {
+            "url":"https://opengamedata.fielddaylab.wisc.edu/",
+            "fakekey" : "Bar"
+        }
+        url = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=_map)
+        self.assertIsInstance(url, URLLocationSchema)
+        self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
+        self.assertNotIn("url", _map)
