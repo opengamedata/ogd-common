@@ -211,7 +211,7 @@ class RepositoryIndexingConfig(Config):
 
         raw_url = RepositoryIndexingConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["templates_url", "url"],
+            valid_keys=["templates_url", "templates_base", "url"],
             to_type=[str, dict],
             default_value=None,
             remove_target=True,
