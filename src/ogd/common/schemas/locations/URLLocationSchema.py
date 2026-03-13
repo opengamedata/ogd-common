@@ -48,6 +48,12 @@ class URLLocationSchema(LocationSchema):
         self._url = self._toURL(url=url, fallbacks=fallbacks, schema_name=name)
         super().__init__(name=name, other_elements=fallbacks)
 
+    def __eq__(self, value: object) -> bool:
+        return str(self) == str(value)
+
+    def __str__(self) -> str:
+        return self._url.geturl()
+
     @property
     def Scheme(self) -> str:
         return self._url.scheme or self._DEFAULT_SCHEME
