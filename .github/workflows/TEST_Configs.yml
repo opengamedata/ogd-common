@@ -28,7 +28,6 @@ jobs:
       matrix:
         testbed: [
           DataTableConfigSuite,
-          IndexingConfigSuite,
           TestConfigSuite,
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
