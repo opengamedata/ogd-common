@@ -11,7 +11,7 @@ on:
     - 'tests/config/**'
     - 'requirements.txt'
     # specific dependencies
-    - '.github/workflows/TEST_Configs.yml'
+    - '.github/workflows/TEST_configs_StorageConfigs.yml'
     - 'tests/cases/configs/**'
     - 'tests/data/configs/**'
 
@@ -27,8 +27,7 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          DataTableConfigSuite,
-          TestConfigSuite,
+          RepositoryIndexingConfigSuite,
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20
@@ -55,7 +54,7 @@ jobs:
     - name: Execute Test Cases
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/configs/${{ matrix.testbed }}"
+        directory: "tests/cases/configs/storage/${{ matrix.testbed }}"
         test_file: "*Case.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
