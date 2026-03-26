@@ -45,10 +45,10 @@ class OGDBigQueryCase(TestCase):
         _elems = {
             "DB_TYPE"    : "BIGQUERY",
             "PROJECT_ID" : "wcer-field-day-ogd-1798",
-            "PROJECT_KEY": "./tests/config/ogd.json"
+            "PROJECT_KEY": "./config/ogd.json"
         }
         store_config = BigQueryConfig.FromDict(name="OPENGAMEDATA_BQ", unparsed_elements=_elems)
-        table_schema = EventTableSchema.FromFile(file_name="OPENGAMEDATA_BIGQUERY.json", directory="./tests/config/")
+        table_schema = EventTableSchema.FromFile(file_name="OPENGAMEDATA_BIGQUERY.json", directory="./config/")
         _elems = { "source":"OPENGAMEDATA_BQ", "database":"aqualab", "table":"reference", "schema":"OPENGAMEDATA_BIGQUERY" }
 
         config = DataTableConfig.FromDict(name="BQStoreConfig", unparsed_elements=_elems)
