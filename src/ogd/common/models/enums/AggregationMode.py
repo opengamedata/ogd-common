@@ -1,7 +1,7 @@
 # import standard libraries
 from enum import IntEnum
 
-class ExtractionMode(IntEnum):
+class AggregationMode(IntEnum):
     """Simple enum to represent the different levels of granularity at which extractions can be carried out:
     Session, Player, Population.
 
