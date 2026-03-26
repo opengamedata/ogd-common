@@ -97,7 +97,7 @@ class EmptyCase(TestCase):
         unparsed_elements = { "LOCAL_DIR" : 42 }
         result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
         self.assertIsInstance(result, DirectoryLocationSchema)
-        self.assertEqual(result, "42")
+        self.assertEqual(result, RepositoryIndexingConfig._DEFAULT_LOCAL_DIR)
 
     # *** Tests for _parseRemoteURL ***
 
