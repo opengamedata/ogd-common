@@ -32,11 +32,6 @@ class BasicInitCase(TestCase):
         Since this class currently just tests properties, we go ahead and use a single instance of `TestConfig` shared across the class.
         If any tests are added that have expected side effects, initialization of the instance should be moved to a `setUp(self)` function.
         """
-        _enabled = {
-            "INTERFACES":False,
-            "SCHEMAS":True,
-            "UTILS":True
-        }
         cls.test_schema = TestConfigLocal(
             name="Local Test Config Schema",
             verbose=True,

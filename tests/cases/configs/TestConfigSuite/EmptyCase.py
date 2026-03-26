@@ -32,25 +32,13 @@ class EmptyCase(TestCase):
         """
         _dict = {
             "VERBOSE" : False,
-            "ENABLED" : {
-                "INTERFACES":False,
-                "SCHEMAS":True,
-                "UTILS":True
-            },
             "REMOTE_ADDRESS" : "127.0.0.1:5000"
-        }
-        _enabled = {
-            "INTERFACES":False,
-            "SCHEMAS":True,
-            "UTILS":True
         }
         _schema = TestConfigLocal.FromDict(name="Local Test Config Schema", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "Local Test Config Schema")
         self.assertIsInstance(_schema.Verbose, bool)
         self.assertEqual(_schema.Verbose, False)
-        self.assertIsInstance(_schema.EnabledTests, dict)
-        self.assertEqual(_schema.EnabledTests, _enabled)
 
     @unittest.skip("Not yet implemented")
     def test_parseLocalDir(self):
