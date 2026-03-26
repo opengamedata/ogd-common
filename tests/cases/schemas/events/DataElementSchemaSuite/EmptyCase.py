@@ -7,7 +7,7 @@ from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.schemas.events.DataElementSchema import DataElementSchema
-from tests.config.t_config import settings
+from config.t_config import settings
 
 def setUpModule():
     _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)

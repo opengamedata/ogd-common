@@ -188,6 +188,23 @@ class Schema(abc.ABC):
     def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False, optional_element:bool=False, schema_name:Optional[str]=None) -> Any:
         """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 
+        The general `ParseElement` function uses the `conversions.ConvertToType(...)` function under the hood.
+        This function handles conversion to certain data types, from certain other data types.
+        The table below indicates what types are supported, and what the can be converted from:
+        | Target Type | Supported `type(value)`               |
+        | ---         | ---                                   |
+        | bool        | bool, int, float, str                 |
+        | str         | str, any type implementing `__str__`  |
+        | int         | int, float, str                       |
+        | float       | int, float, str                       |
+        | Path        | pathlib.Path, str                     |
+        | date        | date, datetime, str, Pandas timestamp |
+        | datetime    | date, datetime, str, Pandas timestamp |
+        | timedelta   | time, timedelta, str, int, Pandas timedelta |
+        | timezone    | timezone, timedelta, str              |
+        | dict/json   | dict, str (valid JSON strings)        |
+        | list        | List, str                             |
+
         :param unparsed_elements: A dictionary containing all elements to search through
         :type unparsed_elements: Map
         :param valid_keys: A list of which keys to search for to find the desired element. This function will choose they first key in the list that appears in the `all_elements` dictionary.

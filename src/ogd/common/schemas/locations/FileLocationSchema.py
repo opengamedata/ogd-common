@@ -201,6 +201,7 @@ class FileLocationSchema(LocationSchema):
             to_type=Path,
             default_value=None,
             remove_target=True,
+            optional_element=True,
             schema_name=schema_name
         )
         if raw_path:

@@ -10,7 +10,7 @@ from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.storage.connectors.MySQLConnector import MySQLConnector
 from ogd.common.utils.Logger import Logger
 # import locals
-from tests.config.t_config import settings
+from config.t_config import settings
 
 def setUpModule():
     _testing_cfg = TestConfig.FromDict(name="MySQLTestConfig", unparsed_elements=settings)

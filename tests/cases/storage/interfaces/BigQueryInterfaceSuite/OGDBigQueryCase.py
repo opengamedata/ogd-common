@@ -18,7 +18,7 @@ from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.storage.interfaces.BigQueryInterface import BigQueryInterface, ParamaterizedClause
 from ogd.common.utils.Logger import Logger
 # import locals
-from tests.config.t_config import settings
+from config.t_config import settings
 
 def setUpModule():
     _testing_cfg = TestConfig.FromDict(name="BQTestConfig", unparsed_elements=settings)
@@ -45,10 +45,13 @@ class OGDBigQueryCase(TestCase):
         _elems = {
             "DB_TYPE"    : "BIGQUERY",
             "PROJECT_ID" : "wcer-field-day-ogd-1798",
-            "PROJECT_KEY": "./tests/config/ogd.json"
+            "PROJECT_KEY": "./config/ogd.json"
         }
         store_config = BigQueryConfig.FromDict(name="OPENGAMEDATA_BQ", unparsed_elements=_elems)
-        table_schema = EventTableSchema.FromFile(file_name="OPENGAMEDATA_BIGQUERY.json", directory="./tests/config/")
+        table_schema = EventTableSchema.FromFile(
+            file_name="OPENGAMEDATA_BIGQUERY.json",
+            directory="./src/ogd/common/schemas/tables/presets"
+        )
         _elems = { "source":"OPENGAMEDATA_BQ", "database":"aqualab", "table":"reference", "schema":"OPENGAMEDATA_BIGQUERY" }
 
         config = DataTableConfig.FromDict(name="BQStoreConfig", unparsed_elements=_elems)

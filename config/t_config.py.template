@@ -1,11 +1,5 @@
 settings = {
     "VERBOSE" : False,
-    "ENABLED" : {
-        "CONFIGS":True,
-        "INTERFACES":True,
-        "SCHEMAS":True,
-        "UTILS":True
-    },
     "REMOTE_ADDRESS" : "address_placeholder",
     "MYSQL_TEST_CONFIG" : {
             "DB_TYPE" : "MySQL",

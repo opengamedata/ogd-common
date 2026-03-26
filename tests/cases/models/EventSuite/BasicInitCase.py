@@ -8,7 +8,7 @@ from ogd.common.models.Event import Event, EventSource
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.utils.Logger import Logger
 # import locals
-from tests.config.t_config import settings
+from config.t_config import settings
 
 def setUpModule():
     _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)

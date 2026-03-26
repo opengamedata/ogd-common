@@ -10,7 +10,7 @@ from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.storage.connectors.BigQueryConnector import BigQueryConnector
 from ogd.common.utils.Logger import Logger
 # import locals
-from tests.config.t_config import settings
+from config.t_config import settings
 
 def setUpModule():
     _testing_cfg = TestConfig.FromDict(name="BQTestConfig", unparsed_elements=settings)
@@ -31,7 +31,7 @@ class test_BigQueryConnector(TestCase):
         _elems = {
             "DB_TYPE"    : "BIGQUERY",
             "PROJECT_ID" : "wcer-field-day-ogd-1798",
-            "PROJECT_KEY": "./tests/config/ogd.json"
+            "PROJECT_KEY": "./config/ogd.json"
         }
         config = BigQueryConfig.FromDict(name="OPENGAMEDATA_BQ", unparsed_elements=_elems)
         self.test_connector = BigQueryConnector(config=config)

@@ -7,7 +7,7 @@ from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.configs.TestConfig import TestConfig as TestConfigLocal
-from tests.config.t_config import settings
+from config.t_config import settings
 
 def setUpModule():
     _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
@@ -32,15 +32,9 @@ class BasicInitCase(TestCase):
         Since this class currently just tests properties, we go ahead and use a single instance of `TestConfig` shared across the class.
         If any tests are added that have expected side effects, initialization of the instance should be moved to a `setUp(self)` function.
         """
-        _enabled = {
-            "INTERFACES":False,
-            "SCHEMAS":True,
-            "UTILS":True
-        }
         cls.test_schema = TestConfigLocal(
             name="Local Test Config Schema",
             verbose=True,
-            enabled_tests=_enabled,
             other_elements={ "foo":"bar" }
         )
 
@@ -53,16 +47,6 @@ class BasicInitCase(TestCase):
         _str = self.test_schema.Verbose
         self.assertIsInstance(_str, bool)
         self.assertEqual(_str, True)
-
-    def test_EnabledTests(self):
-        _enabled = {
-            "INTERFACES":False,
-            "SCHEMAS":True,
-            "UTILS":True
-        }
-        _vals = self.test_schema.EnabledTests
-        self.assertIsInstance(_vals, dict)
-        self.assertEqual(_vals, _enabled)
 
     def test_NonStandardElements(self):
         _elems = {

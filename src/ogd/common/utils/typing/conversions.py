@@ -33,7 +33,25 @@ def Capitalize(value:Any) -> Any:
     return value.upper() if isinstance(value, str) else value
 
 def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed Element") -> Any:
-    """Applies whatever parsing is appropriate based on what type the schema said a column contained.
+    """Function to convert a given value to a specific type, or to one of a list of acceptable types.
+    
+    Applies whatever parsing is appropriate to convert `value` to the type, or None if the type of `value` was incompatible with the conversion.
+    Below is a table of what types are supported as `to_type` targets, and which incoming types are handled when converting to each target type.
+    | Target Type | Supported `type(value)`               |
+    | ---         | ---                                   |
+    | bool        | bool, int, float, str                 |
+    | str         | str, any type implementing `__str__`  |
+    | int         | int, float, str                       |
+    | float       | int, float, str                       |
+    | Path        | pathlib.Path, str                     |
+    | date        | date, datetime, str, Pandas timestamp |
+    | datetime    | date, datetime, str, Pandas timestamp |
+    | timedelta   | time, timedelta, str, int, Pandas timedelta |
+    | timezone    | timezone, timedelta, str              |
+    | dict/json   | dict, str (valid JSON strings)        |
+    | list        | List, str                             |
+
+    TODO : Add a "force" param that is passed down to the "force" param of lower-level functions.
 
     :param value: _description_
     :type value: Any
@@ -396,6 +414,7 @@ def BoolFromString(bool_str:str) -> bool:
 def DatetimeFromString(time_str:str) -> Optional[datetime.datetime]:
     """_summary_
 
+    TODO : Move into `time` module
     TODO : handle null inputs!
     TODO : handle more date formats, or something. I dunno, copied this from another area where we were parsing dates.
 

@@ -9,7 +9,7 @@ from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.utils.typing import conversions
-from tests.config.t_config import settings
+from config.t_config import settings
 
 _testing_cfg = TestConfig.FromDict(name="conversionsTestConfig", unparsed_elements=settings)
 _level     = logging.DEBUG if _testing_cfg.Verbose else logging.INFO

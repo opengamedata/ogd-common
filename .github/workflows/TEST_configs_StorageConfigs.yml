@@ -8,7 +8,7 @@ on:
     paths:
     # repo-wide dependencies
     - '.github/actions/test_config/**'
-    - 'tests/config/**'
+    - 'config/**'
     - 'requirements.txt'
     # specific dependencies
     - '.github/workflows/TEST_configs_StorageConfigs.yml'
@@ -16,7 +16,7 @@ on:
     - 'tests/data/configs/**'
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-Configs
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-StorageConfigs
   cancel-in-progress: true
 
 jobs:
@@ -46,7 +46,6 @@ jobs:
       uses: ./.github/actions/test_config
       with:
           verbose_output: "True"
-          with_schemas: "True"
 
   # 2. Build & configure remote environments
 

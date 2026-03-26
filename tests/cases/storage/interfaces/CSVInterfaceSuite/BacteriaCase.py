@@ -21,7 +21,7 @@ from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.storage.interfaces.CSVInterface import CSVInterface
 from ogd.common.utils.Logger import Logger
 # import locals
-from tests.config.t_config import settings
+from config.t_config import settings
 
 def setUpModule():
     _testing_cfg = TestConfig.FromDict(name="MySQLTestConfig", unparsed_elements=settings)
