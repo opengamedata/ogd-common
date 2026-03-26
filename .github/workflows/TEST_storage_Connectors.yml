@@ -8,7 +8,7 @@ on:
     paths:
     # repo-wide dependencies
     - '.github/actions/test_config/**'
-    - 'tests/config/**'
+    - 'config/**'
     - 'requirements.txt'
     # specific dependencies
     - '.github/workflows/TEST_storage_Connectors.yml'
