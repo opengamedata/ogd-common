@@ -50,7 +50,7 @@ class OGDBigQueryCase(TestCase):
         store_config = BigQueryConfig.FromDict(name="OPENGAMEDATA_BQ", unparsed_elements=_elems)
         table_schema = EventTableSchema.FromFile(
             file_name="OPENGAMEDATA_BIGQUERY.json",
-            directory="./src/common/schemas/tables/presets"
+            directory="./src/ogd/common/schemas/tables/presets"
         )
         _elems = { "source":"OPENGAMEDATA_BQ", "database":"aqualab", "table":"reference", "schema":"OPENGAMEDATA_BIGQUERY" }
 
