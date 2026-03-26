@@ -613,7 +613,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         raw_val : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["events_file"],
-            to_type=[Path, str],
+            to_type=Path,
             default_value=DatasetSchema._DEFAULT_RAW_FILE,
             remove_target=True,
             schema_name=schema_name
@@ -635,7 +635,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         evt_val : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["all_events_file"],
-            to_type=[Path, str],
+            to_type=Path,
             default_value=DatasetSchema._DEFAULT_EVENTS_FILE,
             remove_target=True,
             schema_name=schema_name
@@ -657,7 +657,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         feats_val : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["all_features_file", "features_file"],
-            to_type=[Path, str],
+            to_type=Path,
             default_value=DatasetSchema._DEFAULT_ALL_FEATS_FILE,
             remove_target=True,
             schema_name=schema_name
@@ -679,7 +679,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         sess_val : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["sessions_file"],
-            to_type=[Path, str],
+            to_type=Path,
             default_value=DatasetSchema._DEFAULT_SESSIONS_FILE,
             remove_target=True,
             schema_name=schema_name
@@ -701,7 +701,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         play_val : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["players_file"],
-            to_type=[Path, str],
+            to_type=Path,
             default_value=DatasetSchema._DEFAULT_PLAYERS_FILE,
             remove_target=True,
             schema_name=schema_name
@@ -723,7 +723,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         pop_val : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["population_file"],
-            to_type=[Path, str],
+            to_type=Path,
             default_value=DatasetSchema._DEFAULT_POPULATION_FILE,
             remove_target=True,
             schema_name=schema_name
@@ -746,7 +746,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         events_tplate : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["events_template"],
-            to_type=[Path, str],
+            to_type=Path,
             default_value=DatasetSchema._DEFAULT_EVENTS_TEMPLATE,
             remove_target=True,
             schema_name=schema_name
@@ -768,7 +768,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         all_feats_tplate : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["all_features_template", "features_template"],
-            to_type=[Path, str],
+            to_type=Path,
             default_value=DatasetSchema._DEFAULT_ALL_FEATS_TEMPLATE,
             remove_target=True,
             schema_name=schema_name
@@ -790,7 +790,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         sessions_tplate : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["sessions_template"],
-            to_type=[Path, str],
+            to_type=Path,
             default_value=DatasetSchema._DEFAULT_SESSIONS_TEMPLATE,
             remove_target=True,
             schema_name=schema_name
@@ -812,7 +812,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         players_tplate : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["players_template"],
-            to_type=[Path, str],
+            to_type=Path,
             default_value=DatasetSchema._DEFAULT_PLAYERS_TEMPLATE,
             remove_target=True,
             schema_name=schema_name
@@ -834,7 +834,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         pop_tplate : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["population_template"],
-            to_type=[Path, str],
+            to_type=Path,
             default_value=DatasetSchema._DEFAULT_POPULATION_TEMPLATE,
             remove_target=True,
             schema_name=schema_name
