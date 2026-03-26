@@ -40,7 +40,6 @@ class BasicInitCase(TestCase):
         cls.test_schema = TestConfigLocal(
             name="Local Test Config Schema",
             verbose=True,
-            enabled_tests=_enabled,
             other_elements={ "foo":"bar" }
         )
 
@@ -53,16 +52,6 @@ class BasicInitCase(TestCase):
         _str = self.test_schema.Verbose
         self.assertIsInstance(_str, bool)
         self.assertEqual(_str, True)
-
-    def test_EnabledTests(self):
-        _enabled = {
-            "INTERFACES":False,
-            "SCHEMAS":True,
-            "UTILS":True
-        }
-        _vals = self.test_schema.EnabledTests
-        self.assertIsInstance(_vals, dict)
-        self.assertEqual(_vals, _enabled)
 
     def test_NonStandardElements(self):
         _elems = {
