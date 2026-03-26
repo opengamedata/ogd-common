@@ -14,7 +14,7 @@ class DictionaryOuterface(Outerface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode], out_dict:Optional[OutputDict]):
+    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode | AggregationMode], out_dict:Optional[OutputDict]):
         """Constructor for a DictionaryOuterface, which provides a dictionary for each kind of data being processed
 
         :param game_id: The name of the game whose data is being exported

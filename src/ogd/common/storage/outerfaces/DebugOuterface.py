@@ -22,7 +22,7 @@ class DebugOuterface(Outerface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode]):
+    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode | AggregationMode]):
         super().__init__(export_modes=export_modes, table_config=table_config)
         # self.Open()
 

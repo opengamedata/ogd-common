@@ -42,7 +42,7 @@ class Outerface:
         # raise NotImplementedError(f"{self.__class__.__name__} has not implemented the Location function!")
 
     @abc.abstractmethod
-    def _removeExportMode(self, mode:ExportMode) -> str:
+    def _removeExportMode(self, mode:ExportMode | AggregationMode) -> str:
         # pylint: disable-next=protected-access
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
@@ -140,7 +140,7 @@ class Outerface:
     # def Destination(self, mode:ExportMode):
     #     return self._destination(mode=mode)
 
-    def RemoveExportMode(self, mode:ExportMode):
+    def RemoveExportMode(self, mode:ExportMode | AggregationMode):
         self._removeExportMode(mode)
         self._modes.discard(mode)
         Logger.Log(f"Removed mode {mode} from {type(self).__name__} output.", logging.INFO)
@@ -204,7 +204,7 @@ class Outerface:
         else:
             Logger.Log(f"Could not write events from {type(self).__name__}, outerface was not configured for a Events table!", logging.WARNING, depth=3)
 
-    def WriteFeatures(self, features:FeatureSet, mode:ExportMode, as_pivot:bool=False) -> None:
+    def WriteFeatures(self, features:FeatureSet, mode:AggregationMode, as_pivot:bool=False) -> None:
         if isinstance(self.Config.TableSchema, FeatureTableSchema):
             if mode in self.ExportModes:
                 match (mode):
