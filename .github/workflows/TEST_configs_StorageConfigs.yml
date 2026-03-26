@@ -16,7 +16,7 @@ on:
     - 'tests/data/configs/**'
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-Configs
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-StorageConfigs
   cancel-in-progress: true
 
 jobs:
