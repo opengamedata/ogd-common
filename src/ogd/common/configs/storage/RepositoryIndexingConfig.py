@@ -168,8 +168,6 @@ class RepositoryIndexingConfig(Config):
         if raw_base:
             if isinstance(raw_base, Path):
                 ret_val = DirectoryLocationSchema(name=f"{schema_name}LocalDir", folder_path=raw_base)
-            elif isinstance(raw_base, str):
-                ret_val = DirectoryLocationSchema(name=f"{schema_name}LocalDir", folder_path=Path(raw_base))
             elif isinstance(raw_base, dict):
                 ret_val = DirectoryLocationSchema.FromDict(name=f"{schema_name}LocalDir", unparsed_elements=raw_base)
             else:
