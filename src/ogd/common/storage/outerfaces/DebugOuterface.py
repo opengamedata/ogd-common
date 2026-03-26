@@ -7,6 +7,7 @@ from typing import List, override, Set
 
 # import OGD files
 from ogd.common.configs.DataTableConfig import DataTableConfig
+from ogd.common.models.enums.AggregationMode import AggregationMode
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.storage.outerfaces.Outerface import Outerface
@@ -38,11 +39,11 @@ class DebugOuterface(Outerface):
                 self._display("No longer outputting raw event data to debug stream.")
             case ExportMode.DETECTORS:
                 self._display("No longer outputting processed event data to debug stream.")
-            case ExportMode.SESSION:
+            case AggregationMode.SESSION:
                 self._display("No longer outputting session data to debug stream.")
-            case ExportMode.PLAYER:
+            case AggregationMode.PLAYER:
                 self._display("No longer outputting player data to debug stream.")
-            case ExportMode.POPULATION:
+            case AggregationMode.POPULATION:
                 self._display("No longer outputting population data to debug stream.")
 
     @override

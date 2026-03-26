@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional, Tuple
 
-from ogd.common.models.enums.ExportMode import ExportMode
+from ogd.common.models.enums.AggregationMode import AggregationMode
 from ogd.common.models.GameData import GameData
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapElement
@@ -76,13 +76,13 @@ class Feature(GameData):
         ]
 
     @property
-    def ExportMode(self) -> ExportMode:
+    def AggregationMode(self) -> AggregationMode:
         if self.PlayerID == "*" and self.SessionID == "*":
-            return ExportMode.POPULATION
+            return AggregationMode.POPULATION
         elif self.SessionID == "*":
-            return ExportMode.PLAYER
+            return AggregationMode.PLAYER
         else:
-            return ExportMode.SESSION
+            return AggregationMode.SESSION
 
     @property
     def Name(self) -> str:

@@ -3,7 +3,7 @@ from itertools import chain
 from typing import Callable, List, Optional
 # import local files
 from ogd.common.filters.collections import *
-from ogd.common.models.enums.ExportMode import ExportMode
+from ogd.common.models.enums.AggregationMode import AggregationMode
 from ogd.common.models.Feature import Feature
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.utils.typing import ExportRow
@@ -70,7 +70,7 @@ class FeatureSet:
         :return: _description_
         :rtype: List[Feature]
         """
-        return [feature for feature in self.Features if feature.ExportMode == ExportMode.POPULATION]
+        return [feature for feature in self.Features if feature.AggregationMode == AggregationMode.POPULATION]
     @property
     def PlayerFeatures(self) -> List[Feature]:
         """Property to get the list of all feature objects with a player-level aggregation.
@@ -78,7 +78,7 @@ class FeatureSet:
         :return: _description_
         :rtype: List[Feature]
         """
-        return [feature for feature in self.Features if feature.ExportMode == ExportMode.PLAYER]
+        return [feature for feature in self.Features if feature.AggregationMode == AggregationMode.PLAYER]
     @property
     def SessionFeatures(self) -> List[Feature]:
         """Property to get the list of all feature objects with a session-level aggregation.
@@ -86,7 +86,7 @@ class FeatureSet:
         :return: _description_
         :rtype: List[Feature]
         """
-        return [feature for feature in self.Features if feature.ExportMode == ExportMode.SESSION]
+        return [feature for feature in self.Features if feature.AggregationMode == AggregationMode.SESSION]
 
     def FeatureLines(self, schema:Optional[FeatureTableSchema], as_pivot:bool=True) -> List[ExportRow]:
         """Property to get all the "ExportRow" lines of the features within the set.

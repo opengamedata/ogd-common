@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional, override, Set
 
 # import local files
 from ogd.common.configs.DataTableConfig import DataTableConfig
+from ogd.common.models.enums.AggregationMode import AggregationMode
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.storage.outerfaces.Outerface import Outerface
@@ -55,13 +56,13 @@ class DictionaryOuterface(Outerface):
             case ExportMode.DETECTORS:
                 self._all_evts = []
                 self._out['all_events']  = { "cols" : [], "vals" : self._all_evts }
-            case ExportMode.SESSION:
+            case AggregationMode.SESSION:
                 self._sess = []
                 self._out['sessions']    = { "cols" : [], "vals" : self._sess }
-            case ExportMode.PLAYER:
+            case AggregationMode.PLAYER:
                 self._plrs = []
                 self._out['players']     = { "cols" : [], "vals" : self._plrs }
-            case ExportMode.POPULATION:
+            case AggregationMode.POPULATION:
                 self._pops = []
                 self._out['populations'] = { "cols" : [], "vals" : self._pops }
 

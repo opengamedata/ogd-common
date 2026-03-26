@@ -7,6 +7,7 @@ import sys
 from typing import List, Optional, Set
 
 # import local files
+from ogd.common.models.enums.AggregationMode import AggregationMode
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.models.EventSet import EventSet
 from ogd.common.models.Feature import Feature
@@ -113,16 +114,16 @@ class Outerface:
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode]):
+    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode | AggregationMode]):
         self._config  : DataTableConfig = table_config
-        self._modes   : Set[ExportMode] = export_modes
+        self._modes   : Set[ExportMode | AggregationMode] = export_modes
 
     @property
     def Config(self) -> DataTableConfig:
         return self._config
 
     @property
-    def ExportModes(self) -> Set[ExportMode]:
+    def ExportModes(self) -> Set[ExportMode | AggregationMode]:
         return self._modes
 
     @property
@@ -170,13 +171,13 @@ class Outerface:
                 case ExportMode.FEATURES:
                     self._setupAllFeaturesTable(header=Feature.ColumnNames())
                     Logger.Log(f"Wrote all-features header for {self.Config.TableLocation} features", depth=3)
-                case ExportMode.SESSION:
+                case AggregationMode.SESSION:
                     self._setupSessionTable(header=header or [])
                     Logger.Log(f"Wrote session feature header for {self.Config.TableLocation} sessions", depth=3)
-                case ExportMode.PLAYER:
+                case AggregationMode.PLAYER:
                     self._setupPlayerTable(header=header or [])
                     Logger.Log(f"Wrote player feature header for {self.Config.TableLocation} players", depth=3)
-                case ExportMode.POPULATION:
+                case AggregationMode.POPULATION:
                     self._setupPopulationTable(header=header or [])
                     Logger.Log(f"Wrote population feature header for {self.Config.TableLocation} populations", depth=3)
                 case _:
@@ -207,21 +208,21 @@ class Outerface:
         if isinstance(self.Config.TableSchema, FeatureTableSchema):
             if mode in self.ExportModes:
                 match (mode):
-                    case ExportMode.SESSION:
+                    case AggregationMode.SESSION:
                         lines = features.SessionLines(schema=self.Config.TableSchema, as_pivot=True)
                         self._writeAllFeatureLines(feature_lines=lines)
                         self._writeSessionLines(
                             session_lines = lines if as_pivot else features.SessionLines(schema=self.Config.TableSchema, as_pivot=False)
                         )
                         Logger.Log(f"Wrote {len(lines)} {self.Config.TableLocation} session lines", depth=3)
-                    case ExportMode.PLAYER:
+                    case AggregationMode.PLAYER:
                         lines = features.PlayerLines(schema=self.Config.TableSchema, as_pivot=True)
                         self._writeAllFeatureLines(feature_lines=lines)
                         self._writePlayerLines(
                             player_lines = lines if as_pivot else features.PlayerLines(schema=self.Config.TableSchema, as_pivot=False)
                         )
                         Logger.Log(f"Wrote {len(lines)} {self.Config.TableLocation} player lines", depth=3)
-                    case ExportMode.POPULATION:
+                    case AggregationMode.POPULATION:
                         lines = features.PopulationLines(schema=self.Config.TableSchema, as_pivot=True)
                         self._writeAllFeatureLines(feature_lines=lines)
                         self._writePopulationLines(
