@@ -160,7 +160,7 @@ class RepositoryIndexingConfig(Config):
         raw_base = RepositoryIndexingConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["files_base", "local_dir", "folder", "path"],
-            to_type=[Path, str, dict],
+            to_type=[Path, dict],
             default_value=None,
             remove_target=True,
             schema_name=schema_name
