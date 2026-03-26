@@ -9,7 +9,7 @@ from ogd.common.schemas.tables.EventMapSchema import EventMapSchema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 # import locals
 from src.ogd.common.schemas.tables.EventTableSchema import EventTableSchema
-from tests.config.t_config import settings
+from configettings
 
 def setUpModule():
     _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)

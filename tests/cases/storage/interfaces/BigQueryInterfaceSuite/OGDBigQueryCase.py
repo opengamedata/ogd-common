@@ -18,7 +18,7 @@ from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.storage.interfaces.BigQueryInterface import BigQueryInterface, ParamaterizedClause
 from ogd.common.utils.Logger import Logger
 # import locals
-from tests.config.t_config import settings
+from config.t_config import settings
 
 def setUpModule():
     _testing_cfg = TestConfig.FromDict(name="BQTestConfig", unparsed_elements=settings)

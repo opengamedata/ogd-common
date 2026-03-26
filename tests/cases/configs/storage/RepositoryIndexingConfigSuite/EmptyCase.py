@@ -10,7 +10,7 @@ from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocati
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 # import locals
 from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
-from tests.config.t_config import settings
+from config.t_config import settings
 
 def setUpModule():
     _testing_cfg = TestConfig.FromDict(name="SchemaTestConfig", unparsed_elements=settings)
