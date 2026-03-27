@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, Optional, IO, Set
 ## import local files
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
+from ogd.common.models.enums.AggregationMode import AggregationMode
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.storage.connectors.StorageConnector import StorageConnector
 from ogd.common.utils.Logger import Logger
@@ -13,13 +14,13 @@ from ogd.common.utils.Logger import Logger
 class CSVConnector(StorageConnector):
 
     # *** BUILT-INS & PROPERTIES ***
-    _VALID_SECONDARY_FILES = [ ExportMode.EVENTS, ExportMode.DETECTORS, ExportMode.FEATURES, ExportMode.SESSION, ExportMode.PLAYER, ExportMode.POPULATION ]
+    _VALID_SECONDARY_FILES = [ ExportMode.EVENTS, ExportMode.DETECTORS, ExportMode.FEATURES, AggregationMode.SESSION, AggregationMode.PLAYER, AggregationMode.POPULATION ]
     _SECONDARY_FILE_SUFFIXES = {ExportMode.EVENTS.name:"game-events", ExportMode.DETECTORS.name:"all-events",
-                                ExportMode.FEATURES.name:"all-features", ExportMode.SESSION.name:"session-features",
-                                ExportMode.PLAYER.name:"player-features", ExportMode.POPULATION.name:"population-features"}
+                                ExportMode.FEATURES.name:"all-features", AggregationMode.SESSION.name:"session-features",
+                                AggregationMode.PLAYER.name:"player-features", AggregationMode.POPULATION.name:"population-features"}
 
     def __init__(self, config:FileStoreConfig,
-                 with_secondary_files:Optional[Set[ExportMode]]=None,
+                 with_secondary_files:Optional[Set[ExportMode | AggregationMode]]=None,
                  with_zipping:bool=False,
                  existing_meta:Optional[Dict]=None):
         # set up data from params
@@ -27,7 +28,7 @@ class CSVConnector(StorageConnector):
         self._config               : FileStoreConfig          = config
         self._file                 : Optional[IO]             = None
         self._existing_meta        : Dict                     = existing_meta or {}
-        self._with_secondary_files : Set[ExportMode]          = with_secondary_files or set()
+        self._with_secondary_files : Set[ExportMode | AggregationMode] = with_secondary_files or set()
         self._secondary_files      : Dict[str,Optional[IO]]   = {mode.name:None for mode in CSVConnector._VALID_SECONDARY_FILES}
         self._with_zipping         : bool                     = with_zipping
         self._zip_paths            : Dict[str,Optional[Path]] = {mode.name:None for mode in CSVConnector._VALID_SECONDARY_FILES}

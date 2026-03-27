@@ -17,6 +17,7 @@ from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexi
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
 from ogd.common.models.DatasetKey import DatasetKey
+from ogd.common.models.enums.AggregationMode import AggregationMode
 from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
@@ -31,7 +32,7 @@ class CSVOuterface(Outerface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode],
+    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode | AggregationMode],
                  repository:DatasetRepositoryConfig, dataset_key:str | DatasetKey,
                  with_separate_feature_files:bool=True, with_zipping:bool=True,
                  store:Optional[CSVConnector]=None):
@@ -135,7 +136,7 @@ class CSVOuterface(Outerface):
     def _setupSessionTable(self, header:List[str]) -> None:
         cols = CSVOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
-        f = self.Connector.SecondaryFiles.get(ExportMode.SESSION.name, None)
+        f = self.Connector.SecondaryFiles.get(AggregationMode.SESSION.name, None)
         if f is not None:
             f.writelines(cols_line)
         else:
@@ -146,7 +147,7 @@ class CSVOuterface(Outerface):
     def _setupPlayerTable(self, header:List[str]) -> None:
         cols = CSVOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
-        f = self.Connector.SecondaryFiles.get(ExportMode.PLAYER.name, None)
+        f = self.Connector.SecondaryFiles.get(AggregationMode.PLAYER.name, None)
         if f is not None:
             f.writelines(cols_line)
         else:
@@ -157,7 +158,7 @@ class CSVOuterface(Outerface):
     def _setupPopulationTable(self, header:List[str]) -> None:
         cols = CSVOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
-        f = self.Connector.SecondaryFiles.get(ExportMode.POPULATION.name, None)
+        f = self.Connector.SecondaryFiles.get(AggregationMode.POPULATION.name, None)
         if f is not None:
             f.writelines(cols_line)
         else:
@@ -198,7 +199,7 @@ class CSVOuterface(Outerface):
         final_lines = ["\t".join(sess) + "\n" for sess in _clean_lines]
         if self.Connector.File is not None:
             self.Connector.File.writelines(final_lines)
-        f = self.Connector.SecondaryFiles.get(ExportMode.SESSION.name, None)
+        f = self.Connector.SecondaryFiles.get(AggregationMode.SESSION.name, None)
         if f is not None:
             f.writelines(final_lines)
         else:
@@ -211,7 +212,7 @@ class CSVOuterface(Outerface):
         final_lines = ["\t".join(play) + "\n" for play in _clean_lines]
         if self.Connector.File is not None:
             self.Connector.File.writelines(final_lines)
-        f = self.Connector.SecondaryFiles.get(ExportMode.PLAYER.name, None)
+        f = self.Connector.SecondaryFiles.get(AggregationMode.PLAYER.name, None)
         if f is not None:
             f.writelines(final_lines)
         else:
@@ -224,7 +225,7 @@ class CSVOuterface(Outerface):
         final_lines = ["\t".join(pop) + "\n" for pop in _clean_lines]
         if self.Connector.File is not None:
             self.Connector.File.writelines(final_lines)
-        f = self.Connector.SecondaryFiles.get(ExportMode.POPULATION.name, None)
+        f = self.Connector.SecondaryFiles.get(AggregationMode.POPULATION.name, None)
         if f is not None:
             f.writelines(final_lines)
         else:
