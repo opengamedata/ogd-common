@@ -1,15 +1,12 @@
 # import libraries
 import logging
-from pathlib import Path
 from unittest import TestCase
-from zipfile import ZipFile
 # import locals
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.models.Feature import Feature
-from ogd.common.models.enums.ExportMode import ExportMode
+from ogd.common.models.enums.AggregationMode import AggregationMode
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.models.EventSet import EventSet
 from config.t_config import settings
 
 def setUpModule():
@@ -69,9 +66,9 @@ class BasicInitCase(TestCase):
         self.assertIsInstance(self.feature.ColumnValues, list)
         self.assertEqual(self.feature.ColumnValues, _elems)
 
-    def test_ExportMode(self):
-        self.assertIsInstance(self.feature.ExportMode, ExportMode)
-        self.assertEqual(self.feature.ExportMode, ExportMode.SESSION)
+    def test_AggregationMode(self):
+        self.assertIsInstance(self.feature.AggregationMode, AggregationMode)
+        self.assertEqual(self.feature.AggregationMode, AggregationMode.SESSION)
 
     def test_Name(self):
         self.assertIsInstance(self.feature.Name, str)
