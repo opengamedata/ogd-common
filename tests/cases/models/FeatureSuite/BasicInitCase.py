@@ -1,16 +1,12 @@
 # import libraries
 import logging
-from pathlib import Path
 from unittest import TestCase
-from zipfile import ZipFile
 # import locals
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.models.Feature import Feature
 from ogd.common.models.enums.AggregationMode import AggregationMode
-from ogd.common.models.enums.ExportMode import ExportMode
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.models.EventSet import EventSet
 from config.t_config import settings
 
 def setUpModule():
