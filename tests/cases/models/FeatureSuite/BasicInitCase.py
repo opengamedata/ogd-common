@@ -71,7 +71,7 @@ class BasicInitCase(TestCase):
         self.assertEqual(self.feature.ColumnValues, _elems)
 
     def test_AggregationMode(self):
-        self.assertIsInstance(self.feature.AggregationMode, ExportMode)
+        self.assertIsInstance(self.feature.AggregationMode, AggregationMode)
         self.assertEqual(self.feature.AggregationMode, AggregationMode.SESSION)
 
     def test_Name(self):
