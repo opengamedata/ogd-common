@@ -3,7 +3,7 @@ import logging
 from typing import Any, Optional, TypeVar
 # import local files
 from ogd.common.filters.Filter import Filter
-from ogd.common.models.enums.FilterMode import FilterMode
+from ogd.common.filters.FilterMode import FilterMode
 from ogd.common.utils.Logger import Logger
 
 T = TypeVar("T", bound=Any)

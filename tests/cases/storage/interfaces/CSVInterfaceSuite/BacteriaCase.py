@@ -12,7 +12,7 @@ from ogd.common.filters.collections.IDFilterCollection import IDFilterCollection
 from ogd.common.filters.collections.SequencingFilterCollection import SequencingFilterCollection
 from ogd.common.filters.RangeFilter import RangeFilter
 from ogd.common.filters.SetFilter import SetFilter
-from ogd.common.models.enums.FilterMode import FilterMode
+from ogd.common.filters.FilterMode import FilterMode
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig

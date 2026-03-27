@@ -12,7 +12,7 @@ from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilter
 from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.storage.connectors.MySQLConnector import MySQLConnector
 from ogd.common.models.SemanticVersion import SemanticVersion
-from ogd.common.models.enums.FilterMode import FilterMode
+from ogd.common.filters.FilterMode import FilterMode
 from ogd.common.models.enums.IDMode import IDMode
 from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.configs.DataTableConfig import DataTableConfig

@@ -19,7 +19,7 @@ from ogd.common.models.EventSet import EventSet
 from ogd.common.models.Feature import Feature
 from ogd.common.models.FeatureSet import FeatureSet
 from ogd.common.models.enums.IDMode import IDMode
-from ogd.common.models.enums.FilterMode import FilterMode
+from ogd.common.filters.FilterMode import FilterMode
 from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.configs.DataTableConfig import DataTableConfig

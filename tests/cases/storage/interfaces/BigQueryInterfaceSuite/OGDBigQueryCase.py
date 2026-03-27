@@ -12,7 +12,7 @@ from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.models.enums.IDMode import IDMode
-from ogd.common.models.enums.FilterMode import FilterMode
+from ogd.common.filters.FilterMode import FilterMode
 from ogd.common.models.enums.VersionType import VersionType
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.storage.interfaces.BigQueryInterface import BigQueryInterface, ParamaterizedClause

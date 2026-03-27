@@ -2,7 +2,7 @@
 from typing import Any
 # import local files
 from ogd.common.filters.Filter import Filter
-from ogd.common.models.enums.FilterMode import FilterMode
+from ogd.common.filters.FilterMode import FilterMode
 
 class NoFilter(Filter[Any]):
     def __init__(self):
