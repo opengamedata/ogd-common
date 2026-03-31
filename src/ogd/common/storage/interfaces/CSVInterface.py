@@ -11,9 +11,9 @@ from ogd.common.filters.collections import *
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.models.enums.ExportMode import ExportMode
-from ogd.common.storage.interfaces.IDType import IDType
+from ogd.common.storage.IDType import IDType
 from ogd.common.filters.FilterMode import FilterMode
-from ogd.common.storage.interfaces.VersionType import VersionType
+from ogd.common.storage.VersionType import VersionType
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.storage.connectors.CSVConnector import CSVConnector

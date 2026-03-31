@@ -13,7 +13,7 @@ from ogd.common.filters.collections.SequencingFilterCollection import Sequencing
 from ogd.common.filters.RangeFilter import RangeFilter
 from ogd.common.filters.SetFilter import SetFilter
 from ogd.common.filters.FilterMode import FilterMode
-from ogd.common.storage.interfaces.IDType import IDType
+from ogd.common.storage.IDType import IDType
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.configs.TestConfig import TestConfig

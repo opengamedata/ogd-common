@@ -7,7 +7,7 @@ from typing import Dict, List, Tuple, Optional
 from ogd.common.models.coding.Code import Code
 from ogd.common.models.coding.Coder import Coder
 from ogd.common.storage.interfaces.Interface import Interface
-from ogd.common.storage.interfaces.IDType import IDType
+from ogd.common.storage.IDType import IDType
 from ogd.common.utils.Logger import Logger
 
 class CodingInterface(Interface):

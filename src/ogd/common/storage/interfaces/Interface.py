@@ -18,9 +18,9 @@ from ogd.common.models.Event import Event
 from ogd.common.models.EventSet import EventSet
 from ogd.common.models.Feature import Feature
 from ogd.common.models.FeatureSet import FeatureSet
-from ogd.common.storage.interfaces.IDType import IDType
+from ogd.common.storage.IDType import IDType
 from ogd.common.filters.FilterMode import FilterMode
-from ogd.common.storage.interfaces.VersionType import VersionType
+from ogd.common.storage.VersionType import VersionType
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema

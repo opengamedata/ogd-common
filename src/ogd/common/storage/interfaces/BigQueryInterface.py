@@ -17,9 +17,9 @@ from ogd.common.filters.collections.SequencingFilterCollection import Sequencing
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.models.SemanticVersion import SemanticVersion
-from ogd.common.storage.interfaces.IDType import IDType
+from ogd.common.storage.IDType import IDType
 from ogd.common.filters.FilterMode import FilterMode
-from ogd.common.storage.interfaces.VersionType import VersionType
+from ogd.common.storage.VersionType import VersionType
 from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.storage.connectors.BigQueryConnector import BigQueryConnector
 from ogd.common.utils.Logger import Logger

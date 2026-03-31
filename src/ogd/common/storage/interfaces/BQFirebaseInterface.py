@@ -9,7 +9,7 @@ from google.api_core.exceptions import BadRequest
 from ogd.common.filters import *
 from ogd.common.filters.collections import *
 from ogd.common.configs.DataTableConfig import DataTableConfig
-from ogd.common.storage.interfaces.IDType import IDType
+from ogd.common.storage.IDType import IDType
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.filters.FilterMode import FilterMode
 from ogd.common.storage.interfaces.BigQueryInterface import BigQueryInterface, ParamaterizedClause

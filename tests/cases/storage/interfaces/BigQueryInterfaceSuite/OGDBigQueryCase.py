@@ -11,9 +11,9 @@ from ogd.common.filters.collections import *
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.TestConfig import TestConfig
-from ogd.common.storage.interfaces.IDType import IDType
+from ogd.common.storage.IDType import IDType
 from ogd.common.filters.FilterMode import FilterMode
-from ogd.common.storage.interfaces.VersionType import VersionType
+from ogd.common.storage.VersionType import VersionType
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.storage.interfaces.BigQueryInterface import BigQueryInterface, ParamaterizedClause
 from ogd.common.utils.Logger import Logger
