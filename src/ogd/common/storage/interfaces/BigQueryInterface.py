@@ -17,7 +17,7 @@ from ogd.common.filters.collections.SequencingFilterCollection import Sequencing
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.models.SemanticVersion import SemanticVersion
-from ogd.common.models.enums.IDMode import IDMode
+from ogd.common.storage.interfaces.IDType import IDType
 from ogd.common.filters.FilterMode import FilterMode
 from ogd.common.storage.interfaces.VersionType import VersionType
 from ogd.common.storage.interfaces.Interface import Interface
@@ -69,7 +69,7 @@ class BigQueryInterface(Interface):
     def Connector(self) -> BigQueryConnector:
         return self._store
 
-    def _availableIDs(self, mode:IDMode, filters:DatasetFilterCollection) -> List[str]:
+    def _availableIDs(self, mode:IDType, filters:DatasetFilterCollection) -> List[str]:
         """
         .. TODO : take other filters into account
         """
@@ -77,7 +77,7 @@ class BigQueryInterface(Interface):
 
         if self.Connector.Client:
             # 1. Create query & config
-            id_col : LiteralString       = "session_id" if mode==IDMode.SESSION else "user_id"
+            id_col : LiteralString       = "session_id" if mode==IDType.SESSION else "user_id"
             suffix_clause : LiteralString = ""
             if filters.Sequences.Timestamps.Active and isinstance(filters.Sequences.Timestamps, RangeFilter):
                 suffix : ParamaterizedClause = self._generateSuffixClause(date_filter=filters.Sequences.Timestamps)

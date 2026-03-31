@@ -7,7 +7,7 @@ from typing import Dict, List, Tuple, Optional
 from ogd.common.models.coding.Code import Code
 from ogd.common.models.coding.Coder import Coder
 from ogd.common.storage.interfaces.Interface import Interface
-from ogd.common.models.enums.IDMode import IDMode
+from ogd.common.storage.interfaces.IDType import IDType
 from ogd.common.utils.Logger import Logger
 
 class CodingInterface(Interface):
@@ -78,24 +78,24 @@ class CodingInterface(Interface):
             Logger.Log("Can't create Coder, the source interface is not open!")
         return ret_val
 
-    def GetCodes(self, mode:IDMode, id:str):
+    def GetCodes(self, mode:IDType, id:str):
         match mode:
-            case IDMode.GAME:
+            case IDType.GAME:
                 self._getCodesByGame(game_id=id)
-            case IDMode.USER:
+            case IDType.USER:
                 self._getCodesByCoder(coder_id=id)
-            case IDMode.SESSION:
+            case IDType.SESSION:
                 self._getCodesBySession(session_id=id)
             case _:
                 raise NotImplementedError(f"The given retrieval mode '{mode}' is not supported for retrieving codes!")
 
-    def GetCodeWords(self, mode:IDMode, id:str):
+    def GetCodeWords(self, mode:IDType, id:str):
         match mode:
-            case IDMode.GAME:
+            case IDType.GAME:
                 self._getCodeWordsByGame(game_id=id)
-            case IDMode.USER:
+            case IDType.USER:
                 self._getCodeWordsByCoder(coder_id=id)
-            case IDMode.SESSION:
+            case IDType.SESSION:
                 self._getCodeWordsBySession(session_id=id)
             case _:
                 raise NotImplementedError(f"The given retrieval mode '{mode}' is not supported for retrieving code words!")

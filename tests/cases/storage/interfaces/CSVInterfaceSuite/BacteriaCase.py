@@ -13,7 +13,7 @@ from ogd.common.filters.collections.SequencingFilterCollection import Sequencing
 from ogd.common.filters.RangeFilter import RangeFilter
 from ogd.common.filters.SetFilter import SetFilter
 from ogd.common.filters.FilterMode import FilterMode
-from ogd.common.models.enums.IDMode import IDMode
+from ogd.common.storage.interfaces.IDType import IDType
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.configs.TestConfig import TestConfig
@@ -79,7 +79,7 @@ class BacteriaCase(TestCase):
                     timestamp_filter=RangeFilter(mode=FilterMode.INCLUDE, minimum=self.TEST_MIN_DATE, maximum=self.TEST_MAX_DATE)
                 )
             )
-            result_session_list = self.CSVI.AvailableIDs(mode=IDMode.SESSION, filters=filters)
+            result_session_list = self.CSVI.AvailableIDs(mode=IDType.SESSION, filters=filters)
             self.assertNotEqual(result_session_list, None)
             if result_session_list is not None:
                 diff = set(result_session_list).symmetric_difference(self.TEST_SESSION_LIST)

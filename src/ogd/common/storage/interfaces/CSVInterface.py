@@ -11,7 +11,7 @@ from ogd.common.filters.collections import *
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.models.enums.ExportMode import ExportMode
-from ogd.common.models.enums.IDMode import IDMode
+from ogd.common.storage.interfaces.IDType import IDType
 from ogd.common.filters.FilterMode import FilterMode
 from ogd.common.storage.interfaces.VersionType import VersionType
 from ogd.common.models.SemanticVersion import SemanticVersion
@@ -89,7 +89,7 @@ class CSVInterface(Interface):
     def Connector(self) -> CSVConnector:
         return self._store
 
-    def _availableIDs(self, mode:IDMode, filters:DatasetFilterCollection) -> List[str]:
+    def _availableIDs(self, mode:IDType, filters:DatasetFilterCollection) -> List[str]:
         ret_val : List[str] = []
 
         if not self.DataFrame.empty:

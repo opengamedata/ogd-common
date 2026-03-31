@@ -18,7 +18,7 @@ from ogd.common.models.Event import Event
 from ogd.common.models.EventSet import EventSet
 from ogd.common.models.Feature import Feature
 from ogd.common.models.FeatureSet import FeatureSet
-from ogd.common.models.enums.IDMode import IDMode
+from ogd.common.storage.interfaces.IDType import IDType
 from ogd.common.filters.FilterMode import FilterMode
 from ogd.common.storage.interfaces.VersionType import VersionType
 from ogd.common.models.SemanticVersion import SemanticVersion
@@ -44,7 +44,7 @@ class Interface(abc.ABC):
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
-    def _availableIDs(self, mode:IDMode, filters:DatasetFilterCollection) -> List[str]:
+    def _availableIDs(self, mode:IDType, filters:DatasetFilterCollection) -> List[str]:
         """Private implementation of the logic to retrieve all IDs of given mode from the connected storage.
 
         :param mode: The type of ID to be listed.
@@ -95,7 +95,7 @@ class Interface(abc.ABC):
 
     # *** PUBLIC METHODS ***
 
-    def AvailableIDs(self, mode:IDMode, filters:DatasetFilterCollection) -> Optional[List[str]]:
+    def AvailableIDs(self, mode:IDType, filters:DatasetFilterCollection) -> Optional[List[str]]:
         """Retrieve all IDs of given mode from the connected storage.
 
         :param mode: The type of ID to be listed.

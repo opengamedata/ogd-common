@@ -9,7 +9,7 @@ from google.api_core.exceptions import BadRequest
 from ogd.common.filters import *
 from ogd.common.filters.collections import *
 from ogd.common.configs.DataTableConfig import DataTableConfig
-from ogd.common.models.enums.IDMode import IDMode
+from ogd.common.storage.interfaces.IDType import IDType
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.filters.FilterMode import FilterMode
 from ogd.common.storage.interfaces.BigQueryInterface import BigQueryInterface, ParamaterizedClause
@@ -29,7 +29,7 @@ class BQFirebaseInterface(BigQueryInterface):
 
     # *** RE-IMPLEMENT ABSTRACT FUNCTIONS ***
 
-    def _availableIDs(self, mode:IDMode, filters:DatasetFilterCollection) -> List[str]:
+    def _availableIDs(self, mode:IDType, filters:DatasetFilterCollection) -> List[str]:
         ret_val = []
 
         if self.Connector.Client:
@@ -166,16 +166,16 @@ class BQFirebaseInterface(BigQueryInterface):
 
     # *** PRIVATE METHODS ***
 
-    def _generateRowFromIDQuery(self, id_list:List[str], id_mode:IDMode, exclude_rows:Optional[List[str]]=None) -> str:
+    def _generateRowFromIDQuery(self, id_list:List[str], id_mode:IDType, exclude_rows:Optional[List[str]]=None) -> str:
     # 2) Set up clauses to select based on Session ID or Player ID.
         session_clause : str = ""
         player_clause  : str = ""
         match id_mode:
-            case IDMode.SESSION:
+            case IDType.SESSION:
                 id_string = ','.join([f"{x}" for x in id_list])
                 session_clause = f"param_session.key = 'ga_session_id' AND param_session.value.int_value IN ({id_string})"
                 player_clause  = f"(param_user.key   = 'user_code'     OR  param_user.key = 'undefined')"
-            case IDMode.USER:
+            case IDType.USER:
                 id_string = ','.join([f"'{x}'" for x in id_list])
                 session_clause = f"param_session.key = 'ga_session_id'"
                 player_clause  = f"(param_user.key   = 'user_code' OR param_user.key = 'undefined') AND param_user.value.string_value IN ({id_string})"

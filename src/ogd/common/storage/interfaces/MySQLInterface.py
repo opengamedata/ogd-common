@@ -13,7 +13,7 @@ from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.storage.connectors.MySQLConnector import MySQLConnector
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.filters.FilterMode import FilterMode
-from ogd.common.models.enums.IDMode import IDMode
+from ogd.common.storage.interfaces.IDType import IDType
 from ogd.common.storage.interfaces.VersionType import VersionType
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.MySQLConfig import MySQLConfig
@@ -41,9 +41,9 @@ class MySQLInterface(Interface):
         return self._store
 
     @override
-    def _availableIDs(self, mode:IDMode, filters:DatasetFilterCollection) -> List[str]:
+    def _availableIDs(self, mode:IDType, filters:DatasetFilterCollection) -> List[str]:
         if self.Connector.Cursor is not None and isinstance(self.Config.StoreConfig, MySQLConfig):
-            id_col : LiteralString       = "session_id" if mode==IDMode.SESSION else "user_id"
+            id_col : LiteralString       = "session_id" if mode==IDType.SESSION else "user_id"
             # 1. If we're in shared table, then need to filter on game ID
             where_clause, params = self._generateWhereClause(filters=filters)
             app_ids = filters.IDFilters.AppIDs.AsList
