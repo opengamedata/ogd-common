@@ -78,8 +78,8 @@ class CodingInterface(Interface):
             Logger.Log("Can't create Coder, the source interface is not open!")
         return ret_val
 
-    def GetCodes(self, mode:IDType, id:str):
-        match mode:
+    def GetCodes(self, id_type:IDType, id:str):
+        match id_type:
             case IDType.GAME:
                 self._getCodesByGame(game_id=id)
             case IDType.USER:
@@ -87,10 +87,10 @@ class CodingInterface(Interface):
             case IDType.SESSION:
                 self._getCodesBySession(session_id=id)
             case _:
-                raise NotImplementedError(f"The given retrieval mode '{mode}' is not supported for retrieving codes!")
+                raise NotImplementedError(f"The given retrieval mode '{id_type}' is not supported for retrieving codes!")
 
-    def GetCodeWords(self, mode:IDType, id:str):
-        match mode:
+    def GetCodeWords(self, id_type:IDType, id:str):
+        match id_type:
             case IDType.GAME:
                 self._getCodeWordsByGame(game_id=id)
             case IDType.USER:
@@ -98,7 +98,7 @@ class CodingInterface(Interface):
             case IDType.SESSION:
                 self._getCodeWordsBySession(session_id=id)
             case _:
-                raise NotImplementedError(f"The given retrieval mode '{mode}' is not supported for retrieving code words!")
+                raise NotImplementedError(f"The given retrieval mode '{id_type}' is not supported for retrieving code words!")
 
     def CreateCode(self, code:str, coder_id:str, events:List[Code.EventID], notes:Optional[str]=None) -> bool:
         ret_val = False

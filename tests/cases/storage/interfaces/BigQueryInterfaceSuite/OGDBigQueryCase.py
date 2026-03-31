@@ -68,7 +68,7 @@ class OGDBigQueryCase(TestCase):
             session_index_filter=None
         )
         _ver_filt = VersioningFilterCollection(None, None, None)
-        session_ids = self.test_interface.AvailableIDs(mode=IDType.SESSION, filters=DatasetFilterCollection(sequence_filters=_date_filt, version_filters=_ver_filt))
+        session_ids = self.test_interface.AvailableIDs(id_type=IDType.SESSION, filters=DatasetFilterCollection(sequence_filters=_date_filt, version_filters=_ver_filt))
         self.assertIsNotNone(session_ids)
         self.assertIsInstance(session_ids, list)
         if session_ids is not None:
@@ -91,7 +91,7 @@ class OGDBigQueryCase(TestCase):
             session_index_filter=None
         )
         _ver_filt = VersioningFilterCollection(None, None, None)
-        session_ids = self.test_interface.AvailableIDs(mode=IDType.USER, filters=DatasetFilterCollection(sequence_filters=_date_filt, version_filters=_ver_filt))
+        session_ids = self.test_interface.AvailableIDs(id_type=IDType.USER, filters=DatasetFilterCollection(sequence_filters=_date_filt, version_filters=_ver_filt))
         self.assertIsNotNone(session_ids)
         self.assertIsInstance(session_ids, list)
         if session_ids is not None:

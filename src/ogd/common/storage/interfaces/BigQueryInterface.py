@@ -69,7 +69,7 @@ class BigQueryInterface(Interface):
     def Connector(self) -> BigQueryConnector:
         return self._store
 
-    def _availableIDs(self, mode:IDType, filters:DatasetFilterCollection) -> List[str]:
+    def _availableIDs(self, id_type:IDType, filters:DatasetFilterCollection) -> List[str]:
         """
         .. TODO : take other filters into account
         """
@@ -77,7 +77,7 @@ class BigQueryInterface(Interface):
 
         if self.Connector.Client:
             # 1. Create query & config
-            id_col : LiteralString       = "session_id" if mode==IDType.SESSION else "user_id"
+            id_col : LiteralString       = "session_id" if id_type==IDType.SESSION else "user_id"
             suffix_clause : LiteralString = ""
             if filters.Sequences.Timestamps.Active and isinstance(filters.Sequences.Timestamps, RangeFilter):
                 suffix : ParamaterizedClause = self._generateSuffixClause(date_filter=filters.Sequences.Timestamps)
@@ -90,7 +90,7 @@ class BigQueryInterface(Interface):
             cfg = bigquery.QueryJobConfig(query_parameters=suffix.params)
 
             # 2. Actually run the thing
-            Logger.Log(f"Running query for all {mode} ids:\n{query}", logging.DEBUG, depth=3, whitespace_adjust="lstrip")
+            Logger.Log(f"Running query for all {id_type} ids:\n{query}", logging.DEBUG, depth=3, whitespace_adjust="lstrip")
             try:
                 job = self.Connector.Client.query(query, cfg)
                 data = job.result()
@@ -98,9 +98,9 @@ class BigQueryInterface(Interface):
                 Logger.Log(f"In _availableIDs, got a BadRequest error when trying to retrieve data from BigQuery, defaulting to empty result!\n{err}")
             else:
                 ret_val = [str(row[id_col]) for row in data]
-                Logger.Log(f"Found {len(ret_val)} {mode} ids. {ret_val if len(ret_val) <= 5 else ''}", logging.DEBUG, depth=3)
+                Logger.Log(f"Found {len(ret_val)} {id_type} ids. {ret_val if len(ret_val) <= 5 else ''}", logging.DEBUG, depth=3)
         else:
-            Logger.Log(f"Can't retrieve list of {mode} IDs from {self.Connector.ResourceName}, the storage connection client is null!", logging.WARNING, depth=3)
+            Logger.Log(f"Can't retrieve list of {id_type} IDs from {self.Connector.ResourceName}, the storage connection client is null!", logging.WARNING, depth=3)
         return ret_val
 
     @override

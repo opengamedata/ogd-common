@@ -41,9 +41,9 @@ class MySQLInterface(Interface):
         return self._store
 
     @override
-    def _availableIDs(self, mode:IDType, filters:DatasetFilterCollection) -> List[str]:
+    def _availableIDs(self, id_type:IDType, filters:DatasetFilterCollection) -> List[str]:
         if self.Connector.Cursor is not None and isinstance(self.Config.StoreConfig, MySQLConfig):
-            id_col : LiteralString       = "session_id" if mode==IDType.SESSION else "user_id"
+            id_col : LiteralString       = "session_id" if id_type==IDType.SESSION else "user_id"
             # 1. If we're in shared table, then need to filter on game ID
             where_clause, params = self._generateWhereClause(filters=filters)
             app_ids = filters.IDFilters.AppIDs.AsList

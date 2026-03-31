@@ -89,7 +89,7 @@ class CSVInterface(Interface):
     def Connector(self) -> CSVConnector:
         return self._store
 
-    def _availableIDs(self, mode:IDType, filters:DatasetFilterCollection) -> List[str]:
+    def _availableIDs(self, id_type:IDType, filters:DatasetFilterCollection) -> List[str]:
         ret_val : List[str] = []
 
         if not self.DataFrame.empty:

@@ -29,7 +29,7 @@ class BQFirebaseInterface(BigQueryInterface):
 
     # *** RE-IMPLEMENT ABSTRACT FUNCTIONS ***
 
-    def _availableIDs(self, mode:IDType, filters:DatasetFilterCollection) -> List[str]:
+    def _availableIDs(self, id_type:IDType, filters:DatasetFilterCollection) -> List[str]:
         ret_val = []
 
         if self.Connector.Client:
@@ -52,9 +52,9 @@ class BQFirebaseInterface(BigQueryInterface):
                 Logger.Log(f"In _availableIDs, got a BadRequest error when trying to retrieve data from BigQuery, defaulting to empty result!\n{err}")
             else:
                 ret_val = [str(row['session_id']) for row in data]
-                Logger.Log(f"Found {len(ret_val)} {mode} ids. {ret_val if len(ret_val) <= 5 else ''}", logging.DEBUG, depth=3)
+                Logger.Log(f"Found {len(ret_val)} {id_type} ids. {ret_val if len(ret_val) <= 5 else ''}", logging.DEBUG, depth=3)
         else:
-            Logger.Log(f"Can't retrieve list of {mode} IDs from {self.Connector.ResourceName}, the storage connection client is null!", logging.WARNING, depth=3)
+            Logger.Log(f"Can't retrieve list of {id_type} IDs from {self.Connector.ResourceName}, the storage connection client is null!", logging.WARNING, depth=3)
 
         return ret_val
 
@@ -136,7 +136,7 @@ class BQFirebaseInterface(BigQueryInterface):
     def _getEventRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
         events = None
         if self._client != None:
-            query = self._generateRowFromIDQuery(id_list=id_list, id_mode=id_mode, exclude_rows=exclude_rows)
+            query = self._generateRowFromIDQuery(id_list=id_list, id_type=id_mode, exclude_rows=exclude_rows)
             Logger.Log(f"BQ-Firebase: Running query for rows from IDs:\n{query}", logging.DEBUG, depth=3)
             data = self._client.query(query)
             events = []
@@ -166,11 +166,11 @@ class BQFirebaseInterface(BigQueryInterface):
 
     # *** PRIVATE METHODS ***
 
-    def _generateRowFromIDQuery(self, id_list:List[str], id_mode:IDType, exclude_rows:Optional[List[str]]=None) -> str:
+    def _generateRowFromIDQuery(self, id_list:List[str], id_type:IDType, exclude_rows:Optional[List[str]]=None) -> str:
     # 2) Set up clauses to select based on Session ID or Player ID.
         session_clause : str = ""
         player_clause  : str = ""
-        match id_mode:
+        match id_type:
             case IDType.SESSION:
                 id_string = ','.join([f"{x}" for x in id_list])
                 session_clause = f"param_session.key = 'ga_session_id' AND param_session.value.int_value IN ({id_string})"
@@ -180,7 +180,7 @@ class BQFirebaseInterface(BigQueryInterface):
                 session_clause = f"param_session.key = 'ga_session_id'"
                 player_clause  = f"(param_user.key   = 'user_code' OR param_user.key = 'undefined') AND param_user.value.string_value IN ({id_string})"
             case _:
-                Logger.Log(f"BQ-Firebase: Invalid ID mode given (name={id_mode.name}, val={id_mode.value}), defaulting to session mode.", logging.WARNING, depth=3)
+                Logger.Log(f"BQ-Firebase: Invalid ID mode given (name={id_type.name}, val={id_type.value}), defaulting to session mode.", logging.WARNING, depth=3)
                 id_string = ','.join([f"{x}" for x in id_list])
                 session_clause = f"param_session.key = 'ga_session_id' AND param_session.value.int_value IN ({id_string})"
                 player_clause  = f"(param_user.key   = 'user_code' OR param_user.key = 'undefined')"

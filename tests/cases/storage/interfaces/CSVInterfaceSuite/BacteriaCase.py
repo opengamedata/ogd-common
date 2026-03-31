@@ -79,7 +79,7 @@ class BacteriaCase(TestCase):
                     timestamp_filter=RangeFilter(mode=FilterMode.INCLUDE, minimum=self.TEST_MIN_DATE, maximum=self.TEST_MAX_DATE)
                 )
             )
-            result_session_list = self.CSVI.AvailableIDs(mode=IDType.SESSION, filters=filters)
+            result_session_list = self.CSVI.AvailableIDs(id_type=IDType.SESSION, filters=filters)
             self.assertNotEqual(result_session_list, None)
             if result_session_list is not None:
                 diff = set(result_session_list).symmetric_difference(self.TEST_SESSION_LIST)
