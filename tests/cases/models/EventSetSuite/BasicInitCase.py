@@ -11,12 +11,12 @@ from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
-from ogd.common.models.EventSet import EventSet
+from ogd.common.models.events.EventSet import EventSet
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
 from ogd.common.storage.interfaces.CSVInterface import CSVInterface
 from ogd.common.utils.Logger import Logger
 # import locals
-from src.ogd.common.models.EventSet import EventSet
+from src.ogd.common.models.events.EventSet import EventSet
 from config.t_config import settings
 
 def setUpModule():

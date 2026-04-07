@@ -1,7 +1,7 @@
 from typing import Any, Dict, Set
 
-from ogd.common.models.enums.AggregationMode import AggregationMode
-from ogd.common.models.enums.ExportMode import ExportMode
+from ogd.common.models.features.AggregationMode import AggregationMode
+from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.models.DatasetKey import DatasetKey

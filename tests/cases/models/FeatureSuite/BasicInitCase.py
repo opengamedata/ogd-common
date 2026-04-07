@@ -3,8 +3,8 @@ import logging
 from unittest import TestCase
 # import locals
 from ogd.common.configs.TestConfig import TestConfig
-from ogd.common.models.Feature import Feature
-from ogd.common.models.enums.AggregationMode import AggregationMode
+from ogd.common.models.features.Feature import Feature
+from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.utils.Logger import Logger
 # import locals
 from config.t_config import settings

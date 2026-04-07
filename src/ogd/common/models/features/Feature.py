@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional, Tuple
 
-from ogd.common.models.enums.AggregationMode import AggregationMode
+from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.models.GameData import GameData
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapElement

@@ -14,10 +14,10 @@ from deprecated.sphinx import deprecated
 # import local files
 from ogd.common.filters.RangeFilter import RangeFilter
 from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
-from ogd.common.models.Event import Event
-from ogd.common.models.EventSet import EventSet
-from ogd.common.models.Feature import Feature
-from ogd.common.models.FeatureSet import FeatureSet
+from ogd.common.models.events.Event import Event
+from ogd.common.models.events.EventSet import EventSet
+from ogd.common.models.features.Feature import Feature
+from ogd.common.models.features.FeatureSet import FeatureSet
 from ogd.common.storage.IDType import IDType
 from ogd.common.filters.FilterMode import FilterMode
 from ogd.common.storage.VersionType import VersionType

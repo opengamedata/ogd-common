@@ -4,7 +4,7 @@ import logging
 from unittest import TestCase
 # import locals
 from ogd.common.configs.TestConfig import TestConfig
-from ogd.common.models.Event import Event, EventSource
+from ogd.common.models.events.Event import Event, EventSource
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Version

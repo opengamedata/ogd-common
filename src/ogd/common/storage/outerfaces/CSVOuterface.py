@@ -17,8 +17,8 @@ from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexi
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
 from ogd.common.models.DatasetKey import DatasetKey
-from ogd.common.models.enums.AggregationMode import AggregationMode
-from ogd.common.models.enums.ExportMode import ExportMode
+from ogd.common.models.features.AggregationMode import AggregationMode
+from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema

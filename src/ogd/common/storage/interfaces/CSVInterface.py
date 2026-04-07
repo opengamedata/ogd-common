@@ -10,7 +10,7 @@ from ogd.common.filters import *
 from ogd.common.filters.collections import *
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
-from ogd.common.models.enums.ExportMode import ExportMode
+from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.storage.IDType import IDType
 from ogd.common.filters.FilterMode import FilterMode
 from ogd.common.storage.VersionType import VersionType

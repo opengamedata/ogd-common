@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Dict, Optional, IO, Set
 ## import local files
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
-from ogd.common.models.enums.AggregationMode import AggregationMode
-from ogd.common.models.enums.ExportMode import ExportMode
+from ogd.common.models.features.AggregationMode import AggregationMode
+from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.storage.connectors.StorageConnector import StorageConnector
 from ogd.common.utils.Logger import Logger
 
