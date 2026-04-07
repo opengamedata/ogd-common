@@ -3,7 +3,7 @@ from datetime import date, datetime, time
 from typing import Optional
 # import local files
 from ogd.common.filters import *
-from ogd.common.models.enums.FilterMode import FilterMode
+from ogd.common.filters.FilterMode import FilterMode
 from ogd.common.utils.typing import Pair
 
 class SequencingFilterCollection:

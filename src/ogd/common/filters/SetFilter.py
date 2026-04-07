@@ -2,7 +2,7 @@
 from typing import Any, Optional, List, Set, Tuple, TypeVar
 # import local files
 from ogd.common.filters.Filter import Filter
-from ogd.common.models.enums.FilterMode import FilterMode
+from ogd.common.filters.FilterMode import FilterMode
 
 T = TypeVar("T")
 class SetFilter(Filter[T]):

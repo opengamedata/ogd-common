@@ -11,9 +11,9 @@ from ogd.common.filters.collections import *
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.TestConfig import TestConfig
-from ogd.common.models.enums.IDMode import IDMode
-from ogd.common.models.enums.FilterMode import FilterMode
-from ogd.common.models.enums.VersionType import VersionType
+from ogd.common.storage.IDType import IDType
+from ogd.common.filters.FilterMode import FilterMode
+from ogd.common.storage.VersionType import VersionType
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.storage.interfaces.BigQueryInterface import BigQueryInterface, ParamaterizedClause
 from ogd.common.utils.Logger import Logger
@@ -68,7 +68,7 @@ class OGDBigQueryCase(TestCase):
             session_index_filter=None
         )
         _ver_filt = VersioningFilterCollection(None, None, None)
-        session_ids = self.test_interface.AvailableIDs(mode=IDMode.SESSION, filters=DatasetFilterCollection(sequence_filters=_date_filt, version_filters=_ver_filt))
+        session_ids = self.test_interface.AvailableIDs(id_type=IDType.SESSION, filters=DatasetFilterCollection(sequence_filters=_date_filt, version_filters=_ver_filt))
         self.assertIsNotNone(session_ids)
         self.assertIsInstance(session_ids, list)
         if session_ids is not None:
@@ -91,7 +91,7 @@ class OGDBigQueryCase(TestCase):
             session_index_filter=None
         )
         _ver_filt = VersioningFilterCollection(None, None, None)
-        session_ids = self.test_interface.AvailableIDs(mode=IDMode.USER, filters=DatasetFilterCollection(sequence_filters=_date_filt, version_filters=_ver_filt))
+        session_ids = self.test_interface.AvailableIDs(id_type=IDType.USER, filters=DatasetFilterCollection(sequence_filters=_date_filt, version_filters=_ver_filt))
         self.assertIsNotNone(session_ids)
         self.assertIsInstance(session_ids, list)
         if session_ids is not None:

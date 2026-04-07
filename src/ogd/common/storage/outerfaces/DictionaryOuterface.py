@@ -3,8 +3,8 @@ from typing import Any, Dict, List, Optional, override, Set
 
 # import local files
 from ogd.common.configs.DataTableConfig import DataTableConfig
-from ogd.common.models.enums.AggregationMode import AggregationMode
-from ogd.common.models.enums.ExportMode import ExportMode
+from ogd.common.models.features.AggregationMode import AggregationMode
+from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.storage.outerfaces.Outerface import Outerface
 from ogd.common.utils.typing import ExportRow

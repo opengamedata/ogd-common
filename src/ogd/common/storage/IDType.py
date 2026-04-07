@@ -1,10 +1,10 @@
-"""IDMode Module
+"""IDType Module
 """
 
 # import standard libraries
 from enum import IntEnum
 
-class IDMode(IntEnum):
+class IDType(IntEnum):
     """Enum representing the different kinds of IDs in OpenGameData.
 
     Namely:

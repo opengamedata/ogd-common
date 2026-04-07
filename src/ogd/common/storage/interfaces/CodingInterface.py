@@ -7,7 +7,7 @@ from typing import Dict, List, Tuple, Optional
 from ogd.common.models.coding.Code import Code
 from ogd.common.models.coding.Coder import Coder
 from ogd.common.storage.interfaces.Interface import Interface
-from ogd.common.models.enums.IDMode import IDMode
+from ogd.common.storage.IDType import IDType
 from ogd.common.utils.Logger import Logger
 
 class CodingInterface(Interface):
@@ -78,27 +78,27 @@ class CodingInterface(Interface):
             Logger.Log("Can't create Coder, the source interface is not open!")
         return ret_val
 
-    def GetCodes(self, mode:IDMode, id:str):
-        match mode:
-            case IDMode.GAME:
+    def GetCodes(self, id_type:IDType, id:str):
+        match id_type:
+            case IDType.GAME:
                 self._getCodesByGame(game_id=id)
-            case IDMode.USER:
+            case IDType.USER:
                 self._getCodesByCoder(coder_id=id)
-            case IDMode.SESSION:
+            case IDType.SESSION:
                 self._getCodesBySession(session_id=id)
             case _:
-                raise NotImplementedError(f"The given retrieval mode '{mode}' is not supported for retrieving codes!")
+                raise NotImplementedError(f"The given retrieval mode '{id_type}' is not supported for retrieving codes!")
 
-    def GetCodeWords(self, mode:IDMode, id:str):
-        match mode:
-            case IDMode.GAME:
+    def GetCodeWords(self, id_type:IDType, id:str):
+        match id_type:
+            case IDType.GAME:
                 self._getCodeWordsByGame(game_id=id)
-            case IDMode.USER:
+            case IDType.USER:
                 self._getCodeWordsByCoder(coder_id=id)
-            case IDMode.SESSION:
+            case IDType.SESSION:
                 self._getCodeWordsBySession(session_id=id)
             case _:
-                raise NotImplementedError(f"The given retrieval mode '{mode}' is not supported for retrieving code words!")
+                raise NotImplementedError(f"The given retrieval mode '{id_type}' is not supported for retrieving code words!")
 
     def CreateCode(self, code:str, coder_id:str, events:List[Code.EventID], notes:Optional[str]=None) -> bool:
         ret_val = False

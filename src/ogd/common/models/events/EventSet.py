@@ -2,7 +2,7 @@
 from typing import Callable, List, Optional
 # import local files
 from ogd.common.filters.collections import *
-from ogd.common.models.Event import Event, EventSource
+from ogd.common.models.events.Event import Event, EventSource
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.utils.typing import ExportRow
 from ogd.common.utils.helpers import find

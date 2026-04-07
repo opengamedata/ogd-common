@@ -3,8 +3,8 @@ from itertools import chain
 from typing import Callable, List, Optional
 # import local files
 from ogd.common.filters.collections import *
-from ogd.common.models.enums.AggregationMode import AggregationMode
-from ogd.common.models.Feature import Feature
+from ogd.common.models.features.AggregationMode import AggregationMode
+from ogd.common.models.features.Feature import Feature
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema
 from ogd.common.utils.typing import ExportRow
 from ogd.common.utils.helpers import find

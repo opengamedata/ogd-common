@@ -14,13 +14,13 @@ from deprecated.sphinx import deprecated
 # import local files
 from ogd.common.filters.RangeFilter import RangeFilter
 from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
-from ogd.common.models.Event import Event
-from ogd.common.models.EventSet import EventSet
-from ogd.common.models.Feature import Feature
-from ogd.common.models.FeatureSet import FeatureSet
-from ogd.common.models.enums.IDMode import IDMode
-from ogd.common.models.enums.FilterMode import FilterMode
-from ogd.common.models.enums.VersionType import VersionType
+from ogd.common.models.events.Event import Event
+from ogd.common.models.events.EventSet import EventSet
+from ogd.common.models.features.Feature import Feature
+from ogd.common.models.features.FeatureSet import FeatureSet
+from ogd.common.storage.IDType import IDType
+from ogd.common.filters.FilterMode import FilterMode
+from ogd.common.storage.VersionType import VersionType
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
@@ -44,7 +44,7 @@ class Interface(abc.ABC):
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the {sys._getframe().f_code.co_name} function!")
 
     @abc.abstractmethod
-    def _availableIDs(self, mode:IDMode, filters:DatasetFilterCollection) -> List[str]:
+    def _availableIDs(self, id_type:IDType, filters:DatasetFilterCollection) -> List[str]:
         """Private implementation of the logic to retrieve all IDs of given mode from the connected storage.
 
         :param mode: The type of ID to be listed.
@@ -95,7 +95,7 @@ class Interface(abc.ABC):
 
     # *** PUBLIC METHODS ***
 
-    def AvailableIDs(self, mode:IDMode, filters:DatasetFilterCollection) -> Optional[List[str]]:
+    def AvailableIDs(self, id_type:IDType, filters:DatasetFilterCollection) -> Optional[List[str]]:
         """Retrieve all IDs of given mode from the connected storage.
 
         :param mode: The type of ID to be listed.
@@ -106,11 +106,11 @@ class Interface(abc.ABC):
         ret_val = None
         if self.Connector.IsOpen:
             self._safeguardFilters(filters=filters)
-            _msg = f"Retrieving IDs with {mode} ID mode on date(s) {filters.Sequences} with version(s) {filters.Versions} from {self.Connector.ResourceName}."
+            _msg = f"Retrieving IDs with {id_type} ID mode on date(s) {filters.Sequences} with version(s) {filters.Versions} from {self.Connector.ResourceName}."
             Logger.Log(_msg, logging.INFO, depth=3)
-            ret_val = self._availableIDs(mode=mode, filters=filters)
+            ret_val = self._availableIDs(id_type=id_type, filters=filters)
         else:
-            Logger.Log(f"Can't retrieve list of {mode} IDs from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
+            Logger.Log(f"Can't retrieve list of {id_type} IDs from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val
 
     def AvailableDates(self, filters:DatasetFilterCollection) -> Union[Dict[str,datetime], Dict[str,None]]:

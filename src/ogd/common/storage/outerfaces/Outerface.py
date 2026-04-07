@@ -7,11 +7,11 @@ import sys
 from typing import List, Optional, Set
 
 # import local files
-from ogd.common.models.enums.AggregationMode import AggregationMode
-from ogd.common.models.enums.ExportMode import ExportMode
-from ogd.common.models.EventSet import EventSet
-from ogd.common.models.Feature import Feature
-from ogd.common.models.FeatureSet import FeatureSet
+from ogd.common.models.features.AggregationMode import AggregationMode
+from ogd.common.models.features.ExportMode import ExportMode
+from ogd.common.models.events.EventSet import EventSet
+from ogd.common.models.features.Feature import Feature
+from ogd.common.models.features.FeatureSet import FeatureSet
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
