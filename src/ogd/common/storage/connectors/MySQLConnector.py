@@ -50,10 +50,10 @@ class MySQLConnector(StorageConnector):
         :rtype: Tuple[Optional[sshtunnel.SSHTunnelForwarder], Optional[connection.MySQLConnection]]
         """
         Logger.Log("Preparing database connection...", logging.DEBUG)
-        if self.StoreConfig is not None and isinstance(self.StoreConfig, MySQLConfig):
+        if isinstance(self.StoreConfig, MySQLConfig):
             start = datetime.now()
             self._connection, self._tunnel = self._connectToMySQL(config=self.StoreConfig)
-            if self.Connection is not None:
+            if isinstance(self.Connection, connection.MySQLConnection) and self.Connection.is_connected():
                 self._cursor = self.Connection.cursor()
             Logger.Log("Done preparing database connection.", logging.DEBUG)
             time_delta = datetime.now() - start
