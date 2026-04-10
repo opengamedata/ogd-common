@@ -116,19 +116,19 @@ class MySQLConnector(StorageConnector):
                 Logger.Log(f"SSH login had empty data, preparing to connect to MySQL directly instead, on host {config.DBHost}", level=logging.DEBUG)
         else:
             Logger.Log(f"Preparing to connect to MySQL directly, on host {config.DBHost}", level=logging.DEBUG)
-        try:
-            Logger.Log(f"Connecting to SQL (no SSH) at {config.AsConnectionInfo}...", logging.DEBUG)
-            _connection = connection.MySQLConnection(host     = config.DBHost,    port    = config.DBPort,
-                                                 user     = config.DBUser,    password= config.DBPass,
-                                                 charset = 'utf8')
-            Logger.Log("Connected.", logging.DEBUG)
-        #except MySQLdb.connections.Error as err:
-        except Exception as err:
-            msg = f"""Could not connect to the MySql database.
-            Login info: {config.AsConnectionInfo} w/port type={type(config.DBPort)}.
-            Full error: {type(err)} {str(err)}"""
-            Logger.Log(msg, logging.ERROR)
-            traceback.print_tb(err.__traceback__)
+            try:
+                Logger.Log(f"Connecting to SQL (no SSH) at {config.AsConnectionInfo}...", logging.DEBUG)
+                _connection = connection.MySQLConnection(host     = config.DBHost,    port    = config.DBPort,
+                                                    user     = config.DBUser,    password= config.DBPass,
+                                                    charset = 'utf8')
+                Logger.Log("Connected.", logging.DEBUG)
+            #except MySQLdb.connections.Error as err:
+            except Exception as err:
+                msg = f"""Could not connect to the MySql database.
+                Login info: {config.AsConnectionInfo} w/port type={type(config.DBPort)}.
+                Full error: {type(err)} {str(err)}"""
+                Logger.Log(msg, logging.ERROR)
+                traceback.print_tb(err.__traceback__)
         return _connection, _tunnel
 
     ## Function to help connect to a mySQL server over SSH.
