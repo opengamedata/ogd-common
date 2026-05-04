@@ -36,14 +36,14 @@ class BasicInitCase(TestCase):
         If any tests are added that have expected side effects, initialization of the instance should be moved to a `setUp(self)` function.
         """
         cls.test_schema = DatasetSchema(
-            name="DatasetSchema", key=DatasetKey(game_id="GAME_NAME", full_month="01/2025"),
+            name="DatasetSchema", dataset_id=DatasetKey(game_id="GAME_NAME", full_month="01/2025"),
             game_id="GAME_NAME",
             start_date=date(year=2025, month=1, day=1), end_date=date(year=2025, month=1, day=31), date_modified=date(year=2025, month=2, day=2),
             ogd_revision="123456", filters={}, # TODO : add filters, maybe after this becomes a DatasetFilteringCollection or whatever
             session_ct=100, player_ct=50,
-            raw_file=Path("./raw.tsv"),
-            events_file=Path("./events.tsv"), events_template=None,
-            all_feats_file=Path("./all_feats.tsv"), all_feats_template=None,
+            game_events_file=Path("./raw.tsv"),
+            all_events_file=Path("./events.tsv"), events_template=None,
+            combined_feats_file=Path("./all_feats.tsv"), all_feats_template=None,
             sessions_file=Path("./sessions.tsv"), sessions_template=None,
             players_file=Path("./players.tsv"), players_template=None,
             population_file=Path("./population.tsv"), population_template=None,

@@ -2,14 +2,18 @@
 import logging
 from datetime import date, datetime
 from pathlib import Path
-from typing import Dict, Final, List, Optional, Self
+from typing import Dict, Final, List, Optional, Self, overload
 
 # ogd imports
 from ogd.common.filters.Filter import Filter
 from ogd.common.models.DatasetKey import DatasetKey
+from ogd.common.schemas.events.EventSchema import EventSchema
+from ogd.common.schemas.events.GameStateSchema import GameStateSchema
+from ogd.common.schemas.features.FeatureSchema import FeatureSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
+from ogd.common.models.SemanticVersion import SemanticVersion
 
 class DatasetSchema(Schema):
     """DatasetSchema struct
@@ -17,38 +21,44 @@ class DatasetSchema(Schema):
     TODO : Fill in description
     TODO : Add a _parseKey function, rather than having logic for that part sit naked in FromDict
     """
+    _DEFAULT_GAME_ID             : Final[str]                     = "DEFAULT GAME"
+    _DEFAULT_DATASET_ID          : Final[DatasetKey]              = DatasetKey.Default()
+    # Population info
+    _DEFAULT_FILTERS             : Final[Dict[str, str | Filter]] = {}
+    _DEFAULT_SESSION_COUNT       : Final[int]                     = 0
+    _DEFAULT_PLAYER_COUNT        : Final[int]                     = 0
+    # Event info
+    _DEFAULT_GAME_STATE          : Final[GameStateSchema]         = GameStateSchema.Default()
+    _DEFAULT_EVENTS              : Final[List[EventSchema]]       = []
+    # feature info
+    _DEFAULT_FEATURES            : Final[List[FeatureSchema]]     = []
+    # version info
+    _DEFAULT_OGD_VERSION         : Final[str]                     = "UNKNOWN OGD VERSION"
+    _DEFAULT_OGD_REVISION        : Final[str]                     = "UNKNOWN OGD REVISION"
+    _DEFAULT_EVENT_VERSION       : Final[str]                     = "UNKNOWN EVENT SCHEMA VERSION"
+    # output info
+    _DEFAULT_RAW_FILE            : Final[bool]                    = False
+    _DEFAULT_EVENTS_FILE         : Final[bool]                    = False
+    _DEFAULT_COMB_FEATS_FILE     : Final[bool]                    = False
+    _DEFAULT_SESSIONS_FILE       : Final[bool]                    = False
+    _DEFAULT_PLAYERS_FILE        : Final[bool]                    = False
+    _DEFAULT_POPULATION_FILE     : Final[bool]                    = False
+    # deprecated, compatibility info
     _DEFAULT_DATE_MODIFIED       : Final[str]                     = "UNKNOWN DATE"
     _DEFAULT_START_DATE          : Final[str]                     = "UNKNOWN DATE"
     _DEFAULT_END_DATE            : Final[str]                     = "UNKNOWN DATE"
-    _DEFAULT_OGD_REVISION        : Final[str]                     = "UNKNOWN REVISION"
-    _DEFAULT_SESSION_COUNT       : Final[None]                    = None
-    _DEFAULT_PLAYER_COUNT        : Final[None]                    = None
-    _DEFAULT_FILTERS             : Final[Dict[str, str | Filter]] = {}
-    _DEFAULT_RAW_FILE            : Final[None]                    = None
-    _DEFAULT_EVENTS_FILE         : Final[None]                    = None
-    _DEFAULT_EVENTS_TEMPLATE     : Final[None]                    = None
-    _DEFAULT_ALL_FEATS_FILE      : Final[None]                    = None
-    _DEFAULT_ALL_FEATS_TEMPLATE  : Final[None]                    = None
-    _DEFAULT_SESSIONS_FILE       : Final[None]                    = None
-    _DEFAULT_SESSIONS_TEMPLATE   : Final[None]                    = None
-    _DEFAULT_PLAYERS_FILE        : Final[None]                    = None
-    _DEFAULT_PLAYERS_TEMPLATE    : Final[None]                    = None
-    _DEFAULT_POPULATION_FILE     : Final[None]                    = None
-    _DEFAULT_POPULATION_TEMPLATE : Final[None]                    = None
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, key:DatasetKey,
-                 game_id:Optional[str],
+    # TODO : overload versions for individual parts of logging spec schema, vs. passing in a whole log spec schema
+    def __init__(self, name:str, game_id:Optional[str],       dataset_id:DatasetKey,
+                 filters:Optional[Dict[str, str | Filter]],   session_ct:Optional[int],           player_ct:Optional[int],
+                 game_state:Optional[GameStateSchema],        events:Optional[List[EventSchema]], features:Optional[List[FeatureSchema]],
+                 ogd_version:Optional[SemanticVersion | str], ogd_revision:Optional[str],         event_spec_version:Optional[SemanticVersion | str],
+                 game_events_file:Optional[Path],             all_events_file:Optional[Path],     combined_feats_file:Optional[Path],
+                 sessions_file:Optional[Path],                players_file:Optional[Path],        population_file:Optional[Path],
+                 # deprecated, compatibility params
                  start_date:Optional[date|str],  end_date:Optional[date|str], date_modified:Optional[date|str], 
-                 ogd_revision:Optional[str],     filters:Optional[Dict[str, str | Filter]],
-                 session_ct:Optional[int],       player_ct:Optional[int],
-                 raw_file:Optional[Path],  
-                 events_file:Optional[Path],     events_template:Optional[Path],
-                 all_feats_file:Optional[Path],  all_feats_template:Optional[Path],
-                 sessions_file:Optional[Path],   sessions_template:Optional[Path],
-                 players_file:Optional[Path],    players_template:Optional[Path],
-                 population_file:Optional[Path], population_template:Optional[Path],
                  other_elements:Optional[Map]=None):
         """Constructor for the `DatasetSchema` class.
         
@@ -58,22 +68,23 @@ class DatasetSchema(Schema):
 
         ```
         {
-            "start_date": "01/01/2025",
-            "end_date": "01/31/2025",
-            "date_modified": "02/02/2025",
-            "ogd_revision": "1234567",
+            "game_id" : "AQUALAB",
+            "dataset_id" : "AQUALAB_20250101_to_20250131",
             "filters" : {},
-            "sessions": 1234,
+            "session_count": 1234,
+            "player_count": 123,
+            "game_state" : {}
+            "events" : []
+            "features" : []
+            "ogd_version": "1.2.3",
+            "ogd_revision": "1234567",
+            "event_spec_version": "1.0.0",
+            "combined_features_file": "path/to/GAME_NAME_20250101_to_20250131_1234567_combined-features.zip",
             "population_file": "path/to/GAME_NAME_20250101_to_20250131_1234567_population-features.zip",
-            "population_template": "path/to/template",
             "players_file": "path/to/GAME_NAME_20250101_to_20250131_1234567_player-features.zip",
-            "players_template": "path/to/template",
             "sessions_file": "path/to/GAME_NAME_20250101_to_20250131_1234567_session-features.zip",
-            "sessions_template": "path/to/template",
-            "events_file": "path/to/GAME_NAME_20250101_to_20250131_1234567_events.zip",
-            "events_template": "path/to/template",
+            "game_events_file": "path/to/GAME_NAME_20250101_to_20250131_1234567_game-events.zip",
             "all_events_file": "path/to/GAME_NAME_20250101_to_20250131_1234567_all-events.zip",
-            "all_events_template": "path/to/template
         },
         ```
 
@@ -97,26 +108,18 @@ class DatasetSchema(Schema):
         :type raw_file: Optional[Path]
         :param events_file: _description_
         :type events_file: Optional[Path]
-        :param events_template: _description_
-        :type events_template: Optional[Path]
         :param sessions_file: _description_
         :type sessions_file: Optional[Path]
-        :param sessions_template: _description_
-        :type sessions_template: Optional[Path]
         :param players_file: _description_
         :type players_file: Optional[Path]
-        :param players_template: _description_
-        :type players_template: Optional[Path]
         :param population_file: _description_
         :type population_file: Optional[Path]
-        :param population_template: _description_
-        :type population_template: Optional[Path]
         :param other_elements: _description_, defaults to None
         :type other_elements: Optional[Map], optional
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._key                 : DatasetKey     = key               if key is not None else DatasetKey(game_id=game_id, from_date=start_date, to_date=end_date)
+        self._key                 : DatasetKey     = dataset_id               if dataset_id is not None else DatasetKey(game_id=game_id, from_date=start_date, to_date=end_date)
     # 1. Set dates
         self._date_modified       : date | str     = date_modified    if date_modified is not None else self._parseDateModified(unparsed_elements=unparsed_elements, schema_name=name)
         self._start_date          : date | str     = start_date       if start_date    is not None else self._parseStartDate(unparsed_elements=unparsed_elements, schema_name=name)
@@ -127,17 +130,17 @@ class DatasetSchema(Schema):
         self._session_ct          : Optional[int]  = session_ct       if session_ct   is not None else self._parseSessionCount(unparsed_elements=unparsed_elements, schema_name=name)
         self._player_ct           : Optional[int]  = player_ct        if player_ct    is not None else self._parsePlayerCount(unparsed_elements=unparsed_elements, schema_name=name)
     # 3. Set file/template paths
-        self._all_events_file       : Optional[Path] = events_file         if events_file         is not None else self._parseAllEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._game_events_file      : Optional[Path] = raw_file            if raw_file            is not None else self._parseGameEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._events_template       : Optional[Path] = events_template     if events_template     is not None else self._parseEventsTemplate(unparsed_elements=unparsed_elements, schema_name=name)
-        self._all_features_file     : Optional[Path] = all_feats_file      if all_feats_file      is not None else self._parseAllFeaturesFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._all_features_template : Optional[Path] = all_feats_template  if all_feats_template  is not None else self._parseAllFeaturesTemplate(unparsed_elements=unparsed_elements, schema_name=name)
+        self._all_events_file       : Optional[Path] = all_events_file     if all_events_file     is not None else self._parseAllEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
+        self._game_events_file      : Optional[Path] = game_events_file    if game_events_file    is not None else self._parseGameEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
+        self._all_features_file     : Optional[Path] = combined_feats_file if combined_feats_file is not None else self._parseAllFeaturesFile(unparsed_elements=unparsed_elements, schema_name=name)
         self._sessions_file         : Optional[Path] = sessions_file       if sessions_file       is not None else self._parseSessionsFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._sessions_template     : Optional[Path] = sessions_template   if sessions_template   is not None else self._parseSessionsTemplate(unparsed_elements=unparsed_elements, schema_name=name)
         self._players_file          : Optional[Path] = players_file        if players_file        is not None else self._parsePlayersFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._players_template      : Optional[Path] = players_template    if players_template    is not None else self._parsePlayersTemplate(unparsed_elements=unparsed_elements, schema_name=name)
         self._population_file       : Optional[Path] = population_file     if population_file     is not None else self._parsePopulationFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._population_template   : Optional[Path] = population_template if population_template is not None else self._parsePopulationTemplate(unparsed_elements=unparsed_elements, schema_name=name)
+        # self._events_template       : Optional[Path] = events_template     if events_template     is not None else self._parseEventsTemplate(unparsed_elements=unparsed_elements, schema_name=name)
+        # self._all_features_template : Optional[Path] = all_feats_template  if all_feats_template  is not None else self._parseAllFeaturesTemplate(unparsed_elements=unparsed_elements, schema_name=name)
+        # self._sessions_template     : Optional[Path] = sessions_template   if sessions_template   is not None else self._parseSessionsTemplate(unparsed_elements=unparsed_elements, schema_name=name)
+        # self._players_template      : Optional[Path] = players_template    if players_template    is not None else self._parsePlayersTemplate(unparsed_elements=unparsed_elements, schema_name=name)
+        # self._population_template   : Optional[Path] = population_template if population_template is not None else self._parsePopulationTemplate(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
 
     def __str__(self) -> str:
@@ -384,14 +387,14 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         """
         _key                 : DatasetKey     = DatasetKey.FromString(raw_key=name)
 
-        return DatasetSchema(name=name, key=_key,
+        return DatasetSchema(name=name, dataset_id=_key,
                              game_id=None,
                              date_modified=None, start_date=None, end_date=None,
                              ogd_revision=None, filters=None,
                              session_ct=None, player_ct=None,
-                             raw_file=None,
-                             events_file    =None, events_template    =None,
-                             all_feats_file =None, all_feats_template =None,
+                             game_events_file=None,
+                             all_events_file    =None, events_template    =None,
+                             combined_feats_file =None, all_feats_template =None,
                              sessions_file  =None, sessions_template  =None,
                              players_file   =None, players_template   =None,
                              population_file=None, population_template=None,
@@ -401,7 +404,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     def Default(cls) -> "DatasetSchema":
         return DatasetSchema(
             name="DefaultDatasetSchema",
-            key=DatasetKey.Default(),
+            dataset_id=DatasetKey.Default(),
             game_id             = DatasetKey._DEFAULT_GAME_ID,
             date_modified       = cls._DEFAULT_DATE_MODIFIED,
             start_date          = cls._DEFAULT_START_DATE,
@@ -410,10 +413,10 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             filters             = cls._DEFAULT_FILTERS,
             session_ct          = cls._DEFAULT_SESSION_COUNT,
             player_ct           = cls._DEFAULT_PLAYER_COUNT,
-            raw_file            = cls._DEFAULT_RAW_FILE,
-            events_file         = cls._DEFAULT_EVENTS_FILE,
+            game_events_file            = cls._DEFAULT_RAW_FILE,
+            all_events_file         = cls._DEFAULT_EVENTS_FILE,
             events_template     = cls._DEFAULT_EVENTS_TEMPLATE,
-            all_feats_file      = cls._DEFAULT_ALL_FEATS_FILE,
+            combined_feats_file      = cls._DEFAULT_ALL_FEATS_FILE,
             all_feats_template  = cls._DEFAULT_ALL_FEATS_TEMPLATE,
             sessions_file       = cls._DEFAULT_SESSIONS_FILE,
             sessions_template   = cls._DEFAULT_SESSIONS_TEMPLATE,
@@ -654,7 +657,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             unparsed_elements=unparsed_elements,
             valid_keys=["all_features_file", "features_file"],
             to_type=Path,
-            default_value=DatasetSchema._DEFAULT_ALL_FEATS_FILE,
+            default_value=DatasetSchema._DEFAULT_COMB_FEATS_FILE,
             remove_target=True,
             schema_name=schema_name
         )
@@ -723,107 +726,6 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         else:
             ret_val = None
             Logger.Log(f"Invalid population file path for dataset schema, expected a path, but got {str(pop_val)}, using {ret_val} instead")
-
-        return ret_val
-
-
-    @staticmethod
-    def _parseEventsTemplate(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
-        ret_val : Optional[Path]
-
-        events_tplate : Path | str = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["events_template"],
-            to_type=Path,
-            default_value=DatasetSchema._DEFAULT_EVENTS_TEMPLATE,
-            remove_target=True,
-            schema_name=schema_name
-        )
-        if isinstance(events_tplate, Path) or events_tplate is None:
-            ret_val = events_tplate
-        else:
-            ret_val = None
-            Logger.Log(f"Invalid events template path for dataset schema, expected a path, but got {str(events_tplate)}, using {ret_val} instead")
-
-        return ret_val
-
-    @staticmethod
-    def _parseAllFeaturesTemplate(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
-        ret_val : Optional[Path]
-
-        all_feats_tplate : Path | str = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["all_features_template", "features_template"],
-            to_type=Path,
-            default_value=DatasetSchema._DEFAULT_ALL_FEATS_TEMPLATE,
-            remove_target=True,
-            schema_name=schema_name
-        )
-        if isinstance(all_feats_tplate, Path) or all_feats_tplate is None:
-            ret_val = all_feats_tplate
-        else:
-            ret_val = None
-            Logger.Log(f"Invalid sessions template path for dataset schema, expected a path, but got {str(all_feats_tplate)}, using {ret_val} instead")
-
-        return ret_val
-
-    @staticmethod
-    def _parseSessionsTemplate(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
-        ret_val : Optional[Path]
-
-        sessions_tplate : Path | str = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["sessions_template"],
-            to_type=Path,
-            default_value=DatasetSchema._DEFAULT_SESSIONS_TEMPLATE,
-            remove_target=True,
-            schema_name=schema_name
-        )
-        if isinstance(sessions_tplate, Path) or sessions_tplate is None:
-            ret_val = sessions_tplate
-        else:
-            ret_val = None
-            Logger.Log(f"Invalid sessions template path for dataset schema, expected a path, but got {str(sessions_tplate)}, using {ret_val} instead")
-
-        return ret_val
-
-    @staticmethod
-    def _parsePlayersTemplate(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
-        ret_val : Optional[Path]
-
-        players_tplate : Path | str = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["players_template"],
-            to_type=Path,
-            default_value=DatasetSchema._DEFAULT_PLAYERS_TEMPLATE,
-            remove_target=True,
-            schema_name=schema_name
-        )
-        if isinstance(players_tplate, Path) or players_tplate is None:
-            ret_val = players_tplate
-        else:
-            ret_val = None
-            Logger.Log(f"Invalid player template path for dataset schema, expected a path, but got {str(players_tplate)}, using {ret_val} instead")
-
-        return ret_val
-
-    @staticmethod
-    def _parsePopulationTemplate(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[Path]:
-        ret_val : Optional[Path]
-
-        pop_tplate : Path | str = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["population_template"],
-            to_type=Path,
-            default_value=DatasetSchema._DEFAULT_POPULATION_TEMPLATE,
-            remove_target=True,
-            schema_name=schema_name
-        )
-        if isinstance(pop_tplate, Path) or pop_tplate is None:
-            ret_val = pop_tplate
-        else:
-            ret_val = None
-            Logger.Log(f"Invalid population template path for dataset schema, expected a path, but got {str(pop_tplate)}, using {ret_val} instead")
 
         return ret_val
 
