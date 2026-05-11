@@ -4,7 +4,6 @@ from typing import Any, Dict, Final, Optional, Self, Set
 # import local files
 from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.models.SemanticVersion import SemanticVersion
-from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
@@ -134,22 +133,7 @@ class FeatureSchema(Schema):
 
     @property
     def AsMarkdownRow(self) -> str:
-        ret_val = [
-            f"### **{self.Name}**",
-            f"{self.Description}",
-            "#### Event Data",
-            "\n".join(
-                ["| **Name** | **Value Type** | **Description** | **Iterations** |",
-                 "| ---      | ---            | ---             | ---            |"]
-              + [elem.AsMarkdownRow for elem in self.EventData.values()]
-            ),
-        ]
-        if len(self.NonStandardElements) > 0:
-            ret_val.append("#### Other Elements")
-            ret_val.append(
-                "\n".join( [f"- **{elem_name}**: {elem_desc}  " for elem_name,elem_desc in self.NonStandardElements] )
-            )
-        return "\n\n".join(ret_val)
+        return f"| {self.FeatureName} | {self.ValueType} | {self.Description} | {self.IterationCount} ({self.IterationPrefix})"
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "FeatureSchema":
