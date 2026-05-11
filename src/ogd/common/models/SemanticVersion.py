@@ -1,8 +1,7 @@
 # import standard libraries
 import logging
-import math
 import re
-from typing import Any, Dict, Optional, List
+from typing import Any, Optional, List
 
 # import 3rd-party libraries
 
