@@ -11,10 +11,11 @@ from ogd.common.utils.typing import Map
 
 class FeatureSchema(Schema):
     """
-    Dumb struct to contain a specification of an Event in a LoggingSpecificationSchema file.
+    Dumb struct to contain a specification of a Feature output in a DatasetSchema (manifest).
 
-    These essentially are just a description of the event, and a set of elements in the EventData attribute of the Event.
+    This includes the value, a description of what the value represents, and some versioning/provenance information for cross-referencing how the value was generated.
     """
+    _DEFAULT_FEAT_NAME      : Final[str]                  = "DEFAULT_FEATURE"
     _DEFAULT_DESCRIPTION    : Final[str]                  = "Default feature schema. Does not relate to any actual data."
     _DEFAULT_VALUE_TYPE     : Final[str]                  = "UNKNOWN VALUE TYPE"
     _DEFAULT_AGG_LEVELS     : Final[Set[AggregationMode]] = set()
@@ -26,8 +27,8 @@ class FeatureSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,
-                 feature_name:str,              description:Optional[str],
-                 value_type:Optional[str],      aggregation_levels:Set[AggregationMode],
+                 feature_name:Optional[str],    description:Optional[str],
+                 value_type:Optional[str],      aggregation_levels:Optional[Set[AggregationMode]],
                  iteration_count:Optional[int], iteration_prefix:Optional[str],
                  module_name:Optional[str],     module_version:Optional[SemanticVersion],
                  other_elements:Optional[Map]=None):
@@ -151,7 +152,7 @@ class FeatureSchema(Schema):
         return "\n\n".join(ret_val)
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "EventSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "FeatureSchema":
         """_summary_
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -163,14 +164,24 @@ class FeatureSchema(Schema):
         :return: _description_
         :rtype: EventSchema
         """
-        return EventSchema(name=name, description=None, event_data=None, other_elements=unparsed_elements)
+        return FeatureSchema(name=name, feature_name=None, description=None, 
+                             value_type=None, aggregation_levels=None,
+                             iteration_count=None, iteration_prefix=None,
+                             module_name=None, module_version=None,
+                             other_elements=unparsed_elements)
 
     @classmethod
-    def Default(cls) -> "EventSchema":
-        return EventSchema(
+    def Default(cls) -> "FeatureSchema":
+        return FeatureSchema(
             name="DefaultEventSchema",
+            feature_name=cls._DEFAULT_FEAT_NAME,
             description=cls._DEFAULT_DESCRIPTION,
-            event_data=cls._DEFAULT_EVENT_DATA,
+            value_type=cls._DEFAULT_VALUE_TYPE,
+            aggregation_levels=cls._DEFAULT_AGG_LEVELS,
+            iteration_count=cls._DEFAULT_ITER_COUNT,
+            iteration_prefix=cls._DEFAULT_ITER_PREFIX,
+            module_name=cls._DEFAULT_MODULE_NAME,
+            module_version=cls._DEFAULT_MODULE_VERSION,
             other_elements={}
         )
 
@@ -181,35 +192,113 @@ class FeatureSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseEventDataElements(unparsed_elements:Map, schema_name:Optional[str]=None):
-        ret_val : Dict[str, DataElementSchema]
-        event_data : Dict[str, Any] = EventSchema.ParseElement(
+    def _parseFeatureName(unparsed_elements:Map, schema_name:Optional[str]=None):
+        return FeatureSchema.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["event_data"],
-            to_type=dict,
-            default_value=EventSchema._DEFAULT_EVENT_DATA,
+            valid_keys=["feature_name"],
+            to_type=str,
+            default_value=FeatureSchema._DEFAULT_FEAT_NAME,
             remove_target=True,
             schema_name=schema_name
         )
-        if isinstance(event_data, dict):
-            ret_val = {
-                name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
-                for name,elems in event_data.items()
-            }
-        else:
-            ret_val = {}
-            Logger.Log(f"event_data was unexpected type {type(event_data)}, defaulting to empty dict.", logging.WARN)
-        return ret_val
 
     @staticmethod
     def _parseDescription(unparsed_elements:Map, schema_name:Optional[str]=None):
-        return EventSchema.ParseElement(
+        return FeatureSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["description"],
             to_type=str,
-            default_value=EventSchema._DEFAULT_DESCRIPTION,
+            default_value=FeatureSchema._DEFAULT_DESCRIPTION,
             remove_target=True,
             schema_name=schema_name
         )
+
+    @staticmethod
+    def _parseValueType(unparsed_elements:Map, schema_name:Optional[str]=None):
+        return FeatureSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["value_type", "return_type"],
+            to_type=str,
+            default_value=FeatureSchema._DEFAULT_VALUE_TYPE,
+            remove_target=True,
+            schema_name=schema_name
+        )
+
+    @staticmethod
+    def _parseAggregationLevels(unparsed_elements:Map, schema_name:Optional[str]=None) -> Set[AggregationMode]:
+        ret_val : Set[AggregationMode]
+
+        aggregations : Dict[str, Any] = FeatureSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["aggregation_levels", "aggregations"],
+            to_type=list,
+            default_value=FeatureSchema._DEFAULT_AGG_LEVELS,
+            remove_target=True,
+            schema_name=schema_name
+        )
+        if isinstance(aggregations, list):
+            ret_val = set(AggregationMode[elem] for elem in aggregations)
+        else:
+            ret_val = set()
+            Logger.Log(f"event_data was unexpected type {type(aggregations)}, defaulting to empty dict.", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def _parseIterationCount(unparsed_elements:Map, schema_name:Optional[str]=None):
+        return FeatureSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["iteration_count", "iterations"],
+            to_type=int,
+            default_value=FeatureSchema._DEFAULT_ITER_COUNT,
+            remove_target=True,
+            schema_name=schema_name,
+            optional_element=True
+        )
+
+    @staticmethod
+    def _parseIterationPrefix(unparsed_elements:Map, schema_name:Optional[str]=None):
+        return FeatureSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["iteration_prefix", "prefix"],
+            to_type=str,
+            default_value=FeatureSchema._DEFAULT_ITER_PREFIX,
+            remove_target=True,
+            schema_name=schema_name,
+            optional_element=True
+        )
+
+    @staticmethod
+    def _parseModuleName(unparsed_elements:Map, schema_name:Optional[str]=None):
+        return FeatureSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["module_name", "module"],
+            to_type=str,
+            default_value=FeatureSchema._DEFAULT_MODULE_NAME,
+            remove_target=True,
+            schema_name=schema_name
+        )
+
+    @staticmethod
+    def _parseModuleVersion(unparsed_elements:Map, schema_name:Optional[str]=None):
+        ret_val : SemanticVersion
+
+        raw_version = FeatureSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["module_version", "version"],
+            to_type=str,
+            default_value=FeatureSchema._DEFAULT_MODULE_VERSION,
+            remove_target=True,
+            schema_name=schema_name
+        )
+
+        if isinstance(raw_version, str):
+            ret_val = SemanticVersion.FromString(raw_version)
+        elif not isinstance(raw_version, SemanticVersion):
+            Logger.Log(f"FeatureSchema got raw module version ({raw_version}) of unexpected type {type(raw_version)}, defaulting to use SemanticVersion.FromString(str(raw_version))")
+            ret_val = SemanticVersion.FromString(str(raw_version))
+        else:
+            ret_val = raw_version
+
+        return ret_val
 
     # *** PRIVATE METHODS ***
