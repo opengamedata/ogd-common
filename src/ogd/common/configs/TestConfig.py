@@ -7,7 +7,7 @@ and a listing of `"ENABLED"` tests.
 """
 
 # import standard libraries
-from typing import Dict, Final, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 
 # import 3rd-party libraries
 
@@ -32,11 +32,6 @@ class TestConfig(Config):
         ```
         {
             "VERBOSE" : False,
-            "ENABLED" : {
-                "TEST1":True,
-                "TEST2":True,
-                ...
-            }
         },
         ```
 
@@ -66,6 +61,12 @@ class TestConfig(Config):
         return ret_val
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "VERBOSE":self.Verbose
+        }
     
     @classmethod
     def Default(cls) -> "TestConfig":
