@@ -63,7 +63,7 @@ class BasicInitCase(TestCase):
     def test_Name(self):
         _str = self.test_schema.Name
         self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "DatasetSchema")
+        self.assertEqual(_str, "AQUALAB")
 
     def test_OGDRevision(self):
         
