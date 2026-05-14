@@ -4,7 +4,7 @@ from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
-from ogd.common.models.events.Event import EventSource
+from ogd.common.models.events.Event import EventSource as EventSourceEnum
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
@@ -17,14 +17,14 @@ class EventSchema(Schema):
     """
     _DEFAULT_DESCRIPTION    : Final[str] = "Default event schema object. Does not relate to any actual data."
     _DEFAULT_EVENT_DATA     : Final[Dict[str, DataElementSchema]] = {}
-    _DEFAULT_EVENT_SOURCE   : Final[EventSource] = EventSource.GAME
+    _DEFAULT_EVENT_SOURCE   : Final[EventSourceEnum] = EventSourceEnum.GAME
     _DEFAULT_MODULE_NAME    : Final[None] = None
     _DEFAULT_MODULE_VERSION : Final[None] = None
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,            event_data:Optional[Dict[str, DataElementSchema]],
-                 description:Optional[str], event_source:Optional[EventSource],
+                 description:Optional[str], event_source:Optional[EventSourceEnum],
                  module_name:Optional[str], module_version:Optional[SemanticVersion],
                  other_elements:Optional[Map]=None):
         """Constructor for the `EventSchema` class.
@@ -58,7 +58,7 @@ class EventSchema(Schema):
 
         self._description : str                          = description    if description    is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
         self._event_data  : Dict[str, DataElementSchema] = event_data     if event_data     is not None else self._parseEventDataElements(unparsed_elements=unparsed_elements, schema_name=name)
-        self._source      : EventSource                  = event_source   if event_source   is not None else self._parseSource(unparsed_elements=unparsed_elements, schema_name=name)
+        self._source      : EventSourceEnum              = event_source   if event_source   is not None else self._parseSource(unparsed_elements=unparsed_elements, schema_name=name)
         self._module_name : Optional[str]                = module_name    if module_name    is not None else self._parseModuleName(unparsed_elements=unparsed_elements, schema_name=name)
         self._mod_version : Optional[SemanticVersion]    = module_version if module_version is not None else self._parseModuleVersion(unparsed_elements=unparsed_elements, schema_name=name)
 
@@ -86,7 +86,7 @@ class EventSchema(Schema):
         return self._event_data
 
     @property
-    def EventSource(self) -> EventSource:
+    def EventSource(self) -> EventSourceEnum:
         return self._source
 
     @property
@@ -214,7 +214,7 @@ class EventSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseDescription(unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _parseDescription(unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
         return EventSchema.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["description"],
@@ -223,5 +223,61 @@ class EventSchema(Schema):
             remove_target=True,
             schema_name=schema_name
         )
+
+    @staticmethod
+    def _parseSource(unparsed_elements:Map, schema_name:Optional[str]=None):
+        ret_val : EventSourceEnum
+
+        raw_source = EventSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["event_source", "source"],
+            to_type=str,
+            default_value=EventSchema._DEFAULT_EVENT_SOURCE,
+            remove_target=True,
+            schema_name=schema_name
+        )
+
+        if isinstance(raw_source, str):
+            ret_val = EventSourceEnum[raw_source]
+        else:
+            Logger.Log(f"In EventSchema, raw event source was unexpected type {type(raw_source)}, using EventSource[str(raw_source)]")
+            ret_val = EventSourceEnum[str(raw_source)]
+
+        return ret_val
+
+    @staticmethod
+    def _parseModuleName(unparsed_elements:Map, schema_name:Optional[str]=None):
+        return EventSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["module_name", "detector_name"],
+            to_type=str,
+            default_value=EventSchema._DEFAULT_MODULE_NAME,
+            remove_target=True,
+            schema_name=schema_name,
+            optional_element=True
+        )
+
+    @staticmethod
+    def _parseModuleVersion(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[SemanticVersion]:
+        ret_val : Optional[SemanticVersion]
+
+        raw_ver = EventSchema.ParseElement(
+            unparsed_elements=unparsed_elements,
+            valid_keys=["module_version", "detector_version"],
+            to_type=str,
+            default_value=EventSchema._DEFAULT_MODULE_VERSION,
+            remove_target=True,
+            schema_name=schema_name,
+            optional_element=True
+        )
+        if raw_ver == None:
+            ret_val = None
+        elif isinstance(raw_ver, str):
+            ret_val = SemanticVersion.FromString(raw_ver)
+        else:
+            Logger.Log(f"In EventSchema, raw module version was unexpected type {type(raw_ver)}, using SemanticVersion.FromString(str(raw_ver))")
+            ret_val = SemanticVersion.FromString(str(raw_ver))
+
+        return ret_val
 
     # *** PRIVATE METHODS ***
