@@ -1,5 +1,5 @@
 # import standard libraries
-from typing import Dict, Final, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 from urllib.parse import ParseResult
 # import local files
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
@@ -85,6 +85,13 @@ class SSHConfig(DataStoreConfig):
         return self._credential
 
     @property
+    def AsConnectionInfo(self) -> str:
+        ret_val : str
+
+        ret_val = f"{self.User}@{self.Host}:{self.Port}"
+        return ret_val
+
+    @property
     def AsMarkdown(self) -> str:
         ret_val : str
 
@@ -92,11 +99,8 @@ class SSHConfig(DataStoreConfig):
         return ret_val
 
     @property
-    def AsConnectionInfo(self) -> str:
-        ret_val : str
-
-        ret_val = f"{self.User}@{self.Host}:{self.Port}"
-        return ret_val
+    def AsDict(self) -> Dict[str, Any]:
+        return self.Location.AsDict | self.Credential.AsDict
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "SSHConfig":

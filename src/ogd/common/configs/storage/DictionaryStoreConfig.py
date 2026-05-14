@@ -1,6 +1,5 @@
 # import standard libraries
-from typing import Dict, Final, Optional, Self, TypeAlias
-from pathlib import Path
+from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
@@ -20,31 +19,15 @@ class DictionaryStoreConfig(DataStoreConfig):
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
-        """Constructor for the `FileStoreConfig` class.
+        """Constructor for the `DictionaryStoreConfig` class.
         
-        If optional params are not given, data is searched for in `other_elements`.
-
-        In the format below, `FILE_CREDENTIAL` is optional.
-
-        Expected format:
-
-        ```
-        {
-            "SOURCE_TYPE" : "FILE",
-            "PATH" : "path/to/file.ext",
-            "FILE_CREDENTIAL" : {
-                "USER" : "username",
-                "PASS" : "password"
-            }
-        }
+        Just exists as a way to represent a data store that lives in RAM.
         ```
 
         :param name: _description_
         :type name: str
         :param location: _description_
         :type location: FileLocationSchema
-        :param file_credential: _description_
-        :type file_credential: FileCredential
         :param other_elements: _description_, defaults to None
         :type other_elements: Optional[Map], optional
         """
@@ -52,6 +35,8 @@ class DictionaryStoreConfig(DataStoreConfig):
 
         self._location   = location if location is not None else DictionaryStoreConfig._DEFAULT_LOCATION
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=unparsed_elements)
+
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
     def Location(self) -> RAMLocationSchema:
@@ -62,6 +47,11 @@ class DictionaryStoreConfig(DataStoreConfig):
         return DictionaryStoreConfig._DEFAULT_CREDENTIAL
 
     @property
+    def AsConnectionInfo(self) -> str:
+        ret_val : str = f"DICTIONARY"
+        return ret_val
+
+    @property
     def AsMarkdown(self) -> str:
         ret_val : str
 
@@ -69,9 +59,8 @@ class DictionaryStoreConfig(DataStoreConfig):
         return ret_val
 
     @property
-    def AsConnectionInfo(self) -> str:
-        ret_val : str = f"DICTIONARY"
-        return ret_val
+    def AsDict(self) -> Dict[str, Any]:
+        return {}
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "DictionaryStoreConfig":

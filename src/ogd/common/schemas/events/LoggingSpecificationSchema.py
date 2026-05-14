@@ -189,6 +189,16 @@ class LoggingSpecificationSchema(Schema):
 
         return ret_val
 
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "enums":self.EnumDefs,
+            "game_state":self.GameState,
+            "user_data":self.UserData,
+            "events":[elem.AsDict for elem in self.Events],
+            "log_version":self.LoggingVersion
+        }
+
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "LoggingSpecificationSchema":
         """_summary_
@@ -323,7 +333,7 @@ class LoggingSpecificationSchema(Schema):
         )
 
     @classmethod
-    def _loadDirectories(cls, schema_name:str) -> List[str | Path]:
+    def _searchDirectories(cls, schema_name:str) -> List[str | Path]:
         """Private function that can be optionally overridden to define additional directories in which cls.Load(...) searches for a file from which to load an instance of the class.
 
         These extra directories are treated as optional places to search,

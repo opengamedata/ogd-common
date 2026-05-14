@@ -1,5 +1,5 @@
 ## import standard libraries
-from typing import Dict, Final, List, Optional, TypeAlias
+from typing import Any, Dict, Final, List, Optional, TypeAlias
 ## import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.typing import Map

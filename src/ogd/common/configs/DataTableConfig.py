@@ -1,12 +1,10 @@
 # import standard libraries
-import builtins
-from typing import Dict, Final, LiteralString, Optional, Self
+from typing import Any, Dict, Final, LiteralString, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.configs.storage.DatasetRepositoryConfig import DataStoreConfig
 from ogd.common.schemas.tables.TableSchemaFactory import TableSchemaFactory
 from ogd.common.schemas.tables import TableSchema as ts
-from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
 from ogd.common.utils.typing import Map
 
@@ -184,6 +182,15 @@ class DataTableConfig(Schema):
 
         ret_val = f"{self.Name}: _{self.TableSchemaName}_ format, source {self.StoreName} : {self.TableLocation.Location}"
         return ret_val
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "store":self.StoreName,
+            "table_schema":self.TableSchemaName,
+            "database":self.DatabaseName,
+            "table":self.TableName
+        }
 
     @classmethod
     def Default(cls) -> "DataTableConfig":

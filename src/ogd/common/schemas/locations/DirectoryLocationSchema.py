@@ -1,6 +1,6 @@
 ## import standard libraries
 from pathlib import Path
-from typing import Dict, Final, List, Optional, Self
+from typing import Any, Dict, Final, List, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import Map
@@ -65,6 +65,12 @@ class DirectoryLocationSchema(LocationSchema):
 
         ret_val = f"{self.Name}: {self.FolderPath}"
         return ret_val
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "folder":self.FolderPath
+        }
 
     @classmethod
     def Default(cls) -> "DirectoryLocationSchema":

@@ -1,5 +1,5 @@
 # import standard libraries
-from typing import Dict, Final, Optional, Self, TypeAlias
+from typing import Any, Dict, Final, Optional, Self, TypeAlias
 from pathlib import Path
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
@@ -94,6 +94,8 @@ class FileStoreConfig(DataStoreConfig):
         """
         return self.Location.Filepath
 
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
     @property
     def Location(self) -> FileLocationSchema:
         return self._location
@@ -101,6 +103,11 @@ class FileStoreConfig(DataStoreConfig):
     @property
     def Credential(self) -> PasswordCredential | EmptyCredential:
         return self._credential
+
+    @property
+    def AsConnectionInfo(self) -> str:
+        ret_val : str = f"{self.Name}:{self.Filepath}"
+        return ret_val
 
     @property
     def AsMarkdown(self) -> str:
@@ -111,9 +118,10 @@ class FileStoreConfig(DataStoreConfig):
         return ret_val
 
     @property
-    def AsConnectionInfo(self) -> str:
-        ret_val : str = f"{self.Name}:{self.Filepath}"
-        return ret_val
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "FILE_CREDENTIAL": self.Credential.AsDict,
+        } | self.Location.AsDict
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "FileStoreConfig":

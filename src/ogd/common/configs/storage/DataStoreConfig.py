@@ -86,7 +86,6 @@ class DataStoreConfig(Config):
 
     # *** PUBLIC STATICS ***
 
-
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***

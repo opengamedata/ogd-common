@@ -1,6 +1,6 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Final, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.KeyCredentialConfig import KeyCredential
@@ -89,6 +89,14 @@ class BigQueryConfig(DataStoreConfig):
 
         ret_val = f"{self.Name}: `{self.AsConnectionInfo}` ({self.Type})"
         return ret_val
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "SOURCE_TYPE":"BIGQUERY",
+            "PROJECT_ID":self.Location.AsDict,
+            "PROJECT_KEY":self.Credential.AsDict
+        }
 
     @classmethod
     def Default(cls) -> "BigQueryConfig":

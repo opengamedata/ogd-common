@@ -1,5 +1,5 @@
 # import standard libraries
-from typing import Dict, Final, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.typing import Map
@@ -85,6 +85,15 @@ class ColumnSchema(Schema):
             ret_val += f"\n    Other Elements: {', '.join(other_elems)}"
 
         return ret_val
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "name":self.Name,
+            "readable":self.ReadableName,
+            "description":self.Description,
+            "type":self.ValueType
+        }
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "ColumnSchema":

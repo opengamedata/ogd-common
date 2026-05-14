@@ -1,6 +1,6 @@
 """EventTableSchema Module"""
 # import standard libraries
-from typing import Dict, Optional, Self
+from typing import Any, Dict, Optional, Self
 
 # import local files
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapElement
@@ -120,6 +120,20 @@ class FeatureMapSchema(ColumnMapSchema):
         return self._values
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "app_id":self.AppIDColumn,
+            "user_id":self.UserIDColumn,
+            "session_id":self.SessionIDColumn,
+            "feature_name":self.FeatureNameColumn,
+            "feature_type":self.FeatureTypeColumn,
+            "game_unit":self.GameUnitColumn,
+            "game_unit_index":self.GameUnitIndexColumn,
+            "subfeatures":self.SubfeaturesColumn,
+            "values":self.ValuesColumn
+        }
 
     @classmethod
     def Default(cls) -> "FeatureMapSchema":

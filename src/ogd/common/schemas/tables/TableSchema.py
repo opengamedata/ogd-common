@@ -1,17 +1,15 @@
 ## import standard libraries
 import abc
-import builtins
 import json
 import logging
 from collections import Counter
 from pathlib import Path
-from typing import Any, Callable, Dict, Final, List, Optional, Tuple, Type, TypeAlias
+from typing import Any, Dict, Final, List, Optional, Type, TypeAlias
 ## import local files
 from ogd.common.schemas.tables import presets
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapElement
-from ogd.common.utils.helpers import find
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow, Map, conversions
 
@@ -187,6 +185,13 @@ class TableSchema(Schema):
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "columns":[col.AsDict for col in self.Columns],
+            "column_map": self.ColumnMap.AsDict
+        }
+
     # *** PUBLIC STATICS ***
 
     # *** PUBLIC METHODS ***
@@ -322,7 +327,7 @@ class TableSchema(Schema):
         return ret_val
 
     @classmethod
-    def _loadDirectories(cls, schema_name:str) -> List[str | Path]:
+    def _searchDirectories(cls, schema_name:str) -> List[str | Path]:
         """Private function that can be optionally overridden to define additional directories in which cls.Load(...) searches for a file from which to load an instance of the class.
 
         These extra directories are treated as optional places to search,

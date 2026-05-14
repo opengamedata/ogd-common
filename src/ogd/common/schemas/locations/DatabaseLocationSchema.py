@@ -1,5 +1,5 @@
 ## import standard libraries
-from typing import Dict, Final, List, Optional, Self
+from typing import Any, Dict, Final, List, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import Map
@@ -73,6 +73,13 @@ class DatabaseLocationSchema(LocationSchema):
 
         ret_val = f"{self.Name}: {self.DatabaseName}.{self.TableName}"
         return ret_val
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "table":self.TableName,
+            "database":self.DatabaseName
+        }
 
     @classmethod
     def Default(cls) -> "DatabaseLocationSchema":
