@@ -7,6 +7,7 @@ from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.models.DatasetKey import DatasetKey
+from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
@@ -37,16 +38,18 @@ class BasicInitCase(TestCase):
         """
         cls.test_schema = DatasetSchema(
             name="DatasetSchema", dataset_id=DatasetKey(game_id="GAME_NAME", full_month="01/2025"),
-            game_id="GAME_NAME",
+            game_id="GAME_NAME",  session_ct=100, player_ct=50,
+            filters={}, # TODO : add filters, maybe after this becomes a DatasetFilteringCollection or whatever
+            game_state={}, events={}, features={},
+            ogd_version="1.0.0", ogd_revision="123456", event_spec_version="1.0",
+            base_files_location=Path("./"),
+            game_events_file=FileLocationSchema.FromPath(name="gameevents", fullpath=Path("./raw.tsv")),
+            all_events_file=FileLocationSchema.FromPath(name="gameevents", fullpath=Path("./events.tsv")),
+            combined_feats_file=FileLocationSchema.FromPath(name="gameevents", fullpath=Path("./all_feats.tsv")),
+            sessions_file=FileLocationSchema.FromPath(name="gameevents", fullpath=Path("./sessions.tsv")),
+            players_file=FileLocationSchema.FromPath(name="gameevents", fullpath=Path("./players.tsv")),
+            population_file=FileLocationSchema.FromPath(name="gameevents", fullpath=Path("./population.tsv")),
             start_date=date(year=2025, month=1, day=1), end_date=date(year=2025, month=1, day=31), date_modified=date(year=2025, month=2, day=2),
-            ogd_revision="123456", filters={}, # TODO : add filters, maybe after this becomes a DatasetFilteringCollection or whatever
-            session_ct=100, player_ct=50,
-            game_events_file=Path("./raw.tsv"),
-            all_events_file=Path("./events.tsv"), events_template=None,
-            combined_feats_file=Path("./all_feats.tsv"), all_feats_template=None,
-            sessions_file=Path("./sessions.tsv"), sessions_template=None,
-            players_file=Path("./players.tsv"), players_template=None,
-            population_file=Path("./population.tsv"), population_template=None,
             other_elements={"foo":"bar"}
         )
 

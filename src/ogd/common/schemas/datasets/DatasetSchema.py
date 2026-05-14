@@ -22,6 +22,7 @@ class DatasetSchema(Schema):
 
     TODO : Fill in description
     TODO : Add a _parseKey function, rather than having logic for that part sit naked in FromDict
+    TODO : Deal with how to handle game ID, particularly since we don't typically include the game ID in dictionaries when using FromDict
     """
     _DEFAULT_GAME_ID             : Final[str]                     = "DEFAULT GAME"
     _DEFAULT_DATASET_ID          : Final[DatasetKey]              = DatasetKey.Default()
@@ -54,7 +55,7 @@ class DatasetSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     # TODO : overload versions for individual parts of logging spec schema, vs. passing in a whole log spec schema
-    def __init__(self, name:str, game_id:Optional[str],       dataset_id:DatasetKey,
+    def __init__(self, name:str, game_id:Optional[str],       dataset_id:Optional[DatasetKey],
                  filters:Optional[Dict[str, str | Filter]],   session_ct:Optional[int],                 player_ct:Optional[int],
                  game_state:Optional[GameStateSchema],        events:Optional[Dict[str, EventSchema]],  features:Optional[Dict[str, FeatureSchema]],
                  ogd_version:Optional[SemanticVersion | str], ogd_revision:Optional[str],               event_spec_version:Optional[SemanticVersion | str],
@@ -123,7 +124,6 @@ class DatasetSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._key                 : DatasetKey                       = dataset_id          if dataset_id          is not None else DatasetKey(game_id=game_id, from_date=start_date, to_date=end_date)
     # 1. Set population info
         self._session_ct          : Optional[int]                    = session_ct          if session_ct          is not None else self._parseSessionCount(unparsed_elements=unparsed_elements, schema_name=name)
         self._player_ct           : Optional[int]                    = player_ct           if player_ct           is not None else self._parsePlayerCount(unparsed_elements=unparsed_elements, schema_name=name)
@@ -149,6 +149,8 @@ class DatasetSchema(Schema):
         self._date_modified       : date | str                       = date_modified       if date_modified       is not None else self._parseDateModified(unparsed_elements=unparsed_elements, schema_name=name)
         self._start_date          : date | str                       = start_date          if start_date          is not None else self._parseStartDate(unparsed_elements=unparsed_elements, schema_name=name)
         self._end_date            : date | str                       = end_date            if end_date            is not None else self._parseEndDate(unparsed_elements=unparsed_elements, schema_name=name)
+    # Finally, get key
+        self._key                 : DatasetKey                       = dataset_id          if dataset_id          is not None else DatasetKey(game_id=game_id or name, from_date=self._start_date, to_date=self._end_date)
         super().__init__(name=name, other_elements=other_elements)
 
     def __str__(self) -> str:
@@ -400,10 +402,10 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         :return: _description_
         :rtype: DatasetSchema
         """
-        _key                 : DatasetKey     = DatasetKey.FromString(raw_key=name)
+        # _key                 : DatasetKey     = DatasetKey.FromString(raw_key=name)
 
         return DatasetSchema(
-            name=name, dataset_id=_key,
+            name=name, dataset_id=None,
             game_id=None,
             filters         =None, session_ct     =None, player_ct          =None,
             game_state      =None, events         =None, features           =None,
