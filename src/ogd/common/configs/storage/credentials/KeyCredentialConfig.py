@@ -1,6 +1,6 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Final, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
@@ -25,6 +25,8 @@ class KeyCredential(CredentialConfig):
         If optional params are not given, data is searched for in `other_elements`.
 
         Expected format:
+
+        TODO : expected format isn't really what's expected anymore, need to address this.
 
         ```
         {
@@ -96,6 +98,13 @@ class KeyCredential(CredentialConfig):
 
         ret_val = f"Key: {self.Filepath}"
         return ret_val
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "folder":str(self.Folder),
+            "filename":self.Filename
+        }
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "KeyCredential":

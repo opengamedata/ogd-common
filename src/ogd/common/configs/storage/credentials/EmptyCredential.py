@@ -22,6 +22,10 @@ class EmptyCredential(Config):
         ret_val = f"{self._name} Empty Credential"
         return ret_val
 
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {}
+
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "EmptyCredential":
         """Function to generate an EmptyCredential from a dictionary mapping string keys to values.
