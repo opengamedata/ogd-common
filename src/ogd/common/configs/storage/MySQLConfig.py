@@ -1,6 +1,6 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Final, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 from urllib.parse import ParseResult
 # import local files
 from ogd.common.configs.storage.SSHConfig import SSHConfig
@@ -111,6 +111,8 @@ class MySQLConfig(DataStoreConfig):
         """
         return (self.SSH.Host is not None and self.SSH.User is not None and self.SSH.Pass is not None)
 
+    # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
     @property
     def AsMarkdown(self) -> str:
         ret_val : str
@@ -118,6 +120,13 @@ class MySQLConfig(DataStoreConfig):
         ssh_part = f"{self.SSH.AsConnectionInfo} -> " if self.HasSSH else ""
         ret_val  = f"{self.Name} : `{ssh_part}{self.AsConnectionInfo}` ({self.Type})"
         return ret_val
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "DB_CONFIG":self.Credential.AsDict,
+            "SSH_CONFIG":self.SSHConf.AsDict
+        } | self._db_location.AsDict
 
     @property
     def Location(self) -> str | Path:

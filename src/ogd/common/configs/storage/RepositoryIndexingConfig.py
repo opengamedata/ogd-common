@@ -1,6 +1,6 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Final, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.Config import Config
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
@@ -77,6 +77,14 @@ class RepositoryIndexingConfig(Config):
             templates_url   = cls._DEFAULT_TEMPLATE_URL,
             other_elements  = {}
         )
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "local_dir":self.LocalDirectory.AsDict,
+            "remote_url":self.RemoteURL.AsDict if self.RemoteURL is not None else None,
+            "templates_url":self.TemplatesURL.AsDict
+        }
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "RepositoryIndexingConfig":

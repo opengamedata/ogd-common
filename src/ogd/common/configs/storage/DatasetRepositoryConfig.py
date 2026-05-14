@@ -1,7 +1,6 @@
 # standard imports
 from pathlib import Path
-from urllib.parse import urlparse
-from typing import Dict, Final, Optional, Self, TypeAlias
+from typing import Any, Dict, Final, Optional, Self, TypeAlias
 
 # ogd imports
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
@@ -97,6 +96,13 @@ class DatasetRepositoryConfig(DataStoreConfig):
     def AsMarkdown(self) -> str:
         ret_val : str = self.Name
         return ret_val
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "CONFIG":self.Indexing.AsDict,
+            "datasets":{ key:val.AsDict for key,val in self.Games.items() }
+        }
 
     @property
     def Location(self) -> BaseLocation:
