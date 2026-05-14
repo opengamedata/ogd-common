@@ -2,16 +2,14 @@
 import logging
 from datetime import date, datetime
 from pathlib import Path
-from typing import Dict, Final, List, Optional, Self, overload
+from typing import Any, Dict, Final, List, Optional, Self
 
 # ogd imports
 from ogd.common.filters.Filter import Filter
 from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.schemas.events.EventSchema import EventSchema
 from ogd.common.schemas.events.GameStateSchema import GameStateSchema
-from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.features.FeatureSchema import FeatureSchema
-from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
@@ -298,15 +296,19 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
     @property
     def AsMetadata(self) -> Dict[str, Optional[int | str | List | Dict]]:
+        return self.AsDict
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
         return {
-            "game_id"      :self.Key.GameID,
-            "dataset_id"   :str(self.Key),
-            "ogd_revision" :self.OGDRevision,
-            "filters"      :{name:str(filt) for name,filt in self.Filters.items()},
-            "start_date"   :self.StartDate.strftime("%m/%d/%Y")    if isinstance(self.StartDate, date)    else self.StartDate,
-            "end_date"     :self.EndDate.strftime("%m/%d/%Y")      if isinstance(self.EndDate, date)      else self.EndDate,
-            "date_modified":self.DateModified.strftime("%m/%d/%Y") if isinstance(self.DateModified, date) else self.DateModified,
-            "sessions"     :self.SessionCount,
+            "game_id"               : self.Key.GameID,
+            "dataset_id"            : str(self.Key),
+            "ogd_revision"          : self.OGDRevision,
+            "filters"               : {name:str(filt) for name,filt in self.Filters.items()},
+            "start_date"            : self.StartDate.strftime("%m/%d/%Y")    if isinstance(self.StartDate, date)    else self.StartDate,
+            "end_date"              : self.EndDate.strftime("%m/%d/%Y")      if isinstance(self.EndDate, date)      else self.EndDate,
+            "date_modified"         : self.DateModified.strftime("%m/%d/%Y") if isinstance(self.DateModified, date) else self.DateModified,
+            "sessions"              : self.SessionCount,
             "all_features_file"     : str(self.AllFeaturesFile),
             "population_file"       : str(self.PopulationFile),
             "players_file"          : str(self.PlayersFile),

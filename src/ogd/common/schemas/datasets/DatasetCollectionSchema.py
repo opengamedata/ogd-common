@@ -70,6 +70,12 @@ class DatasetCollectionSchema(Schema):
         ret_val : str = self.Name
         return ret_val
 
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            key:val.AsDict for key,val in self.Datasets.items()
+        }
+
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "DatasetCollectionSchema":
         """_summary_
