@@ -4,6 +4,8 @@ from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
+from ogd.common.models.events.Event import EventSource
+from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
@@ -18,7 +20,10 @@ class EventSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, description:Optional[str], event_data:Optional[Dict[str, DataElementSchema]], other_elements:Optional[Map]=None):
+    def __init__(self, name:str,            event_data:Optional[Dict[str, DataElementSchema]],
+                 description:Optional[str], source:Optional[EventSource],
+                 module_name:Optional[str], module_version:Optional[SemanticVersion],
+                 other_elements:Optional[Map]=None):
         """Constructor for the `EventSchema` class.
         
         If optional params are not given, data is searched for in `other_elements`.
@@ -50,8 +55,24 @@ class EventSchema(Schema):
 
         self._description : str                          = description if description is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
         self._event_data  : Dict[str, DataElementSchema] = event_data  if event_data  is not None else self._parseEventDataElements(unparsed_elements=unparsed_elements, schema_name=name)
+        self._source      : str                          = description if description is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
+        self._description : str                          = description if description is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
+        self._description : str                          = description if description is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
 
         super().__init__(name=name, other_elements=other_elements)
+
+    @property
+    def EventName(self) -> str:
+        """Alias for the EventSchema's name.
+
+        In general, we structure data such that the name of the schema is the same as the event it's describing.
+        However, it may also be more readable in some cases to use "EventName" for clarity,
+        e.g. when dealing with schemas for events that came from detectors.
+
+        :return: _description_
+        :rtype: str
+        """
+        return self.Name
 
     @property
     def Description(self) -> str:

@@ -323,7 +323,7 @@ class LoggingSpecificationSchema(Schema):
         )
 
     @classmethod
-    def _loadDirectories(cls, schema_name:str) -> List[str | Path]:
+    def _searchDirectories(cls, schema_name:str) -> List[str | Path]:
         """Private function that can be optionally overridden to define additional directories in which cls.Load(...) searches for a file from which to load an instance of the class.
 
         These extra directories are treated as optional places to search,
