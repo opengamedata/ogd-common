@@ -1,7 +1,7 @@
 ## import standard libraries
 import logging
 from pathlib import Path
-from typing import Dict, Final, List, Optional, Self, Tuple
+from typing import Any, Dict, Final, List, Optional, Self, Tuple
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.Logger import Logger
@@ -110,6 +110,13 @@ class FileLocationSchema(LocationSchema):
 
         ret_val = f"{self.Name}: {self.Folder / self.Filename}"
         return ret_val
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "folder":str(self.Folder),
+            "filename":self.Filename
+        }
 
     @classmethod
     def Default(cls) -> "FileLocationSchema":

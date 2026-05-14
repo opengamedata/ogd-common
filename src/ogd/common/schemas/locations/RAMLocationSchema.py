@@ -1,10 +1,7 @@
 ## import standard libraries
-import logging
-from pathlib import Path
-from typing import Dict, Final, List, Optional, Self, Tuple
+from typing import Any, Dict, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
-from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 
 ## @class FileLocationSchema
@@ -31,6 +28,10 @@ class RAMLocationSchema(LocationSchema):
     @property
     def AsMarkdown(self) -> str:
         return self.Location
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {}
 
     @classmethod
     def Default(cls) -> "RAMLocationSchema":

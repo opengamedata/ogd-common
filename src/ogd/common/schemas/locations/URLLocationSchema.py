@@ -1,6 +1,6 @@
 ## import standard libraries
-from urllib.parse import urlparse, urlunparse, ParseResult
-from typing import Dict, Final, List, Optional, Self
+from urllib.parse import urlparse, ParseResult
+from typing import Any, Dict, Final, List, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import Map
@@ -83,6 +83,12 @@ class URLLocationSchema(LocationSchema):
 
         ret_val = f"{self.Name}: {self.Location}"
         return ret_val
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "url":self.Location
+        }
 
     @classmethod
     def Default(cls) -> "URLLocationSchema":
