@@ -26,6 +26,16 @@ class Schema(abc.ABC):
         """
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the AsMarkdown function!")
 
+    @property
+    @abc.abstractmethod
+    def AsDict(self) -> Dict[str, Any]:
+        """Gets a markdown-formatted representation of the schema.
+
+        :return: A markdown-formatted representation of the schema.
+        :rtype: str
+        """
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the AsDict function!")
+
     @classmethod
     @abc.abstractmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> Self:
