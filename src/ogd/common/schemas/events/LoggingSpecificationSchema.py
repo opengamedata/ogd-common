@@ -189,6 +189,16 @@ class LoggingSpecificationSchema(Schema):
 
         return ret_val
 
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "enums":self.EnumDefs,
+            "game_state":self.GameState,
+            "user_data":self.UserData,
+            "events":[elem.AsDict for elem in self.Events],
+            "log_version":self.LoggingVersion
+        }
+
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "LoggingSpecificationSchema":
         """_summary_

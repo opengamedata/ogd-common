@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Dict, Final, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
@@ -87,6 +87,14 @@ class DataElementSchema(Schema):
             ret_val += ', '.join(detail_markdowns)
         ret_val += " |"
         return ret_val
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "type":self.ElementType,
+            "description":self.Description,
+            "details":self.Details
+        }
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "DataElementSchema":

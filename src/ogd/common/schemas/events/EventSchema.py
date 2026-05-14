@@ -15,13 +15,16 @@ class EventSchema(Schema):
 
     These essentially are just a description of the event, and a set of elements in the EventData attribute of the Event.
     """
-    _DEFAULT_DESCRIPTION : Final[str] = "Default event schema object. Does not relate to any actual data."
-    _DEFAULT_EVENT_DATA  : Final[Dict[str, DataElementSchema]] = {}
+    _DEFAULT_DESCRIPTION    : Final[str] = "Default event schema object. Does not relate to any actual data."
+    _DEFAULT_EVENT_DATA     : Final[Dict[str, DataElementSchema]] = {}
+    _DEFAULT_EVENT_SOURCE   : Final[EventSource] = EventSource.GAME
+    _DEFAULT_MODULE_NAME    : Final[None] = None
+    _DEFAULT_MODULE_VERSION : Final[None] = None
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,            event_data:Optional[Dict[str, DataElementSchema]],
-                 description:Optional[str], source:Optional[EventSource],
+                 description:Optional[str], event_source:Optional[EventSource],
                  module_name:Optional[str], module_version:Optional[SemanticVersion],
                  other_elements:Optional[Map]=None):
         """Constructor for the `EventSchema` class.
@@ -53,11 +56,11 @@ class EventSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._description : str                          = description if description is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
-        self._event_data  : Dict[str, DataElementSchema] = event_data  if event_data  is not None else self._parseEventDataElements(unparsed_elements=unparsed_elements, schema_name=name)
-        self._source      : str                          = description if description is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
-        self._description : str                          = description if description is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
-        self._description : str                          = description if description is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
+        self._description : str                          = description    if description    is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_data  : Dict[str, DataElementSchema] = event_data     if event_data     is not None else self._parseEventDataElements(unparsed_elements=unparsed_elements, schema_name=name)
+        self._source      : EventSource                  = event_source   if event_source   is not None else self._parseSource(unparsed_elements=unparsed_elements, schema_name=name)
+        self._module_name : Optional[str]                = module_name    if module_name    is not None else self._parseModuleName(unparsed_elements=unparsed_elements, schema_name=name)
+        self._mod_version : Optional[SemanticVersion]    = module_version if module_version is not None else self._parseModuleVersion(unparsed_elements=unparsed_elements, schema_name=name)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -81,6 +84,28 @@ class EventSchema(Schema):
     @property
     def EventData(self) -> Dict[str, DataElementSchema]:
         return self._event_data
+
+    @property
+    def EventSource(self) -> EventSource:
+        return self._source
+
+    @property
+    def ModuleName(self) -> Optional[str]:
+        """Property to get the name of the detector module that generates this event.
+
+        :return: The name of the detector module that generates this event, if this is a generated event, or None if it is a game event.
+        :rtype: Optional[str]
+        """
+        return self._module_name
+
+    @property
+    def ModuleVersion(self) -> Optional[SemanticVersion]:
+        """Property to get the version of the detector module that generates this event.
+
+        :return: The version of the detector module that generates this event, if this is a generated event, or None if it is a game event.
+        :rtype: Optional[SemanticVersion]
+        """
+        return self._mod_version
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -117,6 +142,20 @@ class EventSchema(Schema):
             )
         return "\n\n".join(ret_val)
 
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        ret_val : Dict[str, Any] = {
+            "description":self.Description,
+            "event_data":{ key:val.AsDict for key,val in self.EventData.items() },
+            "event_source":self.EventSource.name,
+        }
+
+        if self.ModuleName and self.ModuleVersion:
+            ret_val["module_name"] = self.ModuleName
+            ret_val["module_version"] = str(self.ModuleVersion)
+
+        return ret_val
+
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "EventSchema":
         """_summary_
@@ -130,7 +169,10 @@ class EventSchema(Schema):
         :return: _description_
         :rtype: EventSchema
         """
-        return EventSchema(name=name, description=None, event_data=None, other_elements=unparsed_elements)
+        return EventSchema(name=name,        description=None,
+                           event_data=None,  event_source=None,
+                           module_name=None, module_version=None,
+                           other_elements=unparsed_elements)
 
     @classmethod
     def Default(cls) -> "EventSchema":
@@ -138,6 +180,9 @@ class EventSchema(Schema):
             name="DefaultEventSchema",
             description=cls._DEFAULT_DESCRIPTION,
             event_data=cls._DEFAULT_EVENT_DATA,
+            event_source=cls._DEFAULT_EVENT_SOURCE,
+            module_name=cls._DEFAULT_MODULE_NAME,
+            module_version=cls._DEFAULT_MODULE_VERSION,
             other_elements={}
         )
 

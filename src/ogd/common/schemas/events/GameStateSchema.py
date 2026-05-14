@@ -1,6 +1,6 @@
 # import standard libraries
 import logging
-from typing import Dict, Final, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
@@ -93,6 +93,12 @@ class GameStateSchema(Schema):
                 "\n".join( [f"- **{elem_name}**: {elem_desc}  " for elem_name,elem_desc in self.NonStandardElements] )
             )
         return "\n\n".join(ret_val)
+
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            key:val.AsDict for key,val in self.GameStateElements.items()
+        }
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "GameStateSchema":

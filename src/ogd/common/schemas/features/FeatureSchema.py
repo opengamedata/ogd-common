@@ -154,6 +154,19 @@ class FeatureSchema(Schema):
                              module_name=None, module_version=None,
                              other_elements=unparsed_elements)
 
+    @property
+    def AsDict(self) -> Dict[str, Any]:
+        return {
+            "feature_name":self.FeatureName,
+            "description":self.Description,
+            "value_type":self.ValueType,
+            "aggregation_levels":[str(level) for level in self.AggregationLevels],
+            "iteration_count":self.IterationCount,
+            "prefix":self.IterationPrefix,
+            "module_name":self.ModuleName,
+            "module_version":self.ModuleVersion
+        }
+
     @classmethod
     def Default(cls) -> "FeatureSchema":
         return FeatureSchema(
