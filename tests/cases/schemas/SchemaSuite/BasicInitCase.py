@@ -33,6 +33,10 @@ class BasicInitCase(TestCase):
         @classmethod
         def Default(cls) -> "BasicInitCase.TestSchema":
             return BasicInitCase.TestSchema(name="DefaultTestSchema", other_elements={})
+        
+        @property
+        def AsDict(self) -> Dict[str, Any]:
+            return {}
 
         @classmethod
         def _fromDict(cls, name:str, all_elements:Dict[str, Any])-> "BasicInitCase.TestSchema":
