@@ -362,27 +362,28 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return {
             "game_id"            : self.Key.GameID,
             "dataset_id"         : str(self.Key),
-            # population info
-            "session_count"      : self.SessionCount,
-            "player_count"       : self.SessionCount,
-            "filters"            : {name:str(filt) for name,filt in self.Filters.items()},
-            # event info
+            "population"         : {
+                "session_count" : self.SessionCount,
+                "player_count"  : self.SessionCount,
+                "filters"       : {name:str(filt) for name,filt in self.Filters.items()},
+            },
             "game_state"         : self.GameState.AsDict if self.GameState else None,
             "events"             : { key : event.AsDict for key,event in self.Events.items() } if self.Events else None,
-            # feature info
             "features"           : { key : feature.AsDict for key,feature in self.Features.items() } if self.Features else None,
-            # version info
-            "ogd_version"        : str(self.OGDVersion),
-            "ogd_revision"       : self.OGDRevision,
-            "event_spec_version" : str(self.EventSpecificationVersion),
-            # output info
-            "base_file_location" : str(self._base_files_location),
-            "all_events_file"    : self._all_events_file.Location   if self._all_events_file   else None,
-            "game_events_file"   : self._game_events_file.Location  if self._game_events_file  else None,
-            "all_features_file"  : self._all_features_file.Location if self._all_features_file else None,
-            "sessions_file"      : self._sessions_file.Location     if self._sessions_file     else None,
-            "players_file"       : self._players_file.Location      if self._players_file      else None,
-            "population_file"    : self._population_file.Location   if self._population_file   else None,
+            "versioning"         : {
+                "ogd_version"        : str(self.OGDVersion),
+                "ogd_revision"       : self.OGDRevision,
+                "event_spec_version" : str(self.EventSpecificationVersion),
+            },
+            "outputs"            : {
+                "base_file_location" : str(self._base_files_location),
+                "all_events_file"    : self._all_events_file.Location   if self._all_events_file   else None,
+                "game_events_file"   : self._game_events_file.Location  if self._game_events_file  else None,
+                "all_features_file"  : self._all_features_file.Location if self._all_features_file else None,
+                "sessions_file"      : self._sessions_file.Location     if self._sessions_file     else None,
+                "players_file"       : self._players_file.Location      if self._players_file      else None,
+                "population_file"    : self._population_file.Location   if self._population_file   else None,
+            },
             # deprecated/compatibility info
             "date_modified"      : self.DateModified.strftime("%m/%d/%Y") if isinstance(self.DateModified, date) else self.DateModified,
             "start_date"         : self.StartDate.strftime("%m/%d/%Y")    if isinstance(self.StartDate, date)    else self.StartDate,
