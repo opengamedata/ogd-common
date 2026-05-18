@@ -483,7 +483,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             to_type=int,
             default_value=DatasetSchema._DEFAULT_SESSION_COUNT,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True
         )
 
     @staticmethod
@@ -497,7 +498,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             to_type=int,
             default_value=DatasetSchema._DEFAULT_PLAYER_COUNT,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True
         )
 
     @staticmethod
@@ -526,7 +528,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             to_type=dict,
             default_value=DatasetSchema._DEFAULT_GAME_STATE,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True
         )
         ret_val = GameStateSchema.FromDict(name=f"{schema_name}GameState", unparsed_elements=game_state)
 
@@ -542,7 +545,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             to_type=dict,
             default_value=DatasetSchema._DEFAULT_EVENTS,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True
         )
         ret_val = {
             event_name : EventSchema.FromDict(name=event_name, unparsed_elements=raw_event)
@@ -563,7 +567,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             to_type=dict,
             default_value=DatasetSchema._DEFAULT_FEATURES,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True
         )
         ret_val = {
             feat_name : FeatureSchema.FromDict(name=feat_name, unparsed_elements=raw_feat)
