@@ -447,7 +447,7 @@ def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element", forc
     if Capitalize(value) in [None, "NONE", "NULL", "NAN"]:
         ret_val = None
     # check if value is already of correct type.
-    elif isinstance(to_type, Type) and isinstance(value, type):
+    elif isinstance(to_type, Type) and isinstance(value, to_type):
         return value
     elif isinstance(to_type, str) and str(type(value)).upper() == f"<CLASS '{to_type}'>":
         return value
