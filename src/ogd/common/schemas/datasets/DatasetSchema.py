@@ -2,7 +2,7 @@
 import logging
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Dict, Final, List, Optional, Self
+from typing import Any, Dict, Final, List, Optional, Self, TypeAlias
 
 # ogd imports
 from ogd.common.filters.Filter import Filter
@@ -16,6 +16,8 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import Map
 from ogd.common.models.SemanticVersion import SemanticVersion
+
+type DatasetManifest = DatasetSchema
 
 class DatasetSchema(Schema):
     """DatasetSchema struct
