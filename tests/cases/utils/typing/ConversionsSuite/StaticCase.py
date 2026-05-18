@@ -39,15 +39,6 @@ class ParseToTypeNullCase(TestCase):
         _val = conversions._parseToType(value="NaN", to_type=int, name="Null Element")
         self.assertIsNone(_val)
 
-class ParseToTypeIntCase(TestCase):
-    def test_str_to_int(self):
-        _val = conversions._parseToType(value="1", to_type=int, name="Int Element")
-        self.assertIsInstance(_val, int)
-        self.assertEqual(_val, 1)
-    def test_decimal_str_to_int(self):
-        _val = conversions._parseToType(value="1.5", to_type=int, name="Int Element")
-        self.assertIsNone(_val)
-
 class ToBoolCase(TestCase):
     def test_normal_bool_true(self):
         _bool = conversions.ToBool(name="ParseBoolVal", value=True)
@@ -94,6 +85,15 @@ class ToIntCase(TestCase):
             _int = conversions.ToInt(name="ParseIntVal", value=1.25)
             self.assertIsInstance(_int, int)
             self.assertEqual(_int, 1)
+
+    def test_str_to_int(self):
+        with self.subTest(msg="ToInt: str=1"):
+            _int = conversions.ToInt(value="1", name="Int Element")
+            self.assertIsInstance(_int, int)
+            self.assertEqual(_int, 1)
+        with self.subTest(msg=" ToInt: Decimal number in str"):
+            _int = conversions.ToInt(value="1.5", name="Int Element")
+            self.assertIsNone(_int)
 
     def test_wrongtype(self):
         _nan = {1:2}
