@@ -45,6 +45,10 @@ class ParseToTypeCase(TestCase):
             _cfg = conversions._parseToType(value=_testing_cfg, to_type=TestConfig, name="Config Element")
             self.assertIsInstance(_cfg, TestConfig)
             self.assertEqual(_cfg, _testing_cfg)
+        with self.subTest(msg="_parseToType: TestConfig already TestConfig, with str type request"):
+            _cfg = conversions._parseToType(value=_testing_cfg, to_type="ogd.common.configs.TestConfig.TestConfig", name="Config Element")
+            self.assertIsInstance(_cfg, TestConfig)
+            self.assertEqual(_cfg, _testing_cfg)
 
 class ToBoolCase(TestCase):
     def test_normal_bool_true(self):

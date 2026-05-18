@@ -449,7 +449,7 @@ def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element", forc
     # check if value is already of correct type.
     elif isinstance(to_type, Type) and isinstance(value, to_type):
         return value
-    elif isinstance(to_type, str) and str(type(value)).upper() == f"<CLASS '{to_type}'>":
+    elif isinstance(to_type, str) and str(type(value)).upper() == f"<CLASS '{to_type.upper()}'>":
         return value
     else:
         match (Capitalize(to_type)):
