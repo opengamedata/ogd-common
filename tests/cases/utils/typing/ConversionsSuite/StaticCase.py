@@ -25,10 +25,19 @@ class CapitalizeCase(TestCase):
         self.assertIsInstance(_str, int)
         self.assertEqual(_str, 100)
 
-@unittest.skip("Not Implemented")
 class ConvertToTypeCase(TestCase):
-    def test_null_values(self):
-        pass
+    def test_null_value(self):
+        _val = conversions.ConvertToType(value=None, to_type=int, name="Null Element")
+        self.assertEqual(_val, None)
+    def test_none_string(self):
+        _val = conversions.ConvertToType(value="None", to_type=int, name="Null Element")
+        self.assertEqual(_val, None)
+    def test_null_string(self):
+        _val = conversions.ConvertToType(value="Null", to_type=int, name="Null Element")
+        self.assertEqual(_val, None)
+    def test_nan_string(self):
+        _val = conversions.ConvertToType(value="NaN", to_type=int, name="Null Element")
+        self.assertEqual(_val, None)
 
 class ToBoolCase(TestCase):
     def test_normal_bool_true(self):
