@@ -124,7 +124,7 @@ def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed 
                 # if the column is supposed to be an enum, for now we just stick with the string.
                 ret_val = str(value)
             case _:
-                _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
+                _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to original value of {name}={value}"
                 Logger.Log(_msg, logging.WARNING)
                 ret_val = None
     return ret_val
