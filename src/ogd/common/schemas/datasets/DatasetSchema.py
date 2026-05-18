@@ -474,8 +474,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         #region Parse population info
     @staticmethod
     def _parseSessionCount(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[int]:
+        # look for session count in the population section, if it exists.
+        population_elements = unparsed_elements.get("population", unparsed_elements)
+
         return DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
+            unparsed_elements=population_elements,
             valid_keys=["sessions", "session_count"],
             to_type=int,
             default_value=DatasetSchema._DEFAULT_SESSION_COUNT,
@@ -485,8 +488,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
     @staticmethod
     def _parsePlayerCount(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[int]:
+        # look for player count in the population section, if it exists.
+        population_elements = unparsed_elements.get("population", unparsed_elements)
+
         return DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
+            unparsed_elements=population_elements,
             valid_keys=["players", "player_count"],
             to_type=int,
             default_value=DatasetSchema._DEFAULT_PLAYER_COUNT,
@@ -496,8 +502,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
     @staticmethod
     def _parseFilters(unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, Filter | str]:
+        # look for filters in the population section, if it exists.
+        population_elements = unparsed_elements.get("population", unparsed_elements)
+
         return DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
+            unparsed_elements=population_elements,
             valid_keys=["filters"],
             to_type=dict,
             default_value=DatasetSchema._DEFAULT_FILTERS,
@@ -580,8 +589,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     def _parseOGDVersion(unparsed_elements:Map, schema_name:Optional[str]=None) -> SemanticVersion:
         ret_val : SemanticVersion
 
+        # look for OGD version in the versioning section, if it exists.
+        versioning_elements = unparsed_elements.get("versioning", unparsed_elements)
+
         raw_version = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
+            unparsed_elements=versioning_elements,
             valid_keys=["ogd_version"],
             to_type=str,
             default_value=DatasetSchema._DEFAULT_OGD_VERSION,
@@ -600,8 +612,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
     @staticmethod
     def _parseOGDRevision(unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
+        # look for OGD revision in the versioning section, if it exists.
+        versioning_elements = unparsed_elements.get("versioning", unparsed_elements)
+
         return DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
+            unparsed_elements=versioning_elements,
             valid_keys=["ogd_revision"],
             to_type=str,
             default_value=DatasetSchema._DEFAULT_OGD_REVISION,
@@ -624,8 +639,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     def _parseEventSpecVersion(unparsed_elements:Map, schema_name:Optional[str]=None) -> SemanticVersion:
         ret_val : SemanticVersion
 
+        # look for event spec version in the versioning section, if it exists.
+        versioning_elements = unparsed_elements.get("versioning", unparsed_elements)
+
         raw_version = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
+            unparsed_elements=versioning_elements,
             valid_keys=["event_specification_version", "event_spec_version"],
             to_type=str,
             default_value=DatasetSchema._DEFAULT_EVENT_VERSION,
@@ -648,8 +666,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     def _parseAllEventsFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
         ret_val : Optional[FileLocationSchema]
 
+        # look for file in the outputs section, if it exists.
+        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+
         raw_loc : Path | str = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
+            unparsed_elements=outputs_elements,
             valid_keys=["all_events_file"],
             to_type=Path,
             default_value=DatasetSchema._DEFAULT_EVENTS_FILE,
@@ -668,8 +689,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     def _parseGameEventsFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
         ret_val : Optional[FileLocationSchema]
 
+        # look for file in the outputs section, if it exists.
+        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+
         raw_loc : Path | str = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
+            unparsed_elements=outputs_elements,
             valid_keys=["events_file"],
             to_type=Path,
             default_value=DatasetSchema._DEFAULT_RAW_FILE,
@@ -688,8 +712,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     def _parseAllFeaturesFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
         ret_val : Optional[FileLocationSchema]
 
+        # look for file in the outputs section, if it exists.
+        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+
         raw_loc : Path | str = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
+            unparsed_elements=outputs_elements,
             valid_keys=["all_features_file", "features_file", "combined_features_file"],
             to_type=Path,
             default_value=DatasetSchema._DEFAULT_COMB_FEATS_FILE,
@@ -708,8 +735,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     def _parseSessionsFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
         ret_val : Optional[FileLocationSchema]
 
+        # look for file in the outputs section, if it exists.
+        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+
         raw_loc : Path | str = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
+            unparsed_elements=outputs_elements,
             valid_keys=["sessions_file"],
             to_type=Path,
             default_value=DatasetSchema._DEFAULT_SESSIONS_FILE,
@@ -728,8 +758,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     def _parsePlayersFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
         ret_val : Optional[FileLocationSchema]
 
+        # look for file in the outputs section, if it exists.
+        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+
         raw_loc : Path | str = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
+            unparsed_elements=outputs_elements,
             valid_keys=["players_file"],
             to_type=Path,
             default_value=DatasetSchema._DEFAULT_PLAYERS_FILE,
@@ -748,8 +781,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     def _parsePopulationFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
         ret_val : Optional[FileLocationSchema]
 
+        # look for file in the outputs section, if it exists.
+        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+
         raw_loc : Path | str = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
+            unparsed_elements=outputs_elements,
             valid_keys=["population_file"],
             to_type=Path,
             default_value=DatasetSchema._DEFAULT_POPULATION_FILE,
