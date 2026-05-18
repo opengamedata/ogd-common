@@ -675,7 +675,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             to_type=Path,
             default_value=DatasetSchema._DEFAULT_EVENTS_FILE,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True
         )
         if isinstance(raw_loc, Path) or raw_loc is None:
             ret_val = FileLocationSchema.FromPath(name=f"{schema_name}Events", fullpath=raw_loc)
@@ -698,7 +699,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             to_type=Path,
             default_value=DatasetSchema._DEFAULT_RAW_FILE,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True
         )
         if isinstance(raw_loc, Path) or raw_loc is None:
             ret_val = FileLocationSchema.FromPath(name=f"{schema_name}GameEvents", fullpath=raw_loc)
@@ -721,7 +723,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             to_type=Path,
             default_value=DatasetSchema._DEFAULT_COMB_FEATS_FILE,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True
         )
         if isinstance(raw_loc, Path) or raw_loc is None:
             ret_val = FileLocationSchema.FromPath(name=f"{schema_name}Features", fullpath=raw_loc)
@@ -744,7 +747,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             to_type=Path,
             default_value=DatasetSchema._DEFAULT_SESSIONS_FILE,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True
         )
         if isinstance(raw_loc, Path) or raw_loc is None:
             ret_val = FileLocationSchema.FromPath(name=f"{schema_name}Sessions", fullpath=raw_loc)
@@ -767,7 +771,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             to_type=Path,
             default_value=DatasetSchema._DEFAULT_PLAYERS_FILE,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True
         )
         if isinstance(raw_loc, Path) or raw_loc is None:
             ret_val = FileLocationSchema.FromPath(name=f"{schema_name}Players", fullpath=raw_loc)
@@ -790,7 +795,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             to_type=Path,
             default_value=DatasetSchema._DEFAULT_POPULATION_FILE,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True
         )
         if isinstance(raw_loc, Path) or raw_loc is None:
             ret_val = FileLocationSchema.FromPath(name=f"{schema_name}Population", fullpath=raw_loc)
