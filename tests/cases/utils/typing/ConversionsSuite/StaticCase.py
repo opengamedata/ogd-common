@@ -25,19 +25,28 @@ class CapitalizeCase(TestCase):
         self.assertIsInstance(_str, int)
         self.assertEqual(_str, 100)
 
-class ConvertToTypeCase(TestCase):
+class ParseToTypeNullCase(TestCase):
     def test_null_value(self):
-        _val = conversions.ConvertToType(value=None, to_type=int, name="Null Element")
-        self.assertEqual(_val, None)
+        _val = conversions._parseToType(value=None, to_type=int, name="Null Element")
+        self.assertIsNone(_val)
     def test_none_string(self):
-        _val = conversions.ConvertToType(value="None", to_type=int, name="Null Element")
-        self.assertEqual(_val, None)
+        _val = conversions._parseToType(value="None", to_type=int, name="Null Element")
+        self.assertIsNone(_val)
     def test_null_string(self):
-        _val = conversions.ConvertToType(value="Null", to_type=int, name="Null Element")
-        self.assertEqual(_val, None)
+        _val = conversions._parseToType(value="Null", to_type=int, name="Null Element")
+        self.assertIsNone(_val)
     def test_nan_string(self):
-        _val = conversions.ConvertToType(value="NaN", to_type=int, name="Null Element")
-        self.assertEqual(_val, None)
+        _val = conversions._parseToType(value="NaN", to_type=int, name="Null Element")
+        self.assertIsNone(_val)
+
+class ParseToTypeIntCase(TestCase):
+    def test_str_to_int(self):
+        _val = conversions._parseToType(value="1", to_type=int, name="Int Element")
+        self.assertIsInstance(_val, int)
+        self.assertEqual(_val, 1)
+    def test_decimal_str_to_int(self):
+        _val = conversions._parseToType(value="1.5", to_type=int, name="Int Element")
+        self.assertIsNone(_val)
 
 class ToBoolCase(TestCase):
     def test_normal_bool_true(self):
