@@ -225,7 +225,10 @@ class Schema(abc.ABC):
         :type default_value: Any
         :param remove_target: Whether to remove the target element, if found; defaults to False.
         :type remove_target: bool, optional
-        :param optional_element: Whether the element being parsed should be considered optional, if True then no warning will be given if the element is not found. Defaults to False
+        :param optional_element: Whether the element being parsed should be considered optional, meaning it may not exist in the source dictionary.
+                                 If True, then no warning will be given if the element is not found.
+                                 Whether True or False, the function will return the given `default_value` if the element is not found.
+                                 Defaults to False
         :type optional_element: bool, optional
         :param schema_name: The name of the schema instance for which an element is being parsed. This is used to make debug output slightly more specific.
         :type schema_name: str, optional
