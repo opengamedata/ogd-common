@@ -25,19 +25,26 @@ class CapitalizeCase(TestCase):
         self.assertIsInstance(_str, int)
         self.assertEqual(_str, 100)
 
-class ParseToTypeNullCase(TestCase):
-    def test_null_value(self):
-        _val = conversions._parseToType(value=None, to_type=int, name="Null Element")
-        self.assertIsNone(_val)
-    def test_none_string(self):
-        _val = conversions._parseToType(value="None", to_type=int, name="Null Element")
-        self.assertIsNone(_val)
-    def test_null_string(self):
-        _val = conversions._parseToType(value="Null", to_type=int, name="Null Element")
-        self.assertIsNone(_val)
-    def test_nan_string(self):
-        _val = conversions._parseToType(value="NaN", to_type=int, name="Null Element")
-        self.assertIsNone(_val)
+class ParseToTypeCase(TestCase):
+    def test_null_values(self):
+        with self.subTest(msg="_parseToType: None"):
+            _val = conversions._parseToType(value=None, to_type=int, name="Null Element")
+            self.assertIsNone(_val)
+        with self.subTest(msg="_parseToType: str=None"):
+            _val = conversions._parseToType(value="None", to_type=int, name="Null Element")
+            self.assertIsNone(_val)
+        with self.subTest(msg="_parseToType: str=null"):
+            _val = conversions._parseToType(value="null", to_type=int, name="Null Element")
+            self.assertIsNone(_val)
+        with self.subTest(msg="_parseToType: str=NaN"):
+            _val = conversions._parseToType(value="NaN", to_type=int, name="Null Element")
+            self.assertIsNone(_val)
+
+    def test_type_already_correct(self):
+        with self.subTest(msg="_parseToType: TestConfig already TestConfig"):
+            _cfg = conversions._parseToType(value=_testing_cfg, to_type=TestConfig, name="Config Element")
+            self.assertIsInstance(_cfg, TestConfig)
+            self.assertEqual(_cfg, _testing_cfg)
 
 class ToBoolCase(TestCase):
     def test_normal_bool_true(self):
