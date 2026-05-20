@@ -249,10 +249,11 @@ class Schema(abc.ABC):
                 ret_val = conversions.ConvertToType(value=value, to_type=to_type, name=f"{cls.__name__} element {name}")
                 found = True
                 break
-        if not found and not optional_element:
-            _title = f"'{schema_name}'" if schema_name else "source"
+        if not found:
+            _title = schema_name if schema_name else "source"
             _msg = f"{cls.__name__} {_title} does not have a '{valid_keys[0]}' element; defaulting to {valid_keys[0]}={default_value}"
-            Logger.Log(_msg, logging.WARN)
+            _level = logging.WARNING if not optional_element else logging.DEBUG
+            Logger.Log(_msg, _level)
 
         # if we got empty value back from conversion, use default instead, that's more likely what we want.
         return ret_val or default_value
