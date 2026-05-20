@@ -231,7 +231,10 @@ class Schema(abc.ABC):
         :type raw_value: Any, optional
         :param remove_target: Whether to remove the target element, if found; defaults to False.
         :type remove_target: bool, optional
-        :param optional_element: Whether the element being parsed should be considered optional, if True then no warning will be given if the element is not found. Defaults to False
+        :param optional_element: Whether the element being parsed should be considered optional, meaning it may not exist in the source dictionary.
+                                 If True, then no warning will be given if the element is not found.
+                                 Whether True or False, the function will return the given `default_value` if the element is not found.
+                                 Defaults to False
         :type optional_element: bool, optional
         :param schema_name: The name of the schema instance for which an element is being parsed. This is used to make debug output slightly more specific.
         :type schema_name: str, optional
@@ -257,10 +260,11 @@ class Schema(abc.ABC):
                     ret_val = conversions.ConvertToType(value=value, to_type=to_type, name=f"{cls.__name__} element {name}")
                     found = True
                     break
-        if not found and not optional_element:
-            _title = f"'{schema_name}'" if schema_name else "source"
+        if not found:
+            _title = schema_name if schema_name else "source"
             _msg = f"{cls.__name__} {_title} does not have a '{valid_keys[0]}' element; defaulting to {valid_keys[0]}={default_value}"
-            Logger.Log(_msg, logging.WARN)
+            _level = logging.WARNING if not optional_element else logging.DEBUG
+            Logger.Log(_msg, _level)
 
         # if we got empty value back from conversion, use default instead, that's more likely what we want.
         return ret_val or default_value
