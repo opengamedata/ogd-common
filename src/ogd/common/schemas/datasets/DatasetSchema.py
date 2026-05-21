@@ -538,7 +538,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         )
         ret_val = {
             event_name : EventSchema.FromDict(name=event_name, unparsed_elements=raw_event)
-            for event_name, raw_event in raw_events
+            for event_name, raw_event in raw_events.items()
         }
 
         return ret_val
@@ -559,7 +559,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         )
         ret_val = {
             feat_name : FeatureSchema.FromDict(name=feat_name, unparsed_elements=raw_feat)
-            for feat_name, raw_feat in raw_features
+            for feat_name, raw_feat in raw_features.items()
         }
 
         return ret_val
