@@ -7,11 +7,13 @@ It also contains a `conversions` class that works to reasonably robustly convert
 import abc
 import datetime
 import sys
-from typing import Any, Dict, TypeVar, Tuple
+from typing import Any, Dict, List, Set, TypeVar, Tuple
 ## import local files
 from ogd.common.models.SemanticVersion import SemanticVersion
 
 type Map        = Dict[str, Any]
+type JSONSafe   = str | int | float | List | Dict | Tuple | Set
+type JSONMap    = Dict[str, JSONSafe]
 type ExportRow  = Tuple[Any, ...]
 type Pair[A, B] = Tuple[A, B]
 type Version    = int | str | SemanticVersion
