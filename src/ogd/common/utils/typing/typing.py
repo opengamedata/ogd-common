@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Set, TypeVar, Tuple
 from ogd.common.models.SemanticVersion import SemanticVersion
 
 type Map        = Dict[str, Any]
-type JSONSafe   = str | int | float | List | Dict | Tuple | Set
+type JSONSafe   = None | str | int | float | List | Dict | Tuple | Set
 type JSONMap    = Dict[str, JSONSafe]
 type ExportRow  = Tuple[Any, ...]
 type Pair[A, B] = Tuple[A, B]
