@@ -180,7 +180,8 @@ class DataElementSchema(Schema):
             to_type=dict,
             default_value=DataElementSchema._DEFAULT_DETAILS,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True
         )
         if isinstance(details, dict):
             for key in details.keys():
