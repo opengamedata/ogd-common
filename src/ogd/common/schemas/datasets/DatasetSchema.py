@@ -677,7 +677,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
-        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+        outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=outputs_elements,
@@ -701,7 +701,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
-        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+        outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=outputs_elements,
@@ -725,7 +725,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
-        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+        outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=outputs_elements,
@@ -749,7 +749,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
-        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+        outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=outputs_elements,
@@ -773,7 +773,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
-        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+        outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=outputs_elements,
@@ -797,7 +797,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
-        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+        outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=outputs_elements,
