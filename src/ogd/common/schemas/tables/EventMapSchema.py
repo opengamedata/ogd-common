@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Self
 
 # import local files
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapElement
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 ## @class TableSchema
 class EventMapSchema(ColumnMapSchema):
@@ -219,7 +219,7 @@ class EventMapSchema(ColumnMapSchema):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "app_id":self.AppIDColumn,
             "user_id":self.UserIDColumn,

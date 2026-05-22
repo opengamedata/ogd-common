@@ -4,7 +4,7 @@ from typing import Any, Dict, Final, Optional, Self
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
 from ogd.common.schemas.locations.RAMLocationSchema import RAMLocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 class DictionaryStoreConfig(DataStoreConfig):
     _STORE_TYPE = "DICTIONARY"
@@ -59,7 +59,7 @@ class DictionaryStoreConfig(DataStoreConfig):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {}
 
     @classmethod

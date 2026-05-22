@@ -6,7 +6,7 @@ from ogd.common.schemas.Schema import Schema
 
 # local imports
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 # Simple class to manage a mapping of dataset names to dataset schemas.
 class DatasetCollectionSchema(Schema):
@@ -71,7 +71,7 @@ class DatasetCollectionSchema(Schema):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             key:val.AsDict for key,val in self.Datasets.items()
         }

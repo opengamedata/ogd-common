@@ -10,7 +10,7 @@ from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.schemas.datasets.DatasetCollectionSchema import DatasetCollectionSchema
 from ogd.common.utils.fileio import loadJSONFile
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 BaseLocation : TypeAlias = URLLocationSchema | DirectoryLocationSchema
 
@@ -98,7 +98,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "CONFIG":self.Indexing.AsDict,
             "datasets":{ key:val.AsDict for key,val in self.Games.items() }

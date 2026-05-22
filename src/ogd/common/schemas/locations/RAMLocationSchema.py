@@ -2,7 +2,7 @@
 from typing import Any, Dict, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 ## @class FileLocationSchema
 class RAMLocationSchema(LocationSchema):
@@ -30,7 +30,7 @@ class RAMLocationSchema(LocationSchema):
         return self.Location
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {}
 
     @classmethod

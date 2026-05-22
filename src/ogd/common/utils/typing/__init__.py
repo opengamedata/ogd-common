@@ -1,5 +1,7 @@
 __all__ = [
     "Map",
+    "JSONSafe",
+    "JSONMap",
     "ExportRow",
     "Pair",
     "Version",
@@ -7,5 +9,5 @@ __all__ = [
     "conversions"
 ]
 
-from .typing import Map, ExportRow, Pair, Version, Date
+from .typing import Map, JSONSafe, JSONMap, ExportRow, Pair, Version, Date
 from . import conversions

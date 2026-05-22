@@ -6,7 +6,7 @@ from ogd.common.configs.storage.DatasetRepositoryConfig import DataStoreConfig
 from ogd.common.schemas.tables.TableSchemaFactory import TableSchemaFactory
 from ogd.common.schemas.tables import TableSchema as ts
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import Map, JSONMap
 
 class DataTableConfig(Schema):
     """A simple Schema structure containing configuration for a specific table of data.
@@ -184,7 +184,7 @@ class DataTableConfig(Schema):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "store":self.StoreName,
             "table_schema":self.TableSchemaName,

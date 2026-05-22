@@ -2,7 +2,7 @@
 import logging
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Dict, Final, List, Optional, Self, TypeAlias
+from typing import Any, Dict, Final, List, Optional, Self
 
 # ogd imports
 from ogd.common.filters.Filter import Filter
@@ -14,7 +14,7 @@ from ogd.common.schemas.events.GameStateSchema import GameStateSchema
 from ogd.common.schemas.features.FeatureSchema import FeatureSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 from ogd.common.models.SemanticVersion import SemanticVersion
 
 type DatasetManifest = DatasetSchema
@@ -356,28 +356,29 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @property
-    def AsMetadata(self) -> Dict[str, Optional[int | str | List | Dict]]:
+    def AsMetadata(self) -> JSONMap:
         return self.AsDict
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "game_id"            : self.Key.GameID,
             "dataset_id"         : str(self.Key),
-            "population"         : {
-                "session_count" : self.SessionCount,
-                "player_count"  : self.SessionCount,
-                "filters"       : {name:str(filt) for name,filt in self.Filters.items()},
+            "population": {
+                "session_count"      : self.SessionCount,
+                "player_count"       : self.SessionCount,
+                "filters"            : {name:str(filt) for name,filt in self.Filters.items()},
             },
             "game_state"         : self.GameState.AsDict if self.GameState else None,
             "events"             : { key : event.AsDict for key,event in self.Events.items() } if self.Events else None,
             "features"           : { key : feature.AsDict for key,feature in self.Features.items() } if self.Features else None,
-            "versioning"         : {
+            "versioning": {
                 "ogd_version"        : str(self.OGDVersion),
                 "ogd_revision"       : self.OGDRevision,
                 "event_spec_version" : str(self.EventSpecificationVersion),
             },
-            "outputs"            : {
+            # output info
+            "output": {
                 "base_file_location" : str(self._base_files_location),
                 "all_events_file"    : self._all_events_file.Location   if self._all_events_file   else None,
                 "game_events_file"   : self._game_events_file.Location  if self._game_events_file  else None,
@@ -552,7 +553,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         )
         ret_val = {
             event_name : EventSchema.FromDict(name=event_name, unparsed_elements=raw_event)
-            for event_name, raw_event in raw_events
+            for event_name, raw_event in raw_events.items()
         }
 
         return ret_val
@@ -574,7 +575,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         )
         ret_val = {
             feat_name : FeatureSchema.FromDict(name=feat_name, unparsed_elements=raw_feat)
-            for feat_name, raw_feat in raw_features
+            for feat_name, raw_feat in raw_features.items()
         }
 
         return ret_val

@@ -2,7 +2,7 @@
 from typing import Any, Dict, Final, List, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 ## @class DatabaseLocationSchema
 class DatabaseLocationSchema(LocationSchema):
@@ -75,7 +75,7 @@ class DatabaseLocationSchema(LocationSchema):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "table":self.TableName,
             "database":self.DatabaseName
