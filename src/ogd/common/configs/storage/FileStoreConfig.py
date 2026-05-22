@@ -6,7 +6,7 @@ from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
 from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 FileCredential : TypeAlias = PasswordCredential | EmptyCredential
 
@@ -118,7 +118,7 @@ class FileStoreConfig(DataStoreConfig):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "FILE_CREDENTIAL": self.Credential.AsDict,
         } | self.Location.AsDict

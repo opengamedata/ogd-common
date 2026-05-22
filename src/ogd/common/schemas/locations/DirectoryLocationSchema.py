@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, Dict, Final, List, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 ## @class DirectoryLocationSchema
 class DirectoryLocationSchema(LocationSchema):
@@ -67,9 +67,9 @@ class DirectoryLocationSchema(LocationSchema):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
-            "folder":self.FolderPath
+            "folder":str(self.FolderPath)
         }
 
     @classmethod

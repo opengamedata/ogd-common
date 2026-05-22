@@ -13,7 +13,7 @@ from typing import Any, Dict, Final, Optional, Self
 
 # import OGD libraries
 from ogd.common.configs.Config import Config
-from ogd.common.utils.typing import Map, conversions
+from ogd.common.utils.typing import Map, JSONMap
 
 # import local files
 
@@ -63,7 +63,7 @@ class TestConfig(Config):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "VERBOSE":self.Verbose
         }

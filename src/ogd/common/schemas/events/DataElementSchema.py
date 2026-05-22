@@ -4,7 +4,7 @@ from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 class DataElementSchema(Schema):
     """
@@ -89,7 +89,7 @@ class DataElementSchema(Schema):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "type":self.ElementType,
             "description":self.Description,

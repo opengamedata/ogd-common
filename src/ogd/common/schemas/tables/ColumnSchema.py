@@ -2,7 +2,7 @@
 from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 class ColumnSchema(Schema):
     _DEFAULT_READABLE    : Final[str] = "Default Column Schema Name"
@@ -87,7 +87,7 @@ class ColumnSchema(Schema):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "name":self.Name,
             "readable":self.ReadableName,

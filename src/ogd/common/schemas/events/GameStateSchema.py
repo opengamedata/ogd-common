@@ -5,7 +5,7 @@ from typing import Any, Dict, Final, Optional, Self
 from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 class GameStateSchema(Schema):
     """
@@ -95,7 +95,7 @@ class GameStateSchema(Schema):
         return "\n\n".join(ret_val)
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             key:val.AsDict for key,val in self.GameStateElements.items()
         }

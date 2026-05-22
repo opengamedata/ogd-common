@@ -3,7 +3,7 @@ from urllib.parse import urlparse, ParseResult
 from typing import Any, Dict, Final, List, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 ## @class URLLocationSchema
 class URLLocationSchema(LocationSchema):
@@ -85,7 +85,7 @@ class URLLocationSchema(LocationSchema):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "url":self.Location
         }

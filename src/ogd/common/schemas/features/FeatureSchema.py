@@ -6,7 +6,7 @@ from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 class FeatureSchema(Schema):
     """
@@ -155,7 +155,7 @@ class FeatureSchema(Schema):
                              other_elements=unparsed_elements)
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "feature_name":self.FeatureName,
             "description":self.Description,
@@ -164,7 +164,7 @@ class FeatureSchema(Schema):
             "iteration_count":self.IterationCount,
             "prefix":self.IterationPrefix,
             "module_name":self.ModuleName,
-            "module_version":self.ModuleVersion
+            "module_version":str(self.ModuleVersion)
         }
 
     @classmethod

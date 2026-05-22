@@ -7,7 +7,7 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.models.events.Event import EventSource as EventSourceEnum
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 class EventSchema(Schema):
     """
@@ -143,7 +143,7 @@ class EventSchema(Schema):
         return "\n\n".join(ret_val)
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         ret_val : Dict[str, Any] = {
             "description":self.Description,
             "event_data":{ key:val.AsDict for key,val in self.EventData.items() },

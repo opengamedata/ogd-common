@@ -2,7 +2,7 @@
 from typing import Any, Dict, Final, List, Optional, Self
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 
 class PasswordCredential(CredentialConfig):
@@ -59,7 +59,7 @@ class PasswordCredential(CredentialConfig):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "USER":self.User,
             "PASS":self.Pass
