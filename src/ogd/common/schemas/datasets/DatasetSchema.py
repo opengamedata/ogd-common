@@ -9,6 +9,8 @@ from ogd.common.filters.Filter import Filter
 from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
+from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
+from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.events.EventSchema import EventSchema
 from ogd.common.schemas.events.GameStateSchema import GameStateSchema
 from ogd.common.schemas.features.FeatureSchema import FeatureSchema
@@ -42,7 +44,7 @@ class DatasetSchema(Schema):
     _DEFAULT_OGD_REVISION        : Final[str]                     = "UNKNOWN OGD REVISION"
     _DEFAULT_EVENT_VERSION       : Final[str]                     = "UNKNOWN EVENT SCHEMA VERSION"
     # output info
-    _DEFAULT_FILES_LOCATION      : Final[Path]                    = Path("data/")
+    _DEFAULT_FILES_LOCATION      : Final[DirectoryLocationSchema] = DirectoryLocationSchema(name="Default File Location", folder_path=Path("data/"))
     _DEFAULT_RAW_FILE            : Final[None]                    = None
     _DEFAULT_EVENTS_FILE         : Final[None]                    = None
     _DEFAULT_COMB_FEATS_FILE     : Final[None]                    = None
@@ -61,7 +63,7 @@ class DatasetSchema(Schema):
                  filters:Optional[Dict[str, str | Filter]],   session_ct:Optional[int],                 player_ct:Optional[int],
                  game_state:Optional[GameStateSchema],        events:Optional[Dict[str, EventSchema]],  features:Optional[Dict[str, FeatureSchema]],
                  ogd_version:Optional[SemanticVersion | str], ogd_revision:Optional[str],               event_spec_version:Optional[SemanticVersion | str],
-                 base_files_location:Optional[Path],
+                 base_files_location:Optional[LocationSchema],
                  game_events_file:Optional[LocationSchema],   all_events_file:Optional[LocationSchema], combined_feats_file:Optional[LocationSchema],
                  sessions_file:Optional[LocationSchema],      players_file:Optional[LocationSchema],    population_file:Optional[LocationSchema],
                  # deprecated, compatibility params
@@ -140,7 +142,7 @@ class DatasetSchema(Schema):
         self._ogd_revision        : str                              = ogd_revision        if ogd_revision        is not None else self._parseOGDRevision(unparsed_elements=unparsed_elements, schema_name=name)
         self._evt_spec_version    : SemanticVersion                  = self._toEventSpecVersion(version=event_spec_version, fallbacks=unparsed_elements, schema_name=name)
     # 5. Set output info
-        self._base_files_location : Path                             = base_files_location if base_files_location is not None else self._DEFAULT_FILES_LOCATION
+        self._base_files_location : LocationSchema                   = base_files_location if base_files_location is not None else self._DEFAULT_FILES_LOCATION
         self._all_events_file     : Optional[LocationSchema]         = all_events_file     if all_events_file     is not None else self._parseAllEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
         self._game_events_file    : Optional[LocationSchema]         = game_events_file    if game_events_file    is not None else self._parseGameEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
         self._all_features_file   : Optional[LocationSchema]         = combined_feats_file if combined_feats_file is not None else self._parseAllFeaturesFile(unparsed_elements=unparsed_elements, schema_name=name)
@@ -223,13 +225,13 @@ class DatasetSchema(Schema):
     # Meanwhile, all the literal implementation details assume we're using paths, i.e. FileLocationSchemas.
 
     @property
-    def GameEventsFile(self) -> Optional[Path]:
-        return self._base_files_location / self._game_events_file.Location if self._game_events_file else None
+    def GameEventsFile(self) -> Optional[str]:
+        return self._base_files_location / self._game_events_file if self._game_events_file else None
     @property
     def HasGameEventsFile(self) -> bool:
         return self._game_events_file is not None
     @property
-    def RawEventsFile(self) -> Optional[Path]:
+    def RawEventsFile(self) -> Optional[str]:
         """Alias for GameEventsFile
 
         :return: _description_
@@ -238,13 +240,13 @@ class DatasetSchema(Schema):
         return self.GameEventsFile
 
     @property
-    def AllEventsFile(self) -> Optional[Path]:
-        return self._base_files_location/ self._all_events_file.Location if self._all_events_file else None
+    def AllEventsFile(self) -> Optional[str]:
+        return self._base_files_location / self._all_events_file if self._all_events_file else None
     @property
     def HasAllEventsFile(self) -> bool:
         return self.AllEventsFile is not None
     @property
-    def EventsFile(self) -> Optional[Path]:
+    def EventsFile(self) -> Optional[str]:
         """Alias for AllEventsFile
 
         Since this is the main events file with all available events in it, we can just call it the "Events" file.
@@ -255,7 +257,7 @@ class DatasetSchema(Schema):
         return self.AllEventsFile
 
     @property
-    def FeaturesFile(self) -> Optional[Path]:
+    def FeaturesFile(self) -> Optional[str]:
         """Alias for AllFeaturesFile
         
         Since this is the main base feature file, we can just call it the "Features" file.
@@ -265,29 +267,29 @@ class DatasetSchema(Schema):
         """
         return self.CombinedFeaturesFile
     @property
-    def CombinedFeaturesFile(self) -> Optional[Path]:
-        return self._base_files_location / self._all_features_file.Location if self._all_features_file else None
+    def CombinedFeaturesFile(self) -> Optional[str]:
+        return self._base_files_location / self._all_features_file if self._all_features_file else None
     @property
     def HasCombinedFeaturesFile(self) -> bool:
         return self.CombinedFeaturesFile is not None
     
     @property
-    def SessionsFile(self) -> Optional[Path]:
-        return self._base_files_location / self._sessions_file.Location if self._sessions_file else None
+    def SessionsFile(self) -> Optional[str]:
+        return self._base_files_location / self._sessions_file if self._sessions_file else None
     @property
     def HasSessionsFile(self) -> bool:
         return self.SessionsFile is not None
 
     @property
-    def PlayersFile(self) -> Optional[Path]:
-        return self._base_files_location / self._players_file.Location if self._players_file else None
+    def PlayersFile(self) -> Optional[str]:
+        return self._base_files_location / self._players_file if self._players_file else None
     @property
     def HasPlayersFile(self) -> bool:
         return self.PlayersFile is not None
 
     @property
-    def PopulationFile(self) -> Optional[Path]:
-        return self._base_files_location / self._population_file.Location if self._population_file else None
+    def PopulationFile(self) -> Optional[str]:
+        return self._base_files_location / self._population_file if self._population_file else None
     @property
     def HasPopulationFile(self) -> bool:
         return self.PopulationFile is not None
