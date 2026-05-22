@@ -5,7 +5,7 @@ from typing import Any, Dict, Final, List, Optional, Self, Tuple
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 ## @class FileLocationSchema
 class FileLocationSchema(LocationSchema):
@@ -112,7 +112,7 @@ class FileLocationSchema(LocationSchema):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "folder":str(self.Folder),
             "filename":self.Filename

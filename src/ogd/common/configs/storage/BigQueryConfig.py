@@ -6,7 +6,7 @@ from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.KeyCredentialConfig import KeyCredential
 from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
 from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 class BigQueryConfig(DataStoreConfig):
     _STORE_TYPE       : Final[str] = "BIGQUERY"
@@ -91,7 +91,7 @@ class BigQueryConfig(DataStoreConfig):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "SOURCE_TYPE":"BIGQUERY",
             "PROJECT_ID":self.Location.AsDict,

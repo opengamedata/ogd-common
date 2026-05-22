@@ -5,7 +5,7 @@ from typing import Any, Dict, Final, Optional, Self
 from ogd.common.configs.Config import Config
 from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 from ogd.common.utils.Logger import Logger
 
 class RepositoryIndexingConfig(Config):
@@ -79,7 +79,7 @@ class RepositoryIndexingConfig(Config):
         )
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "local_dir":self.LocalDirectory.AsDict,
             "remote_url":self.RemoteURL.AsDict if self.RemoteURL is not None else None,

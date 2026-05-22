@@ -6,7 +6,7 @@ from pathlib import Path
 from shutil import copyfile
 from typing import Any, Dict, Final, List, Optional, Self, Type
 # import local files
-from ogd.common.utils.typing import conversions, Map
+from ogd.common.utils.typing import conversions, JSONMap, Map
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 
@@ -28,7 +28,7 @@ class Schema(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         """Gets a markdown-formatted representation of the schema.
 
         :return: A markdown-formatted representation of the schema.

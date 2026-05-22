@@ -7,7 +7,7 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.events.EventSchema import EventSchema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 ## @class LoggingSpecificationSchema
 class LoggingSpecificationSchema(Schema):
@@ -190,7 +190,7 @@ class LoggingSpecificationSchema(Schema):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "enums":self.EnumDefs,
             "game_state":self.GameState,

@@ -5,7 +5,7 @@ from typing import Any, Dict, Final, Optional, Self
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 class KeyCredential(CredentialConfig):
     """Dumb struct to contain data pertaining to loading a key credential
@@ -100,7 +100,7 @@ class KeyCredential(CredentialConfig):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "folder":str(self.Folder),
             "filename":self.Filename

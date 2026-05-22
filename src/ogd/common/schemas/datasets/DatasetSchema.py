@@ -2,7 +2,7 @@
 import logging
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Dict, Final, List, Optional, Self, TypeAlias
+from typing import Any, Dict, Final, List, Optional, Self
 
 # ogd imports
 from ogd.common.filters.Filter import Filter
@@ -14,7 +14,7 @@ from ogd.common.schemas.events.GameStateSchema import GameStateSchema
 from ogd.common.schemas.features.FeatureSchema import FeatureSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 from ogd.common.models.SemanticVersion import SemanticVersion
 
 type DatasetManifest = DatasetSchema
@@ -356,11 +356,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @property
-    def AsMetadata(self) -> Dict[str, Optional[int | str | List | Dict]]:
+    def AsMetadata(self) -> JSONMap:
         return self.AsDict
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "game_id"            : self.Key.GameID,
             "dataset_id"         : str(self.Key),

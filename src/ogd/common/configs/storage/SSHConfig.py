@@ -5,7 +5,7 @@ from urllib.parse import ParseResult
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 class SSHConfig(DataStoreConfig):
     _STORE_TYPE = "SSH"
@@ -99,7 +99,7 @@ class SSHConfig(DataStoreConfig):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return self.Location.AsDict | self.Credential.AsDict
 
     @classmethod
