@@ -39,9 +39,9 @@ class DirectoryLocationSchema(LocationSchema):
         :param other_elements: _description_, defaults to None
         :type other_elements: Optional[Map], optional
         """
-        fallbacks : Map = other_elements or {}
+        unparsed_elements : Map = other_elements or {}
 
-        self._folder_path = self._toFolderPath(folder_path=folder_path, fallbacks=fallbacks, schema_name=name)
+        self._folder_path = self._getFolderPath(raw_val=folder_path, unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -97,7 +97,7 @@ class DirectoryLocationSchema(LocationSchema):
         :return: _description_
         :rtype: DirectoryLocationSchema
         """
-        _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
+        _folder_path = cls._getFolderPath(raw_val=None, unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
         return DirectoryLocationSchema(name=name, folder_path=_folder_path, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
@@ -111,23 +111,13 @@ class DirectoryLocationSchema(LocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _toFolderPath(folder_path:Optional[Path | str], fallbacks:Map, schema_name:Optional[str]=None) -> Path:
-        ret_val : Path
-        if isinstance(folder_path, Path):
-            ret_val = folder_path
-        elif isinstance(folder_path, str):
-            ret_val = Path(folder_path)
-        else:
-            ret_val = DirectoryLocationSchema._parseFolderPath(unparsed_elements=fallbacks, schema_name=schema_name)
-        return ret_val
-
-    @staticmethod
-    def _parseFolderPath(unparsed_elements:Map, schema_name:Optional[str]=None, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional["DirectoryLocationSchema"]=None) -> Path:
+    def _getFolderPath(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional["DirectoryLocationSchema"]=None) -> Path:
         default_keys : List[str] = ["folder", "path"]
         search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
         default_value : Path = default_override.FolderPath if default_override else DirectoryLocationSchema._DEFAULT_PATH
 
         return DirectoryLocationSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=Path,
