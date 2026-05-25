@@ -1,7 +1,7 @@
 ## import standard libraries
 import logging
 from pathlib import Path
-from typing import Any, Dict, Final, List, Optional, Self, Tuple
+from typing import Any, Dict, Final, List, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.Logger import Logger
