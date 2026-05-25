@@ -7,7 +7,7 @@ from unittest import TestCase
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.configs.TestConfig import TestConfig
-from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
+from ogd.common.configs.locations.DatabaseLocationConfig import DatabaseLocationConfig
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.configs.DataTableConfig import DataTableConfig
@@ -132,7 +132,7 @@ class EmptyCase(TestCase):
             "fakekey" : "Baz"
         }
         _loc = DataTableConfig._getTableLocation(raw_val=None, unparsed_elements=_map)
-        self.assertIsInstance(_loc, DatabaseLocationSchema)
+        self.assertIsInstance(_loc, DatabaseLocationConfig)
         self.assertIsInstance(_loc.DatabaseName, str)
         self.assertEqual(_loc.DatabaseName, "Foo")
         self.assertIsInstance(_loc.TableName, str)

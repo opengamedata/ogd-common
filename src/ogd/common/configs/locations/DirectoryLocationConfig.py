@@ -2,11 +2,11 @@
 from pathlib import Path
 from typing import Any, Dict, Final, List, Optional, Self
 ## import local files
-from ogd.common.schemas.locations.LocationSchema import LocationSchema
+from ogd.common.configs.locations.LocationConfig import LocationConfig
 from ogd.common.utils.typing import JSONMap, Map
 
-## @class DirectoryLocationSchema
-class DirectoryLocationSchema(LocationSchema):
+## @class DirectoryLocationConfig
+class DirectoryLocationConfig(LocationConfig):
     """Class to encode the location of data within a database resource.
 
     Generally, the location of a database system would be a URLLocation,
@@ -20,7 +20,7 @@ class DirectoryLocationSchema(LocationSchema):
     def __init__(self, name:str,
                  folder_path:Optional[Path | str],
                  other_elements:Optional[Map]=None):
-        """Constructor for the `DirectoryLocationSchema` class.
+        """Constructor for the `DirectoryLocationConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
 
@@ -73,16 +73,16 @@ class DirectoryLocationSchema(LocationSchema):
         }
 
     @classmethod
-    def Default(cls) -> "DirectoryLocationSchema":
-        return DirectoryLocationSchema(
+    def Default(cls) -> "DirectoryLocationConfig":
+        return DirectoryLocationConfig(
             name="DefaultFolderLocation",
             folder_path=cls._DEFAULT_PATH,
             other_elements={}
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "DirectoryLocationSchema":
-        """Create a DatabaseLocationSchema from a given dictionary
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "DirectoryLocationConfig":
+        """Create a DatabaseLocationConfig from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
 
@@ -95,28 +95,28 @@ class DirectoryLocationSchema(LocationSchema):
         :param default_override: _description_, defaults to None
         :type default_override: Optional[Self], optional
         :return: _description_
-        :rtype: DirectoryLocationSchema
+        :rtype: DirectoryLocationConfig
         """
         _folder_path = cls._getFolderPath(raw_val=None, unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
-        return DirectoryLocationSchema(name=name, folder_path=_folder_path, other_elements=unparsed_elements)
+        return DirectoryLocationConfig(name=name, folder_path=_folder_path, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 
     @staticmethod
-    def FromString(name:str, fullpath:str) -> "DirectoryLocationSchema":
-        return DirectoryLocationSchema(name=name, folder_path=Path(fullpath))
+    def FromString(name:str, fullpath:str) -> "DirectoryLocationConfig":
+        return DirectoryLocationConfig(name=name, folder_path=Path(fullpath))
 
     # *** PUBLIC METHODS ***
 
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _getFolderPath(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional["DirectoryLocationSchema"]=None) -> Path:
+    def _getFolderPath(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional["DirectoryLocationConfig"]=None) -> Path:
         default_keys : List[str] = ["folder", "path"]
         search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
-        default_value : Path = default_override.FolderPath if default_override else DirectoryLocationSchema._DEFAULT_PATH
+        default_value : Path = default_override.FolderPath if default_override else DirectoryLocationConfig._DEFAULT_PATH
 
-        return DirectoryLocationSchema.ParseElement(
+        return DirectoryLocationConfig.ParseElement(
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,

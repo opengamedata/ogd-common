@@ -12,7 +12,7 @@ from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
 from ogd.common.models.events.EventSet import EventSet
-from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
+from ogd.common.configs.locations.DatabaseLocationConfig import DatabaseLocationConfig
 from ogd.common.storage.interfaces.CSVInterface import CSVInterface
 from ogd.common.utils.Logger import Logger
 # import locals
@@ -73,7 +73,7 @@ class BasicInitCase(TestCase):
             name="FILE SOURCE",
             store=None,
             table_schema="OGD_EVENT_FILE",
-            table_location=DatabaseLocationSchema(name="TestLocation", database_name="location", table_name=None),
+            table_location=DatabaseLocationConfig(name="TestLocation", database_name="location", table_name=None),
         )
         CSVI = CSVInterface(config=_cfg, fail_fast=False)
         cls.events : EventSet = CSVI.GetEventSet(filters=DatasetFilterCollection(), fallbacks={})

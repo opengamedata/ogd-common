@@ -4,7 +4,7 @@ from typing import Final, Optional
 # import local files
 from ogd.common.configs.Config import Config
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
-from ogd.common.schemas.locations.LocationSchema import LocationSchema
+from ogd.common.configs.locations.LocationConfig import LocationConfig
 from ogd.common.utils.typing import Map
 
 
@@ -23,7 +23,7 @@ class DataStoreConfig(Config):
 
     @property
     @abc.abstractmethod
-    def Location(self) -> LocationSchema:
+    def Location(self) -> LocationConfig:
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the Location function!")
 
     @property
