@@ -16,7 +16,7 @@ from ogd.common.schemas.events.GameStateSchema import GameStateSchema
 from ogd.common.schemas.features.FeatureSchema import FeatureSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import JSONMap, Map
+from ogd.common.utils.typing import conversions, JSONMap, Map
 from ogd.common.models.SemanticVersion import SemanticVersion
 
 type DatasetManifest = DatasetSchema
@@ -52,9 +52,9 @@ class DatasetSchema(Schema):
     _DEFAULT_PLAYERS_FILE        : Final[None]                    = None
     _DEFAULT_POPULATION_FILE     : Final[None]                    = None
     # deprecated, compatibility info
-    _DEFAULT_DATE_MODIFIED       : Final[str]                     = "UNKNOWN DATE"
-    _DEFAULT_START_DATE          : Final[str]                     = "UNKNOWN DATE"
-    _DEFAULT_END_DATE            : Final[str]                     = "UNKNOWN DATE"
+    _DEFAULT_DATE_MODIFIED       : Final[None]                     = None
+    _DEFAULT_START_DATE          : Final[None]                     = None
+    _DEFAULT_END_DATE            : Final[None]                     = None
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -150,9 +150,9 @@ class DatasetSchema(Schema):
         self._players_file        : Optional[LocationSchema]         = players_file        if players_file        is not None else self._parsePlayersFile(unparsed_elements=unparsed_elements, schema_name=name)
         self._population_file     : Optional[LocationSchema]         = population_file     if population_file     is not None else self._parsePopulationFile(unparsed_elements=unparsed_elements, schema_name=name)
     # 6. Set deprecated/compatibility info
-        self._date_modified       : date | str                       = date_modified       if date_modified       is not None else self._parseDateModified(unparsed_elements=unparsed_elements, schema_name=name)
-        self._start_date          : date | str                       = start_date          if start_date          is not None else self._parseStartDate(unparsed_elements=unparsed_elements, schema_name=name)
-        self._end_date            : date | str                       = end_date            if end_date            is not None else self._parseEndDate(unparsed_elements=unparsed_elements, schema_name=name)
+        self._date_modified       : Optional[date]                   = self._getDateModified(raw_val=date_modified, unparsed_elements=unparsed_elements, schema_name=name)
+        self._start_date          : Optional[date]                   = self._getStartDate(raw_val=start_date, unparsed_elements=unparsed_elements, schema_name=name)
+        self._end_date            : Optional[date]                   = self._getEndDate(raw_val=end_date, unparsed_elements=unparsed_elements, schema_name=name)
     # Finally, get key
         self._key                 : DatasetKey                       = dataset_id          if dataset_id          is not None else DatasetKey(game_id=game_id or name, from_date=self._start_date, to_date=self._end_date)
         super().__init__(name=name, other_elements=other_elements)
@@ -322,7 +322,7 @@ class DatasetSchema(Schema):
     # 6. Get deprecated/compatibility info
 
     @property
-    def DateModified(self) -> date | str:
+    def DateModified(self) -> Optional[date]:
         return self._date_modified
     @property
     def DateModifiedStr(self) -> str:
@@ -330,22 +330,38 @@ class DatasetSchema(Schema):
         if isinstance(self._date_modified, date):
             ret_val = self._date_modified.strftime("%m/%d/%Y")
         else:
-            ret_val = self._date_modified
+            ret_val = "UNKNOWN DATE"
         return ret_val
 
     @property
-    def StartDate(self) -> date | str:
+    def StartDate(self) -> Optional[date]:
         return self._start_date
+    @property
+    def StartDateStr(self) -> str:
+        ret_val : str
+        if isinstance(self._start_date, date):
+            ret_val = self._start_date.strftime("%m/%d/%Y")
+        else:
+            ret_val = "UNKNOWN DATE"
+        return ret_val
     @StartDate.setter
     def StartDate(self, val:date | str):
-        self._start_date = val
+        self._start_date = self._getStartDate(raw_val=val, unparsed_elements={})
 
     @property
-    def EndDate(self) -> date | str:
+    def EndDate(self) -> Optional[date]:
         return self._end_date
+    @property
+    def EndDateStr(self) -> str:
+        ret_val : str
+        if isinstance(self._end_date, date):
+            ret_val = self._end_date.strftime("%m/%d/%Y")
+        else:
+            ret_val = "UNKNOWN DATE"
+        return ret_val
     @EndDate.setter
     def EndDate(self, val:date | str):
-        self._end_date = val
+        self._end_date = self._getEndDate(raw_val=val, unparsed_elements={})
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -821,7 +837,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         #endregion
 
     @staticmethod
-    def _parseDateModified(unparsed_elements:Map, schema_name:Optional[str]=None) -> date | str:
+    def _getDateModified(raw_val:Optional[date | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[date]:
         """Function to obtain the modified date from a dictionary.
 
         :param unparsed_elements: _description_
@@ -829,36 +845,26 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         :return: _description_
         :rtype: date | str
         """
-        ret_val : date | str
-        date_modified = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["date_modified"],
-            to_type=datetime,
-            default_value=DatasetSchema._DEFAULT_DATE_MODIFIED,
-            remove_target=True,
-            schema_name=schema_name
-        )
-        if isinstance(date_modified, datetime):
-            ret_val = date_modified.date()
-        if isinstance(date_modified, date):
-            ret_val = date_modified
-        elif isinstance(date_modified, str):
-            try:
-                ret_val = datetime.strptime(date_modified, "%m/%d/%Y").date()
-            except ValueError as err:
-                ret_val = "UKNOWN DATE"
-                Logger.Log(f"Invalid date_modified for dataset schema, expected a date, but got {date_modified}, resulting in error: {err}\nUsing {ret_val} instead")
+        ret_val : Optional[date] = None
+
+        if raw_val is None:
+            ret_val = DatasetSchema.ParseElement(
+                unparsed_elements=unparsed_elements,
+                valid_keys=["date_modified"],
+                to_type=date,
+                default_value=DatasetSchema._DEFAULT_DATE_MODIFIED,
+                remove_target=True,
+                schema_name=schema_name
+            )
         else:
             try:
-                ret_val = datetime.strptime(str(date_modified), "%m/%d/%Y").date()
-                Logger.Log(f"Dataset modified date was unexpected type {type(date_modified)}, defaulting to strptime(str(date_modified))={ret_val}.", logging.WARN)
+                ret_val = conversions.ConvertToType(value=raw_val, to_type=date, name=schema_name or "DatasetSchema")
             except ValueError as err:
-                ret_val = "UKNOWN DATE"
-                Logger.Log(f"Invalid date_modified for dataset schema, expected a date, but got {str(date_modified)}, resulting in error: {err}\nUsing {ret_val} instead.")
+                Logger.Log(f"Invalid date_modified for dataset schema, expected a date, but got {raw_val}, resulting in error: {err}\nUsing {ret_val} instead")
         return ret_val
 
     @staticmethod
-    def _parseStartDate(unparsed_elements:Map, schema_name:Optional[str]=None) -> date | str:
+    def _getStartDate(raw_val:Optional[date | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[date]:
         """Function to obtain the start date from a dictionary.
 
         :param unparsed_elements: _description_
@@ -866,37 +872,26 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         :return: _description_
         :rtype: date | str
         """
-        ret_val : date | str
-        start_date = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["start_date"],
-            to_type=datetime,
-            default_value=DatasetSchema._DEFAULT_START_DATE,
-            remove_target=True,
-            schema_name=schema_name
-        )
+        ret_val : Optional[date] = None
 
-        if isinstance(start_date, datetime):
-            ret_val = start_date.date()
-        if isinstance(start_date, date):
-            ret_val = start_date
-        elif isinstance(start_date, str):
-            try:
-                ret_val = datetime.strptime(start_date, "%m/%d/%Y").date()
-            except ValueError as err:
-                ret_val = "UKNOWN DATE"
-                Logger.Log(f"Invalid start_date for dataset schema, expected a date, but got {start_date}, resulting in error: {err}\nUsing {ret_val} instead")
+        if raw_val is None:
+            ret_val = DatasetSchema.ParseElement(
+                unparsed_elements=unparsed_elements,
+                valid_keys=["start_date"],
+                to_type=date,
+                default_value=DatasetSchema._DEFAULT_START_DATE,
+                remove_target=True,
+                schema_name=schema_name
+            )
         else:
             try:
-                ret_val = datetime.strptime(str(start_date), "%m/%d/%Y").date()
-                Logger.Log(f"Dataset start date was unexpected type {type(start_date)}, defaulting to strptime(str(start_date))={ret_val}.", logging.WARN)
+                ret_val = conversions.ConvertToType(value=raw_val, to_type=date, name=schema_name or "DatasetSchema")
             except ValueError as err:
-                ret_val = "UKNOWN DATE"
-                Logger.Log(f"Invalid start_date for dataset schema, expected a date, but got {str(start_date)}, resulting in error: {err}\nUsing {ret_val} instead.")
+                Logger.Log(f"Invalid start_date for dataset schema, expected a date, but got {raw_val}, resulting in error: {err}\nUsing {ret_val} instead")
         return ret_val
 
     @staticmethod
-    def _parseEndDate(unparsed_elements:Map, schema_name:Optional[str]=None) -> date | str:
+    def _getEndDate(raw_val:Optional[date | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[date]:
         """Function to obtain the end date from a dictionary.
 
         :param unparsed_elements: _description_
@@ -904,33 +899,22 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         :return: _description_
         :rtype: date | str
         """
-        ret_val : date | str
-        end_date = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["end_date"],
-            to_type=datetime,
-            default_value=DatasetSchema._DEFAULT_END_DATE,
-            remove_target=True,
-            schema_name=schema_name
-        )
+        ret_val : Optional[date] = None
 
-        if isinstance(end_date, datetime):
-            ret_val = end_date.date()
-        if isinstance(end_date, date):
-            ret_val = end_date
-        elif isinstance(end_date, str):
-            try:
-                ret_val = datetime.strptime(end_date, "%m/%d/%Y").date()
-            except ValueError as err:
-                ret_val = "UKNOWN DATE"
-                Logger.Log(f"Invalid end_date for dataset schema, expected a date, but got {end_date}, resulting in error: {err}\nUsing {ret_val} instead")
+        if raw_val is None:
+            ret_val = DatasetSchema.ParseElement(
+                unparsed_elements=unparsed_elements,
+                valid_keys=["end_date"],
+                to_type=date,
+                default_value=DatasetSchema._DEFAULT_END_DATE,
+                remove_target=True,
+                schema_name=schema_name
+            )
         else:
             try:
-                ret_val = datetime.strptime(str(end_date), "%m/%d/%Y").date()
-                Logger.Log(f"Dataset end date was unexpected type {type(end_date)}, defaulting to strptime(str(end_date))={ret_val}.", logging.WARN)
+                ret_val = conversions.ConvertToType(value=raw_val, to_type=date, name=schema_name or "DatasetSchema")
             except ValueError as err:
-                ret_val = "UKNOWN DATE"
-                Logger.Log(f"Invalid end_date for dataset schema, expected a date, but got {str(end_date)}, resulting in error: {err}\nUsing {ret_val} instead")
+                Logger.Log(f"Invalid end_date for dataset schema, expected a date, but got {raw_val}, resulting in error: {err}\nUsing {ret_val} instead")
         return ret_val
     #endregion
 
