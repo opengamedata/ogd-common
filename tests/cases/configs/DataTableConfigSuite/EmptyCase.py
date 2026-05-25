@@ -92,7 +92,7 @@ class EmptyCase(TestCase):
             "source":"Foo",
             "fakekey" : "Bar"
         }
-        _str = DataTableConfig._parseStoreName(_map)
+        _str = DataTableConfig._getStoreName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
         self.assertNotIn("source", _map) # First parse should remove key, so "source" should not exist anymore.
@@ -101,7 +101,7 @@ class EmptyCase(TestCase):
         _map = {
             "fakekey" : "Bar"
         }
-        _str = DataTableConfig._parseStoreName(_map)
+        _str = DataTableConfig._getStoreName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, DataTableConfig._DEFAULT_STORE_NAME)
 
@@ -112,7 +112,7 @@ class EmptyCase(TestCase):
             "source_name":"Foo",
             "fakekey" : "Bar"
         }
-        _str = DataTableConfig._parseStoreName(_map)
+        _str = DataTableConfig._getStoreName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
@@ -121,7 +121,7 @@ class EmptyCase(TestCase):
             "schema":"Foo",
             "fakekey" : "Bar"
         }
-        _str = DataTableConfig._parseTableSchemaName(_map)
+        _str = DataTableConfig._getTableSchemaName(_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
@@ -131,7 +131,7 @@ class EmptyCase(TestCase):
             "table":"Bar",
             "fakekey" : "Baz"
         }
-        _loc = DataTableConfig._parseTableLocation(unparsed_elements=_map)
+        _loc = DataTableConfig._getTableLocation(unparsed_elements=_map)
         self.assertIsInstance(_loc, DatabaseLocationSchema)
         self.assertIsInstance(_loc.DatabaseName, str)
         self.assertEqual(_loc.DatabaseName, "Foo")
