@@ -7,10 +7,10 @@ from typing import Any, Dict, Final, Optional, Self
 # ogd imports
 from ogd.common.filters.Filter import Filter
 from ogd.common.models.DatasetKey import DatasetKey
-from ogd.common.schemas.locations.LocationSchema import LocationSchema
-from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
-from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
-from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
+from ogd.common.configs.locations.LocationSchema import LocationSchema
+from ogd.common.configs.locations.FileLocationSchema import FileLocationSchema
+from ogd.common.configs.locations.DirectoryLocationSchema import DirectoryLocationSchema
+from ogd.common.configs.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.events.EventSchema import EventSchema
 from ogd.common.schemas.events.GameStateSchema import GameStateSchema
 from ogd.common.schemas.features.FeatureSchema import FeatureSchema

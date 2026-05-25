@@ -1,7 +1,7 @@
 ## import standard libraries
 from typing import Any, Dict, Final, List, Optional, Self
 ## import local files
-from ogd.common.schemas.locations.LocationSchema import LocationSchema
+from ogd.common.configs.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import JSONMap, Map
 
 ## @class DatabaseLocationSchema

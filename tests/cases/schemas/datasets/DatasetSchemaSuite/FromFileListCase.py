@@ -7,7 +7,7 @@ from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.models.DatasetKey import DatasetKey
-from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
+from ogd.common.configs.locations.FileLocationSchema import FileLocationSchema
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.schemas.datasets.DatasetSchema import DatasetSchema

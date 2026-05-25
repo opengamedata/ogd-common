@@ -20,8 +20,8 @@ from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
-from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
-from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
+from ogd.common.configs.locations.URLLocationSchema import URLLocationSchema
+from ogd.common.configs.locations.DirectoryLocationSchema import DirectoryLocationSchema
 from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.storage.outerfaces.Outerface import Outerface
 from ogd.common.utils import fileio

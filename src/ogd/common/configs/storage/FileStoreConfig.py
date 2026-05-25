@@ -5,7 +5,7 @@ from pathlib import Path
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
-from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
+from ogd.common.configs.locations.FileLocationSchema import FileLocationSchema
 from ogd.common.utils.typing import JSONMap, Map
 
 FileCredential : TypeAlias = PasswordCredential | EmptyCredential

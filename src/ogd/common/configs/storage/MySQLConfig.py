@@ -7,7 +7,7 @@ from ogd.common.configs.storage.SSHConfig import SSHConfig
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
-from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
+from ogd.common.configs.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.utils.typing import JSONMap, Map
 
 class MySQLConfig(DataStoreConfig):

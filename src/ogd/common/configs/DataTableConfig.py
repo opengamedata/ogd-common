@@ -5,7 +5,7 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.configs.storage.DatasetRepositoryConfig import DataStoreConfig
 from ogd.common.schemas.tables.TableSchemaFactory import TableSchemaFactory
 from ogd.common.schemas.tables import TableSchema as ts
-from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
+from ogd.common.configs.locations.DatabaseLocationSchema import DatabaseLocationSchema
 from ogd.common.utils.typing import Map, JSONMap
 
 class DataTableConfig(Schema):

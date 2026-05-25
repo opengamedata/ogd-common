@@ -4,7 +4,7 @@ from typing import Final, Optional
 # import local files
 from ogd.common.configs.Config import Config
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
-from ogd.common.schemas.locations.LocationSchema import LocationSchema
+from ogd.common.configs.locations.LocationSchema import LocationSchema
 from ogd.common.utils.typing import Map
 
 

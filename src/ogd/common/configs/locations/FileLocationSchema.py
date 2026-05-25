@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Final, List, Optional, Self
 ## import local files
-from ogd.common.schemas.locations.LocationSchema import LocationSchema
+from ogd.common.configs.locations.LocationSchema import LocationSchema
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import JSONMap, Map
 

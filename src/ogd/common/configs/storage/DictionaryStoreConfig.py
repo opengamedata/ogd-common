@@ -3,7 +3,7 @@ from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
-from ogd.common.schemas.locations.RAMLocationSchema import RAMLocationSchema
+from ogd.common.configs.locations.RAMLocationSchema import RAMLocationSchema
 from ogd.common.utils.typing import JSONMap, Map
 
 class DictionaryStoreConfig(DataStoreConfig):

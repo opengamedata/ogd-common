@@ -7,8 +7,8 @@ from urllib.parse import urlparse
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
-from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
-from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
+from ogd.common.configs.locations.DirectoryLocationSchema import DirectoryLocationSchema
+from ogd.common.configs.locations.URLLocationSchema import URLLocationSchema
 # import locals
 from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
 from config.t_config import settings

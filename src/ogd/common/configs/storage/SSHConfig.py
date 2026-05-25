@@ -4,7 +4,7 @@ from urllib.parse import ParseResult
 # import local files
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
-from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
+from ogd.common.configs.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.utils.typing import JSONMap, Map
 
 class SSHConfig(DataStoreConfig):

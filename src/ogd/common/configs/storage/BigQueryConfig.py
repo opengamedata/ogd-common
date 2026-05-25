@@ -4,8 +4,8 @@ from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.KeyCredentialConfig import KeyCredential
-from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
-from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
+from ogd.common.configs.locations.DatabaseLocationSchema import DatabaseLocationSchema
+from ogd.common.configs.locations.FileLocationSchema import FileLocationSchema
 from ogd.common.utils.typing import JSONMap, Map
 
 class BigQueryConfig(DataStoreConfig):
