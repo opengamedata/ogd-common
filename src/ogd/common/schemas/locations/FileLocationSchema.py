@@ -1,7 +1,7 @@
 ## import standard libraries
 import logging
 from pathlib import Path
-from typing import Any, Dict, Final, List, Optional, Self, Tuple
+from typing import Any, Dict, Final, List, Optional, Self
 ## import local files
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.utils.Logger import Logger
@@ -15,12 +15,12 @@ class FileLocationSchema(LocationSchema):
     while DatabaseLocation refers to the location of a specific database or table within such a system.
     """
 
-    _DEFAULT_PATH     : Final[Path] = Path("./")
-    _DEFAULT_FILENAME : Final[str]  = "file.tsv"
+    _DEFAULT_PATH     : Final[Path] = Path("./file.tsv")
+    _DEFAULT_FILENAME : Final[None] = None
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, folder_path:Path | str, filename:str, other_elements:Optional[Map]=None):
+    def __init__(self, name:str, folder_path:Optional[Path | str], filename:Optional[str], other_elements:Optional[Map]=None):
         """Constructor for the `FileLocationSchema` class.
         
         If optional params are not given, data is searched for in `other_elements`.
@@ -34,13 +34,17 @@ class FileLocationSchema(LocationSchema):
         },
         ```
 
+        Supports "path" in place of "folder", and "file" in place of "filename."
+        Supports cases where the folder path includes the file, though this is not the standard use of the schema.
+
         :param name: _description_
         :type name: str
-        :param folder_path: _description_
+        :param folder_path: A path to the folder containing the desired file.
+                            Optionally, the file may be included in this path, though it is preferable to pass in the filename separately.
         :type folder_path: Path | str
-        :param filename: _description_
+        :param filename: The name of the desired file within the `folder_path`.
         :type filename: str
-        :param other_elements: _description_, defaults to None
+        :param other_elements: A dictionary in which to search for any elements not given as arguments, defaults to None
         :type other_elements: Optional[Map], optional
         """
         unparsed_elements : Map = other_elements or {}
@@ -48,23 +52,24 @@ class FileLocationSchema(LocationSchema):
         self._folder_path  : Path
         self._filename     : str
 
+        raw_path  = self._getFolderPath(raw_val=folder_path, unparsed_elements=unparsed_elements, schema_name=name)
+        raw_filename = self._getFilename(raw_val=filename, unparsed_elements=unparsed_elements, schema_name=name)
 
-        if isinstance(folder_path, str):
-            folder_path = Path(folder_path)
-        # 1. If we got both params, then just use them.
-        if folder_path and filename:
-            self._folder_path = folder_path
-            self._filename    = filename
-        # 2. Otherwise, try to get as full path as first try. If it return something, then we've got what we need.
+        # If raw_path pointed at a file, we use parent folder for the path, and 'name' for the filename...
+        if raw_path.is_file():
+            self._folder_path = raw_path.parent
+            if raw_filename is None:
+                self._filename = raw_path.name
         else:
-            parsed_path = self._parsePath(unparsed_elements=unparsed_elements, schema_name=name)
-            if parsed_path:
-                self._folder_path = parsed_path[0]
-                self._filename    = parsed_path[1]
-        # 3. If there wasn't a full path, then we move on to just parse folder and filename from dict directly.
-            else:
-                self._folder_path = folder_path if folder_path is not None else self._parseFolderPath(unparsed_elements=unparsed_elements, schema_name=name)
-                self._filename    = filename    if filename    is not None else self._parseFilename(unparsed_elements=unparsed_elements, schema_name=name)
+            self._folder_path = raw_path
+        # unless raw filename also came up with something. Then we use raw filename for file name, even if raw path pointed at a file.
+        # Always choose to use the more specific parameter.
+        if raw_filename is not None:
+            self._filename = raw_filename
+            if raw_path.is_file():
+                Logger.Log("FileLocationSchema was given a folder path that included a file, and a filename! Defaulting to the given filename, in place of the file contained in the folder path.", logging.WARNING)
+        
+
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -144,25 +149,11 @@ class FileLocationSchema(LocationSchema):
         :return: _description_
         :rtype: FileLocationSchema
         """
-        _folder_path : Path
-        _filename    : str
-
-        # 2. Otherwise, try to get as full path as first try. If it return something, then we've got what we need.
-        parsed_path = cls._parsePath(unparsed_elements=unparsed_elements, key_overrides=key_overrides, schema_name=name)
-        _used = {"path"}
-        if parsed_path:
-            _folder_path = parsed_path[0]
-            _filename    = parsed_path[1]
-        # 3. If there wasn't a full path, then we move on to just parse folder and filename from dict directly.
-        else:
-            _folder_path = cls._parseFolderPath(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override, schema_name=name)
-            _filename    = cls._parseFilename(unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override, schema_name=name)
-            # if we didn't find a folder, but the file has a '/' in it, we should be able to get file separate from path.
-            if _folder_path is None and _filename is not None and "/" in _filename:
-                _full_path = Path(_filename)
-                _folder_path = _full_path.parent
-                _filename    = _full_path.name
-            _used = _used.union({"folder", "filename", "file"})
+        # Call the 'get' functions with overrides, and pass along result as values for the constructor.
+        # It will still handle the sorting out of what is file and what is path.
+        _folder_path : Path          = cls._getFolderPath(raw_val=None, unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
+        _filename    : Optional[str] = cls._getFilename(raw_val=None, unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
+        _used = {"folder", "filename", "path", "file"}
 
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
         return FileLocationSchema(name=name, folder_path=_folder_path, filename=_filename, other_elements=_leftovers)
@@ -170,14 +161,10 @@ class FileLocationSchema(LocationSchema):
     # *** PUBLIC STATICS ***
 
     @staticmethod
-    def FromString(name:str, fullpath:str) -> "FileLocationSchema":
-        return FileLocationSchema.FromPath(name=name, fullpath=Path(fullpath))
-
-    @staticmethod
-    def FromPath(name:str, fullpath:Path) -> "FileLocationSchema":
+    def FromPath(name:str, fullpath:Path | str) -> "FileLocationSchema":
+        if isinstance(fullpath, str):
+            fullpath = Path(fullpath)
         if fullpath:
-            # if not fullpath.is_file():
-            #     raise ValueError(f"FileLocationSchema was given a path '{fullpath}' which is not a valid file!", logging.WARNING)
             if not "." in fullpath.name:
                 Logger.Log(f"FileLocationSchema was given a path '{fullpath}' which does not include a file extension!", logging.WARNING)
             return FileLocationSchema(name=name, folder_path=fullpath.parent, filename=fullpath.name)
@@ -187,41 +174,7 @@ class FileLocationSchema(LocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parsePath(unparsed_elements:Map,
-                   schema_name:Optional[str]=None,
-                   key_overrides:Optional[Dict[str, str]]=None) -> Optional[Tuple[Path, str]]:
-        """Function to parse a full path into a folder and filename
-
-        :param unparsed_elements: _description_
-        :type unparsed_elements: Map
-        :return: _description_
-        :rtype: Optional[str]
-        """
-        ret_val = None
-
-        default_keys : List[str] = ["path"]
-        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
-
-        raw_path = FileLocationSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=search_keys,
-            to_type=Path,
-            default_value=None,
-            remove_target=True,
-            optional_element=True,
-            schema_name=schema_name
-        )
-        if raw_path:
-            ret_val = (raw_path.parent, raw_path.name)
-            if not raw_path.is_file():
-                Logger.Log(f"FileLocationSchema was given a path '{raw_path}' which is not a valid file!", logging.WARNING)
-            elif not "." in raw_path.name:
-                Logger.Log(f"FileLocationSchema was given a path '{raw_path}' which does not include a file extension!", logging.WARNING)
-
-        return ret_val
-
-    @staticmethod
-    def _parseFolderPath(unparsed_elements:Map,
+    def _getFolderPath(raw_val:Any, unparsed_elements:Map,
                          schema_name:Optional[str]=None,
                          key_overrides:Optional[Dict[str, str]]=None,
                          default_override:Optional["FileLocationSchema"]=None) -> Path:
@@ -230,6 +183,7 @@ class FileLocationSchema(LocationSchema):
         default_value : Path = default_override.Folder if default_override else FileLocationSchema._DEFAULT_PATH
 
         return FileLocationSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=Path,
@@ -239,19 +193,21 @@ class FileLocationSchema(LocationSchema):
         )
 
     @staticmethod
-    def _parseFilename(unparsed_elements:Map,
+    def _getFilename(raw_val:Any, unparsed_elements:Map,
                        schema_name:Optional[str]=None,
                        key_overrides:Optional[Dict[str, str]]=None,
-                       default_override:Optional["FileLocationSchema"]=None) -> str:
-        default_keys : List[str] = ["filename", "file"]
-        search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
-        default_value : str = default_override.Filename if default_override else FileLocationSchema._DEFAULT_FILENAME
+                       default_override:Optional["FileLocationSchema"]=None) -> Optional[str]:
+        default_keys  : List[str] = ["filename", "file"]
+        search_keys   : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
+        default_value : Optional[str] = default_override.Filename if default_override else FileLocationSchema._DEFAULT_FILENAME
 
         return FileLocationSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=str,
             default_value=default_value,
             remove_target=True,
+            optional_element=True,
             schema_name=schema_name
         )

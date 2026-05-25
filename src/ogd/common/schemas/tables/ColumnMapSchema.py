@@ -47,9 +47,9 @@ class ColumnMapSchema(Schema):
         # declare and initialize vars
         self._raw_map : Map = other_elements or {}
 
-        self._app_id     : ColumnMapElement = app_id     if app_id     is not None else self._parseAppID(unparsed_elements=self._raw_map, schema_name=name)
-        self._user_id    : ColumnMapElement = user_id    if user_id    is not None else self._parseUserID(unparsed_elements=self._raw_map, schema_name=name)
-        self._session_id : ColumnMapElement = session_id if session_id is not None else self._parseSessionID(unparsed_elements=self._raw_map, schema_name=name)
+        self._app_id     : ColumnMapElement = self._getAppID(raw_val=app_id, unparsed_elements=self._raw_map, schema_name=name)
+        self._user_id    : ColumnMapElement = self._getUserID(raw_val=user_id, unparsed_elements=self._raw_map, schema_name=name)
+        self._session_id : ColumnMapElement = self._getSessionID(raw_val=session_id, unparsed_elements=self._raw_map, schema_name=name)
 
         # after loading the file, take the stuff we need and store.
         super().__init__(name=name, other_elements=other_elements)
@@ -123,8 +123,9 @@ class ColumnMapSchema(Schema):
     # *** PRIVATE STATICS ***
     
     @staticmethod
-    def _parseAppID(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[str | List[str]]:
+    def _getAppID(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[str | List[str]]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["app_id", "game_id"],
             to_type=[str, list, dict],
@@ -134,8 +135,9 @@ class ColumnMapSchema(Schema):
         )
 
     @staticmethod
-    def _parseUserID(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[str | List[str]]:
+    def _getUserID(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[str | List[str]]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["user_id", "player_id"],
             to_type=[str, list, dict],
@@ -145,8 +147,9 @@ class ColumnMapSchema(Schema):
         )
 
     @staticmethod
-    def _parseSessionID(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[str | List[str]]:
+    def _getSessionID(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[str | List[str]]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["session_id"],
             to_type=[str, list, dict],

@@ -50,9 +50,9 @@ class DataElementSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._type        : str                      = element_type if element_type is not None else self._parseElementType(unparsed_elements=unparsed_elements, schema_name=name)
-        self._description : str                      = description  if description  is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
-        self._details     : Optional[Dict[str, str]] = details      if details      is not None else self._parseDetails(unparsed_elements=unparsed_elements, schema_name=name)
+        self._type        : str                      = self._getElementType(raw_val=element_type, unparsed_elements=unparsed_elements, schema_name=name)
+        self._description : str                      = self._getDescription(raw_val=description, unparsed_elements=unparsed_elements, schema_name=name)
+        self._details     : Optional[Dict[str, str]] = self._getDetails(raw_val=details, unparsed_elements=unparsed_elements, schema_name=name)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -149,8 +149,9 @@ class DataElementSchema(Schema):
     # *** PRIVATE STATICS ***
     
     @staticmethod
-    def _parseElementType(unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
+    def _getElementType(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
         return DataElementSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["type"],
             to_type=str,
@@ -160,8 +161,9 @@ class DataElementSchema(Schema):
         )
     
     @staticmethod
-    def _parseDescription(unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
+    def _getDescription(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
         return DataElementSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["description"],
             to_type=str,
@@ -171,10 +173,11 @@ class DataElementSchema(Schema):
         )
 
     @staticmethod
-    def _parseDetails(unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getDetails(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, str]:
         ret_val : Dict[str, str] = {}
 
         details = DataElementSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["details"],
             to_type=dict,
@@ -182,6 +185,7 @@ class DataElementSchema(Schema):
             remove_target=True,
             schema_name=schema_name
         )
+        # After getting the dict, make sure each sub-element is converted to a string.
         if isinstance(details, dict):
             for key in details.keys():
                 if not isinstance(key, str):
@@ -190,6 +194,7 @@ class DataElementSchema(Schema):
                 else:
                     _key = key
                 ret_val[_key] = DataElementSchema.ParseElement(
+                    raw_value=None,
                     unparsed_elements=details,
                     valid_keys=[_key],
                     to_type=str,

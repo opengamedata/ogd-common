@@ -1,8 +1,8 @@
 # standard imports
 import logging
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
-from typing import Any, Dict, Final, List, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 
 # ogd imports
 from ogd.common.filters.Filter import Filter
@@ -129,26 +129,26 @@ class DatasetSchema(Schema):
         unparsed_elements : Map = other_elements or {}
 
     # 1. Set population info
-        self._session_ct          : Optional[int]                    = session_ct          if session_ct          is not None else self._parseSessionCount(unparsed_elements=unparsed_elements, schema_name=name)
-        self._player_ct           : Optional[int]                    = player_ct           if player_ct           is not None else self._parsePlayerCount(unparsed_elements=unparsed_elements, schema_name=name)
-        self._filters             : Dict[str, str | Filter]          = filters             if filters             is not None else self._parseFilters(unparsed_elements=unparsed_elements, schema_name=name)
+        self._session_ct          : Optional[int]                    = self._getSessionCount(raw_val=session_ct, unparsed_elements=unparsed_elements, schema_name=name)
+        self._player_ct           : Optional[int]                    = self._getPlayerCount(raw_val=player_ct, unparsed_elements=unparsed_elements, schema_name=name)
+        self._filters             : Dict[str, str | Filter]          = self._getFilters(raw_val=filters, unparsed_elements=unparsed_elements, schema_name=name)
     # 2. Set event info
-        self._game_state          : Optional[GameStateSchema]        = game_state          if game_state          is not None else self._parseGameState(unparsed_elements=unparsed_elements, schema_name=name)
-        self._events              : Optional[Dict[str, EventSchema]] = events              if events              is not None else self._parseEvents(unparsed_elements=unparsed_elements, schema_name=name)
+        self._game_state          : Optional[GameStateSchema]        = self._getGameState(raw_val=game_state, unparsed_elements=unparsed_elements, schema_name=name)
+        self._events              : Optional[Dict[str, EventSchema]] = self._getEvents(raw_val=events, unparsed_elements=unparsed_elements, schema_name=name)
     # 3. Set feature info
-        self._features            : Optional[Dict[str, FeatureSchema]] = features          if features            is not None else self._parseFeatures(unparsed_elements=unparsed_elements, schema_name=name)
+        self._features            : Optional[Dict[str, FeatureSchema]] = self._getFeatures(raw_val=features, unparsed_elements=unparsed_elements, schema_name=name)
     # 4. Set version info
-        self._ogd_version         : SemanticVersion                  = self._toOGDVersion(version=ogd_version, fallbacks=unparsed_elements, schema_name=name)
-        self._ogd_revision        : str                              = ogd_revision        if ogd_revision        is not None else self._parseOGDRevision(unparsed_elements=unparsed_elements, schema_name=name)
-        self._evt_spec_version    : SemanticVersion                  = self._toEventSpecVersion(version=event_spec_version, fallbacks=unparsed_elements, schema_name=name)
+        self._ogd_version         : SemanticVersion                  = self._getOGDVersion(raw_val=ogd_version, unparsed_elements=unparsed_elements, schema_name=name)
+        self._ogd_revision        : str                              = self._getOGDRevision(raw_val=ogd_revision, unparsed_elements=unparsed_elements, schema_name=name)
+        self._evt_spec_version    : SemanticVersion                  = self._getEventSpecVersion(raw_val=event_spec_version, unparsed_elements=unparsed_elements, schema_name=name)
     # 5. Set output info
         self._base_files_location : LocationSchema                   = base_files_location if base_files_location is not None else self._DEFAULT_FILES_LOCATION
-        self._all_events_file     : Optional[LocationSchema]         = all_events_file     if all_events_file     is not None else self._parseAllEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._game_events_file    : Optional[LocationSchema]         = game_events_file    if game_events_file    is not None else self._parseGameEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._all_features_file   : Optional[LocationSchema]         = combined_feats_file if combined_feats_file is not None else self._parseAllFeaturesFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._sessions_file       : Optional[LocationSchema]         = sessions_file       if sessions_file       is not None else self._parseSessionsFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._players_file        : Optional[LocationSchema]         = players_file        if players_file        is not None else self._parsePlayersFile(unparsed_elements=unparsed_elements, schema_name=name)
-        self._population_file     : Optional[LocationSchema]         = population_file     if population_file     is not None else self._parsePopulationFile(unparsed_elements=unparsed_elements, schema_name=name)
+        self._all_events_file     : Optional[LocationSchema]         = self._getAllEventsFile(raw_val=all_events_file, unparsed_elements=unparsed_elements, schema_name=name)
+        self._game_events_file    : Optional[LocationSchema]         = self._getGameEventsFile(raw_val=game_events_file, unparsed_elements=unparsed_elements, schema_name=name)
+        self._all_features_file   : Optional[LocationSchema]         = self._getAllFeaturesFile(raw_val=combined_feats_file, unparsed_elements=unparsed_elements, schema_name=name)
+        self._sessions_file       : Optional[LocationSchema]         = self._getSessionsFile(raw_val=sessions_file, unparsed_elements=unparsed_elements, schema_name=name)
+        self._players_file        : Optional[LocationSchema]         = self._getPlayersFile(raw_val=players_file, unparsed_elements=unparsed_elements, schema_name=name)
+        self._population_file     : Optional[LocationSchema]         = self._getPopulationFile(raw_val=population_file, unparsed_elements=unparsed_elements, schema_name=name)
     # 6. Set deprecated/compatibility info
         self._date_modified       : Optional[date]                   = self._getDateModified(raw_val=date_modified, unparsed_elements=unparsed_elements, schema_name=name)
         self._start_date          : Optional[date]                   = self._getStartDate(raw_val=start_date, unparsed_elements=unparsed_elements, schema_name=name)
@@ -494,11 +494,12 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
         #region Parse population info
     @staticmethod
-    def _parseSessionCount(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[int]:
+    def _getSessionCount(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[int]:
         # look for session count in the population section, if it exists.
         population_elements = unparsed_elements.get("population", unparsed_elements)
 
         return DatasetSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=population_elements,
             valid_keys=["sessions", "session_count"],
             to_type=int,
@@ -509,11 +510,12 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         )
 
     @staticmethod
-    def _parsePlayerCount(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[int]:
+    def _getPlayerCount(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[int]:
         # look for player count in the population section, if it exists.
         population_elements = unparsed_elements.get("population", unparsed_elements)
 
         return DatasetSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=population_elements,
             valid_keys=["players", "player_count"],
             to_type=int,
@@ -524,11 +526,12 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         )
 
     @staticmethod
-    def _parseFilters(unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, Filter | str]:
+    def _getFilters(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, Filter | str]:
         # look for filters in the population section, if it exists.
         population_elements = unparsed_elements.get("population", unparsed_elements)
 
         return DatasetSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=population_elements,
             valid_keys=["filters"],
             to_type=dict,
@@ -540,10 +543,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
         #region Parse event info
     @staticmethod
-    def _parseGameState(unparsed_elements:Map, schema_name:Optional[str]=None) -> GameStateSchema:
+    def _getGameState(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> GameStateSchema:
         ret_val : GameStateSchema
 
         game_state = DatasetSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["game_state"],
             to_type=dict,
@@ -557,10 +561,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseEvents(unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, EventSchema]:
+    def _getEvents(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, EventSchema]:
         ret_val : Dict[str, EventSchema]
 
         raw_events = DatasetSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["events"],
             to_type=dict,
@@ -579,10 +584,11 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
         #region Parse feature info
     @staticmethod
-    def _parseFeatures(unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, FeatureSchema]:
+    def _getFeatures(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, FeatureSchema]:
         ret_val : Dict[str, FeatureSchema]
 
         raw_features = DatasetSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["features"],
             to_type=dict,
@@ -600,48 +606,46 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         #endregion
 
         #region Parse version info
+
     @staticmethod
-    def _toOGDVersion(version:Optional[SemanticVersion | str], fallbacks:Map, schema_name:Optional[str]=None) -> SemanticVersion:
+    def _getOGDVersion(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> SemanticVersion:
         ret_val : SemanticVersion
-        if isinstance(version, SemanticVersion):
-            ret_val = version
-        elif isinstance(version, str):
-            ret_val = SemanticVersion.FromString(semver=version, verbose=False)
+
+        # 1. Get a raw 'version' value to work with.
+        raw_version : Any
+        if raw_val is not None:
+            raw_version = raw_val
         else:
-            ret_val = DatasetSchema._parseOGDVersion(unparsed_elements=fallbacks, schema_name=schema_name)
-        return ret_val
+            # look for OGD version in the versioning section, if it exists.
+            versioning_elements = unparsed_elements.get("versioning", unparsed_elements)
 
-    @staticmethod
-    def _parseOGDVersion(unparsed_elements:Map, schema_name:Optional[str]=None) -> SemanticVersion:
-        ret_val : SemanticVersion
-
-        # look for OGD version in the versioning section, if it exists.
-        versioning_elements = unparsed_elements.get("versioning", unparsed_elements)
-
-        raw_version = DatasetSchema.ParseElement(
-            unparsed_elements=versioning_elements,
-            valid_keys=["ogd_version"],
-            to_type=str,
-            default_value=DatasetSchema._DEFAULT_OGD_VERSION,
-            remove_target=True,
-            schema_name=schema_name
-        )
+            raw_version = DatasetSchema.ParseElement(
+                raw_value=raw_val,
+                unparsed_elements=versioning_elements,
+                valid_keys=["ogd_version"],
+                to_type=str,
+                default_value=DatasetSchema._DEFAULT_OGD_VERSION,
+                remove_target=True,
+                schema_name=schema_name
+            )
+        # 2. Turn the raw version into a parsed-out SemanticVersion
         if isinstance(raw_version, SemanticVersion):
             ret_val = raw_version
         elif isinstance(raw_version, str):
-            ret_val = SemanticVersion.FromString(raw_version)
+            ret_val = SemanticVersion.FromString(semver=raw_version, verbose=False)
         else:
-            Logger.Log(f"In DatasetSchema, raw OGD version was unexpected type {type(raw_version)}, using SemanticVersion.FromString(str(raw_version))")
+            Logger.Log(f"In DatasetSchema, raw OGD version was unexpected type {type(raw_version)}, using SemanticVersion.FromString(str(raw_version))", logging.WARNING)
             ret_val = SemanticVersion.FromString(str(raw_version))
 
         return ret_val
 
     @staticmethod
-    def _parseOGDRevision(unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
+    def _getOGDRevision(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
         # look for OGD revision in the versioning section, if it exists.
         versioning_elements = unparsed_elements.get("versioning", unparsed_elements)
 
         return DatasetSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=versioning_elements,
             valid_keys=["ogd_revision"],
             to_type=str,
@@ -651,35 +655,30 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         )
 
     @staticmethod
-    def _toEventSpecVersion(version:Optional[SemanticVersion | str], fallbacks:Map, schema_name:Optional[str]=None) -> SemanticVersion:
+    def _getEventSpecVersion(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> SemanticVersion:
         ret_val : SemanticVersion
-        if isinstance(version, SemanticVersion):
-            ret_val = version
-        elif isinstance(version, str):
-            ret_val = SemanticVersion.FromString(semver=version, verbose=False)
+
+        # 1. Get a raw 'version' value to work with.
+        raw_version : Any
+        if raw_val is not None:
+            raw_version = raw_val
         else:
-            ret_val = DatasetSchema._parseEventSpecVersion(unparsed_elements=fallbacks, schema_name=schema_name)
-        return ret_val
+            # look for event spec version in the versioning section, if it exists.
+            versioning_elements = unparsed_elements.get("versioning", unparsed_elements)
 
-    @staticmethod
-    def _parseEventSpecVersion(unparsed_elements:Map, schema_name:Optional[str]=None) -> SemanticVersion:
-        ret_val : SemanticVersion
-
-        # look for event spec version in the versioning section, if it exists.
-        versioning_elements = unparsed_elements.get("versioning", unparsed_elements)
-
-        raw_version = DatasetSchema.ParseElement(
-            unparsed_elements=versioning_elements,
-            valid_keys=["event_specification_version", "event_spec_version"],
-            to_type=str,
-            default_value=DatasetSchema._DEFAULT_EVENT_VERSION,
-            remove_target=True,
-            schema_name=schema_name
-        )
+            raw_version = DatasetSchema.ParseElement(
+                raw_value=raw_val,
+                unparsed_elements=versioning_elements,
+                valid_keys=["event_specification_version", "event_spec_version"],
+                to_type=str,
+                default_value=DatasetSchema._DEFAULT_EVENT_VERSION,
+                remove_target=True,
+                schema_name=schema_name
+            )
         if isinstance(raw_version, SemanticVersion):
             ret_val = raw_version
         elif isinstance(raw_version, str):
-            ret_val = SemanticVersion.FromString(raw_version)
+            ret_val = SemanticVersion.FromString(raw_version, verbose=False)
         else:
             Logger.Log(f"In DatasetSchema, raw event spec version was unexpected type {type(raw_version)}, using SemanticVersion.FromString(str(raw_version))")
             ret_val = SemanticVersion.FromString(str(raw_version))
@@ -689,13 +688,14 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         
         #region Parse output info
     @staticmethod
-    def _parseAllEventsFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
+    def _getAllEventsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["all_events_file"],
             to_type=Path,
@@ -713,13 +713,14 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseGameEventsFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
+    def _getGameEventsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["events_file"],
             to_type=Path,
@@ -737,13 +738,14 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseAllFeaturesFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
+    def _getAllFeaturesFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["all_features_file", "features_file", "combined_features_file"],
             to_type=Path,
@@ -761,13 +763,14 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parseSessionsFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
+    def _getSessionsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["sessions_file"],
             to_type=Path,
@@ -785,13 +788,14 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parsePlayersFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
+    def _getPlayersFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["players_file"],
             to_type=Path,
@@ -809,13 +813,14 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _parsePopulationFile(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
+    def _getPopulationFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["population_file"],
             to_type=Path,

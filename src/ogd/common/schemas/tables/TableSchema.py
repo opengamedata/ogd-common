@@ -165,7 +165,7 @@ class TableSchema(Schema):
 
         # declare and initialize vars
         # self._schema            : Optional[Dict[str, Any]] = all_elements
-        self._table_columns : List[ColumnSchema] = columns if columns is not None else self._parseColumns(unparsed_elements=unparsed_elements, schema_name=name)
+        self._table_columns : List[ColumnSchema] = self._getColumns(raw_val=columns, unparsed_elements=unparsed_elements, schema_name=name)
 
         # after loading the file, take the stuff we need and store.
         super().__init__(name=name, other_elements=other_elements)
@@ -308,10 +308,11 @@ class TableSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseColumns(unparsed_elements:Map, schema_name:Optional[str]=None) -> List[ColumnSchema]:
+    def _getColumns(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> List[ColumnSchema]:
         ret_val : List[ColumnSchema]
 
         _column_json_list = TableSchema.ParseElement(
+           raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["columns"],
             to_type=list,

@@ -81,15 +81,15 @@ class DataTableConfig(Schema):
             self._store_config = store
             self._store_name   = store.Name
         else:
-            self._store_name   = store if store is not None else self._parseStoreName(unparsed_elements=unparsed_elements, schema_name=name)
+            self._store_name   = self._getStoreName(raw_val=store, unparsed_elements=unparsed_elements, schema_name=name)
             self._store_config = data_stores.get(self._store_name)
         if isinstance(table_schema, ts.TableSchema):
             self._table_schema = table_schema
             self._schema_name  = table_schema.Name
         else:
-            self._schema_name  = table_schema if table_schema is not None else self._parseTableSchemaName(unparsed_elements=unparsed_elements, schema_name=name)
+            self._schema_name  = self._getTableSchemaName(raw_val=table_schema, unparsed_elements=unparsed_elements, schema_name=name)
             self._table_schema = TableSchemaFactory.FromFile(filename=self._schema_name)
-        self._table_location = table_location if table_location is not None else self._parseTableLocation(unparsed_elements=unparsed_elements)
+        self._table_location = self._getTableLocation(raw_val=table_location, unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -232,8 +232,9 @@ class DataTableConfig(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseStoreName(unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
+    def _getStoreName(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
         return DataTableConfig.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["source", "source_name", "store", "store_name"],
             to_type=str,
@@ -243,8 +244,9 @@ class DataTableConfig(Schema):
         )
 
     @staticmethod
-    def _parseTableSchemaName(unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
+    def _getTableSchemaName(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
         return DataTableConfig.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["table_schema", "schema"],
             to_type=str,
@@ -254,11 +256,18 @@ class DataTableConfig(Schema):
         )
 
     @staticmethod
-    def _parseTableLocation(unparsed_elements:Map) -> DatabaseLocationSchema:
-        return DatabaseLocationSchema.FromDict(
-            name="TableLocation",
-            unparsed_elements=unparsed_elements,
-            default_override=DataTableConfig._DEFAULT_TABLE_LOC
-        )
+    def _getTableLocation(raw_val:Optional[DatabaseLocationSchema], unparsed_elements:Map) -> DatabaseLocationSchema:
+        ret_val : DatabaseLocationSchema
+
+        if raw_val is not None:
+            ret_val = raw_val
+        else:
+            ret_val = DatabaseLocationSchema.FromDict(
+                name="TableLocation",
+                unparsed_elements=unparsed_elements,
+                default_override=DataTableConfig._DEFAULT_TABLE_LOC
+            )
+
+        return ret_val
 
     # *** PRIVATE METHODS ***

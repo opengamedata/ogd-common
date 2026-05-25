@@ -52,7 +52,7 @@ class DatasetCollectionSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._datasets : Dict[str, DatasetSchema] = datasets if datasets is not None else self._parseDatasets(unparsed_elements=unparsed_elements)
+        self._datasets : Dict[str, DatasetSchema] = self._getDatasets(raw_val=datasets, unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements={})
 
@@ -106,13 +106,16 @@ class DatasetCollectionSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseDatasets(unparsed_elements:Map) -> Dict[str, DatasetSchema]:
+    def _getDatasets(raw_val:Optional[Dict[str, DatasetSchema]], unparsed_elements:Map) -> Dict[str, DatasetSchema]:
         ret_val : Dict[str, DatasetSchema]
 
-        ret_val = {
-            key : DatasetSchema.FromDict(name=key, unparsed_elements=val)
-            for key,val in unparsed_elements.items()
-        }
+        if isinstance(raw_val, dict):
+            ret_val = raw_val
+        else:
+            ret_val = {
+                key : DatasetSchema.FromDict(name=key, unparsed_elements=val)
+                for key,val in unparsed_elements.items()
+            }
 
         return ret_val
 

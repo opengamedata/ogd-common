@@ -46,7 +46,7 @@ class TestConfig(Config):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._verbose       : bool            = verbose       if verbose       is not None else self._parseVerbose(unparsed_elements=unparsed_elements, schema_name=name)
+        self._verbose       : bool = self._getVerbose(raw_val=verbose, unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, other_elements=unparsed_elements)
 
     @property
@@ -99,8 +99,9 @@ class TestConfig(Config):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseVerbose(unparsed_elements:Map, schema_name:Optional[str]=None) -> bool:
+    def _getVerbose(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> bool:
         return TestConfig.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["VERBOSE"],
             to_type=bool,

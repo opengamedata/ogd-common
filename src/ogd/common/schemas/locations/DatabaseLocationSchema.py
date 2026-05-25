@@ -44,8 +44,8 @@ class DatabaseLocationSchema(LocationSchema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._db_name    : str           = database_name if database_name is not None else self._parseDatabaseName(unparsed_elements=unparsed_elements, schema_name=name)
-        self._table_name : Optional[str] = table_name    if table_name    is not None else self._parseTableName(unparsed_elements=unparsed_elements, schema_name=name)
+        self._db_name    : str           = self._getDatabaseName(raw_val=database_name, unparsed_elements=unparsed_elements, schema_name=name)
+        self._table_name : Optional[str] = self._getTableName(raw_val=table_name, unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
 
     @property
@@ -109,9 +109,9 @@ class DatabaseLocationSchema(LocationSchema):
         :return: _description_
         :rtype: DatabaseLocationSchema
         """
-        _db_name    : str           = cls._parseDatabaseName(unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
-        _table_name : Optional[str] = cls._parseTableName(unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
-        return DatabaseLocationSchema(name=name, database_name=_db_name, table_name=_table_name, other_elements=unparsed_elements)
+        db_name = cls._getDatabaseName(raw_val=None, unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
+        table_name = cls._getTableName(raw_val=None, unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
+        return DatabaseLocationSchema(name=name, database_name=db_name, table_name=table_name, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 
@@ -120,16 +120,17 @@ class DatabaseLocationSchema(LocationSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseTableName(unparsed_elements:Map,
-                        schema_name:Optional[str]=None,
-                        key_overrides:Optional[Dict[str, str]]=None,
-                        default_override:Optional["DatabaseLocationSchema"]=None) -> Optional[str]:
+    def _getTableName(raw_val:Any, unparsed_elements:Map,
+                      schema_name:Optional[str]=None,
+                      key_overrides:Optional[Dict[str, str]]=None,
+                      default_override:Optional["DatabaseLocationSchema"]=None) -> Optional[str]:
         default_keys : List[str] = ["table", "table_name"]
         search_keys  : List[str] = ([key_overrides[key] for key in default_keys if key in key_overrides] + default_keys) \
                                 if key_overrides else default_keys
         default_value : Optional[str] = default_override.TableName if default_override else DatabaseLocationSchema._DEFAULT_TABLE_NAME
 
         return DatabaseLocationSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=str,
@@ -140,16 +141,17 @@ class DatabaseLocationSchema(LocationSchema):
         )
 
     @staticmethod
-    def _parseDatabaseName(unparsed_elements:Map,
-                           schema_name:Optional[str]=None,
-                           key_overrides:Optional[Dict[str, str]]=None,
-                           default_override:Optional["DatabaseLocationSchema"]=None) -> str:
+    def _getDatabaseName(raw_val:Any, unparsed_elements:Map,
+                         schema_name:Optional[str]=None,
+                         key_overrides:Optional[Dict[str, str]]=None,
+                         default_override:Optional["DatabaseLocationSchema"]=None) -> str:
         default_keys : List[str] = ["database"]
         search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys \
                                 if key_overrides else default_keys
         default_value : Optional[str] = default_override.DatabaseName if default_override else DatabaseLocationSchema._DEFAULT_DB_NAME
 
         return DatabaseLocationSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=str,

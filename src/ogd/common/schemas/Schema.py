@@ -195,10 +195,13 @@ class Schema(abc.ABC):
         return cls._fromDict(name=name, unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
 
     @classmethod
-    def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False, optional_element:bool=False, schema_name:Optional[str]=None) -> Any:
+    def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, raw_value:Any=None, remove_target:bool=False, optional_element:bool=False, schema_name:Optional[str]=None) -> Any:
         """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 
-        The general `ParseElement` function uses the `conversions.ConvertToType(...)` function under the hood.
+        The default behavior of searching for "valid keys" in `unparsed_elements` can be overridden by directly providing a non-null `raw_value`.
+        In that case, ParseElement will skip directly to converting `raw_value` into the requested type.
+
+        The conversion logic uses the `conversions.ConvertToType(...)` function under the hood.
         This function handles conversion to certain data types, from certain other data types.
         The table below indicates what types are supported, and what the can be converted from:
         | Target Type | Supported `type(value)`               |
@@ -223,6 +226,9 @@ class Schema(abc.ABC):
         :type to_type: Type | List[Type]
         :param default_value: A default value to return, if a valid value could not be parsed.
         :type default_value: Any
+        :param raw_value: An optional param specifying a value to use directly, instead of searching unparsed_elements.
+                          If non-null, ParseElement will skip searching in unparsed_elements, and directly try to parse raw_value into the desired type. Defaults to None
+        :type raw_value: Any, optional
         :param remove_target: Whether to remove the target element, if found; defaults to False.
         :type remove_target: bool, optional
         :param optional_element: Whether the element being parsed should be considered optional, meaning it may not exist in the source dictionary.
@@ -236,19 +242,26 @@ class Schema(abc.ABC):
         :rtype: Any
         """
         ret_val : Any = default_value
-        decased_elements = {key.upper() : (key, val) for key,val in unparsed_elements.items()}
 
         found = False
-        for _name in valid_keys:
-            name = _name.upper()
-            if name in decased_elements:
-                value = decased_elements[name][1]
-                if remove_target:
-                    original_key = decased_elements[name][0]
-                    del unparsed_elements[original_key]
-                ret_val = conversions.ConvertToType(value=value, to_type=to_type, name=f"{cls.__name__} element {name}")
-                found = True
-                break
+
+        if raw_value is not None:
+            elem_name = f"{cls.__name__} element {valid_keys[0]}"
+            ret_val = conversions.ConvertToType(value=raw_value, to_type=to_type, name=elem_name, force_conversion=False)
+            found = True
+        else:
+            decased_elements = {key.upper() : (key, val) for key,val in unparsed_elements.items()}
+            for _name in valid_keys:
+                name = _name.upper()
+                if name in decased_elements:
+                    value = decased_elements[name][1]
+                    if remove_target:
+                        original_key = decased_elements[name][0]
+                        del unparsed_elements[original_key]
+                    elem_name = f"{cls.__name__} element {name}"
+                    ret_val = conversions.ConvertToType(value=value, to_type=to_type, name=elem_name, force_conversion=False)
+                    found = True
+                    break
         if not found:
             _title = schema_name if schema_name else "source"
             _msg = f"{cls.__name__} {_title} does not have a '{valid_keys[0]}' element; defaulting to {valid_keys[0]}={default_value}"

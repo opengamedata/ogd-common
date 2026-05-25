@@ -1,5 +1,5 @@
 ## import standard libraries
-from typing import Dict, List, Optional, Self
+from typing import Dict, List, Optional, Self, Any
 ## import local files
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
@@ -61,7 +61,7 @@ class EventTableSchema(TableSchema):
         """
         unparsed_elements : typing.Map = other_elements or {}
 
-        self._column_map : EventMapSchema = column_map or self._parseColumnMap(unparsed_elements=unparsed_elements, schema_name=name)
+        self._column_map : EventMapSchema = self._getColumnMap(raw_val=column_map, unparsed_elements=unparsed_elements, schema_name=name)
         # a couple other vars used in the row->event conversion
         self._latest_session : Optional[str] = None
         self._next_index     : int           = 0
@@ -154,10 +154,11 @@ class EventTableSchema(TableSchema):
     # *** PRIVATE METHODS ***
 
     @staticmethod
-    def _parseColumnMap(unparsed_elements:typing.Map, schema_name:Optional[str]=None) -> EventMapSchema:
+    def _getColumnMap(raw_val: Any, unparsed_elements:typing.Map, schema_name:Optional[str]=None) -> EventMapSchema:
         ret_val : EventMapSchema
 
         raw_map = TableSchema.ParseElement(
+           raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["column_map"],
             to_type=dict,
