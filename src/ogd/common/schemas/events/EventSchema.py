@@ -56,11 +56,11 @@ class EventSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._description : str                          = description    if description    is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
-        self._event_data  : Dict[str, DataElementSchema] = event_data     if event_data     is not None else self._parseEventDataElements(unparsed_elements=unparsed_elements, schema_name=name)
-        self._source      : EventSourceEnum              = event_source   if event_source   is not None else self._parseSource(unparsed_elements=unparsed_elements, schema_name=name)
-        self._module_name : Optional[str]                = module_name    if module_name    is not None else self._parseModuleName(unparsed_elements=unparsed_elements, schema_name=name)
-        self._mod_version : Optional[SemanticVersion]    = module_version if module_version is not None else self._parseModuleVersion(unparsed_elements=unparsed_elements, schema_name=name)
+        self._description : str                          = self._getDescription(raw_val=description, unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_data  : Dict[str, DataElementSchema] = self._getEventDataElements(raw_val=event_data, unparsed_elements=unparsed_elements, schema_name=name)
+        self._source      : EventSourceEnum              = self._getSource(raw_val=event_source, unparsed_elements=unparsed_elements, schema_name=name)
+        self._module_name : Optional[str]                = self._getModuleName(raw_val=module_name, unparsed_elements=unparsed_elements, schema_name=name)
+        self._mod_version : Optional[SemanticVersion]    = self._getModuleVersion(raw_val=module_version, unparsed_elements=unparsed_elements, schema_name=name)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -193,9 +193,10 @@ class EventSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseEventDataElements(unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getEventDataElements(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
         ret_val : Dict[str, DataElementSchema]
         event_data : Dict[str, Any] = EventSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["event_data"],
             to_type=dict,
@@ -214,8 +215,9 @@ class EventSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseDescription(unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
+    def _getDescription(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
         return EventSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["description"],
             to_type=str,
@@ -225,10 +227,11 @@ class EventSchema(Schema):
         )
 
     @staticmethod
-    def _parseSource(unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getSource(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
         ret_val : EventSourceEnum
 
         raw_source = EventSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["event_source", "source"],
             to_type=str,
@@ -246,8 +249,9 @@ class EventSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseModuleName(unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getModuleName(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
         return EventSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["module_name", "detector_name"],
             to_type=str,
@@ -258,10 +262,11 @@ class EventSchema(Schema):
         )
 
     @staticmethod
-    def _parseModuleVersion(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[SemanticVersion]:
+    def _getModuleVersion(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[SemanticVersion]:
         ret_val : Optional[SemanticVersion]
 
         raw_ver = EventSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["module_version", "detector_version"],
             to_type=str,
