@@ -108,8 +108,7 @@ def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed 
             case 'PATH' | pathlib.Path:
                 ret_val = ToPath(name=name, value=value)
             case 'DATE' | datetime.date:
-                raw_dt  = time.ToDatetime(name=name, value=value)
-                ret_val = raw_dt.date() if raw_dt is not None else None
+                ret_val  = time.ToDate(name=name, value=value)
             case 'DATETIME' | datetime.datetime:
                 ret_val = time.ToDatetime(name=name, value=value)
             case 'TIMEDELTA' | datetime.timedelta:
@@ -482,8 +481,7 @@ def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element") -> A
             case 'PATH' | pathlib.Path:
                 ret_val = ToPath(name=name, value=value)
             case 'DATE' | datetime.date:
-                raw_dt  = time.ToDatetime(name=name, value=value)
-                ret_val = raw_dt.date() if raw_dt is not None else None
+                ret_val  = time.ToDate(name=name, value=value)
             case 'DATETIME' | datetime.datetime:
                 ret_val = time.ToDatetime(name=name, value=value)
             case 'TIMEDELTA' | datetime.timedelta:
@@ -504,6 +502,17 @@ def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element") -> A
     return ret_val
 
 class time:
+    @staticmethod
+    def ToDate(name:str, value:Any, force:bool=False) -> Optional[datetime.date]:
+        ret_val : Optional[datetime.date]
+
+        if isinstance(value, datetime.date):
+            ret_val = value
+        else:
+            converted = time.ToDatetime(name=name, value=value, force=force)
+            ret_val = converted.date() if converted is not None else None
+        
+        return ret_val
 
     @staticmethod
     def ToDatetime(name:str, value:Any, force:bool=False) -> Optional[datetime.datetime]:
