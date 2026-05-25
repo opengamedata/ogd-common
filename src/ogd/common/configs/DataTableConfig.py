@@ -89,7 +89,7 @@ class DataTableConfig(Schema):
         else:
             self._schema_name  = self._getTableSchemaName(raw_val=table_schema, unparsed_elements=unparsed_elements, schema_name=name)
             self._table_schema = TableSchemaFactory.FromFile(filename=self._schema_name)
-        self._table_location = self._getTableLocation(raw_val=table_location, =unparsed_elements)
+        self._table_location = self._getTableLocation(raw_val=table_location, unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 
