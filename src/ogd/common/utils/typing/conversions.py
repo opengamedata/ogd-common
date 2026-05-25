@@ -20,6 +20,9 @@ from pandas import Timedelta
 from pandas._libs.tslibs import timestamps, timedeltas
 from dateutil import parser
 ## import local files
+from ogd.common.schemas.Schema import Schema
+from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
+from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.utils.Logger import Logger
 
 def Capitalize(value:Any) -> Any:
@@ -353,15 +356,17 @@ def ToJSON(name:str, value:Any, force:bool=False, sort:bool=False) -> Optional[D
     """
     ret_val : Optional[Dict]
     try:
-        match type(value):
-            case builtins.dict:
+        match value:
+            case dict():
                 # if input was a dict already, then just give it back. Else, try to load it from string.
                 ret_val = value
-            case builtins.str:
+            case str():
                 if value not in {'None', ''}: # watch out for nasty corner cases.
                     ret_val = json.loads(value)
                 else:
                     ret_val = None
+            case Schema():
+                ret_val = value.AsDict
             case _:
                 base_msg : str = f"{name} was unexpected type {type(value)}, expected a dict or string!"
                 if force:
