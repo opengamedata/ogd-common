@@ -246,7 +246,8 @@ class Schema(abc.ABC):
         found = False
 
         if raw_value is not None:
-            ret_val = conversions.ConvertToType(value=raw_value, to_type=to_type, name=f"{cls.__name__} element {valid_keys[0]}")
+            elem_name = f"{cls.__name__} element {valid_keys[0]}"
+            ret_val = conversions.ConvertToType(value=raw_value, to_type=to_type, name=elem_name, force_conversion=False)
             found = True
         else:
             decased_elements = {key.upper() : (key, val) for key,val in unparsed_elements.items()}
@@ -257,7 +258,8 @@ class Schema(abc.ABC):
                     if remove_target:
                         original_key = decased_elements[name][0]
                         del unparsed_elements[original_key]
-                    ret_val = conversions.ConvertToType(value=value, to_type=to_type, name=f"{cls.__name__} element {name}")
+                    elem_name = f"{cls.__name__} element {name}"
+                    ret_val = conversions.ConvertToType(value=value, to_type=to_type, name=elem_name, force_conversion=False)
                     found = True
                     break
         if not found:
