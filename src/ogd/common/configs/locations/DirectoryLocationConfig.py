@@ -5,7 +5,7 @@ from typing import Any, Dict, Final, List, Optional, Self
 from ogd.common.configs.locations.LocationConfig import LocationConfig
 from ogd.common.utils.typing import JSONMap, Map
 
-## @class DirectoryLocationSchema
+## @class DirectoryLocationConfig
 class DirectoryLocationConfig(LocationConfig):
     """Class to encode the location of data within a database resource.
 
@@ -20,7 +20,7 @@ class DirectoryLocationConfig(LocationConfig):
     def __init__(self, name:str,
                  folder_path:Optional[Path | str],
                  other_elements:Optional[Map]=None):
-        """Constructor for the `DirectoryLocationSchema` class.
+        """Constructor for the `DirectoryLocationConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
 
@@ -82,7 +82,7 @@ class DirectoryLocationConfig(LocationConfig):
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "DirectoryLocationConfig":
-        """Create a DatabaseLocationSchema from a given dictionary
+        """Create a DatabaseLocationConfig from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
 
@@ -95,7 +95,7 @@ class DirectoryLocationConfig(LocationConfig):
         :param default_override: _description_, defaults to None
         :type default_override: Optional[Self], optional
         :return: _description_
-        :rtype: DirectoryLocationSchema
+        :rtype: DirectoryLocationConfig
         """
         _folder_path = cls._getFolderPath(raw_val=None, unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
         return DirectoryLocationConfig(name=name, folder_path=_folder_path, other_elements=unparsed_elements)

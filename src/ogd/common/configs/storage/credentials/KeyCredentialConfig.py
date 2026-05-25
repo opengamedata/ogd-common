@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
-from ogd.common.configs.locations.FileLocationSchema import FileLocationConfig
+from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import JSONMap, Map
 
@@ -38,7 +38,7 @@ class KeyCredential(CredentialConfig):
         :param name: _description_
         :type name: str
         :param location: _description_
-        :type location: Optional[FileLocationSchema]
+        :type location: Optional[FileLocationConfig]
         :param other_elements: _description_, defaults to None
         :type other_elements: Optional[Map], optional
         """

@@ -7,7 +7,7 @@ from unittest import TestCase
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.configs.TestConfig import TestConfig
-from ogd.common.configs.locations.DatabaseLocationSchema import DatabaseLocationConfig
+from ogd.common.configs.locations.DatabaseLocationConfig import DatabaseLocationConfig
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.configs.DataTableConfig import DataTableConfig

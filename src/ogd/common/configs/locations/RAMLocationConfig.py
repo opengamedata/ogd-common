@@ -4,7 +4,7 @@ from typing import Dict, Optional, Self
 from ogd.common.configs.locations.LocationConfig import LocationConfig
 from ogd.common.utils.typing import JSONMap, Map
 
-## @class FileLocationSchema
+## @class FileLocationConfig
 class RAMLocationConfig(LocationConfig):
     """Class to encode the fact that some resource is contained in an object in RAM.
 
@@ -14,7 +14,7 @@ class RAMLocationConfig(LocationConfig):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str):
-        """Constructor for the `RAMLocationSchema` class.
+        """Constructor for the `RAMLocationConfig` class.
         """
 
         super().__init__(name=name, other_elements=None)
@@ -41,7 +41,7 @@ class RAMLocationConfig(LocationConfig):
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "RAMLocationConfig":
-        """Create a DatabaseLocationSchema from a given dictionary
+        """Create a DatabaseLocationConfig from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
 
@@ -54,7 +54,7 @@ class RAMLocationConfig(LocationConfig):
         :param default_override: _description_, defaults to None
         :type default_override: Optional[Self], optional
         :return: _description_
-        :rtype: FileLocationSchema
+        :rtype: FileLocationConfig
         """
         return RAMLocationConfig(name=name)
 

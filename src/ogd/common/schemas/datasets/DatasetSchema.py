@@ -8,9 +8,9 @@ from typing import Any, Dict, Final, Optional, Self
 from ogd.common.filters.Filter import Filter
 from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.configs.locations.LocationConfig import LocationConfig
-from ogd.common.configs.locations.FileLocationSchema import FileLocationConfig
-from ogd.common.configs.locations.DirectoryLocationSchema import DirectoryLocationConfig
-from ogd.common.configs.locations.URLLocationSchema import URLLocationConfig
+from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
+from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
+from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 from ogd.common.schemas.events.EventSchema import EventSchema
 from ogd.common.schemas.events.GameStateSchema import GameStateSchema
 from ogd.common.schemas.features.FeatureSchema import FeatureSchema
@@ -221,8 +221,8 @@ class DatasetSchema(Schema):
 
     # 5. Get output info
 
-    # TODO : all the location schema stuff is screwy; for now types assume general LocationSchema, since in the future we could use paths or URLS.
-    # Meanwhile, all the literal implementation details assume we're using paths, i.e. FileLocationSchemas.
+    # TODO : all the location schema stuff is screwy; for now types assume general LocationConfig, since in the future we could use paths or URLS.
+    # Meanwhile, all the literal implementation details assume we're using paths, i.e. FileLocationConfigs.
 
     @property
     def GameEventsFile(self) -> Optional[str]:

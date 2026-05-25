@@ -4,7 +4,7 @@ import unittest
 from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
-from ogd.common.configs.locations.DatabaseLocationSchema import DatabaseLocationConfig
+from ogd.common.configs.locations.DatabaseLocationConfig import DatabaseLocationConfig
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.configs.DataTableConfig import DataTableConfig

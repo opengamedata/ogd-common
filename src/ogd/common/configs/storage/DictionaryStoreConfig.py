@@ -3,7 +3,7 @@ from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
-from ogd.common.configs.locations.RAMLocationSchema import RAMLocationConfig
+from ogd.common.configs.locations.RAMLocationConfig import RAMLocationConfig
 from ogd.common.utils.typing import JSONMap, Map
 
 class DictionaryStoreConfig(DataStoreConfig):
@@ -27,7 +27,7 @@ class DictionaryStoreConfig(DataStoreConfig):
         :param name: _description_
         :type name: str
         :param location: _description_
-        :type location: FileLocationSchema
+        :type location: FileLocationConfig
         :param other_elements: _description_, defaults to None
         :type other_elements: Optional[Map], optional
         """

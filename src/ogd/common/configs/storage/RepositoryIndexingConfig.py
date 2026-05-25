@@ -3,8 +3,8 @@ from pathlib import Path
 from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.Config import Config
-from ogd.common.configs.locations.DirectoryLocationSchema import DirectoryLocationConfig
-from ogd.common.configs.locations.URLLocationSchema import URLLocationConfig
+from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
+from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 from ogd.common.utils.typing import JSONMap, Map
 from ogd.common.utils.Logger import Logger
 

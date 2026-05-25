@@ -6,8 +6,8 @@ from typing import Any, Dict, Final, Optional, Self, TypeAlias
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
 from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
-from ogd.common.configs.locations.URLLocationSchema import URLLocationConfig
-from ogd.common.configs.locations.DirectoryLocationSchema import DirectoryLocationConfig
+from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
+from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.schemas.datasets.DatasetCollectionSchema import DatasetCollectionSchema
 from ogd.common.utils.fileio import loadJSONFile
 from ogd.common.utils.typing import JSONMap, Map

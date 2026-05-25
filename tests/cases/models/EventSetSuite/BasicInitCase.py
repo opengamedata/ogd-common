@@ -12,7 +12,7 @@ from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
 from ogd.common.models.events.EventSet import EventSet
-from ogd.common.configs.locations.DatabaseLocationSchema import DatabaseLocationConfig
+from ogd.common.configs.locations.DatabaseLocationConfig import DatabaseLocationConfig
 from ogd.common.storage.interfaces.CSVInterface import CSVInterface
 from ogd.common.utils.Logger import Logger
 # import locals

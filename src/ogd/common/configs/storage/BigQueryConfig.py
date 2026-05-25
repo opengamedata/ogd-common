@@ -4,8 +4,8 @@ from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.KeyCredentialConfig import KeyCredential
-from ogd.common.configs.locations.DatabaseLocationSchema import DatabaseLocationConfig
-from ogd.common.configs.locations.FileLocationSchema import FileLocationConfig
+from ogd.common.configs.locations.DatabaseLocationConfig import DatabaseLocationConfig
+from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
 from ogd.common.utils.typing import JSONMap, Map
 
 class BigQueryConfig(DataStoreConfig):
@@ -50,7 +50,7 @@ class BigQueryConfig(DataStoreConfig):
         :param name: _description_
         :type name: str
         :param location: _description_
-        :type location: Optional[DatabaseLocationSchema]
+        :type location: Optional[DatabaseLocationConfig]
         :param credential: _description_
         :type credential: Optional[KeyCredential]
         :param other_elements: _description_, defaults to None

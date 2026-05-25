@@ -3,11 +3,11 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Final, List, Optional, Self
 ## import local files
-from ogd.common.configs.locations.LocationSchema import LocationConfig
+from ogd.common.configs.locations.LocationConfig import LocationConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import JSONMap, Map
 
-## @class FileLocationSchema
+## @class FileLocationConfig
 class FileLocationConfig(LocationConfig):
     """Class to encode the location of data within a database resource.
 
@@ -21,7 +21,7 @@ class FileLocationConfig(LocationConfig):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, folder_path:Optional[Path | str], filename:Optional[str], other_elements:Optional[Map]=None):
-        """Constructor for the `FileLocationSchema` class.
+        """Constructor for the `FileLocationConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
 
@@ -67,7 +67,7 @@ class FileLocationConfig(LocationConfig):
         if raw_filename is not None:
             self._filename = raw_filename
             if raw_path.is_file():
-                Logger.Log("FileLocationSchema was given a folder path that included a file, and a filename! Defaulting to the given filename, in place of the file contained in the folder path.", logging.WARNING)
+                Logger.Log("FileLocationConfig was given a folder path that included a file, and a filename! Defaulting to the given filename, in place of the file contained in the folder path.", logging.WARNING)
         
 
         super().__init__(name=name, other_elements=other_elements)
@@ -83,7 +83,7 @@ class FileLocationConfig(LocationConfig):
 
     @property
     def Filename(self) -> str:
-        """The name of the file indicated by the FileLocationSchema
+        """The name of the file indicated by the FileLocationConfig
 
         :return: _description_
         :rtype: str
@@ -92,7 +92,7 @@ class FileLocationConfig(LocationConfig):
 
     @property
     def Filepath(self) -> Path:
-        """The full path to the file indicated by the FileLocationSchema
+        """The full path to the file indicated by the FileLocationConfig
 
         :return: _description_
         :rtype: Path
@@ -134,7 +134,7 @@ class FileLocationConfig(LocationConfig):
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "FileLocationConfig":
-        """Create a DatabaseLocationSchema from a given dictionary
+        """Create a DatabaseLocationConfig from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
 
@@ -147,7 +147,7 @@ class FileLocationConfig(LocationConfig):
         :param default_override: _description_, defaults to None
         :type default_override: Optional[Self], optional
         :return: _description_
-        :rtype: FileLocationSchema
+        :rtype: FileLocationConfig
         """
         # Call the 'get' functions with overrides, and pass along result as values for the constructor.
         # It will still handle the sorting out of what is file and what is path.
@@ -166,7 +166,7 @@ class FileLocationConfig(LocationConfig):
             fullpath = Path(fullpath)
         if fullpath:
             if not "." in fullpath.name:
-                Logger.Log(f"FileLocationSchema was given a path '{fullpath}' which does not include a file extension!", logging.WARNING)
+                Logger.Log(f"FileLocationConfig was given a path '{fullpath}' which does not include a file extension!", logging.WARNING)
             return FileLocationConfig(name=name, folder_path=fullpath.parent, filename=fullpath.name)
 
     # *** PUBLIC METHODS ***

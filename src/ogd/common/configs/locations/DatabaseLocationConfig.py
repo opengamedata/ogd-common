@@ -4,7 +4,7 @@ from typing import Any, Dict, Final, List, Optional, Self
 from ogd.common.configs.locations.LocationConfig import LocationConfig
 from ogd.common.utils.typing import JSONMap, Map
 
-## @class DatabaseLocationSchema
+## @class DatabaseLocationConfig
 class DatabaseLocationConfig(LocationConfig):
     """Class to encode the location of data within a database resource.
 
@@ -18,7 +18,7 @@ class DatabaseLocationConfig(LocationConfig):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, database_name:Optional[str], table_name:Optional[str], other_elements:Optional[Map]=None):
-        """Constructor for the `DatabaseLocationSchema` class.
+        """Constructor for the `DatabaseLocationConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
 
@@ -94,7 +94,7 @@ class DatabaseLocationConfig(LocationConfig):
     def _fromDict(cls, name:str, unparsed_elements:Map,
                   key_overrides:Optional[Dict[str, str]]=None,
                   default_override:Optional[Self]=None)-> "DatabaseLocationConfig":
-        """Create a DatabaseLocationSchema from a given dictionary
+        """Create a DatabaseLocationConfig from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
 
@@ -107,7 +107,7 @@ class DatabaseLocationConfig(LocationConfig):
         :param data_sources: _description_
         :type data_sources: Dict[str, DataStoreConfig]
         :return: _description_
-        :rtype: DatabaseLocationSchema
+        :rtype: DatabaseLocationConfig
         """
         db_name = cls._getDatabaseName(raw_val=None, unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
         table_name = cls._getTableName(raw_val=None, unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)

@@ -5,7 +5,7 @@ from typing import Any, Dict, Final, List, Optional, Self
 from ogd.common.configs.locations.LocationConfig import LocationConfig
 from ogd.common.utils.typing import JSONMap, Map
 
-## @class URLLocationSchema
+## @class URLLocationConfig
 class URLLocationConfig(LocationConfig):
 
     _DEFAULT_SCHEME    : Final[str]           = "http"
@@ -24,7 +24,7 @@ class URLLocationConfig(LocationConfig):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, url:Optional[ParseResult | str], other_elements:Optional[Map]=None):
-        """Constructor for the `URLLocationSchema` class.
+        """Constructor for the `URLLocationConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
 
@@ -100,7 +100,7 @@ class URLLocationConfig(LocationConfig):
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "URLLocationConfig":
-        """Create a URLLocationSchema from a given dictionary
+        """Create a URLLocationConfig from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
 
@@ -113,7 +113,7 @@ class URLLocationConfig(LocationConfig):
         :param default_override: _description_, defaults to None
         :type default_override: Optional[Self], optional
         :return: _description_
-        :rtype: URLLocationSchema
+        :rtype: URLLocationConfig
         """
         # 1. First, we try to get as a URL from dict as first try. If it returns something, then we've got it.
         url = cls._parseURL(unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides)

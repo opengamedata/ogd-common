@@ -6,8 +6,8 @@ from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
-from ogd.common.configs.locations.DirectoryLocationSchema import DirectoryLocationConfig
-from ogd.common.configs.locations.URLLocationSchema import URLLocationConfig
+from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
+from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 # import locals
 from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
 from config.t_config import settings

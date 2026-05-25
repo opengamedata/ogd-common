@@ -5,7 +5,7 @@ from typing import Optional
 from ogd.common.configs.Config import Config
 from ogd.common.utils.typing import Map
 
-## @class LocationSchema
+## @class LocationConfig
 class LocationConfig(Config):
 
     # *** ABSTRACTS ***

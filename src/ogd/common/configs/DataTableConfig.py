@@ -5,7 +5,7 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.configs.storage.DatasetRepositoryConfig import DataStoreConfig
 from ogd.common.schemas.tables.TableSchemaFactory import TableSchemaFactory
 from ogd.common.schemas.tables import TableSchema as ts
-from ogd.common.configs.locations.DatabaseLocationSchema import DatabaseLocationConfig
+from ogd.common.configs.locations.DatabaseLocationConfig import DatabaseLocationConfig
 from ogd.common.utils.typing import Map, JSONMap
 
 class DataTableConfig(Schema):
@@ -13,7 +13,7 @@ class DataTableConfig(Schema):
 
     It principally contains 3 key components:
     1. `StoreConfig` : The DataStoreConfig that specifies the storage resource containing the configured table.
-    2. `Location`    : The LocationSchema that specifies the location of the configured table within the storage resource.
+    2. `Location`    : The LocationConfig that specifies the location of the configured table within the storage resource.
     3. `TableSchema` : The TableSchema that specifies the structure of the configured table.
     
     When given to an interface, this schema is treated as a specification of the table from which to retrieve data.
@@ -64,7 +64,7 @@ class DataTableConfig(Schema):
         :param schema_name: _description_
         :type schema_name: Optional[str]
         :param table_location: _description_
-        :type table_location: Optional[DatabaseLocationSchema]
+        :type table_location: Optional[DatabaseLocationConfig]
         :param other_elements: _description_
         :type other_elements: Optional[Map]
         """
@@ -145,14 +145,14 @@ class DataTableConfig(Schema):
 
     @property
     def TableLocation(self) -> DatabaseLocationConfig:
-        """The DatabaseLocationSchema for this DataTableConfig.
+        """The DatabaseLocationConfig for this DataTableConfig.
 
-        This DatabaseLocationSchema contains information on how to locate the configured data table within its data store.
+        This DatabaseLocationConfig contains information on how to locate the configured data table within its data store.
 
-        .. TODO: Allow other types of location, not every data store is a database. For now, when using non-database stores, the DatabaseLocationSchema can simply be interpreted as containing e.g. the sheet (in an Excel file) within a file, or file within a folder.
+        .. TODO: Allow other types of location, not every data store is a database. For now, when using non-database stores, the DatabaseLocationConfig can simply be interpreted as containing e.g. the sheet (in an Excel file) within a file, or file within a folder.
 
         :return: _description_
-        :rtype: DatabaseLocationSchema
+        :rtype: DatabaseLocationConfig
         """
         return self._table_location
 
