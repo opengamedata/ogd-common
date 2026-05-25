@@ -356,16 +356,16 @@ def ToJSON(name:str, value:Any, force:bool=False, sort:bool=False) -> Optional[D
     """
     ret_val : Optional[Dict]
     try:
-        match value:
-            case dict():
+        match type(value):
+            case builtins.dict:
                 # if input was a dict already, then just give it back. Else, try to load it from string.
                 ret_val = value
-            case str():
+            case builtins.str:
                 if value not in {'None', ''}: # watch out for nasty corner cases.
                     ret_val = json.loads(value)
                 else:
                     ret_val = None
-            case Schema():
+            case dummy if issubclass(dummy, Schema):
                 ret_val = value.AsDict
             case _:
                 base_msg : str = f"{name} was unexpected type {type(value)}, expected a dict or string!"
