@@ -277,6 +277,10 @@ def ToPath(name:str, value:Any, force:bool=False) -> Optional[pathlib.Path]:
         match type(value):
             case dummy if issubclass(dummy, pathlib.Path):
                 ret_val = value
+            case dummy if issubclass(dummy, FileLocationConfig):
+                ret_val = value.Filepath
+            case dummy if issubclass(dummy, DirectoryLocationConfig):
+                ret_val = value.FolderPath
             case builtins.str:
                 ret_val = pathlib.Path(value)
             case _:
