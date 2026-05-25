@@ -876,13 +876,13 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
         if raw_val is None:
             ret_val = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["start_date"],
-            to_type=date,
-            default_value=DatasetSchema._DEFAULT_START_DATE,
-            remove_target=True,
-            schema_name=schema_name
-        )
+                unparsed_elements=unparsed_elements,
+                valid_keys=["start_date"],
+                to_type=date,
+                default_value=DatasetSchema._DEFAULT_START_DATE,
+                remove_target=True,
+                schema_name=schema_name
+            )
         else:
             try:
                 ret_val = conversions.ConvertToType(value=raw_val, to_type=date, name=schema_name or "DatasetSchema")
@@ -903,13 +903,13 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
         if raw_val is None:
             ret_val = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["end_date"],
-            to_type=date,
-            default_value=DatasetSchema._DEFAULT_END_DATE,
-            remove_target=True,
-            schema_name=schema_name
-        )
+                unparsed_elements=unparsed_elements,
+                valid_keys=["end_date"],
+                to_type=date,
+                default_value=DatasetSchema._DEFAULT_END_DATE,
+                remove_target=True,
+                schema_name=schema_name
+            )
         else:
             try:
                 ret_val = conversions.ConvertToType(value=raw_val, to_type=date, name=schema_name or "DatasetSchema")
