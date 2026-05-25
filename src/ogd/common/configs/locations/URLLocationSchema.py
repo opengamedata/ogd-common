@@ -2,11 +2,11 @@
 from urllib.parse import urlparse, ParseResult
 from typing import Any, Dict, Final, List, Optional, Self
 ## import local files
-from ogd.common.configs.locations.LocationSchema import LocationSchema
+from ogd.common.configs.locations.LocationConfig import LocationConfig
 from ogd.common.utils.typing import JSONMap, Map
 
 ## @class URLLocationSchema
-class URLLocationSchema(LocationSchema):
+class URLLocationConfig(LocationConfig):
 
     _DEFAULT_SCHEME    : Final[str]           = "http"
     _DEFAULT_HOST_NAME : Final[str]           = "DEFAULTHOST"
@@ -91,15 +91,15 @@ class URLLocationSchema(LocationSchema):
         }
 
     @classmethod
-    def Default(cls) -> "URLLocationSchema":
-        return URLLocationSchema(
+    def Default(cls) -> "URLLocationConfig":
+        return URLLocationConfig(
             name="DefaultURLLocation",
             url=cls._DEFAULT_URL,
             other_elements={}
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "URLLocationSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "URLLocationConfig":
         """Create a URLLocationSchema from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -123,14 +123,14 @@ class URLLocationSchema(LocationSchema):
             _used = _used.union({"host", "port", "path"})
 
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return URLLocationSchema(name=name, url=url, other_elements=_leftovers)
+        return URLLocationConfig(name=name, url=url, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
 
     @staticmethod
-    def FromString(name:str, raw_url:str) -> "URLLocationSchema":
+    def FromString(name:str, raw_url:str) -> "URLLocationConfig":
         parse_result = urlparse(url=raw_url)
-        return URLLocationSchema(name=name, url=parse_result)
+        return URLLocationConfig(name=name, url=parse_result)
 
     # *** PUBLIC METHODS ***
 
@@ -144,7 +144,7 @@ class URLLocationSchema(LocationSchema):
         elif isinstance(url, str):
             ret_val = urlparse(url=url)
         else:
-            ret_val = URLLocationSchema._parseURL(unparsed_elements=fallbacks, schema_name=schema_name) or URLLocationSchema._parseSplitURL(unparsed_elements=fallbacks, schema_name=schema_name)
+            ret_val = URLLocationConfig._parseURL(unparsed_elements=fallbacks, schema_name=schema_name) or URLLocationConfig._parseSplitURL(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
@@ -163,7 +163,7 @@ class URLLocationSchema(LocationSchema):
         default_keys : List[str] = ["url"]
         search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
 
-        raw_url = URLLocationSchema.ParseElement(
+        raw_url = URLLocationConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=str,
@@ -180,14 +180,14 @@ class URLLocationSchema(LocationSchema):
     def _parseSplitURL(unparsed_elements:Map,
                        schema_name:Optional[str]=None,
                        key_overrides:Optional[Dict[str, str]]=None,
-                       default_override:Optional["URLLocationSchema"]=None) -> ParseResult:
+                       default_override:Optional["URLLocationConfig"]=None) -> ParseResult:
         default_keys : List[str]
         search_keys  : List[str]
 
         default_keys = ["scheme"]
         search_keys = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
-        default_scheme : str = default_override.Scheme if default_override else URLLocationSchema._DEFAULT_SCHEME
-        _scheme = URLLocationSchema.ParseElement(
+        default_scheme : str = default_override.Scheme if default_override else URLLocationConfig._DEFAULT_SCHEME
+        _scheme = URLLocationConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=str,
@@ -199,8 +199,8 @@ class URLLocationSchema(LocationSchema):
 
         default_keys = ["host"]
         search_keys = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
-        default_host : str = default_override.Host if default_override else URLLocationSchema._DEFAULT_HOST_NAME
-        _host = URLLocationSchema.ParseElement(
+        default_host : str = default_override.Host if default_override else URLLocationConfig._DEFAULT_HOST_NAME
+        _host = URLLocationConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=str,
@@ -211,8 +211,8 @@ class URLLocationSchema(LocationSchema):
 
         default_keys = ["port"]
         search_keys  = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
-        default_port : Optional[int] = default_override.Port if default_override else URLLocationSchema._DEFAULT_PORT
-        _port = URLLocationSchema.ParseElement(
+        default_port : Optional[int] = default_override.Port if default_override else URLLocationConfig._DEFAULT_PORT
+        _port = URLLocationConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=int,
@@ -224,8 +224,8 @@ class URLLocationSchema(LocationSchema):
 
         default_keys = ["path"]
         search_keys  = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
-        default_path : Optional[str] = default_override.Path if default_override else URLLocationSchema._DEFAULT_PATH
-        _path = URLLocationSchema.ParseElement(
+        default_path : Optional[str] = default_override.Path if default_override else URLLocationConfig._DEFAULT_PATH
+        _path = URLLocationConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
             to_type=str,

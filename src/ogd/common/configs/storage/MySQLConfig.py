@@ -7,13 +7,13 @@ from ogd.common.configs.storage.SSHConfig import SSHConfig
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
-from ogd.common.configs.locations.URLLocationSchema import URLLocationSchema
+from ogd.common.configs.locations.URLLocationSchema import URLLocationConfig
 from ogd.common.utils.typing import JSONMap, Map
 
 class MySQLConfig(DataStoreConfig):
     _STORE_TYPE = "MYSQL"
 
-    _DEFAULT_LOCATION: Final[URLLocationSchema] = URLLocationSchema(
+    _DEFAULT_LOCATION: Final[URLLocationConfig] = URLLocationConfig(
         name="DefaultMySQLLocation",
         url=ParseResult(
             scheme="",
@@ -27,7 +27,7 @@ class MySQLConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 db_location:Optional[URLLocationSchema],
+                 db_location:Optional[URLLocationConfig],
                  db_credential:Optional[PasswordCredential],
                  ssh_cfg:Optional[SSHConfig],
                  # dict of leftovers
@@ -68,7 +68,7 @@ class MySQLConfig(DataStoreConfig):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._db_location : URLLocationSchema  = db_location   if db_location   is not None else self._parseLocation(unparsed_elements=unparsed_elements, schema_name=name)
+        self._db_location : URLLocationConfig  = db_location   if db_location   is not None else self._parseLocation(unparsed_elements=unparsed_elements, schema_name=name)
         self._credential  : PasswordCredential = db_credential if db_credential is not None else self._parseCredential(unparsed_elements=unparsed_elements, schema_name=name)
         self._ssh_cfg     : SSHConfig          = ssh_cfg       if ssh_cfg       is not None else self._parseSSHConfig(unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=other_elements)
@@ -173,8 +173,8 @@ class MySQLConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseLocation(unparsed_elements:Map, schema_name:Optional[str]=None) -> URLLocationSchema:
-        return URLLocationSchema.FromDict(
+    def _parseLocation(unparsed_elements:Map, schema_name:Optional[str]=None) -> URLLocationConfig:
+        return URLLocationConfig.FromDict(
             name = f"{schema_name}HostLocation",
             unparsed_elements=unparsed_elements,
             key_overrides={"host" : "DB_HOST", "port" : "DB_PORT"}

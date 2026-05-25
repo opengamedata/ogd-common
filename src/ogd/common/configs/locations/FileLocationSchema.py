@@ -3,12 +3,12 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Final, List, Optional, Self
 ## import local files
-from ogd.common.configs.locations.LocationSchema import LocationSchema
+from ogd.common.configs.locations.LocationSchema import LocationConfig
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import JSONMap, Map
 
 ## @class FileLocationSchema
-class FileLocationSchema(LocationSchema):
+class FileLocationConfig(LocationConfig):
     """Class to encode the location of data within a database resource.
 
     Generally, the location of a database system would be a URLLocation,
@@ -124,8 +124,8 @@ class FileLocationSchema(LocationSchema):
         }
 
     @classmethod
-    def Default(cls) -> "FileLocationSchema":
-        return FileLocationSchema(
+    def Default(cls) -> "FileLocationConfig":
+        return FileLocationConfig(
             name="DefaultFileLocation",
             folder_path=cls._DEFAULT_PATH,
             filename=cls._DEFAULT_FILENAME,
@@ -133,7 +133,7 @@ class FileLocationSchema(LocationSchema):
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "FileLocationSchema":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "FileLocationConfig":
         """Create a DatabaseLocationSchema from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
@@ -156,18 +156,18 @@ class FileLocationSchema(LocationSchema):
         _used = {"folder", "filename", "path", "file"}
 
         _leftovers = { key : val for key,val in unparsed_elements.items() if key not in _used }
-        return FileLocationSchema(name=name, folder_path=_folder_path, filename=_filename, other_elements=_leftovers)
+        return FileLocationConfig(name=name, folder_path=_folder_path, filename=_filename, other_elements=_leftovers)
 
     # *** PUBLIC STATICS ***
 
     @staticmethod
-    def FromPath(name:str, fullpath:Path | str) -> "FileLocationSchema":
+    def FromPath(name:str, fullpath:Path | str) -> "FileLocationConfig":
         if isinstance(fullpath, str):
             fullpath = Path(fullpath)
         if fullpath:
             if not "." in fullpath.name:
                 Logger.Log(f"FileLocationSchema was given a path '{fullpath}' which does not include a file extension!", logging.WARNING)
-            return FileLocationSchema(name=name, folder_path=fullpath.parent, filename=fullpath.name)
+            return FileLocationConfig(name=name, folder_path=fullpath.parent, filename=fullpath.name)
 
     # *** PUBLIC METHODS ***
 
@@ -177,12 +177,12 @@ class FileLocationSchema(LocationSchema):
     def _getFolderPath(raw_val:Any, unparsed_elements:Map,
                          schema_name:Optional[str]=None,
                          key_overrides:Optional[Dict[str, str]]=None,
-                         default_override:Optional["FileLocationSchema"]=None) -> Path:
+                         default_override:Optional["FileLocationConfig"]=None) -> Path:
         default_keys : List[str] = ["folder", "path"]
         search_keys  : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
-        default_value : Path = default_override.Folder if default_override else FileLocationSchema._DEFAULT_PATH
+        default_value : Path = default_override.Folder if default_override else FileLocationConfig._DEFAULT_PATH
 
-        return FileLocationSchema.ParseElement(
+        return FileLocationConfig.ParseElement(
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,
@@ -196,12 +196,12 @@ class FileLocationSchema(LocationSchema):
     def _getFilename(raw_val:Any, unparsed_elements:Map,
                        schema_name:Optional[str]=None,
                        key_overrides:Optional[Dict[str, str]]=None,
-                       default_override:Optional["FileLocationSchema"]=None) -> Optional[str]:
+                       default_override:Optional["FileLocationConfig"]=None) -> Optional[str]:
         default_keys  : List[str] = ["filename", "file"]
         search_keys   : List[str] = [key_overrides[key] for key in default_keys if key in key_overrides] + default_keys if key_overrides else default_keys
-        default_value : Optional[str] = default_override.Filename if default_override else FileLocationSchema._DEFAULT_FILENAME
+        default_value : Optional[str] = default_override.Filename if default_override else FileLocationConfig._DEFAULT_FILENAME
 
-        return FileLocationSchema.ParseElement(
+        return FileLocationConfig.ParseElement(
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=search_keys,

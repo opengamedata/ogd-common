@@ -3,19 +3,19 @@ from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
-from ogd.common.configs.locations.RAMLocationSchema import RAMLocationSchema
+from ogd.common.configs.locations.RAMLocationSchema import RAMLocationConfig
 from ogd.common.utils.typing import JSONMap, Map
 
 class DictionaryStoreConfig(DataStoreConfig):
     _STORE_TYPE = "DICTIONARY"
-    _DEFAULT_LOCATION: Final[RAMLocationSchema] = RAMLocationSchema(name="DictionaryLocation")
+    _DEFAULT_LOCATION: Final[RAMLocationConfig] = RAMLocationConfig(name="DictionaryLocation")
     _DEFAULT_CREDENTIAL: Final[EmptyCredential] = EmptyCredential.Default()
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,
                  # params for class
-                 location:Optional[RAMLocationSchema],
+                 location:Optional[RAMLocationConfig],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
@@ -39,7 +39,7 @@ class DictionaryStoreConfig(DataStoreConfig):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
-    def Location(self) -> RAMLocationSchema:
+    def Location(self) -> RAMLocationConfig:
         return self._location
 
     @property

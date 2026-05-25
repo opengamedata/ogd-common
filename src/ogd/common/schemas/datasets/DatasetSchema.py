@@ -7,10 +7,10 @@ from typing import Any, Dict, Final, Optional, Self
 # ogd imports
 from ogd.common.filters.Filter import Filter
 from ogd.common.models.DatasetKey import DatasetKey
-from ogd.common.configs.locations.LocationSchema import LocationSchema
-from ogd.common.configs.locations.FileLocationSchema import FileLocationSchema
-from ogd.common.configs.locations.DirectoryLocationSchema import DirectoryLocationSchema
-from ogd.common.configs.locations.URLLocationSchema import URLLocationSchema
+from ogd.common.configs.locations.LocationConfig import LocationConfig
+from ogd.common.configs.locations.FileLocationSchema import FileLocationConfig
+from ogd.common.configs.locations.DirectoryLocationSchema import DirectoryLocationConfig
+from ogd.common.configs.locations.URLLocationSchema import URLLocationConfig
 from ogd.common.schemas.events.EventSchema import EventSchema
 from ogd.common.schemas.events.GameStateSchema import GameStateSchema
 from ogd.common.schemas.features.FeatureSchema import FeatureSchema
@@ -44,7 +44,7 @@ class DatasetSchema(Schema):
     _DEFAULT_OGD_REVISION        : Final[str]                     = "UNKNOWN OGD REVISION"
     _DEFAULT_EVENT_VERSION       : Final[str]                     = "UNKNOWN EVENT SCHEMA VERSION"
     # output info
-    _DEFAULT_FILES_LOCATION      : Final[DirectoryLocationSchema] = DirectoryLocationSchema(name="Default File Location", folder_path=Path("data/"))
+    _DEFAULT_FILES_LOCATION      : Final[DirectoryLocationConfig] = DirectoryLocationConfig(name="Default File Location", folder_path=Path("data/"))
     _DEFAULT_RAW_FILE            : Final[None]                    = None
     _DEFAULT_EVENTS_FILE         : Final[None]                    = None
     _DEFAULT_COMB_FEATS_FILE     : Final[None]                    = None
@@ -63,9 +63,9 @@ class DatasetSchema(Schema):
                  filters:Optional[Dict[str, str | Filter]],   session_ct:Optional[int],                 player_ct:Optional[int],
                  game_state:Optional[GameStateSchema],        events:Optional[Dict[str, EventSchema]],  features:Optional[Dict[str, FeatureSchema]],
                  ogd_version:Optional[SemanticVersion | str], ogd_revision:Optional[str],               event_spec_version:Optional[SemanticVersion | str],
-                 base_files_location:Optional[LocationSchema],
-                 game_events_file:Optional[LocationSchema],   all_events_file:Optional[LocationSchema], combined_feats_file:Optional[LocationSchema],
-                 sessions_file:Optional[LocationSchema],      players_file:Optional[LocationSchema],    population_file:Optional[LocationSchema],
+                 base_files_location:Optional[LocationConfig],
+                 game_events_file:Optional[LocationConfig],   all_events_file:Optional[LocationConfig], combined_feats_file:Optional[LocationConfig],
+                 sessions_file:Optional[LocationConfig],      players_file:Optional[LocationConfig],    population_file:Optional[LocationConfig],
                  # deprecated, compatibility params
                  start_date:Optional[date|str],  end_date:Optional[date|str], date_modified:Optional[date|str], 
                  other_elements:Optional[Map]=None):
@@ -142,13 +142,13 @@ class DatasetSchema(Schema):
         self._ogd_revision        : str                              = self._getOGDRevision(raw_val=ogd_revision, unparsed_elements=unparsed_elements, schema_name=name)
         self._evt_spec_version    : SemanticVersion                  = self._getEventSpecVersion(raw_val=event_spec_version, unparsed_elements=unparsed_elements, schema_name=name)
     # 5. Set output info
-        self._base_files_location : LocationSchema                   = base_files_location if base_files_location is not None else self._DEFAULT_FILES_LOCATION
-        self._all_events_file     : Optional[LocationSchema]         = self._getAllEventsFile(raw_val=all_events_file, unparsed_elements=unparsed_elements, schema_name=name)
-        self._game_events_file    : Optional[LocationSchema]         = self._getGameEventsFile(raw_val=game_events_file, unparsed_elements=unparsed_elements, schema_name=name)
-        self._all_features_file   : Optional[LocationSchema]         = self._getAllFeaturesFile(raw_val=combined_feats_file, unparsed_elements=unparsed_elements, schema_name=name)
-        self._sessions_file       : Optional[LocationSchema]         = self._getSessionsFile(raw_val=sessions_file, unparsed_elements=unparsed_elements, schema_name=name)
-        self._players_file        : Optional[LocationSchema]         = self._getPlayersFile(raw_val=players_file, unparsed_elements=unparsed_elements, schema_name=name)
-        self._population_file     : Optional[LocationSchema]         = self._getPopulationFile(raw_val=population_file, unparsed_elements=unparsed_elements, schema_name=name)
+        self._base_files_location : LocationConfig                   = base_files_location if base_files_location is not None else self._DEFAULT_FILES_LOCATION
+        self._all_events_file     : Optional[LocationConfig]         = self._getAllEventsFile(raw_val=all_events_file, unparsed_elements=unparsed_elements, schema_name=name)
+        self._game_events_file    : Optional[LocationConfig]         = self._getGameEventsFile(raw_val=game_events_file, unparsed_elements=unparsed_elements, schema_name=name)
+        self._all_features_file   : Optional[LocationConfig]         = self._getAllFeaturesFile(raw_val=combined_feats_file, unparsed_elements=unparsed_elements, schema_name=name)
+        self._sessions_file       : Optional[LocationConfig]         = self._getSessionsFile(raw_val=sessions_file, unparsed_elements=unparsed_elements, schema_name=name)
+        self._players_file        : Optional[LocationConfig]         = self._getPlayersFile(raw_val=players_file, unparsed_elements=unparsed_elements, schema_name=name)
+        self._population_file     : Optional[LocationConfig]         = self._getPopulationFile(raw_val=population_file, unparsed_elements=unparsed_elements, schema_name=name)
     # 6. Set deprecated/compatibility info
         self._date_modified       : Optional[date]                   = self._getDateModified(raw_val=date_modified, unparsed_elements=unparsed_elements, schema_name=name)
         self._start_date          : Optional[date]                   = self._getStartDate(raw_val=start_date, unparsed_elements=unparsed_elements, schema_name=name)
@@ -688,8 +688,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         
         #region Parse output info
     @staticmethod
-    def _getAllEventsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
-        ret_val : Optional[FileLocationSchema]
+    def _getAllEventsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+        ret_val : Optional[FileLocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
@@ -705,7 +705,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             optional_element=True
         )
         if isinstance(raw_loc, Path) or raw_loc is None:
-            ret_val = FileLocationSchema.FromPath(name=f"{schema_name}Events", fullpath=raw_loc)
+            ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Events", fullpath=raw_loc)
         else:
             ret_val = None
             Logger.Log(f"In DatasetSchema, raw file path for all-events file had unexpected type {type(raw_loc)}, expected a path! Using {ret_val} instead")
@@ -713,8 +713,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _getGameEventsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
-        ret_val : Optional[FileLocationSchema]
+    def _getGameEventsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+        ret_val : Optional[FileLocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
@@ -730,7 +730,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             optional_element=True
         )
         if isinstance(raw_loc, Path) or raw_loc is None:
-            ret_val = FileLocationSchema.FromPath(name=f"{schema_name}GameEvents", fullpath=raw_loc)
+            ret_val = FileLocationConfig.FromPath(name=f"{schema_name}GameEvents", fullpath=raw_loc)
         else:
             ret_val = None
             Logger.Log(f"In DatasetSchema, raw file path for game-events file had unexpected type {type(raw_loc)}, expected a path! Using {ret_val} instead")
@@ -738,8 +738,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _getAllFeaturesFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
-        ret_val : Optional[FileLocationSchema]
+    def _getAllFeaturesFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+        ret_val : Optional[FileLocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
@@ -755,7 +755,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             optional_element=True
         )
         if isinstance(raw_loc, Path) or raw_loc is None:
-            ret_val = FileLocationSchema.FromPath(name=f"{schema_name}Features", fullpath=raw_loc)
+            ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Features", fullpath=raw_loc)
         else:
             ret_val = None
             Logger.Log(f"In DatasetSchema, raw file path for all-features file had unexpected type {type(raw_loc)}, expected a path! Using {ret_val} instead")
@@ -763,8 +763,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _getSessionsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
-        ret_val : Optional[FileLocationSchema]
+    def _getSessionsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+        ret_val : Optional[FileLocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
@@ -780,7 +780,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             optional_element=True
         )
         if isinstance(raw_loc, Path) or raw_loc is None:
-            ret_val = FileLocationSchema.FromPath(name=f"{schema_name}Sessions", fullpath=raw_loc)
+            ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Sessions", fullpath=raw_loc)
         else:
             ret_val = None
             Logger.Log(f"In DatasetSchema, raw file path for session features file had unexpected type {type(raw_loc)}, expected a path! Using {ret_val} instead")
@@ -788,8 +788,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _getPlayersFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
-        ret_val : Optional[FileLocationSchema]
+    def _getPlayersFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+        ret_val : Optional[FileLocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
@@ -805,7 +805,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             optional_element=True
         )
         if isinstance(raw_loc, Path) or raw_loc is None:
-            ret_val = FileLocationSchema.FromPath(name=f"{schema_name}Players", fullpath=raw_loc)
+            ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Players", fullpath=raw_loc)
         else:
             ret_val = None
             Logger.Log(f"In DatasetSchema, raw file path for player features file had unexpected type {type(raw_loc)}, expected a path! Using {ret_val} instead")
@@ -813,8 +813,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _getPopulationFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationSchema]:
-        ret_val : Optional[FileLocationSchema]
+    def _getPopulationFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+        ret_val : Optional[FileLocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
@@ -830,7 +830,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             optional_element=True
         )
         if isinstance(raw_loc, Path) or raw_loc is None:
-            ret_val = FileLocationSchema.FromPath(name=f"{schema_name}Population", fullpath=raw_loc)
+            ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Population", fullpath=raw_loc)
         else:
             ret_val = None
             Logger.Log(f"In DatasetSchema, raw file path for population features file had unexpected type {type(raw_loc)}, expected a path! Using {ret_val} instead")

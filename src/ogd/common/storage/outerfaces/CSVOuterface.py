@@ -20,8 +20,8 @@ from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
-from ogd.common.configs.locations.URLLocationSchema import URLLocationSchema
-from ogd.common.configs.locations.DirectoryLocationSchema import DirectoryLocationSchema
+from ogd.common.configs.locations.URLLocationSchema import URLLocationConfig
+from ogd.common.configs.locations.DirectoryLocationSchema import DirectoryLocationConfig
 from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.storage.outerfaces.Outerface import Outerface
 from ogd.common.utils import fileio
@@ -242,7 +242,7 @@ class CSVOuterface(Outerface):
             Logger.Log(msg, logging.WARNING)
         else:
             self._writeMetadataFile(dataset_schema=dataset_schema)
-            if isinstance(self._repository.Location, DirectoryLocationSchema):
+            if isinstance(self._repository.Location, DirectoryLocationConfig):
                 _local_dir = self._repository.Location
                 _remote_url = None
             else: # we got a URL base
@@ -251,7 +251,7 @@ class CSVOuterface(Outerface):
             _file_index = RepositoryIndexingConfig(name="IndexingConfig",
                                              local_dir=_local_dir,
                                              remote_url=_remote_url,
-                                             templates_url=URLLocationSchema.FromDict(name="TemplateURL", unparsed_elements={"URL" : self._repository.TemplatesBase.Location})
+                                             templates_url=URLLocationConfig.FromDict(name="TemplateURL", unparsed_elements={"URL" : self._repository.TemplatesBase.Location})
             )
             self._updateFileExportList(file_indexing=_file_index, dataset_schema=dataset_schema)
 
