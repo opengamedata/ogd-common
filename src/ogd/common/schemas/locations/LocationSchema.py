@@ -31,6 +31,13 @@ class LocationSchema(Schema):
     def __repr__(self):
         return f"{self.__class__.__name__}[{self.Location}]"
 
+    def __add__(self, other:"LocationSchema") -> str:
+        slash = "/" if not self.Location.endswith("/") else ""
+        return f"{self.Location}{slash}{other.Location}"
+
+    def __truediv__(self, other) -> str:
+        return self + other
+
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     # *** PUBLIC STATICS ***

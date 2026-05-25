@@ -9,12 +9,14 @@ from ogd.common.filters.Filter import Filter
 from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.schemas.locations.LocationSchema import LocationSchema
 from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
+from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
+from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
 from ogd.common.schemas.events.EventSchema import EventSchema
 from ogd.common.schemas.events.GameStateSchema import GameStateSchema
 from ogd.common.schemas.features.FeatureSchema import FeatureSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import JSONMap, Map
+from ogd.common.utils.typing import conversions, JSONMap, Map
 from ogd.common.models.SemanticVersion import SemanticVersion
 
 type DatasetManifest = DatasetSchema
@@ -42,7 +44,7 @@ class DatasetSchema(Schema):
     _DEFAULT_OGD_REVISION        : Final[str]                     = "UNKNOWN OGD REVISION"
     _DEFAULT_EVENT_VERSION       : Final[str]                     = "UNKNOWN EVENT SCHEMA VERSION"
     # output info
-    _DEFAULT_FILES_LOCATION      : Final[Path]                    = Path("data/")
+    _DEFAULT_FILES_LOCATION      : Final[DirectoryLocationSchema] = DirectoryLocationSchema(name="Default File Location", folder_path=Path("data/"))
     _DEFAULT_RAW_FILE            : Final[None]                    = None
     _DEFAULT_EVENTS_FILE         : Final[None]                    = None
     _DEFAULT_COMB_FEATS_FILE     : Final[None]                    = None
@@ -50,9 +52,9 @@ class DatasetSchema(Schema):
     _DEFAULT_PLAYERS_FILE        : Final[None]                    = None
     _DEFAULT_POPULATION_FILE     : Final[None]                    = None
     # deprecated, compatibility info
-    _DEFAULT_DATE_MODIFIED       : Final[str]                     = "UNKNOWN DATE"
-    _DEFAULT_START_DATE          : Final[str]                     = "UNKNOWN DATE"
-    _DEFAULT_END_DATE            : Final[str]                     = "UNKNOWN DATE"
+    _DEFAULT_DATE_MODIFIED       : Final[None]                     = None
+    _DEFAULT_START_DATE          : Final[None]                     = None
+    _DEFAULT_END_DATE            : Final[None]                     = None
 
     # *** BUILT-INS & PROPERTIES ***
 
@@ -61,7 +63,7 @@ class DatasetSchema(Schema):
                  filters:Optional[Dict[str, str | Filter]],   session_ct:Optional[int],                 player_ct:Optional[int],
                  game_state:Optional[GameStateSchema],        events:Optional[Dict[str, EventSchema]],  features:Optional[Dict[str, FeatureSchema]],
                  ogd_version:Optional[SemanticVersion | str], ogd_revision:Optional[str],               event_spec_version:Optional[SemanticVersion | str],
-                 base_files_location:Optional[Path],
+                 base_files_location:Optional[LocationSchema],
                  game_events_file:Optional[LocationSchema],   all_events_file:Optional[LocationSchema], combined_feats_file:Optional[LocationSchema],
                  sessions_file:Optional[LocationSchema],      players_file:Optional[LocationSchema],    population_file:Optional[LocationSchema],
                  # deprecated, compatibility params
@@ -140,7 +142,7 @@ class DatasetSchema(Schema):
         self._ogd_revision        : str                              = ogd_revision        if ogd_revision        is not None else self._parseOGDRevision(unparsed_elements=unparsed_elements, schema_name=name)
         self._evt_spec_version    : SemanticVersion                  = self._toEventSpecVersion(version=event_spec_version, fallbacks=unparsed_elements, schema_name=name)
     # 5. Set output info
-        self._base_files_location : Path                             = base_files_location if base_files_location is not None else self._DEFAULT_FILES_LOCATION
+        self._base_files_location : LocationSchema                   = base_files_location if base_files_location is not None else self._DEFAULT_FILES_LOCATION
         self._all_events_file     : Optional[LocationSchema]         = all_events_file     if all_events_file     is not None else self._parseAllEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
         self._game_events_file    : Optional[LocationSchema]         = game_events_file    if game_events_file    is not None else self._parseGameEventsFile(unparsed_elements=unparsed_elements, schema_name=name)
         self._all_features_file   : Optional[LocationSchema]         = combined_feats_file if combined_feats_file is not None else self._parseAllFeaturesFile(unparsed_elements=unparsed_elements, schema_name=name)
@@ -148,9 +150,9 @@ class DatasetSchema(Schema):
         self._players_file        : Optional[LocationSchema]         = players_file        if players_file        is not None else self._parsePlayersFile(unparsed_elements=unparsed_elements, schema_name=name)
         self._population_file     : Optional[LocationSchema]         = population_file     if population_file     is not None else self._parsePopulationFile(unparsed_elements=unparsed_elements, schema_name=name)
     # 6. Set deprecated/compatibility info
-        self._date_modified       : date | str                       = date_modified       if date_modified       is not None else self._parseDateModified(unparsed_elements=unparsed_elements, schema_name=name)
-        self._start_date          : date | str                       = start_date          if start_date          is not None else self._parseStartDate(unparsed_elements=unparsed_elements, schema_name=name)
-        self._end_date            : date | str                       = end_date            if end_date            is not None else self._parseEndDate(unparsed_elements=unparsed_elements, schema_name=name)
+        self._date_modified       : Optional[date]                   = self._getDateModified(raw_val=date_modified, unparsed_elements=unparsed_elements, schema_name=name)
+        self._start_date          : Optional[date]                   = self._getStartDate(raw_val=start_date, unparsed_elements=unparsed_elements, schema_name=name)
+        self._end_date            : Optional[date]                   = self._getEndDate(raw_val=end_date, unparsed_elements=unparsed_elements, schema_name=name)
     # Finally, get key
         self._key                 : DatasetKey                       = dataset_id          if dataset_id          is not None else DatasetKey(game_id=game_id or name, from_date=self._start_date, to_date=self._end_date)
         super().__init__(name=name, other_elements=other_elements)
@@ -223,13 +225,13 @@ class DatasetSchema(Schema):
     # Meanwhile, all the literal implementation details assume we're using paths, i.e. FileLocationSchemas.
 
     @property
-    def GameEventsFile(self) -> Optional[Path]:
-        return self._base_files_location / self._game_events_file.Location if self._game_events_file else None
+    def GameEventsFile(self) -> Optional[str]:
+        return self._base_files_location / self._game_events_file if self._game_events_file else None
     @property
     def HasGameEventsFile(self) -> bool:
         return self._game_events_file is not None
     @property
-    def RawEventsFile(self) -> Optional[Path]:
+    def RawEventsFile(self) -> Optional[str]:
         """Alias for GameEventsFile
 
         :return: _description_
@@ -238,13 +240,13 @@ class DatasetSchema(Schema):
         return self.GameEventsFile
 
     @property
-    def AllEventsFile(self) -> Optional[Path]:
-        return self._base_files_location/ self._all_events_file.Location if self._all_events_file else None
+    def AllEventsFile(self) -> Optional[str]:
+        return self._base_files_location / self._all_events_file if self._all_events_file else None
     @property
     def HasAllEventsFile(self) -> bool:
         return self.AllEventsFile is not None
     @property
-    def EventsFile(self) -> Optional[Path]:
+    def EventsFile(self) -> Optional[str]:
         """Alias for AllEventsFile
 
         Since this is the main events file with all available events in it, we can just call it the "Events" file.
@@ -255,7 +257,7 @@ class DatasetSchema(Schema):
         return self.AllEventsFile
 
     @property
-    def FeaturesFile(self) -> Optional[Path]:
+    def FeaturesFile(self) -> Optional[str]:
         """Alias for AllFeaturesFile
         
         Since this is the main base feature file, we can just call it the "Features" file.
@@ -265,29 +267,29 @@ class DatasetSchema(Schema):
         """
         return self.CombinedFeaturesFile
     @property
-    def CombinedFeaturesFile(self) -> Optional[Path]:
-        return self._base_files_location / self._all_features_file.Location if self._all_features_file else None
+    def CombinedFeaturesFile(self) -> Optional[str]:
+        return self._base_files_location / self._all_features_file if self._all_features_file else None
     @property
     def HasCombinedFeaturesFile(self) -> bool:
         return self.CombinedFeaturesFile is not None
     
     @property
-    def SessionsFile(self) -> Optional[Path]:
-        return self._base_files_location / self._sessions_file.Location if self._sessions_file else None
+    def SessionsFile(self) -> Optional[str]:
+        return self._base_files_location / self._sessions_file if self._sessions_file else None
     @property
     def HasSessionsFile(self) -> bool:
         return self.SessionsFile is not None
 
     @property
-    def PlayersFile(self) -> Optional[Path]:
-        return self._base_files_location / self._players_file.Location if self._players_file else None
+    def PlayersFile(self) -> Optional[str]:
+        return self._base_files_location / self._players_file if self._players_file else None
     @property
     def HasPlayersFile(self) -> bool:
         return self.PlayersFile is not None
 
     @property
-    def PopulationFile(self) -> Optional[Path]:
-        return self._base_files_location / self._population_file.Location if self._population_file else None
+    def PopulationFile(self) -> Optional[str]:
+        return self._base_files_location / self._population_file if self._population_file else None
     @property
     def HasPopulationFile(self) -> bool:
         return self.PopulationFile is not None
@@ -320,7 +322,7 @@ class DatasetSchema(Schema):
     # 6. Get deprecated/compatibility info
 
     @property
-    def DateModified(self) -> date | str:
+    def DateModified(self) -> Optional[date]:
         return self._date_modified
     @property
     def DateModifiedStr(self) -> str:
@@ -328,22 +330,38 @@ class DatasetSchema(Schema):
         if isinstance(self._date_modified, date):
             ret_val = self._date_modified.strftime("%m/%d/%Y")
         else:
-            ret_val = self._date_modified
+            ret_val = "UNKNOWN DATE"
         return ret_val
 
     @property
-    def StartDate(self) -> date | str:
+    def StartDate(self) -> Optional[date]:
         return self._start_date
+    @property
+    def StartDateStr(self) -> str:
+        ret_val : str
+        if isinstance(self._start_date, date):
+            ret_val = self._start_date.strftime("%m/%d/%Y")
+        else:
+            ret_val = "UNKNOWN DATE"
+        return ret_val
     @StartDate.setter
     def StartDate(self, val:date | str):
-        self._start_date = val
+        self._start_date = self._getStartDate(raw_val=val, unparsed_elements={})
 
     @property
-    def EndDate(self) -> date | str:
+    def EndDate(self) -> Optional[date]:
         return self._end_date
+    @property
+    def EndDateStr(self) -> str:
+        ret_val : str
+        if isinstance(self._end_date, date):
+            ret_val = self._end_date.strftime("%m/%d/%Y")
+        else:
+            ret_val = "UNKNOWN DATE"
+        return ret_val
     @EndDate.setter
     def EndDate(self, val:date | str):
-        self._end_date = val
+        self._end_date = self._getEndDate(raw_val=val, unparsed_elements={})
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -675,7 +693,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
-        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+        outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=outputs_elements,
@@ -699,7 +717,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
-        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+        outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=outputs_elements,
@@ -723,7 +741,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
-        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+        outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=outputs_elements,
@@ -747,7 +765,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
-        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+        outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=outputs_elements,
@@ -771,7 +789,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
-        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+        outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=outputs_elements,
@@ -795,7 +813,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         ret_val : Optional[FileLocationSchema]
 
         # look for file in the outputs section, if it exists.
-        outputs_elements = unparsed_elements.get("outputs", unparsed_elements)
+        outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
         raw_loc : Path | str = DatasetSchema.ParseElement(
             unparsed_elements=outputs_elements,
@@ -819,7 +837,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         #endregion
 
     @staticmethod
-    def _parseDateModified(unparsed_elements:Map, schema_name:Optional[str]=None) -> date | str:
+    def _getDateModified(raw_val:Optional[date | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[date]:
         """Function to obtain the modified date from a dictionary.
 
         :param unparsed_elements: _description_
@@ -827,36 +845,26 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         :return: _description_
         :rtype: date | str
         """
-        ret_val : date | str
-        date_modified = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["date_modified"],
-            to_type=datetime,
-            default_value=DatasetSchema._DEFAULT_DATE_MODIFIED,
-            remove_target=True,
-            schema_name=schema_name
-        )
-        if isinstance(date_modified, datetime):
-            ret_val = date_modified.date()
-        if isinstance(date_modified, date):
-            ret_val = date_modified
-        elif isinstance(date_modified, str):
-            try:
-                ret_val = datetime.strptime(date_modified, "%m/%d/%Y").date()
-            except ValueError as err:
-                ret_val = "UKNOWN DATE"
-                Logger.Log(f"Invalid date_modified for dataset schema, expected a date, but got {date_modified}, resulting in error: {err}\nUsing {ret_val} instead")
+        ret_val : Optional[date] = None
+
+        if raw_val is None:
+            ret_val = DatasetSchema.ParseElement(
+                unparsed_elements=unparsed_elements,
+                valid_keys=["date_modified"],
+                to_type=date,
+                default_value=DatasetSchema._DEFAULT_DATE_MODIFIED,
+                remove_target=True,
+                schema_name=schema_name
+            )
         else:
             try:
-                ret_val = datetime.strptime(str(date_modified), "%m/%d/%Y").date()
-                Logger.Log(f"Dataset modified date was unexpected type {type(date_modified)}, defaulting to strptime(str(date_modified))={ret_val}.", logging.WARN)
+                ret_val = conversions.ConvertToType(value=raw_val, to_type=date, name=schema_name or "DatasetSchema")
             except ValueError as err:
-                ret_val = "UKNOWN DATE"
-                Logger.Log(f"Invalid date_modified for dataset schema, expected a date, but got {str(date_modified)}, resulting in error: {err}\nUsing {ret_val} instead.")
+                Logger.Log(f"Invalid date_modified for dataset schema, expected a date, but got {raw_val}, resulting in error: {err}\nUsing {ret_val} instead")
         return ret_val
 
     @staticmethod
-    def _parseStartDate(unparsed_elements:Map, schema_name:Optional[str]=None) -> date | str:
+    def _getStartDate(raw_val:Optional[date | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[date]:
         """Function to obtain the start date from a dictionary.
 
         :param unparsed_elements: _description_
@@ -864,37 +872,26 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         :return: _description_
         :rtype: date | str
         """
-        ret_val : date | str
-        start_date = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["start_date"],
-            to_type=datetime,
-            default_value=DatasetSchema._DEFAULT_START_DATE,
-            remove_target=True,
-            schema_name=schema_name
-        )
+        ret_val : Optional[date] = None
 
-        if isinstance(start_date, datetime):
-            ret_val = start_date.date()
-        if isinstance(start_date, date):
-            ret_val = start_date
-        elif isinstance(start_date, str):
-            try:
-                ret_val = datetime.strptime(start_date, "%m/%d/%Y").date()
-            except ValueError as err:
-                ret_val = "UKNOWN DATE"
-                Logger.Log(f"Invalid start_date for dataset schema, expected a date, but got {start_date}, resulting in error: {err}\nUsing {ret_val} instead")
+        if raw_val is None:
+            ret_val = DatasetSchema.ParseElement(
+                unparsed_elements=unparsed_elements,
+                valid_keys=["start_date"],
+                to_type=date,
+                default_value=DatasetSchema._DEFAULT_START_DATE,
+                remove_target=True,
+                schema_name=schema_name
+            )
         else:
             try:
-                ret_val = datetime.strptime(str(start_date), "%m/%d/%Y").date()
-                Logger.Log(f"Dataset start date was unexpected type {type(start_date)}, defaulting to strptime(str(start_date))={ret_val}.", logging.WARN)
+                ret_val = conversions.ConvertToType(value=raw_val, to_type=date, name=schema_name or "DatasetSchema")
             except ValueError as err:
-                ret_val = "UKNOWN DATE"
-                Logger.Log(f"Invalid start_date for dataset schema, expected a date, but got {str(start_date)}, resulting in error: {err}\nUsing {ret_val} instead.")
+                Logger.Log(f"Invalid start_date for dataset schema, expected a date, but got {raw_val}, resulting in error: {err}\nUsing {ret_val} instead")
         return ret_val
 
     @staticmethod
-    def _parseEndDate(unparsed_elements:Map, schema_name:Optional[str]=None) -> date | str:
+    def _getEndDate(raw_val:Optional[date | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[date]:
         """Function to obtain the end date from a dictionary.
 
         :param unparsed_elements: _description_
@@ -902,33 +899,22 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         :return: _description_
         :rtype: date | str
         """
-        ret_val : date | str
-        end_date = DatasetSchema.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["end_date"],
-            to_type=datetime,
-            default_value=DatasetSchema._DEFAULT_END_DATE,
-            remove_target=True,
-            schema_name=schema_name
-        )
+        ret_val : Optional[date] = None
 
-        if isinstance(end_date, datetime):
-            ret_val = end_date.date()
-        if isinstance(end_date, date):
-            ret_val = end_date
-        elif isinstance(end_date, str):
-            try:
-                ret_val = datetime.strptime(end_date, "%m/%d/%Y").date()
-            except ValueError as err:
-                ret_val = "UKNOWN DATE"
-                Logger.Log(f"Invalid end_date for dataset schema, expected a date, but got {end_date}, resulting in error: {err}\nUsing {ret_val} instead")
+        if raw_val is None:
+            ret_val = DatasetSchema.ParseElement(
+                unparsed_elements=unparsed_elements,
+                valid_keys=["end_date"],
+                to_type=date,
+                default_value=DatasetSchema._DEFAULT_END_DATE,
+                remove_target=True,
+                schema_name=schema_name
+            )
         else:
             try:
-                ret_val = datetime.strptime(str(end_date), "%m/%d/%Y").date()
-                Logger.Log(f"Dataset end date was unexpected type {type(end_date)}, defaulting to strptime(str(end_date))={ret_val}.", logging.WARN)
+                ret_val = conversions.ConvertToType(value=raw_val, to_type=date, name=schema_name or "DatasetSchema")
             except ValueError as err:
-                ret_val = "UKNOWN DATE"
-                Logger.Log(f"Invalid end_date for dataset schema, expected a date, but got {str(end_date)}, resulting in error: {err}\nUsing {ret_val} instead")
+                Logger.Log(f"Invalid end_date for dataset schema, expected a date, but got {raw_val}, resulting in error: {err}\nUsing {ret_val} instead")
         return ret_val
     #endregion
 
