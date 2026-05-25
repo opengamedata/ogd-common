@@ -109,7 +109,9 @@ class DatabaseLocationSchema(LocationSchema):
         :return: _description_
         :rtype: DatabaseLocationSchema
         """
-        return DatabaseLocationSchema(name=name, database_name=None, table_name=None, other_elements=unparsed_elements)
+        db_name = cls._getDatabaseName(raw_val=None, unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
+        table_name = cls._getTableName(raw_val=None, unparsed_elements=unparsed_elements, schema_name=name, key_overrides=key_overrides, default_override=default_override)
+        return DatabaseLocationSchema(name=name, database_name=db_name, table_name=table_name, other_elements=unparsed_elements)
 
     # *** PUBLIC STATICS ***
 
