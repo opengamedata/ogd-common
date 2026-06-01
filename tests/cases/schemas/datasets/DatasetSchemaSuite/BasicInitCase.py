@@ -7,6 +7,8 @@ from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.models.DatasetKey import DatasetKey
+from ogd.common.configs.locations.LocationConfig import LocationConfig
+from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
 from ogd.common.utils.Logger import Logger
 # import locals
@@ -42,7 +44,7 @@ class BasicInitCase(TestCase):
             filters={}, # TODO : add filters, maybe after this becomes a DatasetFilteringCollection or whatever
             game_state={}, events={}, features={},
             ogd_version="1.0.0", ogd_revision="123456", event_spec_version="1.0",
-            base_files_location=Path("./"),
+            base_files_location=DirectoryLocationConfig(name="baseloc", folder_path=Path("./")),
             game_events_file=FileLocationConfig.FromPath(name="gameevents", fullpath=Path("./raw.tsv")),
             all_events_file=FileLocationConfig.FromPath(name="gameevents", fullpath=Path("./events.tsv")),
             combined_feats_file=FileLocationConfig.FromPath(name="gameevents", fullpath=Path("./all_feats.tsv")),
@@ -57,6 +59,11 @@ class BasicInitCase(TestCase):
         _str = self.test_schema.Name
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "DatasetSchema")
+
+    def test_base_loc(self):
+        _str = self.test_schema._base_files_location
+        self.assertIsInstance(_str, LocationConfig)
+        self.assertEqual(_str, DirectoryLocationConfig(name="baseloc", folder_path=Path("./")))
 
     def test_NonStandardElements(self):
         _elems = {
