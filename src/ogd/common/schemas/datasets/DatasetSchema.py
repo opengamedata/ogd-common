@@ -425,12 +425,12 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             # output info
             "output": {
                 "base_file_location" : str(self._base_files_location),
-                "all_events_file"    : self._all_events_file.Location   if self._all_events_file   else None,
-                "game_events_file"   : self._game_events_file.Location  if self._game_events_file  else None,
-                "all_features_file"  : self._all_features_file.Location if self._all_features_file else None,
-                "sessions_file"      : self._sessions_file.Location     if self._sessions_file     else None,
-                "players_file"       : self._players_file.Location      if self._players_file      else None,
-                "population_file"    : self._population_file.Location   if self._population_file   else None,
+                "all_events_file"    : self.AllEventsFile(relative=True),
+                "game_events_file"   : self.GameEventsFile(relative=True),
+                "all_features_file"  : self.CombinedFeaturesFile(relative=True),
+                "sessions_file"      : self.SessionsFile(relative=True),
+                "players_file"       : self.PlayersFile(relative=True),
+                "population_file"    : self.PopulationFile(relative=True)
             },
             # deprecated/compatibility info
             "date_modified"      : self.DateModified.strftime("%m/%d/%Y") if isinstance(self.DateModified, date) else self.DateModified,
