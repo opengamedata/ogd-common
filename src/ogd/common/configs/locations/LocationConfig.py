@@ -32,14 +32,20 @@ class LocationConfig(Config):
         return f"{self.__class__.__name__}[{self.Location}]"
 
     def __add__(self, other:"LocationConfig") -> str:
-        slash = "/" if not self.Location.endswith("/") else ""
-        return f"{self.Location}{slash}{other.Location}"
+        if isinstance(other, LocationConfig):
+            slash = "/" if not self.Location.endswith("/") else ""
+            return f"{self.Location}{slash}{other.Location}"
+        else:
+            raise TypeError(f"Objects of type {type(self).__name__} and {type(other).__name__} can not be concatenated!")
 
     def __truediv__(self, other:"LocationConfig") -> str:
         return self + other
 
     def __eq__(self, value:"LocationConfig") -> bool:
-        return self.Location == value.Location
+        if isinstance(value, LocationConfig):
+            return self.Location == value.Location
+        else:
+            return super().__eq__(value)
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
