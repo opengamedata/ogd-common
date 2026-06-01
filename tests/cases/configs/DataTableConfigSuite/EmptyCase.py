@@ -7,7 +7,7 @@ from unittest import TestCase
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.configs.TestConfig import TestConfig
-from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
+from ogd.common.configs.locations.DatabaseLocationConfig import DatabaseLocationConfig
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.configs.DataTableConfig import DataTableConfig
@@ -92,7 +92,7 @@ class EmptyCase(TestCase):
             "source":"Foo",
             "fakekey" : "Bar"
         }
-        _str = DataTableConfig._parseStoreName(_map)
+        _str = DataTableConfig._getStoreName(raw_val=None, unparsed_elements=_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
         self.assertNotIn("source", _map) # First parse should remove key, so "source" should not exist anymore.
@@ -101,7 +101,7 @@ class EmptyCase(TestCase):
         _map = {
             "fakekey" : "Bar"
         }
-        _str = DataTableConfig._parseStoreName(_map)
+        _str = DataTableConfig._getStoreName(raw_val=None, unparsed_elements=_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, DataTableConfig._DEFAULT_STORE_NAME)
 
@@ -112,7 +112,7 @@ class EmptyCase(TestCase):
             "source_name":"Foo",
             "fakekey" : "Bar"
         }
-        _str = DataTableConfig._parseStoreName(_map)
+        _str = DataTableConfig._getStoreName(raw_val=None, unparsed_elements=_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
@@ -121,7 +121,7 @@ class EmptyCase(TestCase):
             "schema":"Foo",
             "fakekey" : "Bar"
         }
-        _str = DataTableConfig._parseTableSchemaName(_map)
+        _str = DataTableConfig._getTableSchemaName(raw_val=None, unparsed_elements=_map)
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "Foo")
 
@@ -131,8 +131,8 @@ class EmptyCase(TestCase):
             "table":"Bar",
             "fakekey" : "Baz"
         }
-        _loc = DataTableConfig._parseTableLocation(unparsed_elements=_map)
-        self.assertIsInstance(_loc, DatabaseLocationSchema)
+        _loc = DataTableConfig._getTableLocation(raw_val=None, unparsed_elements=_map)
+        self.assertIsInstance(_loc, DatabaseLocationConfig)
         self.assertIsInstance(_loc.DatabaseName, str)
         self.assertEqual(_loc.DatabaseName, "Foo")
         self.assertIsInstance(_loc.TableName, str)

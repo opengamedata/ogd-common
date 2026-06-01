@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Self
 
 # import local files
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapElement
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 ## @class TableSchema
 class EventMapSchema(ColumnMapSchema):
@@ -86,17 +86,17 @@ class EventMapSchema(ColumnMapSchema):
 
         super().__init__(name=name, app_id=app_id, user_id=user_id, session_id=session_id,
                          other_elements=unparsed_elements)
-        self._app_version          : ColumnMapElement = app_version          if app_version          is not None else self._parseAppVersion(unparsed_elements=self._raw_map, schema_name=name)
-        self._app_branch           : ColumnMapElement = app_branch           if app_branch           is not None else self._parseAppBranch(unparsed_elements=self._raw_map, schema_name=name)
-        self._log_version          : ColumnMapElement = log_version          if log_version          is not None else self._parseLogVersion(unparsed_elements=self._raw_map, schema_name=name)
-        self._timestamp            : ColumnMapElement = timestamp            if timestamp            is not None else self._parseTimestamp(unparsed_elements=unparsed_elements, schema_name=name)
-        self._time_offset          : ColumnMapElement = time_offset          if time_offset          is not None else self._parseTimeoffset(unparsed_elements=unparsed_elements, schema_name=name)
-        self._event_sequence_index : ColumnMapElement = event_sequence_index if event_sequence_index is not None else self._parseSequenceIndex(unparsed_elements=unparsed_elements, schema_name=name)
-        self._event_name           : ColumnMapElement = event_name           if event_name           is not None else self._parseEventName(unparsed_elements=unparsed_elements, schema_name=name)
-        self._event_source         : ColumnMapElement = event_source         if event_source         is not None else self._parseEventSource(unparsed_elements=unparsed_elements, schema_name=name)
-        self._event_data           : ColumnMapElement = event_data           if event_data           is not None else self._parseEventData(unparsed_elements=unparsed_elements, schema_name=name)
-        self._game_state           : ColumnMapElement = game_state           if game_state           is not None else self._parseGameState(unparsed_elements=unparsed_elements, schema_name=name)
-        self._user_data            : ColumnMapElement = user_data            if user_data            is not None else self._parseUserData(unparsed_elements=unparsed_elements, schema_name=name)
+        self._app_version          : ColumnMapElement = self._getAppVersion(raw_val=app_version, unparsed_elements=self._raw_map, schema_name=name)
+        self._app_branch           : ColumnMapElement = self._getAppBranch(raw_val=app_branch, unparsed_elements=self._raw_map, schema_name=name)
+        self._log_version          : ColumnMapElement = self._getLogVersion(raw_val=log_version, unparsed_elements=self._raw_map, schema_name=name)
+        self._timestamp            : ColumnMapElement = self._getTimestamp(raw_val=timestamp, unparsed_elements=unparsed_elements, schema_name=name)
+        self._time_offset          : ColumnMapElement = self._getTimeoffset(raw_val=time_offset, unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_sequence_index : ColumnMapElement = self._getSequenceIndex(raw_val=event_sequence_index, unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_name           : ColumnMapElement = self._getEventName(raw_val=event_name, unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_source         : ColumnMapElement = self._getEventSource(raw_val=event_source, unparsed_elements=unparsed_elements, schema_name=name)
+        self._event_data           : ColumnMapElement = self._getEventData(raw_val=event_data, unparsed_elements=unparsed_elements, schema_name=name)
+        self._game_state           : ColumnMapElement = self._getGameState(raw_val=game_state, unparsed_elements=unparsed_elements, schema_name=name)
+        self._user_data            : ColumnMapElement = self._getUserData(raw_val=user_data, unparsed_elements=unparsed_elements, schema_name=name)
 
     def __eq__(self, other:"EventMapSchema"):
         if not isinstance(other, EventMapSchema):
@@ -219,7 +219,7 @@ class EventMapSchema(ColumnMapSchema):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "app_id":self.AppIDColumn,
             "user_id":self.UserIDColumn,
@@ -310,8 +310,9 @@ class EventMapSchema(ColumnMapSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseAppVersion(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getAppVersion(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["app_version"],
             to_type=[str, list, dict],
@@ -321,8 +322,9 @@ class EventMapSchema(ColumnMapSchema):
         )
 
     @staticmethod
-    def _parseAppBranch(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getAppBranch(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["app_branch", "app_flavor"],
             to_type=[str, list, dict],
@@ -332,8 +334,9 @@ class EventMapSchema(ColumnMapSchema):
         )
 
     @staticmethod
-    def _parseLogVersion(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getLogVersion(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["log_version"],
             to_type=[str, list, dict],
@@ -343,8 +346,9 @@ class EventMapSchema(ColumnMapSchema):
         )
 
     @staticmethod
-    def _parseTimestamp(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getTimestamp(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["timestamp"],
             to_type=[str, list, dict],
@@ -354,8 +358,9 @@ class EventMapSchema(ColumnMapSchema):
         )
 
     @staticmethod
-    def _parseTimeoffset(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getTimeoffset(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["offset", "time_offset", "timezone", "time_zone"],
             to_type=[str, list, dict],
@@ -365,8 +370,9 @@ class EventMapSchema(ColumnMapSchema):
         )
 
     @staticmethod
-    def _parseSequenceIndex(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getSequenceIndex(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["event_sequence_index", "event_index", "sequence_index"],
             to_type=[str, list, dict],
@@ -376,8 +382,9 @@ class EventMapSchema(ColumnMapSchema):
         )
 
     @staticmethod
-    def _parseEventName(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getEventName(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["event_name", "event_type"],
             to_type=[str, list, dict],
@@ -387,8 +394,9 @@ class EventMapSchema(ColumnMapSchema):
         )
 
     @staticmethod
-    def _parseEventSource(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getEventSource(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["event_source", "source"],
             to_type=[str, list, dict],
@@ -398,8 +406,9 @@ class EventMapSchema(ColumnMapSchema):
         )
 
     @staticmethod
-    def _parseEventData(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getEventData(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["event_data"],
             to_type=[str, list, dict],
@@ -409,8 +418,9 @@ class EventMapSchema(ColumnMapSchema):
         )
 
     @staticmethod
-    def _parseGameState(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getGameState(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["game_state"],
             to_type=[str, list, dict],
@@ -420,8 +430,9 @@ class EventMapSchema(ColumnMapSchema):
         )
 
     @staticmethod
-    def _parseUserData(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getUserData(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["user_data", "player_data"],
             to_type=[str, list, dict],

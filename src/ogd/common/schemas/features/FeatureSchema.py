@@ -6,7 +6,7 @@ from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 class FeatureSchema(Schema):
     """
@@ -73,14 +73,14 @@ class FeatureSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._feature_name       : str                  = feature_name       if feature_name       is not None else self._parseFeatureName(unparsed_elements=unparsed_elements, schema_name=name)
-        self._description        : str                  = description        if description        is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
-        self._value_type         : str                  = value_type         if value_type         is not None else self._parseValueType(unparsed_elements=unparsed_elements, schema_name=name)
-        self._aggregation_levels : Set[AggregationMode] = aggregation_levels if aggregation_levels is not None else self._parseAggregationLevels(unparsed_elements=unparsed_elements, schema_name=name)
-        self._iteration_count    : Optional[int]        = iteration_count    if iteration_count    is not None else self._parseIterationCount(unparsed_elements=unparsed_elements, schema_name=name)
-        self._iteration_prefix   : Optional[str]        = iteration_prefix   if iteration_prefix   is not None else self._parseIterationPrefix(unparsed_elements=unparsed_elements, schema_name=name)
-        self._module_name        : str                  = module_name        if module_name        is not None else self._parseModuleName(unparsed_elements=unparsed_elements, schema_name=name)
-        self._module_version     : SemanticVersion      = module_version     if module_version     is not None else self._parseModuleVersion(unparsed_elements=unparsed_elements, schema_name=name)
+        self._feature_name       : str                  = self._getFeatureName(raw_val=feature_name, unparsed_elements=unparsed_elements, schema_name=name)
+        self._description        : str                  = self._getDescription(raw_val=description, unparsed_elements=unparsed_elements, schema_name=name)
+        self._value_type         : str                  = self._getValueType(raw_val=value_type, unparsed_elements=unparsed_elements, schema_name=name)
+        self._aggregation_levels : Set[AggregationMode] = self._getAggregationLevels(raw_val=aggregation_levels, unparsed_elements=unparsed_elements, schema_name=name)
+        self._iteration_count    : Optional[int]        = self._getIterationCount(raw_val=iteration_count, unparsed_elements=unparsed_elements, schema_name=name)
+        self._iteration_prefix   : Optional[str]        = self._getIterationPrefix(raw_val=iteration_prefix, unparsed_elements=unparsed_elements, schema_name=name)
+        self._module_name        : str                  = self._getModuleName(raw_val=module_name, unparsed_elements=unparsed_elements, schema_name=name)
+        self._module_version     : SemanticVersion      = self._getModuleVersion(raw_val=module_version, unparsed_elements=unparsed_elements, schema_name=name)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -155,7 +155,7 @@ class FeatureSchema(Schema):
                              other_elements=unparsed_elements)
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "feature_name":self.FeatureName,
             "description":self.Description,
@@ -164,7 +164,7 @@ class FeatureSchema(Schema):
             "iteration_count":self.IterationCount,
             "prefix":self.IterationPrefix,
             "module_name":self.ModuleName,
-            "module_version":self.ModuleVersion
+            "module_version":str(self.ModuleVersion)
         }
 
     @classmethod
@@ -189,8 +189,9 @@ class FeatureSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseFeatureName(unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getFeatureName(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
         return FeatureSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["feature_name"],
             to_type=str,
@@ -200,8 +201,9 @@ class FeatureSchema(Schema):
         )
 
     @staticmethod
-    def _parseDescription(unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getDescription(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
         return FeatureSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["description"],
             to_type=str,
@@ -211,8 +213,9 @@ class FeatureSchema(Schema):
         )
 
     @staticmethod
-    def _parseValueType(unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getValueType(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
         return FeatureSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["value_type", "return_type"],
             to_type=str,
@@ -222,10 +225,11 @@ class FeatureSchema(Schema):
         )
 
     @staticmethod
-    def _parseAggregationLevels(unparsed_elements:Map, schema_name:Optional[str]=None) -> Set[AggregationMode]:
+    def _getAggregationLevels(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Set[AggregationMode]:
         ret_val : Set[AggregationMode]
 
         aggregations : Dict[str, Any] = FeatureSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["aggregation_levels", "aggregations"],
             to_type=list,
@@ -241,8 +245,9 @@ class FeatureSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _parseIterationCount(unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getIterationCount(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
         return FeatureSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["iteration_count", "iterations"],
             to_type=int,
@@ -253,8 +258,9 @@ class FeatureSchema(Schema):
         )
 
     @staticmethod
-    def _parseIterationPrefix(unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getIterationPrefix(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
         return FeatureSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["iteration_prefix", "prefix"],
             to_type=str,
@@ -265,8 +271,9 @@ class FeatureSchema(Schema):
         )
 
     @staticmethod
-    def _parseModuleName(unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getModuleName(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
         return FeatureSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["module_name", "module"],
             to_type=str,
@@ -276,10 +283,11 @@ class FeatureSchema(Schema):
         )
 
     @staticmethod
-    def _parseModuleVersion(unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getModuleVersion(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
         ret_val : SemanticVersion
 
         raw_version = FeatureSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["module_version", "version"],
             to_type=str,

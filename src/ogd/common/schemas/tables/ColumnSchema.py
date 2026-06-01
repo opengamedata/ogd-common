@@ -2,7 +2,7 @@
 from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 class ColumnSchema(Schema):
     _DEFAULT_READABLE    : Final[str] = "Default Column Schema Name"
@@ -40,9 +40,9 @@ class ColumnSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._readable    : str = readable    if readable    is not None else self._parseReadable(unparsed_elements=unparsed_elements, schema_name=name)
-        self._value_type  : str = value_type  if value_type  is not None else self._parseValueType(unparsed_elements=unparsed_elements, schema_name=name)
-        self._description : str = description if description is not None else self._parseDescription(unparsed_elements=unparsed_elements, schema_name=name)
+        self._readable    : str = self._getReadable(raw_val=readable, unparsed_elements=unparsed_elements, schema_name=name)
+        self._value_type  : str = self._getValueType(raw_val=value_type, unparsed_elements=unparsed_elements, schema_name=name)
+        self._description : str = self._getDescription(raw_val=description, unparsed_elements=unparsed_elements, schema_name=name)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -87,7 +87,7 @@ class ColumnSchema(Schema):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "name":self.Name,
             "readable":self.ReadableName,
@@ -140,8 +140,9 @@ class ColumnSchema(Schema):
         )
     
     @staticmethod
-    def _parseReadable(unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getReadable(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
         return ColumnSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["readable", "human_readable"],
             to_type=str,
@@ -151,8 +152,9 @@ class ColumnSchema(Schema):
         )
     
     @staticmethod
-    def _parseDescription(unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getDescription(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
         return ColumnSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["description"],
             to_type=str,
@@ -162,8 +164,9 @@ class ColumnSchema(Schema):
         )
     
     @staticmethod
-    def _parseValueType(unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getValueType(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
         return ColumnSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["type"],
             to_type=str,

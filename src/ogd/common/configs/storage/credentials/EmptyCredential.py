@@ -2,7 +2,7 @@
 from typing import Any, Dict, Optional, Self
 # import local files
 from ogd.common.configs.Config import Config
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 class EmptyCredential(Config):
     """Dumb struct to contain data pertaining to credentials for accessing a data source.
@@ -23,7 +23,7 @@ class EmptyCredential(Config):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {}
 
     @classmethod

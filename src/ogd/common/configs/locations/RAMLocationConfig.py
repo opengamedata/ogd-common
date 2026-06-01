@@ -1,11 +1,11 @@
 ## import standard libraries
-from typing import Any, Dict, Optional, Self
+from typing import Dict, Optional, Self
 ## import local files
-from ogd.common.schemas.locations.LocationSchema import LocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.configs.locations.LocationConfig import LocationConfig
+from ogd.common.utils.typing import JSONMap, Map
 
-## @class FileLocationSchema
-class RAMLocationSchema(LocationSchema):
+## @class FileLocationConfig
+class RAMLocationConfig(LocationConfig):
     """Class to encode the fact that some resource is contained in an object in RAM.
 
     Effectively just a dummy to make such things easier to deal with, config-wise.
@@ -14,7 +14,7 @@ class RAMLocationSchema(LocationSchema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str):
-        """Constructor for the `RAMLocationSchema` class.
+        """Constructor for the `RAMLocationConfig` class.
         """
 
         super().__init__(name=name, other_elements=None)
@@ -30,18 +30,18 @@ class RAMLocationSchema(LocationSchema):
         return self.Location
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {}
 
     @classmethod
-    def Default(cls) -> "RAMLocationSchema":
-        return RAMLocationSchema(
+    def Default(cls) -> "RAMLocationConfig":
+        return RAMLocationConfig(
             name="DefaultRAMLocation",
         )
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "RAMLocationSchema":
-        """Create a DatabaseLocationSchema from a given dictionary
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "RAMLocationConfig":
+        """Create a DatabaseLocationConfig from a given dictionary
 
         TODO : Add example of what format unparsed_elements is expected to have.
 
@@ -54,9 +54,9 @@ class RAMLocationSchema(LocationSchema):
         :param default_override: _description_, defaults to None
         :type default_override: Optional[Self], optional
         :return: _description_
-        :rtype: FileLocationSchema
+        :rtype: FileLocationConfig
         """
-        return RAMLocationSchema(name=name)
+        return RAMLocationConfig(name=name)
 
     # *** PUBLIC STATICS ***
 

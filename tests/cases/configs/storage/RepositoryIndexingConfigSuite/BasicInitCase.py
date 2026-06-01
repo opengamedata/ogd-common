@@ -7,8 +7,8 @@ from urllib.parse import urlparse
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
-from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
-from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
+from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
+from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 # import locals
 from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
 from config.t_config import settings
@@ -38,9 +38,9 @@ class BasicInitCase(TestCase):
         """
         cls.test_schema = RepositoryIndexingConfig(
             name="Indexing Schema",
-            local_dir=DirectoryLocationSchema(name="LocalDir", folder_path=Path("./data")),
-            remote_url=URLLocationSchema(name="RemoteURL", url=urlparse("https://fieldday-web.ad.education.wisc.edu/opengamedata/")),
-            templates_url=URLLocationSchema(name="TemplateURL", url=urlparse("https://github.com/opengamedata/opengamedata-samples")),
+            local_dir=DirectoryLocationConfig(name="LocalDir", folder_path=Path("./data")),
+            remote_url=URLLocationConfig(name="RemoteURL", url=urlparse("https://fieldday-web.ad.education.wisc.edu/opengamedata/")),
+            templates_url=URLLocationConfig(name="TemplateURL", url=urlparse("https://github.com/opengamedata/opengamedata-samples")),
             other_elements={ "foo":"bar" }
         )
 
@@ -51,21 +51,21 @@ class BasicInitCase(TestCase):
 
     def test_LocalDirectory(self):
         _dir = self.test_schema.LocalDirectory
-        self.assertIsInstance(_dir, DirectoryLocationSchema)
+        self.assertIsInstance(_dir, DirectoryLocationConfig)
         self.assertIsInstance(_dir.FolderPath, Path)
         self.assertEqual(_dir.FolderPath, Path("./data/"))
 
     def test_RemoteURL(self):
         _url = self.test_schema.RemoteURL
         self.assertIsNotNone(_url)
-        self.assertIsInstance(_url, URLLocationSchema)
+        self.assertIsInstance(_url, URLLocationConfig)
         if _url:
             self.assertIsInstance(_url.Location, str)
             self.assertEqual(_url.Location, "https://fieldday-web.ad.education.wisc.edu/opengamedata/")
 
     def test_TemplatesURL(self):
         _url = self.test_schema.TemplatesURL
-        self.assertIsInstance(_url, URLLocationSchema)
+        self.assertIsInstance(_url, URLLocationConfig)
         self.assertIsInstance(_url.Location, str)
         self.assertEqual(_url.Location, "https://github.com/opengamedata/opengamedata-samples")
 

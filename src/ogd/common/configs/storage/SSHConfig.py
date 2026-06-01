@@ -4,12 +4,12 @@ from urllib.parse import ParseResult
 # import local files
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
-from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
+from ogd.common.utils.typing import JSONMap, Map
 
 class SSHConfig(DataStoreConfig):
     _STORE_TYPE = "SSH"
-    _DEFAULT_LOCATION: Final[URLLocationSchema] = URLLocationSchema(
+    _DEFAULT_LOCATION: Final[URLLocationConfig] = URLLocationConfig(
         name="DefaultSSHLocation",
         url=ParseResult(
             scheme="http",
@@ -23,7 +23,7 @@ class SSHConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 location:Optional[URLLocationSchema],
+                 location:Optional[URLLocationConfig],
                  ssh_credential:Optional[PasswordCredential],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
@@ -46,7 +46,7 @@ class SSHConfig(DataStoreConfig):
         :param name: _description_
         :type name: str
         :param location: _description_
-        :type location: Optional[URLLocationSchema]
+        :type location: Optional[URLLocationConfig]
         :param ssh_credential: _description_
         :type ssh_credential: Optional[PasswordCredential]
         :param other_elements: _description_, defaults to None
@@ -54,7 +54,7 @@ class SSHConfig(DataStoreConfig):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._location   : URLLocationSchema  = location       if location       is not None else self._parseLocation(unparsed_elements=unparsed_elements)
+        self._location   : URLLocationConfig  = location       if location       is not None else self._parseLocation(unparsed_elements=unparsed_elements)
         self._credential : PasswordCredential = ssh_credential if ssh_credential is not None else self._parseCredential(unparsed_elements=unparsed_elements)
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=other_elements)
 
@@ -77,7 +77,7 @@ class SSHConfig(DataStoreConfig):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
-    def Location(self) -> URLLocationSchema:
+    def Location(self) -> URLLocationConfig:
         return self._location
 
     @property
@@ -99,7 +99,7 @@ class SSHConfig(DataStoreConfig):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return self.Location.AsDict | self.Credential.AsDict
 
     @classmethod
@@ -133,10 +133,10 @@ class SSHConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseLocation(unparsed_elements:Map) -> URLLocationSchema:
+    def _parseLocation(unparsed_elements:Map) -> URLLocationConfig:
         _overrides = {"host":"SSH_HOST", "port":"SSH_PORT"}
 
-        return URLLocationSchema.FromDict(
+        return URLLocationConfig.FromDict(
             name              =  "SSHHostLocation",
             unparsed_elements = unparsed_elements,
             key_overrides     = _overrides

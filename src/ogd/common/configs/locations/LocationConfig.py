@@ -2,11 +2,11 @@
 import abc
 from typing import Optional
 ## import local files
-from ogd.common.schemas.Schema import Schema
+from ogd.common.configs.Config import Config
 from ogd.common.utils.typing import Map
 
-## @class LocationSchema
-class LocationSchema(Schema):
+## @class LocationConfig
+class LocationConfig(Config):
 
     # *** ABSTRACTS ***
 
@@ -30,6 +30,13 @@ class LocationSchema(Schema):
 
     def __repr__(self):
         return f"{self.__class__.__name__}[{self.Location}]"
+
+    def __add__(self, other:"LocationConfig") -> str:
+        slash = "/" if not self.Location.endswith("/") else ""
+        return f"{self.Location}{slash}{other.Location}"
+
+    def __truediv__(self, other) -> str:
+        return self + other
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 

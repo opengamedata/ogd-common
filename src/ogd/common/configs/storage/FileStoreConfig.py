@@ -5,14 +5,14 @@ from pathlib import Path
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
 from ogd.common.configs.storage.credentials.PasswordCredentialConfig import PasswordCredential
-from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
+from ogd.common.utils.typing import JSONMap, Map
 
 FileCredential : TypeAlias = PasswordCredential | EmptyCredential
 
 class FileStoreConfig(DataStoreConfig):
     _STORE_TYPE = "FILE"
-    _DEFAULT_LOCATION: Final[FileLocationSchema] = FileLocationSchema(
+    _DEFAULT_LOCATION: Final[FileLocationConfig] = FileLocationConfig(
         name="DefaultFileStoreLocation",
         folder_path=Path('./data'),
         filename="UNKNOWN.tsv",
@@ -24,7 +24,7 @@ class FileStoreConfig(DataStoreConfig):
 
     def __init__(self, name:str,
                  # params for class
-                 location:Optional[FileLocationSchema | Path | str],
+                 location:Optional[FileLocationConfig | Path | str],
                  file_credential:Optional[FileCredential],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
@@ -51,7 +51,7 @@ class FileStoreConfig(DataStoreConfig):
         :param name: _description_
         :type name: str
         :param location: _description_
-        :type location: FileLocationSchema
+        :type location: FileLocationConfig
         :param file_credential: _description_
         :type file_credential: FileCredential
         :param other_elements: _description_, defaults to None
@@ -59,7 +59,7 @@ class FileStoreConfig(DataStoreConfig):
         """
         fallbacks : Map = other_elements or {}
 
-        self._location    : FileLocationSchema = self._toLocation(location=location, fallbacks=fallbacks, schema_name=f"{name}Location")
+        self._location    : FileLocationConfig = self._toLocation(location=location, fallbacks=fallbacks, schema_name=f"{name}Location")
         self._credential  : FileCredential     = file_credential if file_credential is not None else self._parseCredential(unparsed_elements=fallbacks, schema_name=name)
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=fallbacks)
 
@@ -97,7 +97,7 @@ class FileStoreConfig(DataStoreConfig):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @property
-    def Location(self) -> FileLocationSchema:
+    def Location(self) -> FileLocationConfig:
         return self._location
 
     @property
@@ -118,7 +118,7 @@ class FileStoreConfig(DataStoreConfig):
         return ret_val
 
     @property
-    def AsDict(self) -> Dict[str, Any]:
+    def AsDict(self) -> JSONMap:
         return {
             "FILE_CREDENTIAL": self.Credential.AsDict,
         } | self.Location.AsDict
@@ -154,23 +154,23 @@ class FileStoreConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _toLocation(location:Optional[FileLocationSchema | Path | str], fallbacks:Map, schema_name:Optional[str]=None) -> FileLocationSchema:
-        ret_val : FileLocationSchema
+    def _toLocation(location:Optional[FileLocationConfig | Path | str], fallbacks:Map, schema_name:Optional[str]=None) -> FileLocationConfig:
+        ret_val : FileLocationConfig
 
-        if isinstance(location, FileLocationSchema):
+        if isinstance(location, FileLocationConfig):
             ret_val = location
         elif isinstance(location, Path):
-            ret_val = FileLocationSchema.FromPath(name=schema_name or "FileStoreLocation", fullpath=location)
+            ret_val = FileLocationConfig.FromPath(name=schema_name or "FileStoreLocation", fullpath=location)
         elif isinstance(location, str):
-            ret_val = FileLocationSchema.FromPath(name=schema_name or "FileStoreLocation", fullpath=Path(location))
+            ret_val = FileLocationConfig.FromPath(name=schema_name or "FileStoreLocation", fullpath=Path(location))
         else:
             ret_val = FileStoreConfig._parseLocation(unparsed_elements=fallbacks)
 
         return ret_val
 
     @staticmethod
-    def _parseLocation(unparsed_elements:Map, schema_name:Optional[str]=None) -> FileLocationSchema:
-        return FileLocationSchema.FromDict(name=schema_name or "FileStoreLocation", unparsed_elements=unparsed_elements)
+    def _parseLocation(unparsed_elements:Map, schema_name:Optional[str]=None) -> FileLocationConfig:
+        return FileLocationConfig.FromDict(name=schema_name or "FileStoreLocation", unparsed_elements=unparsed_elements)
 
     @staticmethod
     def _parseCredential(unparsed_elements:Map, schema_name:Optional[str]=None) -> FileCredential:
