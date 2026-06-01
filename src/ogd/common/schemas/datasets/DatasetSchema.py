@@ -61,7 +61,7 @@ class DatasetSchema(Schema):
     # TODO : overload versions for individual parts of logging spec schema, vs. passing in a whole log spec schema
     def __init__(self, name:str, game_id:Optional[str],       dataset_id:Optional[DatasetKey],
                  filters:Optional[Dict[str, str | Filter]],   session_ct:Optional[int],                 player_ct:Optional[int],
-                 game_state:Optional[GameStateSchema],        events:Optional[Dict[str, EventSchema]],  features:Optional[Dict[str, FeatureSchema]],
+                 game_state:Optional[GameStateSchema | Dict], events:Optional[Dict[str, EventSchema]],  features:Optional[Dict[str, FeatureSchema]],
                  ogd_version:Optional[SemanticVersion | str], ogd_revision:Optional[str],               event_spec_version:Optional[SemanticVersion | str],
                  base_files_location:Optional[LocationConfig],
                  game_events_file:Optional[LocationConfig],   all_events_file:Optional[LocationConfig], combined_feats_file:Optional[LocationConfig],
