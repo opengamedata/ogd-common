@@ -35,8 +35,11 @@ class LocationConfig(Config):
         slash = "/" if not self.Location.endswith("/") else ""
         return f"{self.Location}{slash}{other.Location}"
 
-    def __truediv__(self, other) -> str:
+    def __truediv__(self, other:"LocationConfig") -> str:
         return self + other
+
+    def __eq__(self, value:"LocationConfig") -> bool:
+        return self.Location == value.Location
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
