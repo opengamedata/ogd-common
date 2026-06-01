@@ -224,29 +224,34 @@ class DatasetSchema(Schema):
     # TODO : all the location schema stuff is screwy; for now types assume general LocationConfig, since in the future we could use paths or URLS.
     # Meanwhile, all the literal implementation details assume we're using paths, i.e. FileLocationConfigs.
 
-    @property
-    def GameEventsFile(self) -> Optional[str]:
-        return self._base_files_location / self._game_events_file if self._game_events_file else None
-    @property
-    def HasGameEventsFile(self) -> bool:
-        return self._game_events_file is not None
-    @property
-    def RawEventsFile(self) -> Optional[str]:
+    def GameEventsFile(self, relative:bool=False) -> Optional[str]:
+        ret_val : Optional[str] = None
+        if self._game_events_file is not None:
+            if not relative and self._base_files_location:
+                ret_val = self._base_files_location / self._game_events_file
+            else: # either relative was requested, or there is no base to construct an absolute path:
+                ret_val = self._game_events_file.Location
+        return ret_val
+    def RawEventsFile(self, relative:bool=False) -> Optional[str]:
         """Alias for GameEventsFile
 
         :return: _description_
         :rtype: Optional[Path]
         """
-        return self.GameEventsFile
+        return self.GameEventsFile(relative=relative)
+    @property
+    def HasGameEventsFile(self) -> bool:
+        return self._game_events_file is not None
 
-    @property
-    def AllEventsFile(self) -> Optional[str]:
-        return self._base_files_location / self._all_events_file if self._all_events_file else None
-    @property
-    def HasAllEventsFile(self) -> bool:
-        return self.AllEventsFile is not None
-    @property
-    def EventsFile(self) -> Optional[str]:
+    def AllEventsFile(self, relative:bool=False) -> Optional[str]:
+        ret_val : Optional[str] = None
+        if self._all_events_file is not None:
+            if not relative and self._base_files_location:
+                ret_val = self._base_files_location / self._all_events_file
+            else: # either relative was requested, or there is no base to construct an absolute path:
+                ret_val = self._all_events_file.Location
+        return ret_val
+    def EventsFile(self, relative:bool=False) -> Optional[str]:
         """Alias for AllEventsFile
 
         Since this is the main events file with all available events in it, we can just call it the "Events" file.
@@ -254,10 +259,20 @@ class DatasetSchema(Schema):
         :return: _description_
         :rtype: Optional[Path]
         """
-        return self.AllEventsFile
-
+        return self.AllEventsFile(relative=relative)
     @property
-    def FeaturesFile(self) -> Optional[str]:
+    def HasAllEventsFile(self) -> bool:
+        return self.AllEventsFile is not None
+
+    def CombinedFeaturesFile(self, relative:bool=False) -> Optional[str]:
+        ret_val : Optional[str] = None
+        if self._all_features_file is not None:
+            if not relative and self._base_files_location:
+                ret_val = self._base_files_location / self._all_features_file
+            else: # either relative was requested, or there is no base to construct an absolute path:
+                ret_val = self._all_features_file.Location
+        return ret_val
+    def FeaturesFile(self, relative:bool=False) -> Optional[str]:
         """Alias for AllFeaturesFile
         
         Since this is the main base feature file, we can just call it the "Features" file.
@@ -265,31 +280,43 @@ class DatasetSchema(Schema):
         :return: _description_
         :rtype: Optional[Path]
         """
-        return self.CombinedFeaturesFile
-    @property
-    def CombinedFeaturesFile(self) -> Optional[str]:
-        return self._base_files_location / self._all_features_file if self._all_features_file else None
+        return self.CombinedFeaturesFile(relative=relative)
     @property
     def HasCombinedFeaturesFile(self) -> bool:
         return self.CombinedFeaturesFile is not None
     
-    @property
-    def SessionsFile(self) -> Optional[str]:
-        return self._base_files_location / self._sessions_file if self._sessions_file else None
+    def SessionsFile(self, relative:bool=False) -> Optional[str]:
+        ret_val : Optional[str] = None
+        if self._sessions_file is not None:
+            if not relative and self._base_files_location:
+                ret_val = self._base_files_location / self._sessions_file
+            else: # either relative was requested, or there is no base to construct an absolute path:
+                ret_val = self._sessions_file.Location
+        return ret_val
     @property
     def HasSessionsFile(self) -> bool:
         return self.SessionsFile is not None
 
-    @property
-    def PlayersFile(self) -> Optional[str]:
-        return self._base_files_location / self._players_file if self._players_file else None
+    def PlayersFile(self, relative:bool=False) -> Optional[str]:
+        ret_val : Optional[str] = None
+        if self._players_file is not None:
+            if not relative and self._base_files_location:
+                ret_val = self._base_files_location / self._players_file
+            else: # either relative was requested, or there is no base to construct an absolute path:
+                ret_val = self._players_file.Location
+        return ret_val
     @property
     def HasPlayersFile(self) -> bool:
         return self.PlayersFile is not None
 
-    @property
-    def PopulationFile(self) -> Optional[str]:
-        return self._base_files_location / self._population_file if self._population_file else None
+    def PopulationFile(self, relative:bool=False) -> Optional[str]:
+        ret_val : Optional[str] = None
+        if self._population_file is not None:
+            if not relative and self._base_files_location:
+                ret_val = self._base_files_location / self._population_file
+            else: # either relative was requested, or there is no base to construct an absolute path:
+                ret_val = self._population_file.Location
+        return ret_val
     @property
     def HasPopulationFile(self) -> bool:
         return self.PopulationFile is not None
