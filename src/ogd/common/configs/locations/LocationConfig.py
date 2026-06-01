@@ -41,11 +41,11 @@ class LocationConfig(Config):
     def __truediv__(self, other:"LocationConfig") -> str:
         return self + other
 
-    def __eq__(self, value:"LocationConfig") -> bool:
-        if isinstance(value, LocationConfig):
-            return self.Location == value.Location
+    def __eq__(self, other:"LocationConfig") -> bool:
+        if isinstance(other, LocationConfig):
+            return self.Location == other.Location
         else:
-            return super().__eq__(value)
+            return super().__eq__(other)
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
