@@ -640,29 +640,29 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         ret_val : SemanticVersion
 
         # 1. Get a raw 'version' value to work with.
-        raw_version : Any
 
         # look for OGD version in the versioning section, if it exists.
         versioning_elements = unparsed_elements.get("versioning", unparsed_elements)
 
-        raw_version = DatasetSchema.ParseElement(
+        raw_version : SemanticVersion | str = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=versioning_elements,
             valid_keys=["ogd_version"],
-            to_type=str,
+            to_type=[SemanticVersion, str],
             default_value=DatasetSchema._DEFAULT_OGD_VERSION,
             remove_target=True,
             schema_name=schema_name,
             optional_element=True # This should stop being optional once datasets are re-run with ogd-core 1.0
         )
         # 2. Turn the raw version into a parsed-out SemanticVersion
-        if isinstance(raw_version, SemanticVersion):
-            ret_val = raw_version
-        elif isinstance(raw_version, str):
-            ret_val = SemanticVersion.FromString(semver=raw_version, verbose=False)
-        else:
-            Logger.Log(f"In DatasetSchema, raw OGD version was unexpected type {type(raw_version)}, using SemanticVersion.FromString(str(raw_version))", logging.WARNING)
-            ret_val = SemanticVersion.FromString(str(raw_version))
+        match raw_version:
+            case SemanticVersion():
+                ret_val = raw_version
+            case str():
+                ret_val = SemanticVersion.FromString(semver=raw_version, verbose=False)
+            case _:
+                Logger.Log(f"In DatasetSchema, raw OGD version was unexpected type {type(raw_version)}, using SemanticVersion.FromString(str(raw_version))", logging.WARNING)
+                ret_val = SemanticVersion.FromString(str(raw_version))
 
         return ret_val
 
@@ -701,13 +701,14 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             schema_name=schema_name,
             optional_element=True # This should stop being optional once datasets are re-run with ogd-core 1.0
         )
-        if isinstance(raw_version, SemanticVersion):
-            ret_val = raw_version
-        elif isinstance(raw_version, str):
-            ret_val = SemanticVersion.FromString(raw_version, verbose=False)
-        else:
-            Logger.Log(f"In DatasetSchema, raw event spec version was unexpected type {type(raw_version)}, using SemanticVersion.FromString(str(raw_version))")
-            ret_val = SemanticVersion.FromString(str(raw_version))
+        match raw_version:
+            case SemanticVersion():
+                ret_val = raw_version
+            case str():
+                ret_val = SemanticVersion.FromString(raw_version, verbose=False)
+            case _:
+                Logger.Log(f"In DatasetSchema, raw event spec version was unexpected type {type(raw_version)}, using SemanticVersion.FromString(str(raw_version))")
+                ret_val = SemanticVersion.FromString(str(raw_version))
 
         return ret_val
         #endregion
@@ -715,12 +716,12 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         #region Parse output info
     @staticmethod
     def _getAllEventsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
-        ret_val : Optional[FileLocationConfig]
+        ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
-        raw_loc : Path | str = DatasetSchema.ParseElement(
+        path : LocationConfig | Path = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["all_events_file"],
@@ -730,22 +731,25 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             schema_name=schema_name,
             optional_element=True
         )
-        if isinstance(raw_loc, Path) or raw_loc is None:
-            ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Events", fullpath=raw_loc)
-        else:
-            ret_val = None
-            Logger.Log(f"In DatasetSchema, raw file path for all-events file had unexpected type {type(raw_loc)}, expected a path! Using {ret_val} instead")
+        match path:
+            case LocationConfig() | None:
+                ret_val = path
+            case Path():
+                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Events", fullpath=path)
+            case _:
+                ret_val = None
+                Logger.Log(f"In DatasetSchema, raw file path for all-events file had unexpected type {type(path)}, expected a path! Using {ret_val} instead")
 
         return ret_val
 
     @staticmethod
     def _getGameEventsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
-        ret_val : Optional[FileLocationConfig]
+        ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
-        raw_loc : Path | str = DatasetSchema.ParseElement(
+        path : LocationConfig | Path  = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["events_file"],
@@ -755,11 +759,14 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             schema_name=schema_name,
             optional_element=True
         )
-        if isinstance(raw_loc, Path) or raw_loc is None:
-            ret_val = FileLocationConfig.FromPath(name=f"{schema_name}GameEvents", fullpath=raw_loc)
-        else:
-            ret_val = None
-            Logger.Log(f"In DatasetSchema, raw file path for game-events file had unexpected type {type(raw_loc)}, expected a path! Using {ret_val} instead")
+        match path:
+            case LocationConfig() | None:
+                ret_val = path
+            case Path():
+                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}GameEvents", fullpath=path)
+            case _:
+                ret_val = None
+                Logger.Log(f"In DatasetSchema, raw file path for game-events file had unexpected type {type(path)}, expected a path! Using {ret_val} instead")
 
         return ret_val
 
@@ -770,7 +777,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
-        raw_loc : Path | str = DatasetSchema.ParseElement(
+        path : Path | str = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["all_features_file", "features_file", "combined_features_file"],
@@ -780,22 +787,25 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             schema_name=schema_name,
             optional_element=True
         )
-        if isinstance(raw_loc, Path) or raw_loc is None:
-            ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Features", fullpath=raw_loc)
-        else:
-            ret_val = None
-            Logger.Log(f"In DatasetSchema, raw file path for all-features file had unexpected type {type(raw_loc)}, expected a path! Using {ret_val} instead")
+        match path:
+            case LocationConfig() | None:
+                ret_val = path
+            case Path():
+                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Features", fullpath=path)
+            case _:
+                ret_val = None
+                Logger.Log(f"In DatasetSchema, raw file path for all-features file had unexpected type {type(path)}, expected a path! Using {ret_val} instead")
 
         return ret_val
 
     @staticmethod
     def _getSessionsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
-        ret_val : Optional[FileLocationConfig]
+        ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
-        raw_loc : Path | str = DatasetSchema.ParseElement(
+        path : LocationConfig | Path = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["sessions_file"],
@@ -805,22 +815,25 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             schema_name=schema_name,
             optional_element=True
         )
-        if isinstance(raw_loc, Path) or raw_loc is None:
-            ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Sessions", fullpath=raw_loc)
-        else:
-            ret_val = None
-            Logger.Log(f"In DatasetSchema, raw file path for session features file had unexpected type {type(raw_loc)}, expected a path! Using {ret_val} instead")
+        match path:
+            case LocationConfig() | None:
+                ret_val = path
+            case Path():
+                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Sessions", fullpath=path)
+            case _:
+                ret_val = None
+                Logger.Log(f"In DatasetSchema, raw file path for session features file had unexpected type {type(path)}, expected a path! Using {ret_val} instead")
 
         return ret_val
 
     @staticmethod
     def _getPlayersFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
-        ret_val : Optional[FileLocationConfig]
+        ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
-        raw_loc : Path | str = DatasetSchema.ParseElement(
+        path : LocationConfig | Path = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["players_file"],
@@ -830,22 +843,25 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             schema_name=schema_name,
             optional_element=True
         )
-        if isinstance(raw_loc, Path) or raw_loc is None:
-            ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Players", fullpath=raw_loc)
-        else:
-            ret_val = None
-            Logger.Log(f"In DatasetSchema, raw file path for player features file had unexpected type {type(raw_loc)}, expected a path! Using {ret_val} instead")
+        match path:
+            case LocationConfig() | None:
+                ret_val = path
+            case Path():
+                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Players", fullpath=path)
+            case _:
+                ret_val = None
+                Logger.Log(f"In DatasetSchema, raw file path for player features file had unexpected type {type(path)}, expected a path! Using {ret_val} instead")
 
         return ret_val
 
     @staticmethod
     def _getPopulationFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
-        ret_val : Optional[FileLocationConfig]
+        ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
-        raw_loc : Path | str = DatasetSchema.ParseElement(
+        path : LocationConfig | Path = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["population_file"],
@@ -855,11 +871,14 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             schema_name=schema_name,
             optional_element=True
         )
-        if isinstance(raw_loc, Path) or raw_loc is None:
-            ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Population", fullpath=raw_loc)
-        else:
-            ret_val = None
-            Logger.Log(f"In DatasetSchema, raw file path for population features file had unexpected type {type(raw_loc)}, expected a path! Using {ret_val} instead")
+        match path:
+            case LocationConfig() | None:
+                ret_val = path
+            case Path():
+                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Population", fullpath=path)
+            case _:
+                ret_val = None
+                Logger.Log(f"In DatasetSchema, raw file path for population features file had unexpected type {type(path)}, expected a path! Using {ret_val} instead")
 
         return ret_val
         #endregion
