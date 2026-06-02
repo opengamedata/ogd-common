@@ -480,7 +480,7 @@ def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element", forc
                 ret_val = str(value)
             case _:
                 _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
-                Logger.Log(_msg, logging.WARNING)
+                Logger.Log(_msg, logging.DEBUG)
                 ret_val = None
     return ret_val
 
