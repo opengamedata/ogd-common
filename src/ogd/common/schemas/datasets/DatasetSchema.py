@@ -533,7 +533,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             default_value=DatasetSchema._DEFAULT_SESSION_COUNT,
             remove_target=True,
             schema_name=schema_name,
-            optional_element=True
+            optional_element=True # This should stop being optional once datasets are re-run with ogd-core 1.0
         )
 
     @staticmethod
@@ -549,7 +549,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             default_value=DatasetSchema._DEFAULT_PLAYER_COUNT,
             remove_target=True,
             schema_name=schema_name,
-            optional_element=True
+            optional_element=True # This should stop being optional once datasets are re-run with ogd-core 1.0
         )
 
     @staticmethod
@@ -564,7 +564,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             to_type=dict,
             default_value=DatasetSchema._DEFAULT_FILTERS,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True # This should stop being optional once datasets are re-run with ogd-core 1.0
         )
         #endregion
 
@@ -640,21 +641,20 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
         # 1. Get a raw 'version' value to work with.
         raw_version : Any
-        if raw_val is not None:
-            raw_version = raw_val
-        else:
-            # look for OGD version in the versioning section, if it exists.
-            versioning_elements = unparsed_elements.get("versioning", unparsed_elements)
 
-            raw_version = DatasetSchema.ParseElement(
-                raw_value=raw_val,
-                unparsed_elements=versioning_elements,
-                valid_keys=["ogd_version"],
-                to_type=str,
-                default_value=DatasetSchema._DEFAULT_OGD_VERSION,
-                remove_target=True,
-                schema_name=schema_name
-            )
+        # look for OGD version in the versioning section, if it exists.
+        versioning_elements = unparsed_elements.get("versioning", unparsed_elements)
+
+        raw_version = DatasetSchema.ParseElement(
+            raw_value=raw_val,
+            unparsed_elements=versioning_elements,
+            valid_keys=["ogd_version"],
+            to_type=str,
+            default_value=DatasetSchema._DEFAULT_OGD_VERSION,
+            remove_target=True,
+            schema_name=schema_name,
+            optional_element=True # This should stop being optional once datasets are re-run with ogd-core 1.0
+        )
         # 2. Turn the raw version into a parsed-out SemanticVersion
         if isinstance(raw_version, SemanticVersion):
             ret_val = raw_version
@@ -687,21 +687,20 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
 
         # 1. Get a raw 'version' value to work with.
         raw_version : Any
-        if raw_val is not None:
-            raw_version = raw_val
-        else:
-            # look for event spec version in the versioning section, if it exists.
-            versioning_elements = unparsed_elements.get("versioning", unparsed_elements)
 
-            raw_version = DatasetSchema.ParseElement(
-                raw_value=raw_val,
-                unparsed_elements=versioning_elements,
-                valid_keys=["event_specification_version", "event_spec_version"],
-                to_type=str,
-                default_value=DatasetSchema._DEFAULT_EVENT_VERSION,
-                remove_target=True,
-                schema_name=schema_name
-            )
+        # look for event spec version in the versioning section, if it exists.
+        versioning_elements = unparsed_elements.get("versioning", unparsed_elements)
+
+        raw_version = DatasetSchema.ParseElement(
+            raw_value=raw_val,
+            unparsed_elements=versioning_elements,
+            valid_keys=["event_specification_version", "event_spec_version"],
+            to_type=str,
+            default_value=DatasetSchema._DEFAULT_EVENT_VERSION,
+            remove_target=True,
+            schema_name=schema_name,
+            optional_element=True # This should stop being optional once datasets are re-run with ogd-core 1.0
+        )
         if isinstance(raw_version, SemanticVersion):
             ret_val = raw_version
         elif isinstance(raw_version, str):
@@ -886,7 +885,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
                 to_type=date,
                 default_value=DatasetSchema._DEFAULT_DATE_MODIFIED,
                 remove_target=True,
-                schema_name=schema_name
+                schema_name=schema_name,
+                optional_element=True
             )
         else:
             try:
@@ -913,7 +913,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
                 to_type=date,
                 default_value=DatasetSchema._DEFAULT_START_DATE,
                 remove_target=True,
-                schema_name=schema_name
+                schema_name=schema_name,
+                optional_element=True
             )
         else:
             try:
@@ -940,7 +941,8 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
                 to_type=date,
                 default_value=DatasetSchema._DEFAULT_END_DATE,
                 remove_target=True,
-                schema_name=schema_name
+                schema_name=schema_name,
+                optional_element=True
             )
         else:
             try:
