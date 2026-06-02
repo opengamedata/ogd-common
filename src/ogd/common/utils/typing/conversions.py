@@ -81,7 +81,7 @@ def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed 
     # 2. Handle case where there are multiple valid types accepted (i.e. got a list, and everything in list is a type/str)
     elif isinstance(to_type, List):
         if not all(type(x) in {type, str} for x in to_type):
-            Logger.Log(f"In ConvertToType, some items in list of requested types are not strings or types ({[x for x in to_type if type(x) not in {type, str}]}). These will be ignored.", logging.WARNING)
+            Logger.Log(f"In ConvertToType, some items in list of requested types are not strings or types ({[x for x in to_type if type(x) not in {type, str}]}). These will be ignored.", logging.DEBUG)
             to_type = [x for x in to_type if type(x) in {type, str}]
         found = False
         # for each candidate type, check if value already had that type
