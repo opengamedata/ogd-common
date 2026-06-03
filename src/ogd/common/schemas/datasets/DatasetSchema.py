@@ -142,7 +142,7 @@ class DatasetSchema(Schema):
         self._ogd_revision        : str                              = self._getOGDRevision(raw_val=ogd_revision, unparsed_elements=unparsed_elements, schema_name=name)
         self._evt_spec_version    : SemanticVersion                  = self._getEventSpecVersion(raw_val=event_spec_version, unparsed_elements=unparsed_elements, schema_name=name)
     # 5. Set output info
-        self._base_files_location : LocationConfig                   = base_files_location if base_files_location is not None else self._DEFAULT_FILES_LOCATION
+        self._base_files_location : Optional[LocationConfig]         = self._getBaseFileLocation(raw_val=base_files_location, unparsed_elements=unparsed_elements, schema_name=name)
         self._all_events_file     : Optional[LocationConfig]         = self._getAllEventsFile(raw_val=all_events_file, unparsed_elements=unparsed_elements, schema_name=name)
         self._game_events_file    : Optional[LocationConfig]         = self._getGameEventsFile(raw_val=game_events_file, unparsed_elements=unparsed_elements, schema_name=name)
         self._all_features_file   : Optional[LocationConfig]         = self._getAllFeaturesFile(raw_val=combined_feats_file, unparsed_elements=unparsed_elements, schema_name=name)
@@ -225,10 +225,10 @@ class DatasetSchema(Schema):
     # Meanwhile, all the literal implementation details assume we're using paths, i.e. FileLocationConfigs.
 
     @property
-    def BaseFileLocation(self) -> LocationConfig:
+    def BaseFileLocation(self) -> Optional[LocationConfig]:
         return self._base_files_location
     @BaseFileLocation.setter
-    def BaseFileLocation(self, new_loc:LocationConfig):
+    def BaseFileLocation(self, new_loc:Optional[LocationConfig]):
         self._base_files_location = new_loc
 
     def GameEventsFile(self, relative:bool=False) -> Optional[str]:
@@ -431,7 +431,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             },
             # output info
             "output": {
-                "base_file_location" : str(self._base_files_location),
+                # "base_file_location" : str(self._base_files_location),
                 "all_events_file"    : self.AllEventsFile(relative=True),
                 "game_events_file"   : self.GameEventsFile(relative=True),
                 "all_features_file"  : self.CombinedFeaturesFile(relative=True),
@@ -721,6 +721,32 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         #endregion
         
         #region Parse output info
+
+    @staticmethod
+    def _getBaseFileLocation(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+        ret_val : Optional[LocationConfig]
+
+        path : LocationConfig | Path = DatasetSchema.ParseElement(
+            raw_value=raw_val,
+            unparsed_elements=unparsed_elements,
+            valid_keys=["base_file_location"],
+            to_type=[LocationConfig, Path],
+            default_value=DatasetSchema._DEFAULT_FILES_LOCATION,
+            remove_target=True,
+            schema_name=schema_name,
+            optional_element=True
+        )
+        match path:
+            case LocationConfig() | None:
+                ret_val = path
+            case Path():
+                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Events", fullpath=path)
+            case _:
+                ret_val = None
+                Logger.Log(f"In DatasetSchema, raw file path for all-events file had unexpected type {type(path)}, expected a path! Using {ret_val} instead")
+
+        return ret_val
+
     @staticmethod
     def _getAllEventsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
         ret_val : Optional[LocationConfig]
