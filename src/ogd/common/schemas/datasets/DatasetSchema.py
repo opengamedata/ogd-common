@@ -152,9 +152,14 @@ class DatasetSchema(Schema):
         self._date_modified       : Optional[date]                   = self._getDateModified(raw_val=date_modified, unparsed_elements=unparsed_elements, schema_name=name)
         self._start_date          : Optional[date]                   = self._getStartDate(raw_val=start_date, unparsed_elements=unparsed_elements, schema_name=name)
         self._end_date            : Optional[date]                   = self._getEndDate(raw_val=end_date, unparsed_elements=unparsed_elements, schema_name=name)
-    # Finally, get key
+    # 7. Finally, get key
+        # a. If there is a dataset_id given directly, it goes in as the 'raw_value', which has top priority.
+        # b. If there is a dataset_id in the dict, it'll be parsed.
+        # c. If there is a game_id, and start and end dates, they are used to create an override of the class default, and will be used.
+        # d. If all else fails, we'll parse a DatasetKey from the schema name in the _getDatasetID function.
+        # e. If somehow we don't even have that, backstop is the class default dataset ID.
         _game_id                  : Optional[str]                    = self._getGameID(raw_val=game_id, unparsed_elements=unparsed_elements)
-        _default_id               : Optional[DatasetKey]             = DatasetKey(game_id=_game_id, from_date=self._start_date, to_date=self._end_date) if _game_id and self._start_date and self._end_date else DatasetKey.FromString(name)
+        _default_id               : Optional[DatasetKey]             = DatasetKey(game_id=_game_id, from_date=self._start_date, to_date=self._end_date) if _game_id and self._start_date and self._end_date else None
         self._key                 : DatasetKey                       = self._getDatasetID(raw_val=dataset_id, unparsed_elements=unparsed_elements, schema_name=name, default_override=_default_id)
 
         leftovers = {key:val for key,val in unparsed_elements.items() if key not in {"population", "versioning", "output"}}
@@ -547,12 +552,14 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     def _getDatasetID(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None, default_override:Optional[DatasetKey]=None) -> DatasetKey:
         ret_val : DatasetKey
 
+        default_val = default_override if default_override else DatasetKey.FromString(schema_name) if schema_name else DatasetSchema._DEFAULT_DATASET_ID
+
         raw_id : DatasetKey | str | dict = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["dataset_id", "dataset_key"],
             to_type=[DatasetKey, str],
-            default_value=default_override or DatasetSchema._DEFAULT_DATASET_ID,
+            default_value=default_val,
             remove_target=True,
             schema_name=schema_name,
             optional_element=True
