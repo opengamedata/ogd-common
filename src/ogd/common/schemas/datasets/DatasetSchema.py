@@ -10,7 +10,6 @@ from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.configs.locations.LocationConfig import LocationConfig
 from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
-from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 from ogd.common.schemas.events.EventSchema import EventSchema
 from ogd.common.schemas.events.GameStateSchema import GameStateSchema
 from ogd.common.schemas.features.FeatureSchema import FeatureSchema
