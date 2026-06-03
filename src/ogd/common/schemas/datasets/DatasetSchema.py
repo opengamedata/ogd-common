@@ -154,7 +154,8 @@ class DatasetSchema(Schema):
         self._end_date            : Optional[date]                   = self._getEndDate(raw_val=end_date, unparsed_elements=unparsed_elements, schema_name=name)
     # Finally, get key
         self._key                 : DatasetKey                       = dataset_id          if dataset_id          is not None else DatasetKey(game_id=game_id or name, from_date=self._start_date, to_date=self._end_date)
-        super().__init__(name=name, other_elements=other_elements)
+        leftovers = {key:val for key,val in unparsed_elements.items() if key not in {"population", "versioning", "output"}}
+        super().__init__(name=name, other_elements=leftovers)
 
     def __str__(self) -> str:
         return str(self.Key)
