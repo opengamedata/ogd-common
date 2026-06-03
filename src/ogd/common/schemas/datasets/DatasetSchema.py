@@ -154,8 +154,8 @@ class DatasetSchema(Schema):
         self._end_date            : Optional[date]                   = self._getEndDate(raw_val=end_date, unparsed_elements=unparsed_elements, schema_name=name)
     # Finally, get key
         _game_id                  : str                              = self._getGameID(raw_val=game_id, unparsed_elements=unparsed_elements)
-        _default_key              : DatasetKey                       = dataset_id if dataset_id else DatasetKey(game_id=_game_id or name, from_date=self._start_date, to_date=self._end_date)
-        self._key                 : DatasetKey                       = self._getDatasetID(raw_val=_default_key, unparsed_elements=unparsed_elements, schema_name=name)
+        _default_id               : Optional[DatasetKey]             = DatasetKey(game_id=_game_id, from_date=self._start_date, to_date=self._end_date) if self._start_date and self._end_date else None
+        self._key                 : DatasetKey                       = self._getDatasetID(raw_val=dataset_id, unparsed_elements=unparsed_elements, schema_name=name, default_override=_default_id)
 
         leftovers = {key:val for key,val in unparsed_elements.items() if key not in {"population", "versioning", "output"}}
         super().__init__(name=name, other_elements=leftovers)
@@ -544,7 +544,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         )
 
     @staticmethod
-    def _getDatasetID(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> DatasetKey:
+    def _getDatasetID(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None, default_override:Optional[DatasetKey]=None) -> DatasetKey:
         ret_val : DatasetKey
 
         raw_id : DatasetKey | str | dict = DatasetSchema.ParseElement(
@@ -552,7 +552,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             unparsed_elements=unparsed_elements,
             valid_keys=["dataset_id", "dataset_key"],
             to_type=[DatasetKey, str],
-            default_value=DatasetSchema._DEFAULT_DATASET_ID,
+            default_value=default_override or DatasetSchema._DEFAULT_DATASET_ID,
             remove_target=True,
             schema_name=schema_name,
             optional_element=True
