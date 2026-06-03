@@ -42,7 +42,7 @@ class FromLegacyFileListCase(TestCase):
             raw_json = json.loads(raw_file.read())
         config = raw_json.get("CONFIG", {})
         raw_data = raw_json.get("AQUALAB",{}).get("AQUALAB_20260301_to_20260331")
-        cls.test_schema = DatasetSchema.FromDict(name="AQUALAB", unparsed_elements=raw_data)
+        cls.test_schema = DatasetSchema.FromDict(name="AQUALAB_20260301_to_20260331", unparsed_elements=raw_data)
         cls.test_schema.BaseFileLocation = URLLocationConfig.FromString(name="files_loc", raw_url=config.get("files_base", None))
 
     def test_Key(self):
