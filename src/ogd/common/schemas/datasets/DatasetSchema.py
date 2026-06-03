@@ -224,6 +224,13 @@ class DatasetSchema(Schema):
     # TODO : all the location schema stuff is screwy; for now types assume general LocationConfig, since in the future we could use paths or URLS.
     # Meanwhile, all the literal implementation details assume we're using paths, i.e. FileLocationConfigs.
 
+    @property
+    def BaseFileLocation(self) -> LocationConfig:
+        return self._base_files_location
+    @BaseFileLocation.setter
+    def BaseFileLocation(self, new_loc:LocationConfig):
+        self._base_files_location = new_loc
+
     def GameEventsFile(self, relative:bool=False) -> Optional[str]:
         ret_val : Optional[str] = None
         if self._game_events_file is not None:
