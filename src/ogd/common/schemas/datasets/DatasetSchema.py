@@ -757,7 +757,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         path : LocationConfig | Path = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=outputs_elements,
-            valid_keys=["all_events_file"],
+            valid_keys=["all_events_file", "events_file"],
             to_type=[LocationConfig, Path],
             default_value=DatasetSchema._DEFAULT_EVENTS_FILE,
             remove_target=True,
@@ -785,7 +785,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         path : LocationConfig | Path  = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=outputs_elements,
-            valid_keys=["events_file"],
+            valid_keys=["game_events_file", "events_file", "raw_file"],
             to_type=[LocationConfig, Path],
             default_value=DatasetSchema._DEFAULT_RAW_FILE,
             remove_target=True,
