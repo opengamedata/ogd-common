@@ -40,9 +40,9 @@ class DatasetSchema(Schema):
     # feature info
     _DEFAULT_FEATURES            : Final[Dict[str, FeatureSchema]] = {}
     # version info
-    _DEFAULT_OGD_VERSION         : Final[str]                     = "UNKNOWN OGD VERSION"
+    _DEFAULT_OGD_VERSION         : Final[SemanticVersion]         = SemanticVersion.FromString("UNKNOWN OGD VERSION")
     _DEFAULT_OGD_REVISION        : Final[str]                     = "UNKNOWN OGD REVISION"
-    _DEFAULT_EVENT_VERSION       : Final[str]                     = "UNKNOWN EVENT SCHEMA VERSION"
+    _DEFAULT_EVENT_VERSION       : Final[SemanticVersion]         = SemanticVersion(0, 0, 1)
     # output info
     _DEFAULT_FILES_LOCATION      : Final[DirectoryLocationConfig] = DirectoryLocationConfig(name="Default File Location", folder_path=Path("data/"))
     _DEFAULT_RAW_FILE            : Final[None]                    = None
