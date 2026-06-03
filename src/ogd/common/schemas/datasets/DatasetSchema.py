@@ -153,7 +153,10 @@ class DatasetSchema(Schema):
         self._start_date          : Optional[date]                   = self._getStartDate(raw_val=start_date, unparsed_elements=unparsed_elements, schema_name=name)
         self._end_date            : Optional[date]                   = self._getEndDate(raw_val=end_date, unparsed_elements=unparsed_elements, schema_name=name)
     # Finally, get key
-        self._key                 : DatasetKey                       = dataset_id          if dataset_id          is not None else DatasetKey(game_id=game_id or name, from_date=self._start_date, to_date=self._end_date)
+        _game_id                  : str                              = self._getGameID(raw_val=game_id, unparsed_elements=unparsed_elements)
+        _default_key              : DatasetKey                       = dataset_id if dataset_id else DatasetKey(game_id=_game_id or name, from_date=self._start_date, to_date=self._end_date)
+        self._key                 : DatasetKey                       = self._getDatasetID(raw_val=_default_key, unparsed_elements=unparsed_elements, schema_name=name)
+
         leftovers = {key:val for key,val in unparsed_elements.items() if key not in {"population", "versioning", "output"}}
         super().__init__(name=name, other_elements=leftovers)
 
@@ -525,6 +528,44 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             return None
 
     #region *** PRIVATE STATICS ***
+
+    @staticmethod
+    def _getGameID(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
+
+        return DatasetSchema.ParseElement(
+            raw_value=raw_val,
+            unparsed_elements=unparsed_elements,
+            valid_keys=["game_id"],
+            to_type=str,
+            default_value=DatasetSchema._DEFAULT_GAME_ID,
+            remove_target=True,
+            schema_name=schema_name,
+            optional_element=True
+        )
+
+    @staticmethod
+    def _getDatasetID(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> DatasetKey:
+        ret_val : DatasetKey
+
+        raw_id : DatasetKey | str | dict = DatasetSchema.ParseElement(
+            raw_value=raw_val,
+            unparsed_elements=unparsed_elements,
+            valid_keys=["dataset_id", "dataset_key"],
+            to_type=[DatasetKey, str],
+            default_value=DatasetSchema._DEFAULT_DATASET_ID,
+            remove_target=True,
+            schema_name=schema_name,
+            optional_element=True
+        )
+        match raw_id:
+            case DatasetKey():
+                ret_val = raw_id
+            case str():
+                ret_val = DatasetKey.FromString(raw_key=raw_id)
+            case _:
+                ret_val = DatasetSchema._DEFAULT_DATASET_ID
+        
+        return ret_val
 
         #region Parse population info
     @staticmethod
