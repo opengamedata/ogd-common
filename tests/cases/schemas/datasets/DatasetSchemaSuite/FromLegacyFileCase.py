@@ -71,7 +71,8 @@ class FromLegacyFileListCase(TestCase):
 
     def test_OGDVersion(self):
         _ver = self.test_schema.OGDVersion
-        self.assertIsNone(_ver)
+        self.assertIsInstance(_ver, SemanticVersion)
+        self.assertEqual(_ver, DatasetSchema._DEFAULT_OGD_VERSION)
 
     def test_OGDRevision(self):
         _ver = self.test_schema.OGDRevision
@@ -80,7 +81,8 @@ class FromLegacyFileListCase(TestCase):
 
     def test_EventSpecificationVersion(self):
         _ver = self.test_schema.EventSpecificationVersion
-        self.assertIsNone(_ver)
+        self.assertIsInstance(_ver, SemanticVersion)
+        self.assertEqual(_ver, DatasetSchema._DEFAULT_EVENT_VERSION)
 
     def test_GameEventsFile(self):
         _path = self.test_schema.GameEventsFile()
