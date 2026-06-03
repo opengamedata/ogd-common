@@ -53,7 +53,7 @@ class FromLegacyFileListCase(TestCase):
     def test_Name(self):
         _str = self.test_schema.Name
         self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "AQUALAB")
+        self.assertEqual(_str, "AQUALAB_20260301_to_20260331")
 
     def test_base_loc(self):
         _loc = self.test_schema._base_files_location
