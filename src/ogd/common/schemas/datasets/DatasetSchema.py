@@ -33,7 +33,7 @@ class DatasetSchema(Schema):
     # Population info
     _DEFAULT_FILTERS             : Final[Dict[str, str | Filter]] = {}
     _DEFAULT_SESSION_COUNT       : Final[int]                     = 0
-    _DEFAULT_PLAYER_COUNT        : Final[int]                     = 0
+    _DEFAULT_PLAYER_COUNT        : Final[None]                    = None
     # Event info
     _DEFAULT_GAME_STATE          : Final[GameStateSchema]         = GameStateSchema.Default()
     _DEFAULT_EVENTS              : Final[Dict[str, EventSchema]]  = {}
