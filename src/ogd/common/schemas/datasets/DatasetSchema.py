@@ -27,7 +27,7 @@ class DatasetSchema(Schema):
     TODO : Add a _parseKey function, rather than having logic for that part sit naked in FromDict
     TODO : Deal with how to handle game ID, particularly since we don't typically include the game ID in dictionaries when using FromDict
     """
-    _DEFAULT_GAME_ID             : Final[str]                     = "DEFAULT GAME"
+    _DEFAULT_GAME_ID             : Final[None]                    = None
     _DEFAULT_DATASET_ID          : Final[DatasetKey]              = DatasetKey.Default()
     # Population info
     _DEFAULT_FILTERS             : Final[Dict[str, str | Filter]] = {}
@@ -153,8 +153,8 @@ class DatasetSchema(Schema):
         self._start_date          : Optional[date]                   = self._getStartDate(raw_val=start_date, unparsed_elements=unparsed_elements, schema_name=name)
         self._end_date            : Optional[date]                   = self._getEndDate(raw_val=end_date, unparsed_elements=unparsed_elements, schema_name=name)
     # Finally, get key
-        _game_id                  : str                              = self._getGameID(raw_val=game_id, unparsed_elements=unparsed_elements)
-        _default_id               : Optional[DatasetKey]             = DatasetKey(game_id=_game_id, from_date=self._start_date, to_date=self._end_date) if self._start_date and self._end_date else None
+        _game_id                  : Optional[str]                    = self._getGameID(raw_val=game_id, unparsed_elements=unparsed_elements)
+        _default_id               : Optional[DatasetKey]             = DatasetKey(game_id=_game_id, from_date=self._start_date, to_date=self._end_date) if _game_id and self._start_date and self._end_date else DatasetKey.FromString(name)
         self._key                 : DatasetKey                       = self._getDatasetID(raw_val=dataset_id, unparsed_elements=unparsed_elements, schema_name=name, default_override=_default_id)
 
         leftovers = {key:val for key,val in unparsed_elements.items() if key not in {"population", "versioning", "output"}}
@@ -530,7 +530,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     #region *** PRIVATE STATICS ***
 
     @staticmethod
-    def _getGameID(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
+    def _getGameID(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[str]:
 
         return DatasetSchema.ParseElement(
             raw_value=raw_val,
