@@ -178,16 +178,13 @@ class EmptyCase(TestCase):
         with self.subTest(msg="NonStandardElements"):
             # Currently, game_id and dataset_id are not used when parsing.
             # This should probably change, but for the time being, this is the way things are.
-            _elems = {
-                "game_id"    : "GAME_NAME",
-                "dataset_id" : "AQUALAB_20250101_to_20250131",
-            }
+            _elems = {}
             self.assertIsInstance(_schema.NonStandardElements, dict)
             self.assertEqual(_schema.NonStandardElements, _elems)
 
         with self.subTest(msg="NonStandardElementNames"):
             # Currently, game_id and dataset_id are not used when parsing.
             # This should probably change, but for the time being, this is the way things are.
-            _elem_names = ["game_id", "dataset_id"]
+            _elem_names = []
             self.assertIsInstance(_schema.NonStandardElementNames, list)
             self.assertEqual(_schema.NonStandardElementNames, _elem_names)
