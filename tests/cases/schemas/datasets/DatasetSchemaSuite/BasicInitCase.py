@@ -91,46 +91,94 @@ class BasicInitCase(TestCase):
         self.assertEqual(_ver, SemanticVersion(1, 0))
 
     def test_GameEventsFile(self):
-        _path = self.test_schema.GameEventsFile()
-        self.assertIsInstance(_path, str)
-        self.assertEqual(_path, "./raw.tsv")
-        with self.subTest(msg="RawEventsFile"):
-            _path = self.test_schema.RawEventsFile()
-            self.assertIsInstance(_path, str)
-            self.assertEqual(_path, "./raw.tsv")
+        base = "./"
+        loc = "raw.tsv"
+
+        for relative in [False, True]:
+            path_type = "Relative" if relative else "Absolute"
+            expected_path = loc if relative else f"{base}{loc}"
+            # Test both relative and absolute paths.
+            with self.subTest(rel=relative, msg=f"GameEventsFile: {path_type}"):
+                _path = self.test_schema.GameEventsFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
+            with self.subTest(rel=False, msg=f"RawEventsFile: {path_type}"):
+                _path = self.test_schema.RawEventsFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
 
     def test_AllEventsFile(self):
-        _path = self.test_schema.AllEventsFile()
-        self.assertIsInstance(_path, str)
-        self.assertEqual(_path, "./events.tsv")
-        with self.subTest(msg="EventsFile"):
-            _path = self.test_schema.EventsFile()
-            self.assertIsInstance(_path, str)
-            self.assertEqual(_path, "./events.tsv")
+        base = "./"
+        loc = "events.tsv"
+
+        for relative in [False, True]:
+            path_type = "Relative" if relative else "Absolute"
+            expected_path = loc if relative else f"{base}{loc}"
+            # Test both relative and absolute paths.
+            with self.subTest(rel=relative, msg=f"AllEventsFile: {path_type}"):
+                _path = self.test_schema.AllEventsFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
+            with self.subTest(rel=False, msg=f"EventsFile: {path_type}"):
+                _path = self.test_schema.EventsFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
 
     def test_CombinedFeaturesFile(self):
-        _path = self.test_schema.CombinedFeaturesFile()
-        self.assertIsInstance(_path, str)
-        self.assertEqual(_path, "./all_feats.tsv")
-        with self.subTest(msg="FeaturesFile"):
-            _path = self.test_schema.FeaturesFile()
-            self.assertIsInstance(_path, str)
-            self.assertEqual(_path, "./all_feats.tsv")
+        base = "./"
+        loc = "all_feats.tsv"
+
+        for relative in [False, True]:
+            path_type = "Relative" if relative else "Absolute"
+            expected_path = loc if relative else f"{base}{loc}"
+            # Test both relative and absolute paths.
+            with self.subTest(rel=relative, msg=f"CombinedFeaturesFile: {path_type}"):
+                _path = self.test_schema.CombinedFeaturesFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
+            with self.subTest(rel=False, msg=f"FeaturesFile: {path_type}"):
+                _path = self.test_schema.FeaturesFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
 
     def test_SessionsFile(self):
-        _path = self.test_schema.SessionsFile()
-        self.assertIsInstance(_path, str)
-        self.assertEqual(_path, "./sessions.tsv")
+        base = "./"
+        loc = "sessions.tsv"
+
+        for relative in [False, True]:
+            expected_path = loc if relative else f"{base}{loc}"
+            path_type = "Relative" if relative else "Absolute"
+            # Test both relative and absolute paths.
+            with self.subTest(rel=relative, msg=f"SessionsFile: {path_type}"):
+                _path = self.test_schema.SessionsFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
 
     def test_PlayersFile(self):
-        _path = self.test_schema.PlayersFile()
-        self.assertIsInstance(_path, str)
-        self.assertEqual(_path, "./players.tsv")
+        base = "./"
+        loc = "players.tsv"
+
+        for relative in [False, True]:
+            expected_path = loc if relative else f"{base}{loc}"
+            path_type = "Relative" if relative else "Absolute"
+            # Test both relative and absolute paths.
+            with self.subTest(rel=relative, msg=f"PlayersFile: {path_type}"):
+                _path = self.test_schema.PlayersFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
 
     def test_PopulationFile(self):
-        _path = self.test_schema.PopulationFile()
-        self.assertIsInstance(_path, str)
-        self.assertEqual(_path, "./population.tsv")
+        base = "./"
+        loc = "population.tsv"
+
+        for relative in [False, True]:
+            expected_path = loc if relative else f"{base}{loc}"
+            path_type = "Relative" if relative else "Absolute"
+            # Test both relative and absolute paths.
+            with self.subTest(rel=relative, msg=f"PopulationFile: {path_type}"):
+                _path = self.test_schema.PopulationFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
 
     def test_NonStandardElements(self):
         _elems = {

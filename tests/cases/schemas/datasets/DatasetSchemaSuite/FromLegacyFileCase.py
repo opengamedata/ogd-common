@@ -85,67 +85,88 @@ class FromLegacyFileListCase(TestCase):
         self.assertEqual(_ver, DatasetSchema._DEFAULT_EVENT_VERSION)
 
     def test_GameEventsFile(self):
-        _path = self.test_schema.GameEventsFile()
-
         url = "https://opengamedata.fielddaylab.wisc.edu/"
-        relative = "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_events.zip"
-        expected_path = f"{url}{relative}"
+        loc = "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_events.zip"
 
-        self.assertIsInstance(_path, str)
-        self.assertEqual(_path, expected_path)
-        with self.subTest(msg="RawEventsFile"):
-            _path = self.test_schema.RawEventsFile()
-            self.assertIsInstance(_path, str)
-            self.assertEqual(_path, expected_path)
+        for relative in [False, True]:
+            path_type = "Relative" if relative else "Absolute"
+            expected_path = loc if relative else f"{url}{loc}"
+            # Test both relative and absolute paths.
+            with self.subTest(rel=relative, msg=f"GameEventsFile: {path_type}"):
+                _path = self.test_schema.GameEventsFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
+            with self.subTest(rel=False, msg=f"RawEventsFile: {path_type}"):
+                _path = self.test_schema.RawEventsFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
 
     def test_AllEventsFile(self):
-        _path = self.test_schema.AllEventsFile()
-
         url = "https://opengamedata.fielddaylab.wisc.edu/"
-        relative = "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_all-events.zip"
-        expected_path = f"{url}{relative}"
+        loc = "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_all-events.zip"
 
-        self.assertIsInstance(_path, str)
-        self.assertEqual(_path, expected_path)
-        with self.subTest(msg="EventsFile"):
-            _path = self.test_schema.EventsFile()
-            self.assertIsInstance(_path, str)
-            self.assertEqual(_path, expected_path)
+        for relative in [False, True]:
+            path_type = "Relative" if relative else "Absolute"
+            expected_path = loc if relative else f"{url}{loc}"
+            # Test both relative and absolute paths.
+            with self.subTest(rel=relative, msg=f"AllEventsFile: {path_type}"):
+                _path = self.test_schema.AllEventsFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
+            with self.subTest(rel=False, msg=f"EventsFile: {path_type}"):
+                _path = self.test_schema.EventsFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
 
     def test_CombinedFeaturesFile(self):
-        _path = self.test_schema.CombinedFeaturesFile()
-
-        self.assertIsNone(_path)
-        with self.subTest(msg="FeaturesFile"):
-            _path = self.test_schema.FeaturesFile()
-            self.assertIsNone(_path)
+        for relative in [False, True]:
+            path_type = "Relative" if relative else "Absolute"
+            # Test both relative and absolute paths.
+            with self.subTest(rel=relative, msg=f"CombinedFeaturesFile: {path_type}"):
+                _path = self.test_schema.CombinedFeaturesFile(relative=relative)
+                self.assertIsNone(_path)
+            with self.subTest(rel=False, msg=f"FeaturesFile: {path_type}"):
+                _path = self.test_schema.FeaturesFile(relative=relative)
+                self.assertIsNone(_path)
 
     def test_SessionsFile(self):
-        _path = self.test_schema.SessionsFile()
-
         url = "https://opengamedata.fielddaylab.wisc.edu/"
-        relative = "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_session-features.zip"
+        loc = "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_session-features.zip"
 
-        self.assertIsInstance(_path, str)
-        self.assertEqual(_path, f"{url}{relative}")
+        for relative in [False, True]:
+            expected_path = loc if relative else f"{url}{loc}"
+            path_type = "Relative" if relative else "Absolute"
+            # Test both relative and absolute paths.
+            with self.subTest(rel=relative, msg=f"SessionsFile: {path_type}"):
+                _path = self.test_schema.SessionsFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
 
     def test_PlayersFile(self):
-        _path = self.test_schema.PlayersFile()
-
         url = "https://opengamedata.fielddaylab.wisc.edu/"
-        relative = "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_player-features.zip"
+        loc = "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_player-features.zip"
 
-        self.assertIsInstance(_path, str)
-        self.assertEqual(_path, f"{url}{relative}")
+        for relative in [False, True]:
+            expected_path = loc if relative else f"{url}{loc}"
+            path_type = "Relative" if relative else "Absolute"
+            # Test both relative and absolute paths.
+            with self.subTest(rel=relative, msg=f"PlayersFile: {path_type}"):
+                _path = self.test_schema.PlayersFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
 
     def test_PopulationFile(self):
-        _path = self.test_schema.PopulationFile()
-
         url = "https://opengamedata.fielddaylab.wisc.edu/"
-        relative = "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_population-features.zip"
+        loc = "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_population-features.zip"
 
-        self.assertIsInstance(_path, str)
-        self.assertEqual(_path, f"{url}{relative}")
+        for relative in [False, True]:
+            expected_path = loc if relative else f"{url}{loc}"
+            path_type = "Relative" if relative else "Absolute"
+            # Test both relative and absolute paths.
+            with self.subTest(rel=relative, msg=f"PopulationFile: {path_type}"):
+                _path = self.test_schema.PopulationFile(relative=relative)
+                self.assertIsInstance(_path, str)
+                self.assertEqual(_path, expected_path)
 
     def test_NonStandardElements(self):
         _elems = {
