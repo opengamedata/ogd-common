@@ -5,7 +5,9 @@ from typing import Any, Dict, Final, List, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.schemas.events.DataElementSchema import DataElementSchema
+from ogd.common.schemas.events.GameStateSchema import GameStateSchema
 from ogd.common.schemas.events.EventSchema import EventSchema
+from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import JSONMap, Map
 
@@ -20,17 +22,18 @@ class LoggingSpecificationSchema(Schema):
     And finally, it specifies which logging version of the game is so documented, as well as the folder where the particular game's schema folder resides.
     """
     _DEFAULT_ENUMS       : Final[Dict[str, List[str]]] = {}
-    _DEFAULT_GAME_STATE  : Final[Map]                  = {}
+    _DEFAULT_GAME_STATE  : Final[GameStateSchema]      = GameStateSchema.Default()
     _DEFAULT_USER_DATA   : Final[Map]                  = {}
     _DEFAULT_EVENT_LIST  : Final[List[EventSchema]]    = []
-    _DEFAULT_LOG_VERSION : Final[int]                  = 0
+    _DEFAULT_LOG_VERSION : Final[SemanticVersion]      = SemanticVersion(0)
     _DEFAULT_GAME_FOLDER : Final[Path]                 = Path("./") / "ogd" / "games"
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str, game_id:str, enum_defs:Optional[Dict[str, List[str]]],
-                 game_state:Optional[Map], user_data:Optional[Map], event_list:Optional[List[EventSchema]],
-                 logging_version:Optional[int], other_elements:Optional[Map]=None):
+                 game_state:Optional[GameStateSchema | Map], user_data:Optional[Map],
+                 event_list:Optional[List[EventSchema] | List[Map] | Map],
+                 logging_version:Optional[SemanticVersion | int | str], other_elements:Optional[Map]=None):
         """Constructor for the `LoggingSpecificationSchema` class.
         
         If optional params are not given, data is searched for in `other_elements`.
@@ -95,10 +98,10 @@ class LoggingSpecificationSchema(Schema):
     # 1. define instance vars
         self._game_id     : str                  = game_id
         self._enum_defs   : Dict[str, List[str]] = self._getEnumDefs(raw_val=enum_defs, unparsed_elements=unparsed_elements, schema_name=name)
-        self._game_state  : Map                  = self._getGameState(raw_val=game_state, unparsed_elements=unparsed_elements, schema_name=name)
+        self._game_state  : GameStateSchema      = self._getGameState(raw_val=game_state, unparsed_elements=unparsed_elements, schema_name=name)
         self._user_data   : Map                  = self._getUserData(raw_val=user_data, unparsed_elements=unparsed_elements, schema_name=name)
         self._event_list  : List[EventSchema]    = self._getEventList(raw_val=event_list, unparsed_elements=unparsed_elements, schema_name=name)
-        self._log_version : int                  = self._getLogVersion(raw_val=logging_version, unparsed_elements=unparsed_elements, schema_name=name)
+        self._log_version : SemanticVersion      = self._getLogVersion(raw_val=logging_version, unparsed_elements=unparsed_elements, schema_name=name)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -118,7 +121,7 @@ class LoggingSpecificationSchema(Schema):
         return self._enum_defs
 
     @property
-    def GameState(self) -> Dict[str, Any]:
+    def GameState(self) -> GameStateSchema:
         """Property for the dictionary describing the structure of the GameState column for the given game.
         """
         return self._game_state
@@ -147,7 +150,7 @@ class LoggingSpecificationSchema(Schema):
         return self.EventNames
 
     @property
-    def LoggingVersion(self) -> int:
+    def LoggingVersion(self) -> SemanticVersion:
         return self._log_version
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -163,12 +166,7 @@ class LoggingSpecificationSchema(Schema):
                              "| ---      | ---        |"]
                          + [f"| {name} | {val_list} |" for name,val_list in self.EnumDefs.items()]
                         )]
-        game_state_list = ["### Game State",
-                           "\n".join(
-                               ["| **Name** | **Type** | **Description** | **Sub-Elements** |",
-                               "| ---      | ---      | ---             | ---         |"]
-                           + [elem.AsMarkdownRow for elem in self.GameState.values()]
-                          )]
+        game_state_list = [self.GameState.AsMarkdownTable]
         user_data_list = ["### User Data",
                           "\n".join(
                               ["| **Name** | **Type** | **Description** | **Sub-Elements** |",
@@ -193,10 +191,10 @@ class LoggingSpecificationSchema(Schema):
     def AsDict(self) -> JSONMap:
         return {
             "enums":self.EnumDefs,
-            "game_state":self.GameState,
+            "game_state":self.GameState.AsDict,
             "user_data":self.UserData,
-            "events":[elem.AsDict for elem in self.Events],
-            "log_version":self.LoggingVersion
+            "events":{elem.Name:elem.AsDict for elem in self.Events},
+            "log_version":str(self.LoggingVersion)
         }
 
     @classmethod
@@ -269,22 +267,23 @@ class LoggingSpecificationSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _getGameState(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, DataElementSchema]:
-        ret_val : Dict[str, DataElementSchema]
+    def _getGameState(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> GameStateSchema:
+        ret_val : GameStateSchema
 
         game_state = LoggingSpecificationSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["game_state"],
-            to_type=dict,
+            to_type=[GameStateSchema, dict],
             default_value=LoggingSpecificationSchema._DEFAULT_GAME_STATE,
             remove_target=True,
             schema_name=schema_name
         )
-        ret_val = {
-            name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
-            for name,elems in game_state.items()
-        }
+        match game_state:
+            case GameStateSchema():
+                ret_val = game_state
+            case dict():
+                ret_val = GameStateSchema.FromDict(name="Game State", unparsed_elements=game_state)
 
         return ret_val
 
@@ -316,28 +315,59 @@ class LoggingSpecificationSchema(Schema):
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["events"],
-            to_type=dict,
+            to_type=[list, dict],
             default_value=LoggingSpecificationSchema._DEFAULT_EVENT_LIST,
             remove_target=True,
             schema_name=schema_name
         )
-        ret_val = [
-            EventSchema.FromDict(name=key, unparsed_elements=val) for key,val in events_list.items()
-        ]
+        match events_list:
+            case list():
+                ret_val = [LoggingSpecificationSchema._getEvent(name=None, event=val) for val in events_list]
+            case dict():
+                ret_val = [
+                    LoggingSpecificationSchema._getEvent(name=key, event=val) for key,val in events_list.items()
+                ]
 
         return ret_val
 
     @staticmethod
-    def _getLogVersion(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> int:
-        return LoggingSpecificationSchema.ParseElement(
+    def _getEvent(name:Optional[str], event:Any) -> EventSchema:
+        ret_val : EventSchema
+
+        match event:
+            case EventSchema():
+                ret_val = event
+            case dict():
+                ret_val = EventSchema.FromDict(name=name or event.get("event_name", "UNKNOWN EVENT"), unparsed_elements=event)
+            case _:
+                raise TypeError(f"Logging Spec Schema raw event input was unconvertible type {type(event)}!")
+        
+        return ret_val
+
+    @staticmethod
+    def _getLogVersion(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> SemanticVersion:
+        ret_val : SemanticVersion
+
+        version = LoggingSpecificationSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["logging_version", "log_version"],
-            to_type=int,
+            to_type=[SemanticVersion, int, str],
             default_value=LoggingSpecificationSchema._DEFAULT_LOG_VERSION,
             remove_target=True,
             schema_name=schema_name
         )
+        match version:
+            case SemanticVersion():
+                ret_val = version
+            case int():
+                ret_val = SemanticVersion(version)
+            case str():
+                ret_val = SemanticVersion.FromString(version)
+            case _:
+                ret_val = LoggingSpecificationSchema._DEFAULT_LOG_VERSION
+        
+        return ret_val
 
     @classmethod
     def _searchDirectories(cls, schema_name:str) -> List[str | Path]:

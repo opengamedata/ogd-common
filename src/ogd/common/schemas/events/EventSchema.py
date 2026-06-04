@@ -23,9 +23,9 @@ class EventSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str,            event_data:Optional[Dict[str, DataElementSchema]],
-                 description:Optional[str], event_source:Optional[EventSourceEnum],
-                 module_name:Optional[str], module_version:Optional[SemanticVersion],
+    def __init__(self, name:str,            event_data:Optional[Dict[str, DataElementSchema] | Map],
+                 description:Optional[str], event_source:Optional[EventSourceEnum | str],
+                 module_name:Optional[str], module_version:Optional[SemanticVersion | int | str],
                  other_elements:Optional[Map]=None):
         """Constructor for the `EventSchema` class.
         
@@ -206,12 +206,26 @@ class EventSchema(Schema):
         )
         if isinstance(event_data, dict):
             ret_val = {
-                name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
+                name : EventSchema._getDataElement(name=name, element=elems)
                 for name,elems in event_data.items()
             }
         else:
             ret_val = {}
             Logger.Log(f"event_data was unexpected type {type(event_data)}, defaulting to empty dict.", logging.WARN)
+        return ret_val
+
+    @staticmethod
+    def _getDataElement(name:Optional[str], element:Any):
+        ret_val : DataElementSchema
+
+        match element:
+            case DataElementSchema():
+                ret_val = element
+            case dict():
+                ret_val = DataElementSchema.FromDict(name=name or element.get("name", "UNKNOWN DATA ELEMENT"), unparsed_elements=element)
+            case _:
+                raise TypeError(f"EventSchema raw element input was unconvertible type {type(element)}!")
+
         return ret_val
 
     @staticmethod
@@ -234,17 +248,19 @@ class EventSchema(Schema):
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["event_source", "source"],
-            to_type=str,
+            to_type=[EventSourceEnum, str],
             default_value=EventSchema._DEFAULT_EVENT_SOURCE,
             remove_target=True,
             schema_name=schema_name
         )
-
-        if isinstance(raw_source, str):
-            ret_val = EventSourceEnum[raw_source]
-        else:
-            Logger.Log(f"In EventSchema, raw event source was unexpected type {type(raw_source)}, using EventSource[str(raw_source)]")
-            ret_val = EventSourceEnum[str(raw_source)]
+        match raw_source:
+            case EventSourceEnum():
+                ret_val = raw_source
+            case str():
+                ret_val = EventSourceEnum[raw_source]
+            case _:
+                Logger.Log(f"In EventSchema, raw event source was unexpected type {type(raw_source)}, using EventSource[str(raw_source)]")
+                ret_val = EventSourceEnum[str(raw_source)]
 
         return ret_val
 
@@ -269,19 +285,22 @@ class EventSchema(Schema):
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["module_version", "detector_version"],
-            to_type=str,
+            to_type=[SemanticVersion, str, int],
             default_value=EventSchema._DEFAULT_MODULE_VERSION,
             remove_target=True,
             schema_name=schema_name,
             optional_element=True
         )
-        if raw_ver == None:
-            ret_val = None
-        elif isinstance(raw_ver, str):
-            ret_val = SemanticVersion.FromString(raw_ver)
-        else:
-            Logger.Log(f"In EventSchema, raw module version was unexpected type {type(raw_ver)}, using SemanticVersion.FromString(str(raw_ver))")
-            ret_val = SemanticVersion.FromString(str(raw_ver))
+        match raw_ver:
+            case SemanticVersion() | None:
+                ret_val = raw_ver
+            case str():
+                ret_val = SemanticVersion.FromString(raw_ver)
+            case int():
+                ret_val = SemanticVersion(raw_ver)
+            case _:
+                Logger.Log(f"In EventSchema, raw module version was unexpected type {type(raw_ver)}, using SemanticVersion.FromString(str(raw_ver))")
+                ret_val = SemanticVersion.FromString(str(raw_ver))
 
         return ret_val
 
