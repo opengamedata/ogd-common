@@ -633,19 +633,40 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["game_state"],
-            to_type=dict,
+            to_type=[GameStateSchema, dict],
             default_value=DatasetSchema._DEFAULT_GAME_STATE,
             remove_target=True,
             schema_name=schema_name,
             optional_element=True
         )
-        ret_val = GameStateSchema.FromDict(name=f"{schema_name}GameState", unparsed_elements=game_state)
+        match game_state:
+            case GameStateSchema():
+                ret_val = game_state
+            case dict():
+                ret_val = GameStateSchema.FromDict(name=f"{schema_name}GameState", unparsed_elements=game_state)
+            case _:
+                ret_val = DatasetSchema._DEFAULT_GAME_STATE
+                Logger.Log(f"In DatasetSchema, raw game state element was unexpected type {type(game_state)}, defaulting to {ret_val}.", logging.WARN)
 
         return ret_val
 
     @staticmethod
     def _getEvents(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, EventSchema]:
         ret_val : Dict[str, EventSchema]
+
+        def _getEvent(event_name:Optional[str], event:Any) -> EventSchema:
+            ret_val : EventSchema
+            match event:
+                case EventSchema():
+                    ret_val = event
+                case dict():
+                    ret_val = EventSchema.FromDict(
+                        name=event_name or unparsed_elements.get("event_name", "UNKNOWN EVENT"),
+                        unparsed_elements=event
+                    )
+                case _:
+                    raise TypeError(f"Event element was incompatible type {type(event)}!")
+            return ret_val
 
         raw_events = DatasetSchema.ParseElement(
             raw_value=raw_val,
@@ -658,7 +679,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             optional_element=True
         )
         ret_val = {
-            event_name : EventSchema.FromDict(name=event_name, unparsed_elements=raw_event)
+            event_name : _getEvent(event_name=event_name, event=raw_event)
             for event_name, raw_event in raw_events.items()
         }
 
