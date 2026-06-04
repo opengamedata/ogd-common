@@ -1,6 +1,6 @@
 """EventTableSchema Module"""
 # import standard libraries
-from typing import Any, Dict, List, Optional, Self
+from typing import Any, Dict, Optional, Self
 
 # import local files
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapElement
@@ -18,7 +18,7 @@ class EventMapSchema(ColumnMapSchema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name,
-                 app_id:Optional[str | List[str]],       user_id:Optional[str | List[str]],      session_id:Optional[str | List[str]],
+                 app_id:Optional[ColumnMapElement],       user_id:Optional[ColumnMapElement],      session_id:Optional[ColumnMapElement],
                  app_version:Optional[ColumnMapElement], app_branch:Optional[ColumnMapElement],  log_version:Optional[ColumnMapElement],
                  timestamp:Optional[ColumnMapElement],   time_offset:Optional[ColumnMapElement], event_sequence_index:Optional[ColumnMapElement],
                  event_name:Optional[ColumnMapElement],  event_source:Optional[ColumnMapElement],event_data:Optional[ColumnMapElement],
