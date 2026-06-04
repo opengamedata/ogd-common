@@ -17,7 +17,7 @@ class EventTableSchema(TableSchema):
 
     def __init__(self, name,
                  column_map:Optional[EventMapSchema | typing.Map],
-                 columns:Optional[List[ColumnSchema]],
+                 columns:Optional[List[ColumnSchema] | List[typing.Map]],
                  other_elements:Optional[typing.Map]=None
         ):
         """Constructor for the TableSchema class.

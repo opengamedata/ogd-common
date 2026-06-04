@@ -122,7 +122,7 @@ class TableSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name,
-                 columns:Optional[List[ColumnSchema]],
+                 columns:Optional[List[ColumnSchema] | List[Map]],
                  other_elements:Optional[Map]=None
         ):
         """Constructor for the TableSchema class.

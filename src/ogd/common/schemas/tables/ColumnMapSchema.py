@@ -11,7 +11,10 @@ class ColumnMapSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    _DEFAULT_COLUMNS : Final[List] = []
+    _DEFAULT_COLUMNS    : Final[List] = []
+    _DEFAULT_APP_ID     : Final[None] = None
+    _DEFAULT_USER_ID    : Final[None] = None
+    _DEFAULT_SESSION_ID : Final[None] = None
 
     def __init__(self, name,
                  app_id:Optional[ColumnMapElement],
@@ -129,7 +132,7 @@ class ColumnMapSchema(Schema):
             unparsed_elements=unparsed_elements,
             valid_keys=["app_id", "game_id"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=ColumnMapSchema._DEFAULT_APP_ID,
             remove_target=False,
             schema_name=schema_name
         )
@@ -141,7 +144,7 @@ class ColumnMapSchema(Schema):
             unparsed_elements=unparsed_elements,
             valid_keys=["user_id", "player_id"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=ColumnMapSchema._DEFAULT_USER_ID,
             remove_target=False,
             schema_name=schema_name
         )
@@ -153,7 +156,7 @@ class ColumnMapSchema(Schema):
             unparsed_elements=unparsed_elements,
             valid_keys=["session_id"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=ColumnMapSchema._DEFAULT_SESSION_ID,
             remove_target=False,
             schema_name=schema_name
         )

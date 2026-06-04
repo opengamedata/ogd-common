@@ -1,6 +1,6 @@
 """EventTableSchema Module"""
 # import standard libraries
-from typing import Any, Dict, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 
 # import local files
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapElement
@@ -17,8 +17,20 @@ class EventMapSchema(ColumnMapSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    _DEFAULT_APP_VERSION  : Final[None] = None
+    _DEFAULT_APP_BRANCH   : Final[None] = None
+    _DEFAULT_LOG_VERSION  : Final[None] = None
+    _DEFAULT_TIMESTAMP    : Final[None] = None
+    _DEFAULT_TIME_OFFSET  : Final[None] = None
+    _DEFAULT_EVENT_SEQ    : Final[None] = None
+    _DEFAULT_EVENT_NAME   : Final[None] = None
+    _DEFAULT_EVENT_SOURCE : Final[None] = None
+    _DEFAULT_EVENT_DATA   : Final[None] = None
+    _DEFAULT_GAME_STATE   : Final[None] = None
+    _DEFAULT_USER_DATA    : Final[None] = None
+
     def __init__(self, name,
-                 app_id:Optional[ColumnMapElement],       user_id:Optional[ColumnMapElement],      session_id:Optional[ColumnMapElement],
+                 app_id:Optional[ColumnMapElement],      user_id:Optional[ColumnMapElement],     session_id:Optional[ColumnMapElement],
                  app_version:Optional[ColumnMapElement], app_branch:Optional[ColumnMapElement],  log_version:Optional[ColumnMapElement],
                  timestamp:Optional[ColumnMapElement],   time_offset:Optional[ColumnMapElement], event_sequence_index:Optional[ColumnMapElement],
                  event_name:Optional[ColumnMapElement],  event_source:Optional[ColumnMapElement],event_data:Optional[ColumnMapElement],
@@ -316,7 +328,7 @@ class EventMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["app_version"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=EventMapSchema._DEFAULT_APP_VERSION,
             remove_target=False,
             schema_name=schema_name
         )
@@ -328,7 +340,7 @@ class EventMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["app_branch", "app_flavor"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=EventMapSchema._DEFAULT_APP_BRANCH,
             remove_target=False,
             schema_name=schema_name
         )
@@ -340,7 +352,7 @@ class EventMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["log_version"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=EventMapSchema._DEFAULT_LOG_VERSION,
             remove_target=False,
             schema_name=schema_name
         )
@@ -352,7 +364,7 @@ class EventMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["timestamp"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=EventMapSchema._DEFAULT_TIMESTAMP,
             remove_target=False,
             schema_name=schema_name
         )
@@ -364,7 +376,7 @@ class EventMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["offset", "time_offset", "timezone", "time_zone"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=EventMapSchema._DEFAULT_TIME_OFFSET,
             remove_target=False,
             schema_name=schema_name
         )
@@ -376,7 +388,7 @@ class EventMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["event_sequence_index", "event_index", "sequence_index"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=EventMapSchema._DEFAULT_EVENT_SEQ,
             remove_target=False,
             schema_name=schema_name
         )
@@ -388,7 +400,7 @@ class EventMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["event_name", "event_type"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=EventMapSchema._DEFAULT_EVENT_NAME,
             remove_target=False,
             schema_name=schema_name
         )
@@ -400,7 +412,7 @@ class EventMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["event_source", "source"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=EventMapSchema._DEFAULT_EVENT_SOURCE,
             remove_target=False,
             schema_name=schema_name
         )
@@ -412,7 +424,7 @@ class EventMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["event_data"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=EventMapSchema._DEFAULT_EVENT_DATA,
             remove_target=False,
             schema_name=schema_name
         )
@@ -424,7 +436,7 @@ class EventMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["game_state"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=EventMapSchema._DEFAULT_GAME_STATE,
             remove_target=False,
             schema_name=schema_name
         )
@@ -436,7 +448,7 @@ class EventMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["user_data", "player_data"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=EventMapSchema._DEFAULT_USER_DATA,
             remove_target=False,
             schema_name=schema_name
         )
