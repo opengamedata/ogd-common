@@ -195,7 +195,10 @@ class Schema(abc.ABC):
         return cls._fromDict(name=name, unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
 
     @classmethod
-    def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, raw_value:Any=None, remove_target:bool=False, optional_element:bool=False, schema_name:Optional[str]=None) -> Any:
+    def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str],        to_type:Type | List[Type],
+                          default_value:Any,     raw_value:Any=None,
+                          remove_target:bool=False, optional_element:bool=False,
+                          schema_name:Optional[str]=None) -> Any:
         """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 
         The default behavior of searching for "valid keys" in `unparsed_elements` can be overridden by directly providing a non-null `raw_value`.
