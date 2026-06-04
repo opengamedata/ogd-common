@@ -11,7 +11,9 @@ class ColumnSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, readable:Optional[str], value_type:Optional[str], description:Optional[str], other_elements:Optional[Map]=None):
+    def __init__(self, name:str, readable:Optional[str],
+                 value_type:Optional[str], description:Optional[str],
+                 other_elements:Optional[Map]=None):
         """Constructor for the `ColumnSchema` class.
         
         If optional params are not given, data is searched for in `other_elements`.

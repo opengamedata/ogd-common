@@ -183,7 +183,8 @@ class DataElementSchema(Schema):
             to_type=dict,
             default_value=DataElementSchema._DEFAULT_DETAILS,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True
         )
         # After getting the dict, make sure each sub-element is converted to a string.
         if isinstance(details, dict):
