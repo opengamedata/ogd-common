@@ -256,7 +256,7 @@ class DatasetSchema(Schema):
         return self.GameEventsFile(relative=relative)
     @property
     def HasGameEventsFile(self) -> bool:
-        return self._game_events_file is not None
+        return self.GameEventsFile() is not None
 
     def AllEventsFile(self, relative:bool=False) -> Optional[str]:
         ret_val : Optional[str] = None
@@ -277,7 +277,7 @@ class DatasetSchema(Schema):
         return self.AllEventsFile(relative=relative)
     @property
     def HasAllEventsFile(self) -> bool:
-        return self.AllEventsFile is not None
+        return self.AllEventsFile() is not None
 
     def CombinedFeaturesFile(self, relative:bool=False) -> Optional[str]:
         ret_val : Optional[str] = None
@@ -298,7 +298,7 @@ class DatasetSchema(Schema):
         return self.CombinedFeaturesFile(relative=relative)
     @property
     def HasCombinedFeaturesFile(self) -> bool:
-        return self.CombinedFeaturesFile is not None
+        return self.CombinedFeaturesFile() is not None
     
     def SessionsFile(self, relative:bool=False) -> Optional[str]:
         ret_val : Optional[str] = None
@@ -310,7 +310,7 @@ class DatasetSchema(Schema):
         return ret_val
     @property
     def HasSessionsFile(self) -> bool:
-        return self.SessionsFile is not None
+        return self.SessionsFile() is not None
 
     def PlayersFile(self, relative:bool=False) -> Optional[str]:
         ret_val : Optional[str] = None
@@ -322,7 +322,7 @@ class DatasetSchema(Schema):
         return ret_val
     @property
     def HasPlayersFile(self) -> bool:
-        return self.PlayersFile is not None
+        return self.PlayersFile() is not None
 
     def PopulationFile(self, relative:bool=False) -> Optional[str]:
         ret_val : Optional[str] = None
@@ -334,7 +334,7 @@ class DatasetSchema(Schema):
         return ret_val
     @property
     def HasPopulationFile(self) -> bool:
-        return self.PopulationFile is not None
+        return self.PopulationFile() is not None
 
     @property
     def FileSet(self) -> str:
