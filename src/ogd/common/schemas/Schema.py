@@ -82,10 +82,8 @@ class Schema(abc.ABC):
         match value:
             case Schema():
                 return self.AsDict == value.AsDict
-            case None:
-                return False
             case _:
-                raise TypeError(f"Values of Schema and {type(value)} are incomparable!")
+                return super().__eq__(value)
 
     @property
     def Name(self) -> str:
