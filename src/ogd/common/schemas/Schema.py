@@ -78,6 +78,12 @@ class Schema(abc.ABC):
     def __repr__(self):
         return f"{type(self).__name__}[{self.Name}]"
 
+    def __eq__(self, value: object) -> bool:
+        if isinstance(value, Schema):
+            return self.AsDict == value.AsDict
+        else:
+            raise TypeError(f"Values of Schema and {type(value)} are incomparable!")
+
     @property
     def Name(self) -> str:
         """Gets the name of the specific schema represented by the class instance.
