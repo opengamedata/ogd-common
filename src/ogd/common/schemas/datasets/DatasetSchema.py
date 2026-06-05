@@ -691,6 +691,20 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     def _getFeatures(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, FeatureSchema]:
         ret_val : Dict[str, FeatureSchema]
 
+        def _getFeature(feat_name:Optional[str], feature:Any) -> FeatureSchema:
+            ret_val : FeatureSchema
+            match feature:
+                case FeatureSchema():
+                    ret_val = feature
+                case dict():
+                    ret_val = FeatureSchema.FromDict(
+                        name=feat_name or unparsed_elements.get("feature_name", FeatureSchema._DEFAULT_FEAT_NAME),
+                        unparsed_elements=feature
+                    )
+                case _:
+                    raise TypeError(f"Feature element was incompatible type {type(feature)}!")
+            return ret_val
+
         raw_features = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
@@ -702,7 +716,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             optional_element=True
         )
         ret_val = {
-            feat_name : FeatureSchema.FromDict(name=feat_name, unparsed_elements=raw_feat)
+            feat_name : _getFeature(feat_name=feat_name, feature=raw_feat)
             for feat_name, raw_feat in raw_features.items()
         }
 
