@@ -79,10 +79,13 @@ class Schema(abc.ABC):
         return f"{type(self).__name__}[{self.Name}]"
 
     def __eq__(self, value: object) -> bool:
-        if isinstance(value, Schema):
-            return self.AsDict == value.AsDict
-        else:
-            raise TypeError(f"Values of Schema and {type(value)} are incomparable!")
+        match value:
+            case Schema():
+                return self.AsDict == value.AsDict
+            case None:
+                return False
+            case _:
+                raise TypeError(f"Values of Schema and {type(value)} are incomparable!")
 
     @property
     def Name(self) -> str:
