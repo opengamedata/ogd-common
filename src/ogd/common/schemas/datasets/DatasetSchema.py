@@ -426,7 +426,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             "dataset_id"         : str(self.Key),
             "population": {
                 "session_count"      : self.SessionCount,
-                "player_count"       : self.SessionCount,
+                "player_count"       : self.PlayerCount,
                 "filters"            : {name:str(filt) for name,filt in self.Filters.items()},
             },
             "game_state"         : self.GameState.AsDict if self.GameState else None,
