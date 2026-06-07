@@ -25,10 +25,30 @@ class CapitalizeCase(TestCase):
         self.assertIsInstance(_str, int)
         self.assertEqual(_str, 100)
 
-@unittest.skip("Not Implemented")
-class ConvertToTypeCase(TestCase):
+class ParseToTypeCase(TestCase):
     def test_null_values(self):
-        pass
+        with self.subTest(msg="_parseToType: None"):
+            _val = conversions._parseToType(value=None, to_type=int, name="Null Element")
+            self.assertIsNone(_val)
+        with self.subTest(msg="_parseToType: str=None"):
+            _val = conversions._parseToType(value="None", to_type=int, name="Null Element")
+            self.assertIsNone(_val)
+        with self.subTest(msg="_parseToType: str=null"):
+            _val = conversions._parseToType(value="null", to_type=int, name="Null Element")
+            self.assertIsNone(_val)
+        with self.subTest(msg="_parseToType: str=NaN"):
+            _val = conversions._parseToType(value="NaN", to_type=int, name="Null Element")
+            self.assertIsNone(_val)
+
+    def test_type_already_correct(self):
+        with self.subTest(msg="_parseToType: TestConfig already TestConfig"):
+            _cfg = conversions._parseToType(value=_testing_cfg, to_type=TestConfig, name="Config Element")
+            self.assertIsInstance(_cfg, TestConfig)
+            self.assertEqual(_cfg, _testing_cfg)
+        with self.subTest(msg="_parseToType: TestConfig already TestConfig, with str type request"):
+            _cfg = conversions._parseToType(value=_testing_cfg, to_type="ogd.common.configs.TestConfig.TestConfig", name="Config Element")
+            self.assertIsInstance(_cfg, TestConfig)
+            self.assertEqual(_cfg, _testing_cfg)
 
 class ToBoolCase(TestCase):
     def test_normal_bool_true(self):
@@ -76,6 +96,15 @@ class ToIntCase(TestCase):
             _int = conversions.ToInt(name="ParseIntVal", value=1.25)
             self.assertIsInstance(_int, int)
             self.assertEqual(_int, 1)
+
+    def test_str_to_int(self):
+        with self.subTest(msg="ToInt: str=1"):
+            _int = conversions.ToInt(value="1", name="Int Element")
+            self.assertIsInstance(_int, int)
+            self.assertEqual(_int, 1)
+        with self.subTest(msg=" ToInt: Decimal number in str"):
+            _int = conversions.ToInt(value="1.5", name="Int Element")
+            self.assertIsNone(_int)
 
     def test_wrongtype(self):
         _nan = {1:2}

@@ -1,11 +1,11 @@
 # import standard libraries
 import logging
-from typing import Dict, Final, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.schemas.events.DataElementSchema import DataElementSchema
 from ogd.common.schemas.Schema import Schema
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 class GameStateSchema(Schema):
     """
@@ -52,7 +52,7 @@ class GameStateSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._game_state  : Dict[str, DataElementSchema] = game_state if game_state is not None else self._parseGameStateElements(unparsed_elements=unparsed_elements)
+        self._game_state  : Dict[str, DataElementSchema] = self._getGameStateElements(raw_val=game_state, unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -94,6 +94,12 @@ class GameStateSchema(Schema):
             )
         return "\n\n".join(ret_val)
 
+    @property
+    def AsDict(self) -> JSONMap:
+        return {
+            key:val.AsDict for key,val in self.GameStateElements.items()
+        }
+
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "GameStateSchema":
         """_summary_
@@ -122,9 +128,12 @@ class GameStateSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseGameStateElements(unparsed_elements:Map):
+    def _getGameStateElements(raw_val:Optional[Dict[str, DataElementSchema]], unparsed_elements:Map) -> Dict[str, DataElementSchema]:
         ret_val : Dict[str, DataElementSchema]
-        if isinstance(unparsed_elements, dict):
+        
+        if raw_val is not None:
+            ret_val = raw_val
+        elif isinstance(unparsed_elements, dict):
             ret_val = {
                 name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
                 for name,elems in unparsed_elements.items()

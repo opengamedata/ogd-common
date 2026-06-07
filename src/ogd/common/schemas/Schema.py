@@ -6,7 +6,7 @@ from pathlib import Path
 from shutil import copyfile
 from typing import Any, Dict, Final, List, Optional, Self, Type
 # import local files
-from ogd.common.utils.typing import conversions, Map
+from ogd.common.utils.typing import conversions, JSONMap, Map
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 
@@ -25,6 +25,16 @@ class Schema(abc.ABC):
         :rtype: str
         """
         raise NotImplementedError(f"{self.__class__.__name__} has not implemented the AsMarkdown function!")
+
+    @property
+    @abc.abstractmethod
+    def AsDict(self) -> JSONMap:
+        """Gets a markdown-formatted representation of the schema.
+
+        :return: A markdown-formatted representation of the schema.
+        :rtype: str
+        """
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented the AsDict function!")
 
     @classmethod
     @abc.abstractmethod
@@ -68,6 +78,13 @@ class Schema(abc.ABC):
     def __repr__(self):
         return f"{type(self).__name__}[{self.Name}]"
 
+    def __eq__(self, value: object) -> bool:
+        match value:
+            case Schema():
+                return self.AsDict == value.AsDict
+            case _:
+                return super().__eq__(value)
+
     @property
     def Name(self) -> str:
         """Gets the name of the specific schema represented by the class instance.
@@ -102,7 +119,7 @@ class Schema(abc.ABC):
         schema_file_name : str = f"{schema_name}.json" if not schema_name.lower().endswith(".json") else schema_name
 
         class_dir = Path(inspect.getfile(cls)).parent
-        raw_search_directories = ["./", "./.ogd", Path.home(), Path.home() / ".ogd", class_dir, class_dir / "presets"] + cls._loadDirectories(schema_name=schema_name)
+        raw_search_directories = ["./", "./.ogd", Path.home(), Path.home() / ".ogd", class_dir, class_dir / "presets"] + cls._searchDirectories(schema_name=schema_name)
         search_directories = [Path(dir) for dir in raw_search_directories]
 
         if search_path:
@@ -177,18 +194,32 @@ class Schema(abc.ABC):
         :return: _description_
         :rtype: Schema
         """
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements   = {}
-            _msg = f"For {name} {cls.__name__}, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
+        ret_val : Self
 
-        return cls._fromDict(name=name, unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
+        if isinstance(unparsed_elements, cls):
+            ret_val = unparsed_elements
+            _msg = f"For {name} {cls.__name__}, unparsed_elements was a an instance of {cls.__name__}! Just returning it directly!"
+            Logger.Log(_msg, logging.DEBUG)
+        else:
+            if not isinstance(unparsed_elements, dict):
+                unparsed_elements   = {}
+                _msg = f"For {name} {cls.__name__}, unparsed_elements was not a dict, defaulting to empty dict"
+                Logger.Log(_msg, logging.DEBUG)
+
+            ret_val = cls._fromDict(name=name, unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
+        return ret_val
 
     @classmethod
-    def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str], to_type:Type | List[Type], default_value:Any, remove_target:bool=False, optional_element:bool=False, schema_name:Optional[str]=None) -> Any:
+    def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str],        to_type:Type | List[Type],
+                          default_value:Any,     raw_value:Any=None,
+                          remove_target:bool=False, optional_element:bool=False,
+                          schema_name:Optional[str]=None) -> Any:
         """Function to parse an individual element from a dictionary, given a list of possible keys for the element, and a desired type.
 
-        The general `ParseElement` function uses the `conversions.ConvertToType(...)` function under the hood.
+        The default behavior of searching for "valid keys" in `unparsed_elements` can be overridden by directly providing a non-null `raw_value`.
+        In that case, ParseElement will skip directly to converting `raw_value` into the requested type.
+
+        The conversion logic uses the `conversions.ConvertToType(...)` function under the hood.
         This function handles conversion to certain data types, from certain other data types.
         The table below indicates what types are supported, and what the can be converted from:
         | Target Type | Supported `type(value)`               |
@@ -213,9 +244,15 @@ class Schema(abc.ABC):
         :type to_type: Type | List[Type]
         :param default_value: A default value to return, if a valid value could not be parsed.
         :type default_value: Any
+        :param raw_value: An optional param specifying a value to use directly, instead of searching unparsed_elements.
+                          If non-null, ParseElement will skip searching in unparsed_elements, and directly try to parse raw_value into the desired type. Defaults to None
+        :type raw_value: Any, optional
         :param remove_target: Whether to remove the target element, if found; defaults to False.
         :type remove_target: bool, optional
-        :param optional_element: Whether the element being parsed should be considered optional, if True then no warning will be given if the element is not found. Defaults to False
+        :param optional_element: Whether the element being parsed should be considered optional, meaning it may not exist in the source dictionary.
+                                 If True, then no warning will be given if the element is not found.
+                                 Whether True or False, the function will return the given `default_value` if the element is not found.
+                                 Defaults to False
         :type optional_element: bool, optional
         :param schema_name: The name of the schema instance for which an element is being parsed. This is used to make debug output slightly more specific.
         :type schema_name: str, optional
@@ -223,23 +260,31 @@ class Schema(abc.ABC):
         :rtype: Any
         """
         ret_val : Any = default_value
-        decased_elements = {key.upper() : (key, val) for key,val in unparsed_elements.items()}
 
         found = False
-        for _name in valid_keys:
-            name = _name.upper()
-            if name in decased_elements:
-                value = decased_elements[name][1]
-                if remove_target:
-                    original_key = decased_elements[name][0]
-                    del unparsed_elements[original_key]
-                ret_val = conversions.ConvertToType(value=value, to_type=to_type, name=f"{cls.__name__} element {name}")
-                found = True
-                break
-        if not found and not optional_element:
-            _title = f"'{schema_name}'" if schema_name else "source"
+
+        if raw_value is not None:
+            elem_name = f"{cls.__name__} element {valid_keys[0]}"
+            ret_val = conversions.ConvertToType(value=raw_value, to_type=to_type, name=elem_name, force_conversion=False)
+            found = True
+        else:
+            decased_elements = {key.upper() : (key, val) for key,val in unparsed_elements.items()}
+            for _name in valid_keys:
+                name = _name.upper()
+                if name in decased_elements:
+                    value = decased_elements[name][1]
+                    if remove_target:
+                        original_key = decased_elements[name][0]
+                        del unparsed_elements[original_key]
+                    elem_name = f"{cls.__name__} element {name}"
+                    ret_val = conversions.ConvertToType(value=value, to_type=to_type, name=elem_name, force_conversion=False)
+                    found = True
+                    break
+        if not found:
+            _title = schema_name if schema_name else "source"
             _msg = f"{cls.__name__} {_title} does not have a '{valid_keys[0]}' element; defaulting to {valid_keys[0]}={default_value}"
-            Logger.Log(_msg, logging.WARN)
+            _level = logging.WARNING if not optional_element else logging.DEBUG
+            Logger.Log(_msg, _level)
 
         # if we got empty value back from conversion, use default instead, that's more likely what we want.
         return ret_val or default_value
@@ -274,7 +319,7 @@ class Schema(abc.ABC):
         return cls._fromDict(name=template_name, unparsed_elements=template_contents)
 
     @classmethod
-    def _loadDirectories(cls, schema_name:str) -> List[str | Path]:
+    def _searchDirectories(cls, schema_name:str) -> List[str | Path]:
         """Private function that can be optionally overridden to define additional directories in which cls.Load(...) searches for a file from which to load an instance of the class.
 
         These extra directories are treated as optional places to search,

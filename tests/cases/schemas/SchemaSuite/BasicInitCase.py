@@ -7,6 +7,7 @@ from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
+from ogd.common.utils.typing import JSONMap
 # import locals
 from src.ogd.common.schemas.Schema import Schema
 from config.t_config import settings
@@ -33,6 +34,10 @@ class BasicInitCase(TestCase):
         @classmethod
         def Default(cls) -> "BasicInitCase.TestSchema":
             return BasicInitCase.TestSchema(name="DefaultTestSchema", other_elements={})
+        
+        @property
+        def AsDict(self) -> JSONMap:
+            return {}
 
         @classmethod
         def _fromDict(cls, name:str, all_elements:Dict[str, Any])-> "BasicInitCase.TestSchema":

@@ -1,16 +1,16 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Final, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.KeyCredentialConfig import KeyCredential
-from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
-from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.configs.locations.DatabaseLocationConfig import DatabaseLocationConfig
+from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
+from ogd.common.utils.typing import JSONMap, Map
 
 class BigQueryConfig(DataStoreConfig):
     _STORE_TYPE       : Final[str] = "BIGQUERY"
-    _DEFAULT_LOCATION : Final[DatabaseLocationSchema] = DatabaseLocationSchema(
+    _DEFAULT_LOCATION : Final[DatabaseLocationConfig] = DatabaseLocationConfig(
         name="DefaultBQLocation",
         database_name="wcer-field-day-ogd-1798",
         table_name=None,
@@ -18,14 +18,14 @@ class BigQueryConfig(DataStoreConfig):
     )
     _DEFAULT_CREDENTIAL : Final[KeyCredential] = KeyCredential(
         name="DefaultBQKeyCredential",
-        location=FileLocationSchema(name="DefaultBQKeyFile", folder_path=Path("./config/"), filename="ogd.json"),
+        location=FileLocationConfig(name="DefaultBQKeyFile", folder_path=Path("./config/"), filename="ogd.json"),
     )
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,
                  # params for class
-                 location:Optional[DatabaseLocationSchema | Map | str],
+                 location:Optional[DatabaseLocationConfig | Map | str],
                  credential:Optional[KeyCredential | Map | str],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
@@ -50,7 +50,7 @@ class BigQueryConfig(DataStoreConfig):
         :param name: _description_
         :type name: str
         :param location: _description_
-        :type location: Optional[DatabaseLocationSchema]
+        :type location: Optional[DatabaseLocationConfig]
         :param credential: _description_
         :type credential: Optional[KeyCredential]
         :param other_elements: _description_, defaults to None
@@ -58,13 +58,13 @@ class BigQueryConfig(DataStoreConfig):
         """
         fallbacks : Map = other_elements or {}
 
-        self._location   : DatabaseLocationSchema = self._toLocation(location=location, fallbacks=fallbacks, schema_name=name)
+        self._location   : DatabaseLocationConfig = self._toLocation(location=location, fallbacks=fallbacks, schema_name=name)
         self._credential : KeyCredential          = self._toCredential(credential=credential, fallbacks=fallbacks, schema_name=name)
 
         super().__init__(name=name, store_type=self._STORE_TYPE, other_elements=fallbacks)
 
     @property
-    def Location(self) -> DatabaseLocationSchema:
+    def Location(self) -> DatabaseLocationConfig:
         """The Project ID for the BigQuery source
 
         :return: _description_
@@ -89,6 +89,14 @@ class BigQueryConfig(DataStoreConfig):
 
         ret_val = f"{self.Name}: `{self.AsConnectionInfo}` ({self.Type})"
         return ret_val
+
+    @property
+    def AsDict(self) -> JSONMap:
+        return {
+            "SOURCE_TYPE":"BIGQUERY",
+            "PROJECT_ID":self.Location.AsDict,
+            "PROJECT_KEY":self.Credential.AsDict
+        }
 
     @classmethod
     def Default(cls) -> "BigQueryConfig":
@@ -133,14 +141,14 @@ class BigQueryConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _toLocation(location:Optional[DatabaseLocationSchema | Map | str], fallbacks:Map, schema_name:Optional[str]=None) -> DatabaseLocationSchema:
-        ret_val : DatabaseLocationSchema
-        if isinstance(location, DatabaseLocationSchema):
+    def _toLocation(location:Optional[DatabaseLocationConfig | Map | str], fallbacks:Map, schema_name:Optional[str]=None) -> DatabaseLocationConfig:
+        ret_val : DatabaseLocationConfig
+        if isinstance(location, DatabaseLocationConfig):
             ret_val = location
         elif isinstance(location, dict):
-            ret_val = DatabaseLocationSchema.FromDict(name=f"{schema_name}DatabaseLocation", unparsed_elements=location)
+            ret_val = DatabaseLocationConfig.FromDict(name=f"{schema_name}DatabaseLocation", unparsed_elements=location)
         elif isinstance(location, str):
-            ret_val = DatabaseLocationSchema(name=f"{schema_name}DatabaseLocation", database_name=location, table_name=None)
+            ret_val = DatabaseLocationConfig(name=f"{schema_name}DatabaseLocation", database_name=location, table_name=None)
         else:
             ret_val = BigQueryConfig._parseLocation(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
@@ -159,8 +167,8 @@ class BigQueryConfig(DataStoreConfig):
         return ret_val
 
     @staticmethod
-    def _parseLocation(unparsed_elements:Map, schema_name:Optional[str]=None) -> DatabaseLocationSchema:
-        ret_val : DatabaseLocationSchema
+    def _parseLocation(unparsed_elements:Map, schema_name:Optional[str]=None) -> DatabaseLocationConfig:
+        ret_val : DatabaseLocationConfig
 
         # First check for project ID or dataset ID given directly
         project_id = BigQueryConfig.ParseElement(
@@ -173,10 +181,10 @@ class BigQueryConfig(DataStoreConfig):
         )
         # If we found it, use to construct
         if project_id:
-            ret_val = DatabaseLocationSchema(name="BigQueryLocation", database_name=project_id, table_name=None, other_elements={})
+            ret_val = DatabaseLocationConfig(name="BigQueryLocation", database_name=project_id, table_name=None, other_elements={})
         # Else, have the class look for whatever key it's expecting.
         else:
-            ret_val = DatabaseLocationSchema.FromDict(name="BigQueryLocation", unparsed_elements=unparsed_elements)
+            ret_val = DatabaseLocationConfig.FromDict(name="BigQueryLocation", unparsed_elements=unparsed_elements)
         
         return ret_val
 
@@ -197,7 +205,7 @@ class BigQueryConfig(DataStoreConfig):
         elif isinstance(raw_credential, str):
             ret_val = KeyCredential(
                 name=f"{schema_name}ConfigCredential",
-                location=FileLocationSchema.FromDict(name=f"{schema_name}CredentialLocation",
+                location=FileLocationConfig.FromDict(name=f"{schema_name}CredentialLocation",
                 unparsed_elements={"file":raw_credential}), other_elements=None
             )
         return ret_val

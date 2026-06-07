@@ -4,7 +4,7 @@ import unittest
 from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
-from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
+from ogd.common.configs.locations.DatabaseLocationConfig import DatabaseLocationConfig
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.configs.DataTableConfig import DataTableConfig
@@ -37,7 +37,7 @@ class BasicInitCase(TestCase):
             name="Game Source Schema",
             store="AQUALAB_BQ",
             table_schema="OPENGAMEDATA_BIGQUERY",
-            table_location=DatabaseLocationSchema(name="DBLocation", database_name="aqualab", table_name="aqualab_daily"),
+            table_location=DatabaseLocationConfig(name="DBLocation", database_name="aqualab", table_name="aqualab_daily"),
             other_elements={ "foo":"bar" }
         )
 

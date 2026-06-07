@@ -6,6 +6,7 @@ from unittest import TestCase
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.utils.Logger import Logger
 # import locals
+from src.ogd.common.models.events.Event import EventSource
 from src.ogd.common.schemas.events.EventSchema import EventSchema
 from config.t_config import settings
 
@@ -39,6 +40,9 @@ class BasicInitCase(TestCase):
             name="available_building Schema",
             description="",
             event_data={},
+            event_source=EventSource.GAME,
+            module_name=None,
+            module_version=None,
             other_elements={ "foo":"bar" }
         )
 

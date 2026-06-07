@@ -12,6 +12,7 @@ import logging
 import pathlib
 import re
 import typing
+from abc import ABCMeta
 from typing import Any, Dict, List, LiteralString, Optional, Type
 
 from json.decoder import JSONDecodeError
@@ -32,7 +33,7 @@ def Capitalize(value:Any) -> Any:
     """
     return value.upper() if isinstance(value, str) else value
 
-def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed Element") -> Any:
+def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed Element", force_conversion:bool=True) -> Any:
     """Function to convert a given value to a specific type, or to one of a list of acceptable types.
     
     Applies whatever parsing is appropriate to convert `value` to the type, or None if the type of `value` was incompatible with the conversion.
@@ -51,9 +52,11 @@ def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed 
     | dict/json   | dict, str (valid JSON strings)        |
     | list        | List, str                             |
 
+    If the requested conversion type is not in the list above, the original value is returned.
+
     TODO : Add a "force" param that is passed down to the "force" param of lower-level functions.
 
-    :param value: _description_
+    :param value: The value to be converted to the desired type.
     :type value: Any
     :param to_type: The desired type of the element.
         * If a string, the function will match against a set of recognized type names.
@@ -63,17 +66,24 @@ def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed 
             If the raw value's type matches nothing in the list, the return value will be a parsed instance of the first type in the list.
             The function naively assumes the first type in the list is a recognized type; if it is not, a value of None will be returned.
     :type to_type: str | Type | List[Type]
-    :param name: _description_
-    :type name: str
-    :return: _description_
+    :param name: A human-readable name corresponding to the value being converted, used only for logging. Defaults to "Unnamed Element"
+    :type name: str, optional
+    :param force_conversion: If True, use additional tricks like converting value to str first, to allow values whose types are not normally handled by the parser of the desired type.
+                  If False, only convert if value's type is compatible with the desired type, otherwise return None to indicate failure. Defaults to True
+    :type force_conversion: bool, optional
+    :return: The result of converting `value` to the desired type, or None if the conversion failed and `force` is set to False.
     :rtype: Any
     """
     ret_val : Any
 
+    # 1. short-circuit if we got a value representing null.
     if Capitalize(value) in [None, "NONE", "NULL", "NAN"]:
         ret_val = None
-    # Handle case where there are multiple valid types accepted (i.e. got a list, and everything in list is a type/str)
-    elif isinstance(to_type, List) and all(type(x) in {type, str} for x in to_type):
+    # 2. Handle case where there are multiple valid types accepted (i.e. got a list, and everything in list is a type/str)
+    elif isinstance(to_type, List):
+        if not all(type(x) in {type, ABCMeta, str} for x in to_type):
+            Logger.Log(f"In ConvertToType, some items in list of requested types are not strings or types ({[x for x in to_type if type(x) not in {type, ABCMeta, str}]}). These will be ignored.", logging.DEBUG)
+            to_type = [x for x in to_type if type(x) in {type, ABCMeta, str}]
         found = False
         # for each candidate type, check if value already had that type
         for t in to_type:
@@ -93,40 +103,10 @@ def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed 
         # If none of the parsers knew how to handle the type of value param,
         # force the issue by calling a "hard" conversion on first type in list of candidate types.
         if not found:
-            ret_val = ConvertToType(value, to_type=to_type[0], name=name)
-    # Otherwise, handle recognized single types
+            ret_val = _parseToType(value=value, to_type=to_type[0], name=name, force_conversion=force_conversion)
+    # 3. Otherwise, handle recognized single types
     else:
-        match Capitalize(to_type):
-            case 'BOOL' | builtins.bool:
-                ret_val = ToBool(name=name, value=value)
-            case 'STR' | builtins.str:
-                ret_val = ToString(name=name, value=value)
-            case 'INT' | builtins.int:
-                ret_val = ToInt(name=name, value=value)
-            case 'FLOAT' | builtins.float:
-                ret_val = ToFloat(name=name, value=value)
-            case 'PATH' | pathlib.Path:
-                ret_val = ToPath(name=name, value=value)
-            case 'DATE' | datetime.date:
-                raw_dt  = time.ToDatetime(name=name, value=value)
-                ret_val = raw_dt.date() if raw_dt is not None else None
-            case 'DATETIME' | datetime.datetime:
-                ret_val = time.ToDatetime(name=name, value=value)
-            case 'TIMEDELTA' | datetime.timedelta:
-                ret_val = time.ToTimedelta(name=name, value=value)
-            case 'TIMEZONE' | datetime.timezone:
-                ret_val = time.ToTimezone(name=name, value=value)
-            case 'JSON' | 'DICT' | builtins.dict | typing.Dict:
-                ret_val = ToJSON(name=name, value=value)
-            case 'LIST' | builtins.list | typing.List:
-                ret_val = ToList(name=name, value=value)
-            case _dummy if isinstance(_dummy, str) and _dummy.startswith('ENUM'):
-                # if the column is supposed to be an enum, for now we just stick with the string.
-                ret_val = str(value)
-            case _:
-                _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
-                Logger.Log(_msg, logging.WARNING)
-                ret_val = None
+        ret_val = _parseToType(value=value, to_type=to_type, name=name, force_conversion=force_conversion)
     return ret_val
 
 def ToBool(name:str, value:Any, force:bool=False) -> Optional[bool]:
@@ -447,11 +427,11 @@ def DatetimeFromString(time_str:str) -> Optional[datetime.datetime]:
 
     return ret_val
 
-def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element") -> Any:
+def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element", force_conversion:bool=False) -> Any:
     """Private function to attempt to parse a value to a specific type.
 
     Unlike the main ConvertToType function, however,
-    this function will not attempt a conversion if the type of the "value" variable is not recognized.
+    this function will not attempt a conversion if the type of the "value" variable is not recognized, and is not already of the requested type.
     Instead, it will simply return None
 
     :param value: _description_
@@ -465,45 +445,58 @@ def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element") -> A
     """
     ret_val : Any
 
-    if value is None:
+    if Capitalize(value) in [None, "NONE", "NULL", "NAN"]:
         ret_val = None
-    elif value == "None" or value == "null" or value == "nan":
-        ret_val = None
+    # check if value is already of correct type.
+    elif isinstance(to_type, Type) and isinstance(value, to_type):
+        return value
+    elif isinstance(to_type, str) and str(type(value)).upper() == f"<CLASS '{to_type.upper()}'>":
+        return value
     else:
         match (Capitalize(to_type)):
             case 'BOOL' | builtins.bool:
-                ret_val = ToBool(name=name, value=value)
+                ret_val = ToBool(name=name, value=value, force=force_conversion)
             case 'STR' | builtins.str:
                 ret_val = ToString(name=name, value=value)
             case 'INT' | builtins.int:
-                ret_val = ToInt(name=name, value=value)
+                ret_val = ToInt(name=name, value=value, force=force_conversion)
             case 'FLOAT' | builtins.float:
-                ret_val = ToFloat(name=name, value=value)
+                ret_val = ToFloat(name=name, value=value, force=force_conversion)
             case 'PATH' | pathlib.Path:
-                ret_val = ToPath(name=name, value=value)
+                ret_val = ToPath(name=name, value=value, force=force_conversion)
             case 'DATE' | datetime.date:
-                raw_dt  = time.ToDatetime(name=name, value=value)
-                ret_val = raw_dt.date() if raw_dt is not None else None
+                ret_val  = time.ToDate(name=name, value=value, force=force_conversion)
             case 'DATETIME' | datetime.datetime:
-                ret_val = time.ToDatetime(name=name, value=value)
+                ret_val = time.ToDatetime(name=name, value=value, force=force_conversion)
             case 'TIMEDELTA' | datetime.timedelta:
-                ret_val = time.ToTimedelta(name=name, value=value)
+                ret_val = time.ToTimedelta(name=name, value=value, force=force_conversion)
             case 'TIMEZONE' | datetime.timezone:
-                ret_val = time.ToTimezone(name=name, value=value)
+                ret_val = time.ToTimezone(name=name, value=value, force=force_conversion)
             case 'JSON' | 'DICT' | builtins.dict | typing.Dict:
-                ret_val = ToJSON(name=name, value=value)
+                ret_val = ToJSON(name=name, value=value, force=force_conversion)
             case 'LIST' | builtins.list | typing.List:
-                ret_val = ToList(name=name, value=value)
+                ret_val = ToList(name=name, value=value, force=force_conversion)
             case _dummy if isinstance(_dummy, str) and _dummy.startswith('ENUM'):
                 # if the column is supposed to be an enum, for now we just stick with the string.
                 ret_val = str(value)
             case _:
                 _msg = f"Requested type of {to_type} for '{name}' is unknown; defaulting to {name}=None"
-                Logger.Log(_msg, logging.WARNING)
+                Logger.Log(_msg, logging.DEBUG)
                 ret_val = None
     return ret_val
 
 class time:
+    @staticmethod
+    def ToDate(name:str, value:Any, force:bool=False) -> Optional[datetime.date]:
+        ret_val : Optional[datetime.date]
+
+        if isinstance(value, datetime.date):
+            ret_val = value
+        else:
+            converted = time.ToDatetime(name=name, value=value, force=force)
+            ret_val = converted.date() if converted is not None else None
+        
+        return ret_val
 
     @staticmethod
     def ToDatetime(name:str, value:Any, force:bool=False) -> Optional[datetime.datetime]:

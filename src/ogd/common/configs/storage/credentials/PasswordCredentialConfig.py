@@ -1,8 +1,8 @@
 # import standard libraries
-from typing import Dict, Final, List, Optional, Self
+from typing import Any, Dict, Final, List, Optional, Self
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 
 class PasswordCredential(CredentialConfig):
@@ -57,6 +57,13 @@ class PasswordCredential(CredentialConfig):
 
         ret_val = f"User : `{self.User}`\nPass: `*** HIDDEN ***`"
         return ret_val
+
+    @property
+    def AsDict(self) -> JSONMap:
+        return {
+            "USER":self.User,
+            "PASS":self.Pass
+        }
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "PasswordCredential":

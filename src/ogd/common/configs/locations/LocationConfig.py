@@ -2,11 +2,11 @@
 import abc
 from typing import Optional
 ## import local files
-from ogd.common.schemas.Schema import Schema
+from ogd.common.configs.Config import Config
 from ogd.common.utils.typing import Map
 
-## @class LocationSchema
-class LocationSchema(Schema):
+## @class LocationConfig
+class LocationConfig(Config):
 
     # *** ABSTRACTS ***
 
@@ -30,6 +30,22 @@ class LocationSchema(Schema):
 
     def __repr__(self):
         return f"{self.__class__.__name__}[{self.Location}]"
+
+    def __add__(self, other:"LocationConfig") -> str:
+        if isinstance(other, LocationConfig):
+            slash = "/" if not self.Location.endswith("/") else ""
+            return f"{self.Location}{slash}{other.Location}"
+        else:
+            raise TypeError(f"Objects of type {type(self).__name__} and {type(other).__name__} can not be concatenated!")
+
+    def __truediv__(self, other:"LocationConfig") -> str:
+        return self + other
+
+    def __eq__(self, other:"LocationConfig") -> bool:
+        if isinstance(other, LocationConfig):
+            return self.Location == other.Location
+        else:
+            return super().__eq__(other)
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 

@@ -1,19 +1,18 @@
 # standard imports
 from pathlib import Path
-from urllib.parse import urlparse
-from typing import Dict, Final, Optional, Self, TypeAlias
+from typing import Any, Dict, Final, Optional, Self, TypeAlias
 
 # ogd imports
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
 from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
-from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
-from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
+from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
+from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.schemas.datasets.DatasetCollectionSchema import DatasetCollectionSchema
 from ogd.common.utils.fileio import loadJSONFile
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
-BaseLocation : TypeAlias = URLLocationSchema | DirectoryLocationSchema
+BaseLocation : TypeAlias = URLLocationConfig | DirectoryLocationConfig
 
 # Simple Config-y class to track the base URLs/paths for a list of files and/or file templates.
 class DatasetRepositoryConfig(DataStoreConfig):
@@ -60,7 +59,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         return str(self.Name)
 
     @property
-    def LocalDirectory(self) -> DirectoryLocationSchema:
+    def LocalDirectory(self) -> DirectoryLocationConfig:
         """Property for the base 'path' to a set of dataset files.
         May be an actual path, or a base URL for accessing from a file server.
 
@@ -70,7 +69,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         return self.Indexing.LocalDirectory
 
     @property
-    def RemoteURL(self) -> Optional[URLLocationSchema]:
+    def RemoteURL(self) -> Optional[URLLocationConfig]:
         """Property for the base 'path' to a set of dataset files.
         May be an actual path, or a base URL for accessing from a file server.
 
@@ -80,7 +79,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         return self.Indexing.RemoteURL
 
     @property
-    def TemplatesBase(self) -> URLLocationSchema:
+    def TemplatesBase(self) -> URLLocationConfig:
         return self.Indexing.TemplatesURL
 
     @property
@@ -97,6 +96,13 @@ class DatasetRepositoryConfig(DataStoreConfig):
     def AsMarkdown(self) -> str:
         ret_val : str = self.Name
         return ret_val
+
+    @property
+    def AsDict(self) -> JSONMap:
+        return {
+            "CONFIG":self.Indexing.AsDict,
+            "datasets":{ key:val.AsDict for key,val in self.Games.items() }
+        }
 
     @property
     def Location(self) -> BaseLocation:
