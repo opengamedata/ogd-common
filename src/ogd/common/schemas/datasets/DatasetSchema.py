@@ -256,7 +256,7 @@ class DatasetSchema(Schema):
         return self.GameEventsFile(relative=relative)
     @property
     def HasGameEventsFile(self) -> bool:
-        return self._game_events_file is not None
+        return self.GameEventsFile() is not None
 
     def AllEventsFile(self, relative:bool=False) -> Optional[str]:
         ret_val : Optional[str] = None
@@ -277,7 +277,7 @@ class DatasetSchema(Schema):
         return self.AllEventsFile(relative=relative)
     @property
     def HasAllEventsFile(self) -> bool:
-        return self.AllEventsFile is not None
+        return self.AllEventsFile() is not None
 
     def CombinedFeaturesFile(self, relative:bool=False) -> Optional[str]:
         ret_val : Optional[str] = None
@@ -298,7 +298,7 @@ class DatasetSchema(Schema):
         return self.CombinedFeaturesFile(relative=relative)
     @property
     def HasCombinedFeaturesFile(self) -> bool:
-        return self.CombinedFeaturesFile is not None
+        return self.CombinedFeaturesFile() is not None
     
     def SessionsFile(self, relative:bool=False) -> Optional[str]:
         ret_val : Optional[str] = None
@@ -310,7 +310,7 @@ class DatasetSchema(Schema):
         return ret_val
     @property
     def HasSessionsFile(self) -> bool:
-        return self.SessionsFile is not None
+        return self.SessionsFile() is not None
 
     def PlayersFile(self, relative:bool=False) -> Optional[str]:
         ret_val : Optional[str] = None
@@ -322,7 +322,7 @@ class DatasetSchema(Schema):
         return ret_val
     @property
     def HasPlayersFile(self) -> bool:
-        return self.PlayersFile is not None
+        return self.PlayersFile() is not None
 
     def PopulationFile(self, relative:bool=False) -> Optional[str]:
         ret_val : Optional[str] = None
@@ -334,7 +334,7 @@ class DatasetSchema(Schema):
         return ret_val
     @property
     def HasPopulationFile(self) -> bool:
-        return self.PopulationFile is not None
+        return self.PopulationFile() is not None
 
     @property
     def FileSet(self) -> str:
@@ -426,7 +426,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             "dataset_id"         : str(self.Key),
             "population": {
                 "session_count"      : self.SessionCount,
-                "player_count"       : self.SessionCount,
+                "player_count"       : self.PlayerCount,
                 "filters"            : {name:str(filt) for name,filt in self.Filters.items()},
             },
             "game_state"         : self.GameState.AsDict if self.GameState else None,
@@ -633,19 +633,40 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["game_state"],
-            to_type=dict,
+            to_type=[GameStateSchema, dict],
             default_value=DatasetSchema._DEFAULT_GAME_STATE,
             remove_target=True,
             schema_name=schema_name,
             optional_element=True
         )
-        ret_val = GameStateSchema.FromDict(name=f"{schema_name}GameState", unparsed_elements=game_state)
+        match game_state:
+            case GameStateSchema():
+                ret_val = game_state
+            case dict():
+                ret_val = GameStateSchema.FromDict(name=f"{schema_name}GameState", unparsed_elements=game_state)
+            case _:
+                ret_val = DatasetSchema._DEFAULT_GAME_STATE
+                Logger.Log(f"In DatasetSchema, raw game state element was unexpected type {type(game_state)}, defaulting to {ret_val}.", logging.WARN)
 
         return ret_val
 
     @staticmethod
     def _getEvents(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, EventSchema]:
         ret_val : Dict[str, EventSchema]
+
+        def _getEvent(event_name:Optional[str], event:Any) -> EventSchema:
+            ret_val : EventSchema
+            match event:
+                case EventSchema():
+                    ret_val = event
+                case dict():
+                    ret_val = EventSchema.FromDict(
+                        name=event_name or unparsed_elements.get("event_name", "UNKNOWN EVENT"),
+                        unparsed_elements=event
+                    )
+                case _:
+                    raise TypeError(f"Event element was incompatible type {type(event)}!")
+            return ret_val
 
         raw_events = DatasetSchema.ParseElement(
             raw_value=raw_val,
@@ -658,7 +679,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             optional_element=True
         )
         ret_val = {
-            event_name : EventSchema.FromDict(name=event_name, unparsed_elements=raw_event)
+            event_name : _getEvent(event_name=event_name, event=raw_event)
             for event_name, raw_event in raw_events.items()
         }
 
@@ -669,6 +690,20 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
     @staticmethod
     def _getFeatures(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, FeatureSchema]:
         ret_val : Dict[str, FeatureSchema]
+
+        def _getFeature(feat_name:Optional[str], feature:Any) -> FeatureSchema:
+            ret_val : FeatureSchema
+            match feature:
+                case FeatureSchema():
+                    ret_val = feature
+                case dict():
+                    ret_val = FeatureSchema.FromDict(
+                        name=feat_name or unparsed_elements.get("feature_name", FeatureSchema._DEFAULT_FEAT_NAME),
+                        unparsed_elements=feature
+                    )
+                case _:
+                    raise TypeError(f"Feature element was incompatible type {type(feature)}!")
+            return ret_val
 
         raw_features = DatasetSchema.ParseElement(
             raw_value=raw_val,
@@ -681,7 +716,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
             optional_element=True
         )
         ret_val = {
-            feat_name : FeatureSchema.FromDict(name=feat_name, unparsed_elements=raw_feat)
+            feat_name : _getFeature(feat_name=feat_name, feature=raw_feat)
             for feat_name, raw_feat in raw_features.items()
         }
 

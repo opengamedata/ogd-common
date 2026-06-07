@@ -78,6 +78,13 @@ class Schema(abc.ABC):
     def __repr__(self):
         return f"{type(self).__name__}[{self.Name}]"
 
+    def __eq__(self, value: object) -> bool:
+        match value:
+            case Schema():
+                return self.AsDict == value.AsDict
+            case _:
+                return super().__eq__(value)
+
     @property
     def Name(self) -> str:
         """Gets the name of the specific schema represented by the class instance.
@@ -187,12 +194,20 @@ class Schema(abc.ABC):
         :return: _description_
         :rtype: Schema
         """
-        if not isinstance(unparsed_elements, dict):
-            unparsed_elements   = {}
-            _msg = f"For {name} {cls.__name__}, unparsed_elements was not a dict, defaulting to empty dict"
-            Logger.Log(_msg, logging.WARN)
+        ret_val : Self
 
-        return cls._fromDict(name=name, unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
+        if isinstance(unparsed_elements, cls):
+            ret_val = unparsed_elements
+            _msg = f"For {name} {cls.__name__}, unparsed_elements was a an instance of {cls.__name__}! Just returning it directly!"
+            Logger.Log(_msg, logging.DEBUG)
+        else:
+            if not isinstance(unparsed_elements, dict):
+                unparsed_elements   = {}
+                _msg = f"For {name} {cls.__name__}, unparsed_elements was not a dict, defaulting to empty dict"
+                Logger.Log(_msg, logging.DEBUG)
+
+            ret_val = cls._fromDict(name=name, unparsed_elements=unparsed_elements, key_overrides=key_overrides, default_override=default_override)
+        return ret_val
 
     @classmethod
     def ParseElement(cls, unparsed_elements:Map, valid_keys:List[str],        to_type:Type | List[Type],
