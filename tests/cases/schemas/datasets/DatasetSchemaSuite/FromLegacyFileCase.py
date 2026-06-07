@@ -1,17 +1,14 @@
 # import libraries
+import json
 import logging
-from datetime import date
-from pathlib import Path
 from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.configs.locations.LocationConfig import LocationConfig
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
-from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
+from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.models.SemanticVersion import SemanticVersion
-from ogd.common.models.features.AggregationMode import AggregationMode
-from ogd.common.schemas.features.FeatureSchema import FeatureSchema
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
@@ -22,15 +19,15 @@ def setUpModule():
     _level       = logging.DEBUG if _testing_cfg.Verbose else logging.INFO
     Logger.std_logger.setLevel(_level)
 
-class BasicInitCase(TestCase):
-    """DatasetSchema test case where basic initialization is used.
+class FromLegacyFileListCase(TestCase):
+    """DatasetSchema test case where we initialize with the structure of a file_list.json as of ogd-core 0.0.14.
     
     Fixture:
-    * Initialize a DatasetSchema object with hardcoded values for all `__init__(...)` params
+    * Initialize a DatasetSchema object with hardcoded dict matching format of a `file_list.json` from ogd-core v0.0.14
     
     Case Categories:
     * Property functions
-        * Check that we get back exactly the hardcoded values we passed in to the `__init__(...)` function.
+        * Check that we get back exactly the equivalents to the hardcoded values we used in the dict.
     """
 
     @classmethod
@@ -40,84 +37,60 @@ class BasicInitCase(TestCase):
         Since this class currently just tests properties, we go ahead and use a single instance of `Feature` shared across the class.
         If any tests are added that have expected side effects, initialization of the instance should be moved to a `setUp(self)` function.
         """
-        cls.fake_feature = FeatureSchema(
-            name="feat1",
-            feature_name="feat1",
-            description="desc",
-            value_type="str",
-            aggregation_levels={AggregationMode.SESSION},
-            iteration_count=5,
-            iteration_prefix="lvl",
-            module_name="FakeFeature",
-            module_version=SemanticVersion(1, 0)
-        )
-        cls.test_schema = DatasetSchema(
-            name="DatasetSchema", dataset_id=DatasetKey(game_id="GAME_NAME", full_month="01/2025"),
-            game_id="GAME_NAME",  session_ct=100, player_ct=50,
-            filters={}, # TODO : add filters, maybe after this becomes a DatasetFilteringCollection or whatever
-            game_state={},
-            events={},
-            features={"feat1":cls.fake_feature},
-            ogd_version="1.0.0", ogd_revision="123456", event_spec_version="1.0",
-            base_files_location=DirectoryLocationConfig(name="baseloc", folder_path=Path("./")),
-            game_events_file=FileLocationConfig.FromPath(name="gameevents", fullpath=Path("./raw.tsv")),
-            all_events_file=FileLocationConfig.FromPath(name="allevents", fullpath=Path("./events.tsv")),
-            combined_feats_file=FileLocationConfig.FromPath(name="combinedfeats", fullpath=Path("./all_feats.tsv")),
-            sessions_file=FileLocationConfig.FromPath(name="sessionfeats", fullpath=Path("./sessions.tsv")),
-            players_file=FileLocationConfig.FromPath(name="playerfeats", fullpath=Path("./players.tsv")),
-            population_file=FileLocationConfig.FromPath(name="populationfeats", fullpath=Path("./population.tsv")),
-            start_date=date(year=2025, month=1, day=1), end_date=date(year=2025, month=1, day=31), date_modified=date(year=2025, month=2, day=2),
-            other_elements={"foo":"bar"}
-        )
+        raw_json = {}
+        with open("tests/data/schemas/datasets/legacy_file_list.json") as raw_file:
+            raw_json = json.loads(raw_file.read())
+        config = raw_json.get("CONFIG", {})
+        raw_data = raw_json.get("AQUALAB",{}).get("AQUALAB_20260301_to_20260331")
+        cls.test_schema = DatasetSchema.FromDict(name="AQUALAB_20260301_to_20260331", unparsed_elements=raw_data)
+        cls.test_schema.BaseFileLocation = URLLocationConfig.FromString(name="files_loc", raw_url=config.get("files_base", None))
+
+    def test_Key(self):
+        _key = self.test_schema.Key
+        self.assertIsInstance(_key, DatasetKey)
+        self.assertEqual(str(_key), "AQUALAB_20260301_to_20260331")
 
     def test_Name(self):
         _str = self.test_schema.Name
         self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "DatasetSchema")
+        self.assertEqual(_str, "AQUALAB_20260301_to_20260331")
 
     def test_base_loc(self):
         _loc = self.test_schema._base_files_location
         self.assertIsInstance(_loc, LocationConfig)
-        self.assertEqual(_loc, DirectoryLocationConfig(name="baseloc", folder_path=Path("./")))
+        self.assertEqual(_loc, URLLocationConfig.FromString(name="files_loc", raw_url="https://opengamedata.fielddaylab.wisc.edu/"))
 
     def test_SessionCount(self):
         _ct = self.test_schema.SessionCount
         self.assertIsInstance(_ct, int)
-        self.assertEqual(_ct, 100)
+        self.assertEqual(_ct, 6598)
 
     def test_PlayerCount(self):
         _ct = self.test_schema.PlayerCount
-        self.assertIsInstance(_ct, int)
-        self.assertEqual(_ct, 50)
-
-    def test_Features(self):
-        _feats = self.test_schema.Features
-        self.assertIsInstance(_feats, dict)
-        self.assertEqual(set(_feats.keys()), {"feat1"})
-        self.assertEqual(_feats.get("feat1"), self.fake_feature)
+        self.assertIsNone(_ct)
 
     def test_OGDVersion(self):
         _ver = self.test_schema.OGDVersion
         self.assertIsInstance(_ver, SemanticVersion)
-        self.assertEqual(_ver, SemanticVersion(1, 0, 0))
+        self.assertEqual(_ver, DatasetSchema._DEFAULT_OGD_VERSION)
 
     def test_OGDRevision(self):
         _ver = self.test_schema.OGDRevision
-        self.assertIsInstance(_ver, str)
-        self.assertEqual(_ver, "123456")
+        self.assertIsInstance(self.test_schema.OGDRevision, str)
+        self.assertEqual(self.test_schema.OGDRevision, "6705a6d")
 
     def test_EventSpecificationVersion(self):
         _ver = self.test_schema.EventSpecificationVersion
         self.assertIsInstance(_ver, SemanticVersion)
-        self.assertEqual(_ver, SemanticVersion(1, 0))
+        self.assertEqual(_ver, DatasetSchema._DEFAULT_EVENT_VERSION)
 
     def test_GameEventsFile(self):
-        base = "./"
-        loc = "raw.tsv"
+        url = "https://opengamedata.fielddaylab.wisc.edu/"
+        loc = "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_events.zip"
 
         for relative in [False, True]:
             path_type = "Relative" if relative else "Absolute"
-            expected_path = loc if relative else f"{base}{loc}"
+            expected_path = loc if relative else f"{url}{loc}"
             # Test both relative and absolute paths.
             with self.subTest(rel=relative, msg=f"GameEventsFile: {path_type}"):
                 _path = self.test_schema.GameEventsFile(relative=relative)
@@ -129,12 +102,12 @@ class BasicInitCase(TestCase):
                 self.assertEqual(_path, expected_path)
 
     def test_AllEventsFile(self):
-        base = "./"
-        loc = "events.tsv"
+        url = "https://opengamedata.fielddaylab.wisc.edu/"
+        loc = "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_all-events.zip"
 
         for relative in [False, True]:
             path_type = "Relative" if relative else "Absolute"
-            expected_path = loc if relative else f"{base}{loc}"
+            expected_path = loc if relative else f"{url}{loc}"
             # Test both relative and absolute paths.
             with self.subTest(rel=relative, msg=f"AllEventsFile: {path_type}"):
                 _path = self.test_schema.AllEventsFile(relative=relative)
@@ -146,28 +119,22 @@ class BasicInitCase(TestCase):
                 self.assertEqual(_path, expected_path)
 
     def test_CombinedFeaturesFile(self):
-        base = "./"
-        loc = "all_feats.tsv"
-
         for relative in [False, True]:
             path_type = "Relative" if relative else "Absolute"
-            expected_path = loc if relative else f"{base}{loc}"
             # Test both relative and absolute paths.
             with self.subTest(rel=relative, msg=f"CombinedFeaturesFile: {path_type}"):
                 _path = self.test_schema.CombinedFeaturesFile(relative=relative)
-                self.assertIsInstance(_path, str)
-                self.assertEqual(_path, expected_path)
+                self.assertIsNone(_path)
             with self.subTest(rel=False, msg=f"FeaturesFile: {path_type}"):
                 _path = self.test_schema.FeaturesFile(relative=relative)
-                self.assertIsInstance(_path, str)
-                self.assertEqual(_path, expected_path)
+                self.assertIsNone(_path)
 
     def test_SessionsFile(self):
-        base = "./"
-        loc = "sessions.tsv"
+        url = "https://opengamedata.fielddaylab.wisc.edu/"
+        loc = "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_session-features.zip"
 
         for relative in [False, True]:
-            expected_path = loc if relative else f"{base}{loc}"
+            expected_path = loc if relative else f"{url}{loc}"
             path_type = "Relative" if relative else "Absolute"
             # Test both relative and absolute paths.
             with self.subTest(rel=relative, msg=f"SessionsFile: {path_type}"):
@@ -176,11 +143,11 @@ class BasicInitCase(TestCase):
                 self.assertEqual(_path, expected_path)
 
     def test_PlayersFile(self):
-        base = "./"
-        loc = "players.tsv"
+        url = "https://opengamedata.fielddaylab.wisc.edu/"
+        loc = "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_player-features.zip"
 
         for relative in [False, True]:
-            expected_path = loc if relative else f"{base}{loc}"
+            expected_path = loc if relative else f"{url}{loc}"
             path_type = "Relative" if relative else "Absolute"
             # Test both relative and absolute paths.
             with self.subTest(rel=relative, msg=f"PlayersFile: {path_type}"):
@@ -189,11 +156,11 @@ class BasicInitCase(TestCase):
                 self.assertEqual(_path, expected_path)
 
     def test_PopulationFile(self):
-        base = "./"
-        loc = "population.tsv"
+        url = "https://opengamedata.fielddaylab.wisc.edu/"
+        loc = "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_population-features.zip"
 
         for relative in [False, True]:
-            expected_path = loc if relative else f"{base}{loc}"
+            expected_path = loc if relative else f"{url}{loc}"
             path_type = "Relative" if relative else "Absolute"
             # Test both relative and absolute paths.
             with self.subTest(rel=relative, msg=f"PopulationFile: {path_type}"):
@@ -203,12 +170,16 @@ class BasicInitCase(TestCase):
 
     def test_NonStandardElements(self):
         _elems = {
-            "foo":"bar"
+            "events_template": "/tree/aqualab",
+            "players_template": "/tree/aqualab",
+            "population_template": "/tree/aqualab",
+            "sessions_template": "/tree/aqualab",
         }
         self.assertIsInstance(self.test_schema.NonStandardElements, dict)
+        self.assertEqual(set(self.test_schema.NonStandardElements), set(_elems.keys()))
         self.assertEqual(self.test_schema.NonStandardElements, _elems)
 
     def test_NonStandardElementNames(self):
-        _elem_names = ["foo"]
+        _elem_names = ["events_template", "players_template", "population_template", "sessions_template"]
         self.assertIsInstance(self.test_schema.NonStandardElementNames, list)
         self.assertEqual(self.test_schema.NonStandardElementNames, _elem_names)

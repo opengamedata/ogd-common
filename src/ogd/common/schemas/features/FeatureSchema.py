@@ -21,7 +21,7 @@ class FeatureSchema(Schema):
     _DEFAULT_ITER_COUNT     : Final[None]                 = None
     _DEFAULT_ITER_PREFIX    : Final[None]                 = None
     _DEFAULT_MODULE_NAME    : Final[str]                  = "UNKNOWN EXTRACTOR MODULE"
-    _DEFAULT_MODULE_VERSION : Final[SemanticVersion]      = SemanticVersion.FromString("UNKNOWN VERSION")
+    _DEFAULT_MODULE_VERSION : Final[SemanticVersion]      = SemanticVersion(0)
 
     # *** BUILT-INS & PROPERTIES ***
 
