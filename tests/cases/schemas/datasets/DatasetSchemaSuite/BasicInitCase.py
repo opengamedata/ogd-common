@@ -10,6 +10,8 @@ from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocati
 from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
 from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.models.SemanticVersion import SemanticVersion
+from ogd.common.models.features.AggregationMode import AggregationMode
+from ogd.common.schemas.features.FeatureSchema import FeatureSchema
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
@@ -38,11 +40,24 @@ class BasicInitCase(TestCase):
         Since this class currently just tests properties, we go ahead and use a single instance of `Feature` shared across the class.
         If any tests are added that have expected side effects, initialization of the instance should be moved to a `setUp(self)` function.
         """
+        cls.fake_feature = FeatureSchema(
+            name="feat1",
+            feature_name="feat1",
+            description="desc",
+            value_type="str",
+            aggregation_levels={AggregationMode.SESSION},
+            iteration_count=5,
+            iteration_prefix="lvl",
+            module_name="FakeFeature",
+            module_version=SemanticVersion(1, 0)
+        )
         cls.test_schema = DatasetSchema(
             name="DatasetSchema", dataset_id=DatasetKey(game_id="GAME_NAME", full_month="01/2025"),
             game_id="GAME_NAME",  session_ct=100, player_ct=50,
             filters={}, # TODO : add filters, maybe after this becomes a DatasetFilteringCollection or whatever
-            game_state={}, events={}, features={},
+            game_state={},
+            events={},
+            features={"feat1":cls.fake_feature},
             ogd_version="1.0.0", ogd_revision="123456", event_spec_version="1.0",
             base_files_location=DirectoryLocationConfig(name="baseloc", folder_path=Path("./")),
             game_events_file=FileLocationConfig.FromPath(name="gameevents", fullpath=Path("./raw.tsv")),
@@ -74,6 +89,12 @@ class BasicInitCase(TestCase):
         _ct = self.test_schema.PlayerCount
         self.assertIsInstance(_ct, int)
         self.assertEqual(_ct, 50)
+
+    def test_Features(self):
+        _feats = self.test_schema.Features
+        self.assertIsInstance(_feats, dict)
+        self.assertEqual(set(_feats.keys()), {"feat1"})
+        self.assertEqual(_feats.get("feat1"), self.fake_feature)
 
     def test_OGDVersion(self):
         _ver = self.test_schema.OGDVersion
