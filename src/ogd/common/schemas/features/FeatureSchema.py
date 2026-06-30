@@ -27,9 +27,9 @@ class FeatureSchema(Schema):
 
     def __init__(self, name:str,
                  feature_name:Optional[str],    description:Optional[str],
-                 value_type:Optional[str],      aggregation_levels:Optional[Set[AggregationMode]],
+                 value_type:Optional[str],      aggregation_levels:Optional[Set[AggregationMode] | Set[str]],
                  iteration_count:Optional[int], iteration_prefix:Optional[str],
-                 module_name:Optional[str],     module_version:Optional[SemanticVersion],
+                 module_name:Optional[str],     module_version:Optional[SemanticVersion | int | str],
                  other_elements:Optional[Map]=None):
         """Constructor for the `FeatureSchema` class.
         
@@ -73,14 +73,14 @@ class FeatureSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._feature_name       : str                  = self._getFeatureName(raw_val=feature_name, unparsed_elements=unparsed_elements, schema_name=name)
-        self._description        : str                  = self._getDescription(raw_val=description, unparsed_elements=unparsed_elements, schema_name=name)
-        self._value_type         : str                  = self._getValueType(raw_val=value_type, unparsed_elements=unparsed_elements, schema_name=name)
-        self._aggregation_levels : Set[AggregationMode] = self._getAggregationLevels(raw_val=aggregation_levels, unparsed_elements=unparsed_elements, schema_name=name)
-        self._iteration_count    : Optional[int]        = self._getIterationCount(raw_val=iteration_count, unparsed_elements=unparsed_elements, schema_name=name)
-        self._iteration_prefix   : Optional[str]        = self._getIterationPrefix(raw_val=iteration_prefix, unparsed_elements=unparsed_elements, schema_name=name)
-        self._module_name        : str                  = self._getModuleName(raw_val=module_name, unparsed_elements=unparsed_elements, schema_name=name)
-        self._module_version     : SemanticVersion      = self._getModuleVersion(raw_val=module_version, unparsed_elements=unparsed_elements, schema_name=name)
+        self._feature_name       : str                       = self._getFeatureName(raw_val=feature_name, unparsed_elements=unparsed_elements, schema_name=name)
+        self._description        : str                       = self._getDescription(raw_val=description, unparsed_elements=unparsed_elements, schema_name=name)
+        self._value_type         : str                       = self._getValueType(raw_val=value_type, unparsed_elements=unparsed_elements, schema_name=name)
+        self._aggregation_levels : Set[AggregationMode]      = self._getAggregationLevels(raw_val=aggregation_levels, unparsed_elements=unparsed_elements, schema_name=name)
+        self._iteration_count    : Optional[int]             = self._getIterationCount(raw_val=iteration_count, unparsed_elements=unparsed_elements, schema_name=name)
+        self._iteration_prefix   : Optional[str]             = self._getIterationPrefix(raw_val=iteration_prefix, unparsed_elements=unparsed_elements, schema_name=name)
+        self._module_name        : str                       = self._getModuleName(raw_val=module_name, unparsed_elements=unparsed_elements, schema_name=name)
+        self._module_version     : Optional[SemanticVersion] = self._getModuleVersion(raw_val=module_version, unparsed_elements=unparsed_elements, schema_name=name)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -283,26 +283,30 @@ class FeatureSchema(Schema):
         )
 
     @staticmethod
-    def _getModuleVersion(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
-        ret_val : SemanticVersion
+    def _getModuleVersion(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[SemanticVersion]:
+        ret_val : Optional[SemanticVersion]
 
         raw_version = FeatureSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["module_version", "version"],
-            to_type=str,
+            to_type=[SemanticVersion, str, int],
             default_value=FeatureSchema._DEFAULT_MODULE_VERSION,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True
         )
 
-        if isinstance(raw_version, str):
-            ret_val = SemanticVersion.FromString(raw_version)
-        elif not isinstance(raw_version, SemanticVersion):
-            Logger.Log(f"FeatureSchema got raw module version ({raw_version}) of unexpected type {type(raw_version)}, defaulting to use SemanticVersion.FromString(str(raw_version))")
-            ret_val = SemanticVersion.FromString(str(raw_version))
-        else:
-            ret_val = raw_version
+        match raw_version:
+            case SemanticVersion() | None:
+                ret_val = raw_version
+            case str():
+                ret_val = SemanticVersion.FromString(raw_version)
+            case int():
+                ret_val = SemanticVersion(major=raw_version)
+            case _:
+                Logger.Log(f"In FeatureSchema, raw module version was unexpected type {type(raw_version)}, using SemanticVersion.FromString(str(raw_ver))")
+                ret_val = SemanticVersion.FromString(str(raw_version))
 
         return ret_val
 

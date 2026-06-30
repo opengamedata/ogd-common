@@ -281,7 +281,7 @@ class EventSchema(Schema):
     def _getModuleVersion(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[SemanticVersion]:
         ret_val : Optional[SemanticVersion]
 
-        raw_ver = EventSchema.ParseElement(
+        raw_version = EventSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["module_version", "detector_version"],
@@ -291,16 +291,16 @@ class EventSchema(Schema):
             schema_name=schema_name,
             optional_element=True
         )
-        match raw_ver:
+        match raw_version:
             case SemanticVersion() | None:
-                ret_val = raw_ver
+                ret_val = raw_version
             case str():
-                ret_val = SemanticVersion.FromString(raw_ver)
+                ret_val = SemanticVersion.FromString(raw_version)
             case int():
-                ret_val = SemanticVersion(raw_ver)
+                ret_val = SemanticVersion(major=raw_version)
             case _:
-                Logger.Log(f"In EventSchema, raw module version was unexpected type {type(raw_ver)}, using SemanticVersion.FromString(str(raw_ver))")
-                ret_val = SemanticVersion.FromString(str(raw_ver))
+                Logger.Log(f"In EventSchema, raw module version was unexpected type {type(raw_version)}, using SemanticVersion.FromString(str(raw_ver))")
+                ret_val = SemanticVersion.FromString(str(raw_version))
 
         return ret_val
 

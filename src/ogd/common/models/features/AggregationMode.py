@@ -15,3 +15,7 @@ class AggregationMode(IntEnum):
 
     def __str__(self):
         return self.name
+
+    @property
+    def Names(self):
+        return AggregationMode._member_names_
