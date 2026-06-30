@@ -27,7 +27,7 @@ class FeatureSchema(Schema):
 
     def __init__(self, name:str,
                  feature_name:Optional[str],    description:Optional[str],
-                 value_type:Optional[str],      aggregation_levels:Optional[Set[AggregationMode] | Set[str]],
+                 value_type:Optional[str],      aggregation_levels:Optional[Set[AggregationMode] | Set[str] | AggregationMode | str],
                  iteration_count:Optional[int], iteration_prefix:Optional[str],
                  module_name:Optional[str],     module_version:Optional[SemanticVersion | int | str],
                  other_elements:Optional[Map]=None):
@@ -106,7 +106,7 @@ class FeatureSchema(Schema):
     def ModuleName(self) -> str:
         return self._module_name
     @property
-    def ModuleVersion(self) -> SemanticVersion:
+    def ModuleVersion(self) -> Optional[SemanticVersion]:
         return self._module_version
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -232,16 +232,21 @@ class FeatureSchema(Schema):
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["aggregation_levels", "aggregations"],
-            to_type=list,
+            to_type=[AggregationMode, list, str],
             default_value=FeatureSchema._DEFAULT_AGG_LEVELS,
             remove_target=True,
             schema_name=schema_name
         )
-        if isinstance(aggregations, list):
-            ret_val = set(AggregationMode[elem] for elem in aggregations)
-        else:
-            ret_val = set()
-            Logger.Log(f"event_data was unexpected type {type(aggregations)}, defaulting to empty dict.", logging.WARN)
+        match aggregations:
+            case list():
+                ret_val = set(AggregationMode[str(elem)] for elem in aggregations if elem in AggregationMode.Names)
+            case str():
+                ret_val = {AggregationMode[aggregations]} if aggregations in AggregationMode.Names else set()
+            case None:
+                ret_val = set()
+            case _:
+                Logger.Log(f"event_data was unexpected type {type(aggregations)}, defaulting to empty set.", logging.WARN)
+                ret_val = set()
         return ret_val
 
     @staticmethod

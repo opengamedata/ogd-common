@@ -241,7 +241,7 @@ class EventSchema(Schema):
         )
 
     @staticmethod
-    def _getSource(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getSource(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> EventSourceEnum:
         ret_val : EventSourceEnum
 
         raw_source = EventSchema.ParseElement(
@@ -265,7 +265,7 @@ class EventSchema(Schema):
         return ret_val
 
     @staticmethod
-    def _getModuleName(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None):
+    def _getModuleName(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
         return EventSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
