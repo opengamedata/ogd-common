@@ -16,8 +16,8 @@ class EventTableSchema(TableSchema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name,
-                 column_map:Optional[EventMapSchema],
-                 columns:Optional[List[ColumnSchema]],
+                 column_map:Optional[EventMapSchema | typing.Map],
+                 columns:Optional[List[ColumnSchema] | List[typing.Map]],
                  other_elements:Optional[typing.Map]=None
         ):
         """Constructor for the TableSchema class.
@@ -161,14 +161,17 @@ class EventTableSchema(TableSchema):
            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["column_map"],
-            to_type=dict,
+            to_type=[EventMapSchema, dict],
             default_value=None,
             remove_target=True,
             schema_name=schema_name
         )
-        if raw_map:
-            ret_val = EventMapSchema.FromDict(name="ColumnMap", unparsed_elements=raw_map)
-        else:
-            ret_val = EventMapSchema.Default()
+        match raw_map:
+            case EventMapSchema():
+                ret_val = raw_map
+            case dict():
+                ret_val = EventMapSchema.FromDict(name="ColumnMap", unparsed_elements=raw_map)
+            case _:
+                ret_val = EventMapSchema.Default()
 
         return ret_val

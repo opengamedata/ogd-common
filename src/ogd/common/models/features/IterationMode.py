@@ -11,3 +11,7 @@ class IterationMode(IntEnum):
 
     def __str__(self):
         return self.name
+
+    @property
+    def Names(self):
+        return IterationMode._member_names_

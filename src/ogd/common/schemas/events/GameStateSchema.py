@@ -18,7 +18,7 @@ class GameStateSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, game_state:Optional[Dict[str, DataElementSchema]], other_elements:Optional[Map]=None):
+    def __init__(self, name:str, game_state:Optional[Dict[str, DataElementSchema] | Dict[str, Map]], other_elements:Optional[Map]=None):
         """Constructor for the `GameStateSchema` class.
         
         If optional params are not given, data is searched for in `other_elements`.
@@ -128,19 +128,32 @@ class GameStateSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _getGameStateElements(raw_val:Optional[Dict[str, DataElementSchema]], unparsed_elements:Map) -> Dict[str, DataElementSchema]:
+    def _getGameStateElements(raw_val:Any, unparsed_elements:Map) -> Dict[str, DataElementSchema]:
         ret_val : Dict[str, DataElementSchema]
         
-        if raw_val is not None:
-            ret_val = raw_val
-        elif isinstance(unparsed_elements, dict):
-            ret_val = {
-                name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
-                for name,elems in unparsed_elements.items()
-            }
-        else:
-            ret_val = {}
-            Logger.Log(f"unparsed_elements was unexpected type {type(unparsed_elements)}, defaulting to {ret_val}.", logging.WARN)
+        match raw_val:
+            case dict():
+                ret_val = { key : GameStateSchema._getElement(val) for key,val in raw_val.items() }
+            case None:
+                ret_val = {
+                    name : DataElementSchema.FromDict(name=name, unparsed_elements=elems)
+                    for name,elems in unparsed_elements.items()
+                }
+            case _:
+                ret_val = {}
+                Logger.Log(f"unparsed_elements was unexpected type {type(unparsed_elements)}, defaulting to {ret_val}.", logging.WARN)
+        return ret_val
+    
+    @staticmethod
+    def _getElement(element:DataElementSchema | Map) -> DataElementSchema:
+        ret_val : DataElementSchema
+
+        match element:
+            case DataElementSchema():
+                ret_val = element
+            case dict():
+                ret_val = DataElementSchema.FromDict(name=element.get("name", "UNKNOWN ELEMENT"), unparsed_elements=element)
+        
         return ret_val
 
     # *** PRIVATE METHODS ***

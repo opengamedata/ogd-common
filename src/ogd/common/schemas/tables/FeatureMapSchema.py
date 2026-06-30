@@ -1,6 +1,6 @@
 """EventTableSchema Module"""
 # import standard libraries
-from typing import Any, Dict, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 
 # import local files
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapElement
@@ -17,10 +17,17 @@ class FeatureMapSchema(ColumnMapSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    _DEFAULT_FEAT_NAME     : Final[None] = None
+    _DEFAULT_FEAT_TYPE     : Final[None] = None
+    _DEFAULT_GAME_UNIT     : Final[None] = None
+    _DEFAULT_GAME_UNIT_IDX : Final[None] = None
+    _DEFAULT_SUBFEATS      : Final[None] = None
+    _DEFAULT_VALUES        : Final[None] = None
+
     def __init__(self, name:str,
+                 app_id:Optional[ColumnMapElement],       user_id:Optional[ColumnMapElement],         session_id:Optional[ColumnMapElement],
                  feature_name:Optional[ColumnMapElement], feature_type:Optional[ColumnMapElement],
                  game_unit:Optional[ColumnMapElement],    game_unit_index:Optional[ColumnMapElement],
-                 app_id:Optional[ColumnMapElement],       user_id:Optional[ColumnMapElement],         session_id:Optional[ColumnMapElement],
                  subfeatures:Optional[ColumnMapElement],  values:Optional[ColumnMapElement],
                  other_elements:Optional[Map]=None):
         """Constructor for the TableSchema class.
@@ -207,7 +214,7 @@ class FeatureMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["feature_name", "name", "feature"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=FeatureMapSchema._DEFAULT_FEAT_NAME,
             remove_target=False,
             schema_name=schema_name
         )
@@ -219,7 +226,7 @@ class FeatureMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["feature_type", "type"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=FeatureMapSchema._DEFAULT_FEAT_TYPE,
             remove_target=False,
             schema_name=schema_name
         )
@@ -231,7 +238,7 @@ class FeatureMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["game_unit", "prefix"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=FeatureMapSchema._DEFAULT_GAME_UNIT,
             remove_target=False,
             schema_name=schema_name
         )
@@ -243,7 +250,7 @@ class FeatureMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["game_unit_index", "unit", "level"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=FeatureMapSchema._DEFAULT_GAME_UNIT_IDX,
             remove_target=False,
             schema_name=schema_name
         )
@@ -255,7 +262,7 @@ class FeatureMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["subfeatures"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=FeatureMapSchema._DEFAULT_SUBFEATS,
             remove_target=False,
             schema_name=schema_name
         )
@@ -267,7 +274,7 @@ class FeatureMapSchema(ColumnMapSchema):
             unparsed_elements=unparsed_elements,
             valid_keys=["values", "value"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=FeatureMapSchema._DEFAULT_VALUES,
             remove_target=False,
             schema_name=schema_name
         )

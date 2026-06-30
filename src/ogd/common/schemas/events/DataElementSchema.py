@@ -126,7 +126,7 @@ class DataElementSchema(Schema):
     # *** PUBLIC METHODS ***
 
     @classmethod
-    def FromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None)-> "DataElementSchema":
+    def FromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "DataElementSchema":
         """Override of base class function to create an instance of DataElementSchema, from data in a Map (Dict[str, Any])
 
         :param name: The name of the instance.
@@ -144,7 +144,7 @@ class DataElementSchema(Schema):
                 unparsed_elements = {}
                 Logger.Log(f"For EventDataElement config of `{name}`, unparsed_elements was not a dict, defaulting to empty dict", logging.WARN)
 
-        return cls._fromDict(name=name, unparsed_elements=unparsed_elements)
+        return cls._fromDict(name=name, unparsed_elements=unparsed_elements, default_override=default_override)
 
     # *** PRIVATE STATICS ***
     
