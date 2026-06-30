@@ -833,7 +833,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _getAllEventsFile(raw_val:Optional[LocationConfig | Map | Path | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+    def _getAllEventsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
         ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
@@ -863,7 +863,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _getGameEventsFile(raw_val:Optional[LocationConfig | Map | Path | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+    def _getGameEventsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
         ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
@@ -893,7 +893,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _getAllFeaturesFile(raw_val:Optional[LocationConfig | Map | Path | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+    def _getAllFeaturesFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
         ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
@@ -923,7 +923,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _getSessionsFile(raw_val:Optional[LocationConfig | Map | Path | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+    def _getSessionsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
         ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
@@ -953,7 +953,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _getPlayersFile(raw_val:Optional[LocationConfig | Map | Path | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+    def _getPlayersFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
         ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
@@ -983,7 +983,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _getPopulationFile(raw_val:Optional[LocationConfig | Map | Path | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+    def _getPopulationFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
         ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
@@ -1017,7 +1017,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         #endregion
 
     @staticmethod
-    def _getDateModified(raw_val:Optional[date | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[date]:
+    def _getDateModified(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[date]:
         """Function to obtain the modified date from a dictionary.
 
         :param unparsed_elements: _description_
@@ -1045,7 +1045,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _getStartDate(raw_val:Optional[date | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[date]:
+    def _getStartDate(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[date]:
         """Function to obtain the start date from a dictionary.
 
         :param unparsed_elements: _description_
@@ -1073,7 +1073,7 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         return ret_val
 
     @staticmethod
-    def _getEndDate(raw_val:Optional[date | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[date]:
+    def _getEndDate(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[date]:
         """Function to obtain the end date from a dictionary.
 
         :param unparsed_elements: _description_
