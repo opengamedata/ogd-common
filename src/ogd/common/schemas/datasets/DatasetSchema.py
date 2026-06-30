@@ -2,7 +2,7 @@
 import logging
 from datetime import date
 from pathlib import Path
-from typing import Any, Dict, Final, Optional, Self
+from typing import Any, Dict, Final, Mapping, Optional, Self
 
 # ogd imports
 from ogd.common.filters.Filter import Filter
@@ -58,15 +58,15 @@ class DatasetSchema(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     # TODO : overload versions for individual parts of logging spec schema, vs. passing in a whole log spec schema
-    def __init__(self, name:str, game_id:Optional[str],       dataset_id:Optional[DatasetKey],
-                 filters:Optional[Dict[str, str | Filter]],   session_ct:Optional[int],                 player_ct:Optional[int],
-                 game_state:Optional[GameStateSchema | Dict], events:Optional[Dict[str, EventSchema]],  features:Optional[Dict[str, FeatureSchema]],
-                 ogd_version:Optional[SemanticVersion | str], ogd_revision:Optional[str],               event_spec_version:Optional[SemanticVersion | str],
-                 base_files_location:Optional[LocationConfig],
-                 game_events_file:Optional[LocationConfig],   all_events_file:Optional[LocationConfig], combined_feats_file:Optional[LocationConfig],
-                 sessions_file:Optional[LocationConfig],      players_file:Optional[LocationConfig],    population_file:Optional[LocationConfig],
+    def __init__(self, name:str, game_id:Optional[str],             dataset_id:Optional[DatasetKey | str],
+                 filters:Optional[Dict[str, str | Filter]],         session_ct:Optional[int],                       player_ct:Optional[int],
+                 game_state:Optional[GameStateSchema | Map],        events:Optional[Dict[str, EventSchema] | Dict[str, Map]],  features:Optional[Dict[str, FeatureSchema] | Dict[str, Map]],
+                 ogd_version:Optional[SemanticVersion | str | int], ogd_revision:Optional[str],                     event_spec_version:Optional[SemanticVersion | str | int],
+                 base_files_location:Optional[LocationConfig | Map | Path | str],
+                 game_events_file:Optional[LocationConfig | Map | Path | str], all_events_file:Optional[LocationConfig | Map | Path | str], combined_feats_file:Optional[LocationConfig | Map | Path | str],
+                 sessions_file:Optional[LocationConfig | Map | Path | str],    players_file:Optional[LocationConfig | Map | Path | str],    population_file:Optional[LocationConfig | Map | Path | str],
                  # deprecated, compatibility params
-                 start_date:Optional[date|str],  end_date:Optional[date|str], date_modified:Optional[date|str], 
+                 start_date:Optional[date | str],  end_date:Optional[date | str], date_modified:Optional[date | str], 
                  other_elements:Optional[Map]=None):
         """Constructor for the `DatasetSchema` class.
         
@@ -806,195 +806,209 @@ Last modified {self.DateModified.strftime('%m/%d/%Y') if type(self.DateModified)
         #region Parse output info
 
     @staticmethod
-    def _getBaseFileLocation(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+    def _getBaseFileLocation(raw_val:Optional[LocationConfig | Map | Path | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
         ret_val : Optional[LocationConfig]
 
-        path : LocationConfig | Path = DatasetSchema.ParseElement(
+        raw_config : LocationConfig | Path = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["base_file_location"],
-            to_type=[LocationConfig, Path],
+            to_type=[LocationConfig, Path, dict],
             default_value=DatasetSchema._DEFAULT_FILES_LOCATION,
             remove_target=True,
             schema_name=schema_name,
             optional_element=True
         )
-        match path:
+        match raw_config:
             case LocationConfig() | None:
-                ret_val = path
+                ret_val = raw_config
             case Path():
-                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Events", fullpath=path)
+                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Base", fullpath=raw_config)
+            case dict():
+                ret_val = FileLocationConfig.FromDict(name=f"{schema_name}Base", unparsed_elements=raw_config)
             case _:
                 ret_val = None
-                Logger.Log(f"In DatasetSchema, raw file path for all-events file had unexpected type {type(path)}, expected a path! Using {ret_val} instead")
+                Logger.Log(f"In DatasetSchema, raw file path for all-events file had unexpected type {type(raw_config)}, expected a path! Using {ret_val} instead")
 
         return ret_val
 
     @staticmethod
-    def _getAllEventsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+    def _getAllEventsFile(raw_val:Optional[LocationConfig | Map | Path | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
         ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
-        path : LocationConfig | Path = DatasetSchema.ParseElement(
+        raw_config : LocationConfig | Path = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["all_events_file", "events_file"],
-            to_type=[LocationConfig, Path],
+            to_type=[LocationConfig, Path, dict],
             default_value=DatasetSchema._DEFAULT_EVENTS_FILE,
             remove_target=True,
             schema_name=schema_name,
             optional_element=True
         )
-        match path:
+        match raw_config:
             case LocationConfig() | None:
-                ret_val = path
+                ret_val = raw_config
             case Path():
-                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Events", fullpath=path)
+                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Events", fullpath=raw_config)
+            case dict():
+                ret_val = FileLocationConfig.FromDict(name=f"{schema_name}Events", unparsed_elements=raw_config)
             case _:
                 ret_val = None
-                Logger.Log(f"In DatasetSchema, raw file path for all-events file had unexpected type {type(path)}, expected a path! Using {ret_val} instead")
+                Logger.Log(f"In DatasetSchema, raw file path for all-events file had unexpected type {type(raw_config)}, expected a path! Using {ret_val} instead")
 
         return ret_val
 
     @staticmethod
-    def _getGameEventsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+    def _getGameEventsFile(raw_val:Optional[LocationConfig | Map | Path | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
         ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
-        path : LocationConfig | Path  = DatasetSchema.ParseElement(
+        raw_config : LocationConfig | Path  = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["game_events_file", "events_file", "raw_file"],
-            to_type=[LocationConfig, Path],
+            to_type=[LocationConfig, Path, dict],
             default_value=DatasetSchema._DEFAULT_RAW_FILE,
             remove_target=True,
             schema_name=schema_name,
             optional_element=True
         )
-        match path:
+        match raw_config:
             case LocationConfig() | None:
-                ret_val = path
+                ret_val = raw_config
             case Path():
-                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}GameEvents", fullpath=path)
+                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}GameEvents", fullpath=raw_config)
+            case dict():
+                ret_val = FileLocationConfig.FromDict(name=f"{schema_name}GameEvents", unparsed_elements=raw_config)
             case _:
                 ret_val = None
-                Logger.Log(f"In DatasetSchema, raw file path for game-events file had unexpected type {type(path)}, expected a path! Using {ret_val} instead")
+                Logger.Log(f"In DatasetSchema, raw file path for game-events file had unexpected type {type(raw_config)}, expected a path! Using {ret_val} instead")
 
         return ret_val
 
     @staticmethod
-    def _getAllFeaturesFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
-        ret_val : Optional[FileLocationConfig]
+    def _getAllFeaturesFile(raw_val:Optional[LocationConfig | Map | Path | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+        ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
-        path : Path | str = DatasetSchema.ParseElement(
+        raw_config = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["all_features_file", "features_file", "combined_features_file"],
-            to_type=[LocationConfig, Path],
+            to_type=[LocationConfig, Path, dict],
             default_value=DatasetSchema._DEFAULT_COMB_FEATS_FILE,
             remove_target=True,
             schema_name=schema_name,
             optional_element=True
         )
-        match path:
+        match raw_config:
             case LocationConfig() | None:
-                ret_val = path
+                ret_val = raw_config
             case Path():
-                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Features", fullpath=path)
+                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Features", fullpath=raw_config)
+            case dict():
+                ret_val = FileLocationConfig.FromDict(name=f"{schema_name}Features", unparsed_elements=raw_config)
             case _:
                 ret_val = None
-                Logger.Log(f"In DatasetSchema, raw file path for all-features file had unexpected type {type(path)}, expected a path! Using {ret_val} instead")
+                Logger.Log(f"In DatasetSchema, raw file path for all-features file had unexpected type {type(raw_config)}, expected a path! Using {ret_val} instead")
 
         return ret_val
 
     @staticmethod
-    def _getSessionsFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+    def _getSessionsFile(raw_val:Optional[LocationConfig | Map | Path | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
         ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
-        path : LocationConfig | Path = DatasetSchema.ParseElement(
+        raw_config : LocationConfig | Path = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["sessions_file"],
-            to_type=[LocationConfig, Path],
+            to_type=[LocationConfig, Path, dict],
             default_value=DatasetSchema._DEFAULT_SESSIONS_FILE,
             remove_target=True,
             schema_name=schema_name,
             optional_element=True
         )
-        match path:
+        match raw_config:
             case LocationConfig() | None:
-                ret_val = path
+                ret_val = raw_config
             case Path():
-                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Sessions", fullpath=path)
+                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Sessions", fullpath=raw_config)
+            case dict():
+                ret_val = FileLocationConfig.FromDict(name=f"{schema_name}Sessions", unparsed_elements=raw_config)
             case _:
                 ret_val = None
-                Logger.Log(f"In DatasetSchema, raw file path for session features file had unexpected type {type(path)}, expected a path! Using {ret_val} instead")
+                Logger.Log(f"In DatasetSchema, raw file path for session features file had unexpected type {type(raw_config)}, expected a path! Using {ret_val} instead")
 
         return ret_val
 
     @staticmethod
-    def _getPlayersFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+    def _getPlayersFile(raw_val:Optional[LocationConfig | Map | Path | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
         ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
-        path : LocationConfig | Path = DatasetSchema.ParseElement(
+        raw_config : LocationConfig | Path = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["players_file"],
-            to_type=[LocationConfig, Path],
+            to_type=[LocationConfig, Path, dict],
             default_value=DatasetSchema._DEFAULT_PLAYERS_FILE,
             remove_target=True,
             schema_name=schema_name,
             optional_element=True
         )
-        match path:
+        match raw_config:
             case LocationConfig() | None:
-                ret_val = path
+                ret_val = raw_config
             case Path():
-                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Players", fullpath=path)
+                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Players", fullpath=raw_config)
+            case dict():
+                ret_val = FileLocationConfig.FromDict(name=f"{schema_name}Players", unparsed_elements=raw_config)
             case _:
                 ret_val = None
-                Logger.Log(f"In DatasetSchema, raw file path for player features file had unexpected type {type(path)}, expected a path! Using {ret_val} instead")
+                Logger.Log(f"In DatasetSchema, raw file path for player features file had unexpected type {type(raw_config)}, expected a path! Using {ret_val} instead")
 
         return ret_val
 
     @staticmethod
-    def _getPopulationFile(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
+    def _getPopulationFile(raw_val:Optional[LocationConfig | Map | Path | str], unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[LocationConfig]:
         ret_val : Optional[LocationConfig]
 
         # look for file in the outputs section, if it exists.
         outputs_elements = unparsed_elements.get("output", unparsed_elements)
 
-        path : LocationConfig | Path = DatasetSchema.ParseElement(
+        raw_config : LocationConfig | Path = DatasetSchema.ParseElement(
             raw_value=raw_val,
             unparsed_elements=outputs_elements,
             valid_keys=["population_file"],
-            to_type=[LocationConfig, Path],
+            to_type=[LocationConfig, Path, dict],
             default_value=DatasetSchema._DEFAULT_POPULATION_FILE,
             remove_target=True,
             schema_name=schema_name,
             optional_element=True
         )
-        match path:
+        match raw_config:
             case LocationConfig() | None:
-                ret_val = path
+                ret_val = raw_config
             case Path():
-                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Population", fullpath=path)
+                ret_val = FileLocationConfig.FromPath(name=f"{schema_name}Population", fullpath=raw_config)
+            case dict():
+                ret_val = FileLocationConfig.FromDict(name=f"{schema_name}Population", unparsed_elements=raw_config)
             case _:
                 ret_val = None
-                Logger.Log(f"In DatasetSchema, raw file path for population features file had unexpected type {type(path)}, expected a path! Using {ret_val} instead")
+                Logger.Log(f"In DatasetSchema, raw file path for population features file had unexpected type {type(raw_config)}, expected a path! Using {ret_val} instead")
 
         return ret_val
         #endregion
