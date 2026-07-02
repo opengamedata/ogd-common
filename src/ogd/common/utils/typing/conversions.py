@@ -21,17 +21,9 @@ from pandas import Timedelta
 from pandas._libs.tslibs import timestamps, timedeltas
 from dateutil import parser
 ## import local files
+from ogd.common.utils.helpers import Capitalize
+from ogd.common.utils.typing import to
 from ogd.common.utils.Logger import Logger
-
-def Capitalize(value:Any) -> Any:
-    """Stupidly simple little function to convert any given strings to upper case, but allow non-strings to pass through unchanged.
-
-    :param value: A value to be converted to upper case, if it's a string.
-    :type value: Any
-    :return: A capitalized version of `value`, if it was a string, else the original `value`.
-    :rtype: Any
-    """
-    return value.upper() if isinstance(value, str) else value
 
 def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed Element", force_conversion:bool=True) -> Any:
     """Function to convert a given value to a specific type, or to one of a list of acceptable types.
@@ -74,6 +66,9 @@ def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed 
     :return: The result of converting `value` to the desired type, or None if the conversion failed and `force` is set to False.
     :rtype: Any
     """
+    def _valid_to_type(to_type):
+        return isinstance(to_type, type) or isinstance(to_type, str)
+
     ret_val : Any
 
     # 1. short-circuit if we got a value representing null.
@@ -81,9 +76,9 @@ def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed 
         ret_val = None
     # 2. Handle case where there are multiple valid types accepted (i.e. got a list, and everything in list is a type/str)
     elif isinstance(to_type, List):
-        if not all(type(x) in {type, ABCMeta, str} for x in to_type):
+        if not all(_valid_to_type(x) for x in to_type):
             Logger.Log(f"In ConvertToType, some items in list of requested types are not strings or types ({[x for x in to_type if type(x) not in {type, ABCMeta, str}]}). These will be ignored.", logging.DEBUG)
-            to_type = [x for x in to_type if type(x) in {type, ABCMeta, str}]
+            to_type = [x for x in to_type if _valid_to_type(x)]
         found = False
         # for each candidate type, check if value already had that type
         for t in to_type:
@@ -109,287 +104,6 @@ def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed 
         ret_val = _parseToType(value=value, to_type=to_type, name=name, force_conversion=force_conversion)
     return ret_val
 
-def ToBool(name:str, value:Any, force:bool=False) -> Optional[bool]:
-    """Attempt to turn a given value into a bool
-
-    Returns None if the value type was not recognized
-
-    :param name: An identifier for the value, used for debug outputs.
-    :type name: str
-    :param value: The value to parse to a bool representation
-    :type value: Any
-    :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
-        If False, return None when such cases arise. If True, attempt to use `bool` constructor on the `value`.
-        Defaults to False.
-    :type force: bool
-    :return: The bool representation of value, if type of value was recognized, else None
-    :rtype: Optional[bool]
-    """
-    ret_val : Optional[bool]
-
-    match type(value):
-        case builtins.bool:
-            ret_val = value
-        case builtins.int | builtins.float:
-            ret_val = bool(value)
-        case builtins.str:
-            ret_val = BoolFromString(bool_str=value)
-        case _:
-            base_msg : str = f"{name} was unexpected type {type(value)}, expected a bool, float, int, or string!"
-            if force:
-                ret_val = BoolFromString(value)
-                msg = f"{base_msg} Defaulting to BoolFromString(value) == {ret_val}."
-            else:
-                ret_val = None
-                msg = f"{base_msg} Defaulting to None."
-            Logger.Log(msg, logging.WARN)
-    return ret_val
-
-def ToInt(name:str, value:Any, force:bool=False) -> Optional[int]:
-    """Attempt to turn a given value into an int
-
-    Returns None if the value type was not recognized
-
-    :param name: An identifier for the value, used for debug outputs.
-    :type name: str
-    :param value: The value to parse to an int representation
-    :type value: Any
-    :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
-        If False, return None when such cases arise. If True, attempt to use `int` constructor on the `value`, which may raise error.
-        If the constructor errors, None will be returned anyway.
-        Defaults to False.
-    :type force: bool
-    :return: The int representation of value, if type of value was recognized, else None
-    :rtype: Optional[int]
-    """
-    ret_val : Optional[int]
-
-    try:
-        match type(value):
-            case builtins.int:
-                ret_val = value
-            case builtins.float:
-                ret_val = int(round(value))
-                Logger.Log(f"{name} was a float value, rounding to nearest int: {ret_val}.", logging.DEBUG)
-            case builtins.str:
-                ret_val = int(value)
-            case _:
-                base_msg : str = f"{name} was unexpected type {type(value)}, expected a float, int, or string!"
-                if force:
-                    ret_val = int(value)
-                    msg = f"{base_msg} Defaulting to int(value) == {ret_val}."
-                else:
-                    ret_val = None
-                    msg = f"{base_msg} Defaulting to None."
-                Logger.Log(msg, logging.WARN)
-    except ValueError as err:
-        Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to int, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
-        ret_val = None
-    return ret_val
-
-def ToFloat(name:str, value:Any, force:bool=False) -> Optional[float]:
-    """Attempt to turn a given value into a float
-
-    Returns None if the value type was not recognized
-
-    :param name: An identifier for the value, used for debug outputs.
-    :type name: str
-    :param value: The value to parse to a float representation
-    :type value: Any
-    :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
-        If False, return None when such cases arise. If True, attempt to use `float` constructor on the `value`.
-        If the constructor errors, None will be returned anyway.
-        Defaults to False.
-    :type force: bool
-    :return: The float representation of value, if type of value was recognized, else None
-    :rtype: Optional[float]
-    """
-    ret_val : Optional[float]
-
-    try:
-        match type(value):
-            case builtins.float:
-                ret_val = value
-            case builtins.int:
-                ret_val = float(value)
-            case builtins.str:
-                ret_val = float(value)
-            case _:
-                base_msg : str = f"{name} was unexpected type {type(value)}, expected a float, int, or string!"
-                if force:
-                    ret_val = float(value)
-                    msg = f"{base_msg} Defaulting to float(value) == {ret_val}."
-                else:
-                    ret_val = None
-                    msg = f"{base_msg} Defaulting to None."
-                Logger.Log(msg, logging.WARN)
-    except ValueError as err:
-        Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to float, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
-        ret_val = None
-    return ret_val
-
-def ToString(name:str, value:Any) -> str:
-    """Attempt to turn a given value into a str
-
-    Returns None if the value type was not recognized.
-    This is a cheat, relative to other `To<Type>` functions in the class,
-    because anything that is not a string will be converted with str(value).
-
-    :param name: An identifier for the value, used for debug outputs.
-    :type name: str
-    :param value: The value to parse to a str representation
-    :type value: Any
-    :return: The str representation of value, if type of value was recognized, else None
-    :rtype: Optional[str]
-    """
-    ret_val : str
-
-    match type(value):
-        case builtins.str:
-            ret_val = value
-        case _:
-            ret_val = str(value)
-            # Logger.Log(f"{name} was unexpected type {type(value)}, expected a string! Defaulting to str(value) == {ret_val}", logging.WARN)
-    return ret_val
-
-def ToPath(name:str, value:Any, force:bool=False) -> Optional[pathlib.Path]:
-    """Attempt to turn a given value into a path
-
-    Returns None if the value type was not recognized.
-
-    :param name: An identifier for the value, used for debug outputs.
-    :type name: str
-    :param value: The value to parse to a path representation
-    :type value: Any
-    :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
-        If False, return None when such cases arise. If True, attempt to use `Path` constructor on the `value`.
-        If the constructor errors, None will be returned anyway.
-        Defaults to False.
-    :type force: bool
-    :return: The path representation of value, if type of value was recognized, else None
-    :rtype: Optional[path]
-    """
-    ret_val : Optional[pathlib.Path]
-
-    try:
-        match type(value):
-            case dummy if issubclass(dummy, pathlib.Path):
-                ret_val = value
-            case builtins.str:
-                ret_val = pathlib.Path(value)
-            case _:
-                base_msg : str = f"{name} was unexpected type {type(value)}, expected a Path or string!"
-                if force:
-                    ret_val = pathlib.Path(str(value))
-                    msg = f"{base_msg} Defaulting to Path(str(value)) == {ret_val}."
-                else:
-                    ret_val = None
-                    msg = f"{base_msg} Defaulting to None."
-                Logger.Log(msg, logging.WARN)
-    except TypeError as err:
-        Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to Path, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
-        ret_val = None
-    return ret_val
-
-def ToList(name:str, value:Any, force:bool=False) -> Optional[List]:
-    """Attempt to turn a given value into a list
-
-    Returns None if the value type was not recognized.
-
-    :param name: An identifier for the value, used for debug outputs.
-    :type name: str
-    :param value: The value to parse to a list representation
-    :type value: Any
-    :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
-        If False, return None when such cases arise. If True, attempt to use `List` constructor on the `value`.
-        If the constructor errors, None will be returned anyway.
-        Defaults to False.
-    :type force: bool
-    :return: The list representation of value, if type of value was recognized, else None
-    :rtype: Optional[List]
-    """
-    ret_val : Optional[List]
-    try:
-        match type(value):
-            case builtins.list:
-                # if input was a list already, then just give it back. Else, try to load it from string.
-                ret_val = value
-            case builtins.str:
-                if value not in {'None', 'null', ''}: # watch out for nasty corner cases.
-                    ret_val = list(json.loads(value))
-                else:
-                    ret_val = None
-            case _:
-                base_msg : str = f"{name} was unexpected type {type(value)}, expected a list or string!"
-                if force:
-                    ret_val = list(json.loads(str(value)))
-                    msg = f"{base_msg} Defaulting to list(json.loads(str(value))) == {ret_val}."
-                else:
-                    ret_val = None
-                    msg = f"{base_msg} Defaulting to None."
-                Logger.Log(msg, logging.WARN)
-    except JSONDecodeError as err:
-        Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to list, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
-        ret_val = None
-    return ret_val
-
-def ToJSON(name:str, value:Any, force:bool=False, sort:bool=False) -> Optional[Dict]:
-    """Attempt to turn a given value into a JSON-style dictionary
-
-    Returns None if the value type was not recognized.
-
-    .. TODO: Add a 'sanitize' param to purge anything that looks like an IP address or other pii
-
-    :param name: An identifier for the value, used for debug outputs.
-    :type name: str
-    :param value: The value to parse to a JSON representation
-    :type value: Any
-    :param force: Flag for how to handle cases where the type of `value` is not directly handled by the function.  
-        If False, return None when such cases arise. If True, attempt to use `Dict` constructor on the `value`.
-        If the constructor errors, None will be returned anyway.
-        Defaults to False.
-    :type force: bool
-    :return: The JSON representation of value, if type of value was recognized, else None
-    :rtype: Optional[Dict]
-    """
-    ret_val : Optional[Dict]
-    try:
-        match type(value):
-            case builtins.dict:
-                # if input was a dict already, then just give it back. Else, try to load it from string.
-                ret_val = value
-            case builtins.str:
-                if value not in {'None', ''}: # watch out for nasty corner cases.
-                    ret_val = json.loads(value)
-                else:
-                    ret_val = None
-            case _:
-                base_msg : str = f"{name} was unexpected type {type(value)}, expected a dict or string!"
-                if force:
-                    ret_val = json.loads(str(value))
-                    msg = f"{base_msg} Defaulting to json.loads(str(value)) == {ret_val}."
-                else:
-                    ret_val = None
-                    msg = f"{base_msg} Defaulting to None."
-                Logger.Log(msg, logging.WARN)
-    except JSONDecodeError as err:
-        Logger.Log(f"{name} with value '{value}' of type {type(value)} could not be converted to JSON, got the following error:\n{str(err)}\nDefaulting to None", logging.WARN)
-        ret_val = None
-    if sort and ret_val is not None:
-        ret_val = dict(sorted(ret_val.items()))
-    return ret_val
-
-def BoolFromString(bool_str:str) -> bool:
-    ret_val : bool
-
-    match bool_str.upper():
-        case 'TRUE' | 'YES':
-            ret_val = True
-        case 'FALSE' | 'NO':
-            ret_val = False
-        case _:
-            ret_val = bool(bool_str)
-    return ret_val
 
 def DatetimeFromString(time_str:str) -> Optional[datetime.datetime]:
     """_summary_
@@ -455,15 +169,15 @@ def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element", forc
     else:
         match (Capitalize(to_type)):
             case 'BOOL' | builtins.bool:
-                ret_val = ToBool(name=name, value=value, force=force_conversion)
+                ret_val = to.Bool.convert(name=name, value=value, force=force_conversion)
             case 'STR' | builtins.str:
-                ret_val = ToString(name=name, value=value)
+                ret_val = to.String.convert(name=name, value=value)
             case 'INT' | builtins.int:
-                ret_val = ToInt(name=name, value=value, force=force_conversion)
+                ret_val = to.Int.convert(name=name, value=value, force=force_conversion)
             case 'FLOAT' | builtins.float:
-                ret_val = ToFloat(name=name, value=value, force=force_conversion)
+                ret_val = to.Float.convert(name=name, value=value, force=force_conversion)
             case 'PATH' | pathlib.Path:
-                ret_val = ToPath(name=name, value=value, force=force_conversion)
+                ret_val = to.Path.convert(name=name, value=value, force=force_conversion)
             case 'DATE' | datetime.date:
                 ret_val  = time.ToDate(name=name, value=value, force=force_conversion)
             case 'DATETIME' | datetime.datetime:
@@ -473,9 +187,9 @@ def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element", forc
             case 'TIMEZONE' | datetime.timezone:
                 ret_val = time.ToTimezone(name=name, value=value, force=force_conversion)
             case 'JSON' | 'DICT' | builtins.dict | typing.Dict:
-                ret_val = ToJSON(name=name, value=value, force=force_conversion)
+                ret_val = to.JSON.convert(name=name, value=value, force=force_conversion)
             case 'LIST' | builtins.list | typing.List:
-                ret_val = ToList(name=name, value=value, force=force_conversion)
+                ret_val = to.List.convert(name=name, value=value, force=force_conversion)
             case _dummy if isinstance(_dummy, str) and _dummy.startswith('ENUM'):
                 # if the column is supposed to be an enum, for now we just stick with the string.
                 ret_val = str(value)
