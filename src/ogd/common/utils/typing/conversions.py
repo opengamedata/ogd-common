@@ -179,13 +179,13 @@ def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element", forc
             case 'PATH' | pathlib.Path:
                 ret_val = to.Path.convert(name=name, value=value, force=force_conversion)
             case 'DATE' | datetime.date:
-                ret_val  = time.ToDate(name=name, value=value, force=force_conversion)
+                ret_val  = to.Date.convert(name=name, value=value, force=force_conversion)
             case 'DATETIME' | datetime.datetime:
-                ret_val = time.ToDatetime(name=name, value=value, force=force_conversion)
+                ret_val = to.Datetime.convert(name=name, value=value, force=force_conversion)
             case 'TIMEDELTA' | datetime.timedelta:
-                ret_val = time.ToTimedelta(name=name, value=value, force=force_conversion)
+                ret_val = to.Timedelta.convert(name=name, value=value, force=force_conversion)
             case 'TIMEZONE' | datetime.timezone:
-                ret_val = time.ToTimezone(name=name, value=value, force=force_conversion)
+                ret_val = to.Timezone.convert(name=name, value=value, force=force_conversion)
             case 'JSON' | 'DICT' | builtins.dict | typing.Dict:
                 ret_val = to.JSON.convert(name=name, value=value, force=force_conversion)
             case 'LIST' | builtins.list | typing.List:

@@ -367,11 +367,12 @@ class Date(To):
     def convert(name:str, value:Any, force:bool=False) -> Optional[datetime.date]:
         ret_val : Optional[datetime.date]
 
-        if isinstance(value, datetime.date):
-            ret_val = value
-        else:
-            converted = Datetime.convert(name=name, value=value, force=force)
-            ret_val = converted.date() if converted is not None else None
+        match value:
+            case datetime.date():
+                ret_val = value
+            case _:
+                converted = Datetime.convert(name=name, value=value, force=force)
+                ret_val = converted.date() if converted is not None else None
         
         return ret_val
 
@@ -395,16 +396,16 @@ class Datetime(To):
         """
         ret_val : Optional[datetime.datetime]
 
-        match type(value):
-            case datetime.datetime:
+        match value:
+            case datetime.datetime():
                 ret_val = value
-            case datetime.date:
+            case datetime.date():
                 midnight = datetime.datetime.min.time()
                 ret_val = datetime.datetime.combine(date=value, time=midnight)
                 Logger.Log(f"{name} was a date value, defaulting to midnight of the given date: {ret_val}", logging.WARN)
-            case builtins.str:
+            case str():
                 ret_val = Datetime.DatetimeFromString(time_str=value)
-            case timestamps.Timestamp:
+            case timestamps.Timestamp():
                 ret_val = value.to_pydatetime()
             case _:
                 base_msg : str = f"{name} was unexpected type {type(value)}, expected a datetime or string!"
@@ -473,17 +474,17 @@ class Timedelta(To):
         :rtype: Optional[timedelta]
         """
         ret_val : Optional[datetime.timedelta]
-        match type(value):
-            case datetime.timedelta:
+        match value:
+            case datetime.timedelta():
                 ret_val = value
-            case datetime.time:
+            case datetime.time():
                 ret_val = value - datetime.datetime.min.time()
                 Logger.Log(f"{name} was a time value, treating the time is difference from 0: {ret_val}", logging.WARN)
-            case builtins.str:
+            case str():
                 ret_val = Timedelta.TimedeltaParser.FromString(time_str=value)
-            case builtins.int:
+            case int():
                 ret_val = datetime.timedelta(seconds=value)
-            case timedeltas.Timedelta:
+            case timedeltas.Timedelta():
                 ret_val = value.to_pytimedelta()
             case _:
                 base_msg : str = f"{name} was unexpected type {type(value)}, expected a timedelta, time, or string!"
@@ -632,12 +633,12 @@ class Timezone(To):
         :rtype: Optional[timezone]
         """
         ret_val : Optional[datetime.timezone]
-        match type(value):
-            case datetime.timezone:
+        match value:
+            case datetime.timezone():
                 ret_val = value
-            case datetime.timedelta:
+            case datetime.timedelta():
                 ret_val = datetime.timezone(value)
-            case builtins.str:
+            case str():
                 ret_val = Timezone.TimezoneParser.FromString(time_str=value)
             case _:
                 base_msg : str = f"{name} was unexpected type {type(value)}, expected a float, int, or string!"
