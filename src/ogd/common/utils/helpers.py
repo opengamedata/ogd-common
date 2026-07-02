@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from functools import partial
-from typing import Callable, List, TypeVar
+from typing import Any, Callable, List, TypeVar
 from zipfile import ZipFile
 
 import pandas as pd
@@ -11,6 +11,16 @@ def find(compare:T | Callable[[T], bool], in_list:List[T]) -> int:
         y : T = compare
         compare = lambda x : x == y
     return in_list.index(next(elem for elem in in_list if compare(elem)))
+
+def Capitalize(value:Any) -> Any:
+    """Stupidly simple little function to convert any given strings to upper case, but allow non-strings to pass through unchanged.
+
+    :param value: A value to be converted to upper case, if it's a string.
+    :type value: Any
+    :return: A capitalized version of `value`, if it was a string, else the original `value`.
+    :rtype: Any
+    """
+    return value.upper() if isinstance(value, str) else value
 
 
 # paste from feature_utils.py
