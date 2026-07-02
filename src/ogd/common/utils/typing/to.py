@@ -55,12 +55,12 @@ class Bool(To):
         """
         ret_val : Optional[bool]
 
-        match type(value):
-            case builtins.bool:
+        match value:
+            case bool():
                 ret_val = value
-            case builtins.int | builtins.float:
+            case int() | float():
                 ret_val = bool(value)
-            case builtins.str:
+            case str():
                 ret_val = Bool.FromString(bool_str=value)
             case _:
                 base_msg : str = f"{name} was unexpected type {type(value)}, expected a bool, float, int, or string!"
@@ -112,13 +112,13 @@ class Int(To):
         ret_val : Optional[int]
 
         try:
-            match type(value):
-                case builtins.int:
+            match value:
+                case int():
                     ret_val = value
-                case builtins.float:
+                case float():
                     ret_val = int(round(value))
                     Logger.Log(f"{name} was a float value, rounding to nearest int: {ret_val}.", logging.DEBUG)
-                case builtins.str:
+                case str():
                     ret_val = int(value)
                 case _:
                     base_msg : str = f"{name} was unexpected type {type(value)}, expected a float, int, or string!"
@@ -160,12 +160,12 @@ class Float(To):
         ret_val : Optional[float]
 
         try:
-            match type(value):
-                case builtins.float:
+            match value:
+                case float():
                     ret_val = value
-                case builtins.int:
+                case int():
                     ret_val = float(value)
-                case builtins.str:
+                case str():
                     ret_val = float(value)
                 case _:
                     base_msg : str = f"{name} was unexpected type {type(value)}, expected a float, int, or string!"
@@ -203,8 +203,8 @@ class String(To):
         """
         ret_val : str
 
-        match type(value):
-            case builtins.str:
+        match value:
+            case str():
                 ret_val = value
             case _:
                 ret_val = str(value)
@@ -237,10 +237,10 @@ class Path(To):
         ret_val : Optional[pathlib.Path]
 
         try:
-            match type(value):
-                case dummy if issubclass(dummy, pathlib.Path):
+            match value:
+                case pathlib.Path():
                     ret_val = value
-                case builtins.str:
+                case str():
                     ret_val = pathlib.Path(value)
                 case _:
                     base_msg : str = f"{name} was unexpected type {type(value)}, expected a Path or string!"
@@ -281,13 +281,13 @@ class List(To):
         """
         ret_val : Optional[typing.List]
         try:
-            match type(value):
-                case builtins.list:
+            match value:
+                case list():
                     # if input was a list already, then just give it back. Else, try to load it from string.
                     ret_val = value
-                case builtins.set:
+                case set():
                     ret_val = list(value)
-                case builtins.str:
+                case str():
                     if value not in {'None', 'null', ''}: # watch out for nasty corner cases.
                         ret_val = list(json.loads(value))
                     else:
@@ -333,11 +333,11 @@ class JSON(To):
         """
         ret_val : Optional[Dict]
         try:
-            match type(value):
-                case builtins.dict:
+            match value:
+                case dict():
                     # if input was a dict already, then just give it back. Else, try to load it from string.
                     ret_val = value
-                case builtins.str:
+                case str():
                     if value not in {'None', ''}: # watch out for nasty corner cases.
                         ret_val = json.loads(value)
                     else:
