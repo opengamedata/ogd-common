@@ -376,6 +376,10 @@ class Date(To):
         
         return ret_val
 
+    @staticmethod
+    def _supported() -> typing.Set[type | str]:
+        return {datetime.date, datetime.datetime, timestamps.Timestamp, str, "DATE", "DATETIME", "TIMESTAMP", "STR"}
+
 class Datetime(To):
     @staticmethod
     def convert(name:str, value:Any, force:bool=False) -> Optional[datetime.datetime]:
@@ -417,6 +421,10 @@ class Datetime(To):
                     msg = f"{base_msg} Defaulting to None."
                 Logger.Log(msg, logging.WARN)
         return ret_val
+
+    @staticmethod
+    def _supported() -> typing.Set[type | str]:
+        return {datetime.date, datetime.datetime, timestamps.Timestamp, str, "DATE", "DATETIME", "TIMESTAMP", "STR"}
 
     @staticmethod
     def FromString(time_str:str) -> Optional[datetime.datetime]:
@@ -496,6 +504,10 @@ class Timedelta(To):
                     msg = f"{base_msg} Defaulting to None."
                 Logger.Log(msg, logging.WARN)
         return ret_val
+
+    @staticmethod
+    def _supported() -> typing.Set[type | str]:
+        return {datetime.timedelta, datetime.time, timestamps.Timestamp, str, int, "TIMEDELTA", "TIME", "TIMESTAMP", "STR", "INT"}
 
     class TimedeltaParser:
         _PATTERN = None
@@ -650,6 +662,10 @@ class Timezone(To):
                     msg = f"{base_msg} Defaulting to None."
                 Logger.Log(msg, logging.WARN)
         return ret_val
+
+    @staticmethod
+    def _supported() -> typing.Set[type | str]:
+        return {datetime.timezone, datetime.timedelta, str, "TIMEZONE", "TIMEDELTA", "STR"}
 
     class TimezoneParser:
 
