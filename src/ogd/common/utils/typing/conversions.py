@@ -104,43 +104,6 @@ def ConvertToType(value:Any, to_type:str | Type | List[Type], name:str="Unnamed 
         ret_val = _parseToType(value=value, to_type=to_type, name=name, force_conversion=force_conversion)
     return ret_val
 
-
-def DatetimeFromString(time_str:str) -> Optional[datetime.datetime]:
-    """_summary_
-
-    TODO : Move into `time` module
-    TODO : handle null inputs!
-    TODO : handle more date formats, or something. I dunno, copied this from another area where we were parsing dates.
-
-    :param time_str: _description_
-    :type time_str: str
-    :raises ValueError: _description_
-    :raises ValueError: _description_
-    :return: _description_
-    :rtype: datetime.datetime
-    """
-    ret_val : Optional[datetime.datetime] = None
-
-    if time_str == None or time_str == "None" or time_str == "none" or time_str == "null" or time_str == "nan":
-        raise ValueError(f"Got a non-timestamp value of {time_str} when converting a datetime column from data source!")
-
-    # Approach 1: use dateutil parser to parse, assuming an iso format
-    try:
-        ret_val = parser.isoparse(time_str)
-    # Approach 2: if dateutil threw error, try using the general parse
-    except ValueError:
-        Logger.Log(f"Attempted to convert a time string that was not in ISO format: {time_str}, switching to general parser instead!", logging.DEBUG)
-        try:
-            ret_val = parser.parse(time_str)
-        except ValueError:
-            Logger.Log(f"Could not parse timestamp {time_str}, it did not match any expected formats!", logging.WARNING)
-        else:
-            pass
-    else:
-        pass
-
-    return ret_val
-
 def _parseToType(value:Any, to_type:str | Type, name:str="Unnamed Element", force_conversion:bool=False) -> Any:
     """Private function to attempt to parse a value to a specific type.
 
