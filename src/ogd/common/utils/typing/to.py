@@ -404,13 +404,13 @@ class Datetime(To):
                 ret_val = datetime.datetime.combine(date=value, time=midnight)
                 Logger.Log(f"{name} was a date value, defaulting to midnight of the given date: {ret_val}", logging.WARN)
             case str():
-                ret_val = Datetime.DatetimeFromString(time_str=value)
+                ret_val = Datetime.FromString(time_str=value)
             case timestamps.Timestamp():
                 ret_val = value.to_pydatetime()
             case _:
                 base_msg : str = f"{name} was unexpected type {type(value)}, expected a datetime or string!"
                 if force:
-                    ret_val = Datetime.DatetimeFromString(str(value))
+                    ret_val = Datetime.FromString(str(value))
                     msg = f"{base_msg} Defaulting to DatetimeFromString(str(value)) == {ret_val}."
                 else:
                     ret_val = None
@@ -419,7 +419,7 @@ class Datetime(To):
         return ret_val
 
     @staticmethod
-    def DatetimeFromString(time_str:str) -> Optional[datetime.datetime]:
+    def FromString(time_str:str) -> Optional[datetime.datetime]:
         """_summary_
 
         TODO : Move into `time` module
