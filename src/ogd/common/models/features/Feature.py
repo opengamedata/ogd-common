@@ -219,48 +219,48 @@ class Feature(GameData):
         fname = schema.ColumnValueFromRow(row=row, mapping=schema.Map.FeatureNameColumn, concatenator=".",
                                           column_name="feature_name", expected_type=str, fallback=fallbacks.get("feature_name"))
         if not isinstance(fname, str):
-            fname = conversions.ToString(name="feature_name", value=fname)
+            fname = conversions.to.String.convert(name="feature_name", value=fname)
 
         ftype = schema.ColumnValueFromRow(row=row, mapping=schema.Map.FeatureTypeColumn, concatenator=".",
                                           column_name="feature_type", expected_type=str, fallback=fallbacks.get("feature_type"))
         if not isinstance(ftype, str):
-            feat_name = conversions.ToString(name="feature_type", value=ftype)
+            feat_name = conversions.to.String.convert(name="feature_type", value=ftype)
 
         # 2. Get game unit info
         unit = schema.ColumnValueFromRow(row=row, mapping=schema.Map.GameUnitColumn, concatenator=".",
                                          column_name="game_unit", expected_type=str, fallback=fallbacks.get("game_unit"))
         if not isinstance(feat_name, str):
-            unit = conversions.ToString(name="game_unit", value=unit)
+            unit = conversions.to.String.convert(name="game_unit", value=unit)
 
         unit_index = schema.ColumnValueFromRow(row=row, mapping=schema.Map.GameUnitIndexColumn, concatenator=".",
                                               column_name="game_unit_index", expected_type=str, fallback=fallbacks.get("game_unit_index"))
         if not isinstance(feat_name, str):
-            unit_index = conversions.ToInt(name="game_unit_index", value=unit_index)
+            unit_index = conversions.to.Int.convert(name="game_unit_index", value=unit_index)
 
         # 3. Get ID data
         app_id = schema.ColumnValueFromRow(row=row, mapping=schema.Map.AppIDColumn, concatenator=".",
                                            column_name="app_id", expected_type=str, fallback=fallbacks.get("app_id"))
         if not isinstance(app_id, str):
-            app_id = conversions.ToString(name="app_id", value=app_id)
+            app_id = conversions.to.String.convert(name="app_id", value=app_id)
 
         user_id = schema.ColumnValueFromRow(row=row, mapping=schema.Map.UserIDColumn, concatenator=".",
                                             column_name="user_id", expected_type=str, fallback=fallbacks.get("user_id"))
         if user_id is not None and not isinstance(user_id, str):
-            user_id = conversions.ToString(name="user_id", value=user_id)
+            user_id = conversions.to.String.convert(name="user_id", value=user_id)
 
         sess_id = schema.ColumnValueFromRow(row=row, mapping=schema.Map.SessionIDColumn, concatenator=".",
                                             column_name="sess_id", expected_type=str, fallback=fallbacks.get("session_id"))
         if not isinstance(sess_id, str):
-            sess_id = conversions.ToString(name="session_id", value=sess_id)
+            sess_id = conversions.to.String.convert(name="session_id", value=sess_id)
 
         # 4. Get feature-specific data
         raw_subs = schema.ColumnValueFromRow(row=row, mapping=schema.Map.SubfeaturesColumn, concatenator=", ",
                                             column_name="subfeatures", expected_type=list, fallback=fallbacks.get('subfeatures'))
-        subfeats = conversions.ToList(name="subfeatures", value=raw_subs, force=True) or []
+        subfeats = conversions.to.List.convert(name="subfeatures", value=raw_subs, force=True) or []
 
         raw_vals = schema.ColumnValueFromRow(row=row, mapping=schema.Map.ValuesColumn, concatenator=", ",
                                             column_name="values", expected_type=list, fallback=fallbacks.get('values'))
-        vals = conversions.ToList(name="values", value=raw_vals, force=True) or []
+        vals = conversions.to.List.convert(name="values", value=raw_vals, force=True) or []
 
         ret_val = Feature(name=fname, feature_type=ftype,
                        game_unit=unit, game_unit_index=unit_index,
