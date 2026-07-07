@@ -362,17 +362,17 @@ class Event(GameData):
         app_id = schema.ColumnValueFromRow(row=row, mapping=schema.Map.AppIDColumn, concatenator=".",
                                            column_name="app_id", expected_type=str, fallback=fallbacks.get("app_id"))
         if not isinstance(app_id, str):
-            app_id = conversions.ToString(name="app_id", value=app_id)
+            app_id = conversions.to.String.convert(name="app_id", value=app_id)
 
         user_id = schema.ColumnValueFromRow(row=row, mapping=schema.Map.UserIDColumn, concatenator=".",
                                             column_name="user_id", expected_type=str, fallback=fallbacks.get("user_id"))
         if user_id is not None and not isinstance(user_id, str):
-            user_id = conversions.ToString(name="user_id", value=user_id)
+            user_id = conversions.to.String.convert(name="user_id", value=user_id)
 
         sess_id = schema.ColumnValueFromRow(row=row, mapping=schema.Map.SessionIDColumn, concatenator=".",
                                             column_name="sess_id", expected_type=str, fallback=fallbacks.get("session_id"))
         if not isinstance(sess_id, str):
-            sess_id = conversions.ToString(name="session_id", value=sess_id)
+            sess_id = conversions.to.String.convert(name="session_id", value=sess_id)
         if cls._latest_session != sess_id:
             cls._latest_session = sess_id
             cls._next_index = 0
@@ -392,29 +392,29 @@ class Event(GameData):
         app_br = schema.ColumnValueFromRow(row=row, mapping=schema.Map.AppBranchColumn, concatenator=".",
                                            column_name="app_br", expected_type=str, fallback=fallbacks.get('app_branch'))
         if not isinstance(app_br, str):
-            app_br = conversions.ToString(name="app_branch", value=app_br)
+            app_br = conversions.to.String.convert(name="app_branch", value=app_br)
 
         # 3. Get sequencing data
         tstamp  = schema.ColumnValueFromRow(row=row, mapping=schema.Map.TimestampColumn, concatenator=".",
                                             column_name="timestamp", expected_type=datetime, fallback=None)
         if not isinstance(tstamp, datetime):
-            tstamp = conversions.time.ToDatetime(name="timestamp", value=tstamp, force=True)
+            tstamp = conversions.to.Datetime.convert(name="timestamp", value=tstamp, force=True)
 
         offset = schema.ColumnValueFromRow(row=row, mapping=schema.Map.TimeOffsetColumn, concatenator=".",
                                            column_name="offset", expected_type=str, fallback=fallbacks.get('time_offset'))
         if isinstance(offset, timedelta):
-            offset = conversions.time.ToTimezone(name="offset", value=offset, force=True)
+            offset = conversions.to.Timezone.convert(name="offset", value=offset, force=True)
 
         event_index = schema.ColumnValueFromRow(row=row, mapping=schema.Map.EventSequenceIndexColumn, concatenator=".",
                                                 column_name="index", expected_type=int, fallback=fallbacks.get('event_sequence_index', cls._next_index))
         if not isinstance(event_index, int):
-            event_index = conversions.ToInt(name="event_sequence_index", value=event_index or cls._next_index, force=True)
+            event_index = conversions.to.Int.convert(name="event_sequence_index", value=event_index or cls._next_index, force=True)
 
         # 4. Get event-specific data
         ename   = schema.ColumnValueFromRow(row=row, mapping=schema.Map.EventNameColumn, concatenator=".",
                                             column_name="ename", expected_type=str, fallback=fallbacks.get('event_name'))
         if not isinstance(ename, str):
-            ename = conversions.ToString(name="event_name", value=ename)
+            ename = conversions.to.String.convert(name="event_name", value=ename)
 
         esrc = schema.ColumnValueFromRow(row=row, mapping=schema.Map.EventSourceColumn, concatenator=".",
                                          column_name="esrc", expected_type=str, fallback=fallbacks.get('event_source', EventSource.GAME))
@@ -423,7 +423,7 @@ class Event(GameData):
 
         raw_data = schema.ColumnValueFromRow(row=row, mapping=schema.Map.EventDataColumn, concatenator=".",
                                              column_name="edata", expected_type=dict, fallback=fallbacks.get('event_data'))
-        edata   = conversions.ToJSON(name="event_data", value=raw_data, force=True, sort=True) or {}
+        edata   = conversions.to.JSON.convert(name="event_data", value=raw_data, force=True, sort=True) or {}
 
         # 5. Get context data
 
@@ -432,7 +432,7 @@ class Event(GameData):
 
         raw_state = schema.ColumnValueFromRow(row=row, mapping=schema.Map.GameStateColumn, concatenator=".",
                                             column_name="state", expected_type=dict, fallback=fallbacks.get('game_state'))
-        state     = conversions.ToJSON(name="game_state", value=raw_state, force=True, sort=True) or {}
+        state     = conversions.to.JSON.convert(name="game_state", value=raw_state, force=True, sort=True) or {}
 
         ret_val = Event(app_id=app_id, user_id=user_id, session_id=sess_id,
                         timestamp=tstamp, time_offset=offset, event_sequence_index=event_index,
