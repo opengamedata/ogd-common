@@ -6,7 +6,7 @@ from ogd.common.schemas.Schema import Schema
 
 # local imports
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 # Simple class to manage a mapping of dataset names to dataset schemas.
 class DatasetCollectionSchema(Schema):
@@ -20,7 +20,7 @@ class DatasetCollectionSchema(Schema):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, datasets:Optional[Dict[str, DatasetSchema]], other_elements:Dict[str, Any]):
+    def __init__(self, name:str, datasets:Optional[Dict[str, DatasetSchema] | Dict[str, Map]], other_elements:Dict[str, Any]):
         """Constructor for the `DatasetCollectionSchema` class.
         
         If optional params are not given, data is searched for in `other_elements`.
@@ -52,7 +52,7 @@ class DatasetCollectionSchema(Schema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._datasets : Dict[str, DatasetSchema] = datasets if datasets is not None else self._parseDatasets(unparsed_elements=unparsed_elements)
+        self._datasets : Dict[str, DatasetSchema] = self._getDatasets(raw_val=datasets, unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements={})
 
@@ -69,6 +69,12 @@ class DatasetCollectionSchema(Schema):
     def AsMarkdown(self) -> str:
         ret_val : str = self.Name
         return ret_val
+
+    @property
+    def AsDict(self) -> JSONMap:
+        return {
+            key:val.AsDict for key,val in self.Datasets.items()
+        }
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "DatasetCollectionSchema":
@@ -100,13 +106,22 @@ class DatasetCollectionSchema(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseDatasets(unparsed_elements:Map) -> Dict[str, DatasetSchema]:
+    def _getDatasets(raw_val:Optional[Dict[str, DatasetSchema] | Dict[str, Map]], unparsed_elements:Map) -> Dict[str, DatasetSchema]:
         ret_val : Dict[str, DatasetSchema]
 
-        ret_val = {
-            key : DatasetSchema.FromDict(name=key, unparsed_elements=val)
-            for key,val in unparsed_elements.items()
-        }
+        match raw_val:
+            case dict():
+                ret_val = {
+                    key : (val if isinstance(val, DatasetSchema) else DatasetSchema.FromDict(name=key, unparsed_elements=val))
+                    for key,val in raw_val.items()
+                }
+            case None:
+                ret_val = {}
+            case _:
+                ret_val = {
+                    key : DatasetSchema.FromDict(name=key, unparsed_elements=val)
+                    for key,val in unparsed_elements.items()
+                }
 
         return ret_val
 

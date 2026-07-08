@@ -1,5 +1,5 @@
 ## import standard libraries
-from typing import Dict, List, Optional, Self
+from typing import Dict, List, Optional, Self, Any
 ## import local files
 from ogd.common.schemas.tables.ColumnSchema import ColumnSchema
 from ogd.common.schemas.tables.TableSchema import TableSchema
@@ -16,8 +16,8 @@ class EventTableSchema(TableSchema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name,
-                 column_map:Optional[EventMapSchema],
-                 columns:Optional[List[ColumnSchema]],
+                 column_map:Optional[EventMapSchema | typing.Map],
+                 columns:Optional[List[ColumnSchema] | List[typing.Map]],
                  other_elements:Optional[typing.Map]=None
         ):
         """Constructor for the TableSchema class.
@@ -61,7 +61,7 @@ class EventTableSchema(TableSchema):
         """
         unparsed_elements : typing.Map = other_elements or {}
 
-        self._column_map : EventMapSchema = column_map or self._parseColumnMap(unparsed_elements=unparsed_elements, schema_name=name)
+        self._column_map : EventMapSchema = self._getColumnMap(raw_val=column_map, unparsed_elements=unparsed_elements, schema_name=name)
         # a couple other vars used in the row->event conversion
         self._latest_session : Optional[str] = None
         self._next_index     : int           = 0
@@ -154,20 +154,24 @@ class EventTableSchema(TableSchema):
     # *** PRIVATE METHODS ***
 
     @staticmethod
-    def _parseColumnMap(unparsed_elements:typing.Map, schema_name:Optional[str]=None) -> EventMapSchema:
+    def _getColumnMap(raw_val: Any, unparsed_elements:typing.Map, schema_name:Optional[str]=None) -> EventMapSchema:
         ret_val : EventMapSchema
 
         raw_map = TableSchema.ParseElement(
+           raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["column_map"],
-            to_type=dict,
+            to_type=[EventMapSchema, dict],
             default_value=None,
             remove_target=True,
             schema_name=schema_name
         )
-        if raw_map:
-            ret_val = EventMapSchema.FromDict(name="ColumnMap", unparsed_elements=raw_map)
-        else:
-            ret_val = EventMapSchema.Default()
+        match raw_map:
+            case EventMapSchema():
+                ret_val = raw_map
+            case dict():
+                ret_val = EventMapSchema.FromDict(name="ColumnMap", unparsed_elements=raw_map)
+            case _:
+                ret_val = EventMapSchema.Default()
 
         return ret_val

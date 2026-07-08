@@ -1,21 +1,19 @@
 # import standard libraries
-import builtins
-from typing import Dict, Final, LiteralString, Optional, Self
+from typing import Any, Dict, Final, LiteralString, Optional, Self
 # import local files
 from ogd.common.schemas.Schema import Schema
 from ogd.common.configs.storage.DatasetRepositoryConfig import DataStoreConfig
 from ogd.common.schemas.tables.TableSchemaFactory import TableSchemaFactory
 from ogd.common.schemas.tables import TableSchema as ts
-from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
-from ogd.common.schemas.locations.DatabaseLocationSchema import DatabaseLocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.configs.locations.DatabaseLocationConfig import DatabaseLocationConfig
+from ogd.common.utils.typing import Map, JSONMap
 
 class DataTableConfig(Schema):
     """A simple Schema structure containing configuration for a specific table of data.
 
     It principally contains 3 key components:
     1. `StoreConfig` : The DataStoreConfig that specifies the storage resource containing the configured table.
-    2. `Location`    : The LocationSchema that specifies the location of the configured table within the storage resource.
+    2. `Location`    : The LocationConfig that specifies the location of the configured table within the storage resource.
     3. `TableSchema` : The TableSchema that specifies the structure of the configured table.
     
     When given to an interface, this schema is treated as a specification of the table from which to retrieve data.
@@ -25,11 +23,11 @@ class DataTableConfig(Schema):
     .. TODO : Implement and use a smart Load(...) function of TableConfig to load schema from given name, rather than FromFile.
     """
 
-    _DEFAULT_STORE_NAME       : Final[LiteralString] = "OPENGAMEDATA_BQ"
+    _DEFAULT_STORE_NAME        : Final[LiteralString] = "OPENGAMEDATA_BQ"
     _DEFAULT_TABLE_SCHEMA_NAME : Final[LiteralString] = "OPENGAMEDATA_BIGQUERY"
     _DEFAULT_DB_NAME           : Final[LiteralString] = "UNKNOWN GAME"
     _DEFAULT_TABLE_NAME        : Final[LiteralString] = "_daily"
-    _DEFAULT_TABLE_LOC         : Final[DatabaseLocationSchema] = DatabaseLocationSchema(
+    _DEFAULT_TABLE_LOC         : Final[DatabaseLocationConfig] = DatabaseLocationConfig(
         name="DefaultTableLocation",
         database_name=_DEFAULT_DB_NAME,
         table_name=_DEFAULT_TABLE_NAME
@@ -39,7 +37,7 @@ class DataTableConfig(Schema):
 
     def __init__(self, name:str,
                  store:Optional[DataStoreConfig | str], table_schema:Optional[ts.TableSchema | str],
-                 table_location:Optional[DatabaseLocationSchema],
+                 table_location:Optional[DatabaseLocationConfig],
                  data_stores:Dict[str, DataStoreConfig]={},
                  other_elements:Optional[Map]=None):
         """Constructor for the `DataTableConfig` class.
@@ -66,7 +64,7 @@ class DataTableConfig(Schema):
         :param schema_name: _description_
         :type schema_name: Optional[str]
         :param table_location: _description_
-        :type table_location: Optional[DatabaseLocationSchema]
+        :type table_location: Optional[DatabaseLocationConfig]
         :param other_elements: _description_
         :type other_elements: Optional[Map]
         """
@@ -77,21 +75,21 @@ class DataTableConfig(Schema):
         self._store_config   : Optional[DataStoreConfig]
         self._schema_name    : str
         self._table_schema   : ts.TableSchema
-        self._table_location : DatabaseLocationSchema
+        self._table_location : DatabaseLocationConfig
 
         if isinstance(store, DataStoreConfig):
             self._store_config = store
             self._store_name   = store.Name
         else:
-            self._store_name   = store if store is not None else self._parseStoreName(unparsed_elements=unparsed_elements, schema_name=name)
+            self._store_name   = self._getStoreName(raw_val=store, unparsed_elements=unparsed_elements, schema_name=name)
             self._store_config = data_stores.get(self._store_name)
         if isinstance(table_schema, ts.TableSchema):
             self._table_schema = table_schema
             self._schema_name  = table_schema.Name
         else:
-            self._schema_name  = table_schema if table_schema is not None else self._parseTableSchemaName(unparsed_elements=unparsed_elements, schema_name=name)
+            self._schema_name  = self._getTableSchemaName(raw_val=table_schema, unparsed_elements=unparsed_elements, schema_name=name)
             self._table_schema = TableSchemaFactory.FromFile(filename=self._schema_name)
-        self._table_location = table_location if table_location is not None else self._parseTableLocation(unparsed_elements=unparsed_elements)
+        self._table_location = self._getTableLocation(raw_val=table_location, unparsed_elements=unparsed_elements)
 
         super().__init__(name=name, other_elements=other_elements)
 
@@ -146,15 +144,15 @@ class DataTableConfig(Schema):
         self._table_schema = schema
 
     @property
-    def TableLocation(self) -> DatabaseLocationSchema:
-        """The DatabaseLocationSchema for this DataTableConfig.
+    def TableLocation(self) -> DatabaseLocationConfig:
+        """The DatabaseLocationConfig for this DataTableConfig.
 
-        This DatabaseLocationSchema contains information on how to locate the configured data table within its data store.
+        This DatabaseLocationConfig contains information on how to locate the configured data table within its data store.
 
-        .. TODO: Allow other types of location, not every data store is a database. For now, when using non-database stores, the DatabaseLocationSchema can simply be interpreted as containing e.g. the sheet (in an Excel file) within a file, or file within a folder.
+        .. TODO: Allow other types of location, not every data store is a database. For now, when using non-database stores, the DatabaseLocationConfig can simply be interpreted as containing e.g. the sheet (in an Excel file) within a file, or file within a folder.
 
         :return: _description_
-        :rtype: DatabaseLocationSchema
+        :rtype: DatabaseLocationConfig
         """
         return self._table_location
 
@@ -184,6 +182,15 @@ class DataTableConfig(Schema):
 
         ret_val = f"{self.Name}: _{self.TableSchemaName}_ format, source {self.StoreName} : {self.TableLocation.Location}"
         return ret_val
+
+    @property
+    def AsDict(self) -> JSONMap:
+        return {
+            "store":self.StoreName,
+            "table_schema":self.TableSchemaName,
+            "database":self.DatabaseName,
+            "table":self.TableName
+        }
 
     @classmethod
     def Default(cls) -> "DataTableConfig":
@@ -225,8 +232,9 @@ class DataTableConfig(Schema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseStoreName(unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
+    def _getStoreName(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
         return DataTableConfig.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["source", "source_name", "store", "store_name"],
             to_type=str,
@@ -236,8 +244,9 @@ class DataTableConfig(Schema):
         )
 
     @staticmethod
-    def _parseTableSchemaName(unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
+    def _getTableSchemaName(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> str:
         return DataTableConfig.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["table_schema", "schema"],
             to_type=str,
@@ -247,11 +256,18 @@ class DataTableConfig(Schema):
         )
 
     @staticmethod
-    def _parseTableLocation(unparsed_elements:Map) -> DatabaseLocationSchema:
-        return DatabaseLocationSchema.FromDict(
-            name="TableLocation",
-            unparsed_elements=unparsed_elements,
-            default_override=DataTableConfig._DEFAULT_TABLE_LOC
-        )
+    def _getTableLocation(raw_val:Optional[DatabaseLocationConfig], unparsed_elements:Map) -> DatabaseLocationConfig:
+        ret_val : DatabaseLocationConfig
+
+        if raw_val is not None:
+            ret_val = raw_val
+        else:
+            ret_val = DatabaseLocationConfig.FromDict(
+                name="TableLocation",
+                unparsed_elements=unparsed_elements,
+                default_override=DataTableConfig._DEFAULT_TABLE_LOC
+            )
+
+        return ret_val
 
     # *** PRIVATE METHODS ***

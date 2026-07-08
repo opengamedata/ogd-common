@@ -1,0 +1,90 @@
+{
+    "CONFIG": {
+        "files_base": "https://opengamedata.fielddaylab.wisc.edu/",
+        "templates_base": "https://github.com/opengamedata/opengamedata-templates"
+    },
+    "AQUALAB": {
+        "AQUALAB_20210411_to_20210413": {
+            "date_modified": "04/14/2022",
+            "end_date": "04/13/2021",
+            "events_file": "data/AQUALAB/AQUALAB_20210411_to_20210413_bef3f8f_events.zip",
+            "events_template": "/tree/aqualab/",
+            "ogd_revision": "bef3f8f",
+            "players_file": "data/AQUALAB/AQUALAB_20210411_to_20210413_bef3f8f_player-features.zip",
+            "players_template": "/tree/aqualab/",
+            "population_file": "data/AQUALAB/AQUALAB_20210411_to_20210413_bef3f8f_population-features.zip",
+            "population_template": "/tree/aqualab/",
+            "raw_file": null,
+            "sessions": 0,
+            "sessions_file": "data/AQUALAB/AQUALAB_20210411_to_20210413_bef3f8f_session-features.zip",
+            "sessions_template": "/tree/aqualab/",
+            "start_date": "04/11/2021"
+        },
+        "AQUALAB_20260301_to_20260331": {
+            "date_modified": "05/08/2026",
+            "end_date": "03/31/2026",
+            "events_file": "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_all-events.zip",
+            "events_template": "/tree/aqualab",
+            "ogd_revision": "6705a6d",
+            "players_file": "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_player-features.zip",
+            "players_template": "/tree/aqualab",
+            "population_file": "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_population-features.zip",
+            "population_template": "/tree/aqualab",
+            "raw_file": "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_events.zip",
+            "sessions": 6598,
+            "sessions_file": "data/AQUALAB/AQUALAB_20260301_to_20260331_6705a6d_session-features.zip",
+            "sessions_template": "/tree/aqualab",
+            "start_date": "03/01/2026"
+        },
+        "AQUALAB_20260401_to_20260430": {
+            "date_modified": "05/08/2026",
+            "end_date": "04/30/2026",
+            "events_file": "data/AQUALAB/AQUALAB_20260401_to_20260430_6705a6d_all-events.zip",
+            "events_template": "/tree/aqualab",
+            "ogd_revision": "6705a6d",
+            "players_file": "data/AQUALAB/AQUALAB_20260401_to_20260430_6705a6d_player-features.zip",
+            "players_template": "/tree/aqualab",
+            "population_file": "data/AQUALAB/AQUALAB_20260401_to_20260430_6705a6d_population-features.zip",
+            "population_template": "/tree/aqualab",
+            "raw_file": "data/AQUALAB/AQUALAB_20260401_to_20260430_6705a6d_events.zip",
+            "sessions": 5324,
+            "sessions_file": "data/AQUALAB/AQUALAB_20260401_to_20260430_6705a6d_session-features.zip",
+            "sessions_template": "/tree/aqualab",
+            "start_date": "04/01/2026"
+        }
+    },
+    "BACTERIA": {
+        "BACTERIA_20190901_to_20190930": {
+            "date_modified": "12/14/2021",
+            "end_date": "09/30/2019",
+            "events_file": "data/BACTERIA/BACTERIA_20190901_to_20190930_10bbaaf_events.zip",
+            "events_template": "",
+            "ogd_revision": "10bbaaf",
+            "players_file": null,
+            "players_template": null,
+            "population_file": null,
+            "population_template": null,
+            "raw_file": null,
+            "sessions": 2280,
+            "sessions_file": null,
+            "sessions_template": null,
+            "start_date": "09/01/2019"
+        },
+        "BACTERIA_20260401_to_20260430": {
+            "date_modified": "05/02/2026",
+            "end_date": "04/30/2026",
+            "events_file": "data/BACTERIA/BACTERIA_20260401_to_20260430_c82c4a3_events.zip",
+            "events_template": "/tree/bacteria",
+            "ogd_revision": "c82c4a3",
+            "players_file": null,
+            "players_template": null,
+            "population_file": null,
+            "population_template": null,
+            "raw_file": "data/BACTERIA/BACTERIA_20260401_to_20260430_c82c4a3_events.zip",
+            "sessions": 5314,
+            "sessions_file": null,
+            "sessions_template": null,
+            "start_date": "04/01/2026"
+        }
+    }
+}

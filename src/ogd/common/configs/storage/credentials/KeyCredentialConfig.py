@@ -1,30 +1,32 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Final, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.storage.credentials.CredentialConfig import CredentialConfig
-from ogd.common.schemas.locations.FileLocationSchema import FileLocationSchema
+from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 class KeyCredential(CredentialConfig):
     """Dumb struct to contain data pertaining to loading a key credential
     """
     _DEFAULT_PATH     : Final[Path]               = Path("./")
     _DEFAULT_FILE     : Final[str]                = "key.txt"
-    _DEFAULT_LOCATION : Final[FileLocationSchema] = FileLocationSchema(
+    _DEFAULT_LOCATION : Final[FileLocationConfig] = FileLocationConfig(
         name="KeyCredentialDefaultLocation",
         folder_path=_DEFAULT_PATH,
         filename=_DEFAULT_FILE,
         other_elements=None
     )
 
-    def __init__(self, name:str, location:Optional[FileLocationSchema | Map | str | Path], other_elements:Optional[Map]=None):
+    def __init__(self, name:str, location:Optional[FileLocationConfig | Map | str | Path], other_elements:Optional[Map]=None):
         """Constructor for the `KeyCredentialConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
 
         Expected format:
+
+        TODO : expected format isn't really what's expected anymore, need to address this.
 
         ```
         {
@@ -36,13 +38,13 @@ class KeyCredential(CredentialConfig):
         :param name: _description_
         :type name: str
         :param location: _description_
-        :type location: Optional[FileLocationSchema]
+        :type location: Optional[FileLocationConfig]
         :param other_elements: _description_, defaults to None
         :type other_elements: Optional[Map], optional
         """
         fallbacks : Map = other_elements or {}
 
-        self._location : FileLocationSchema = self._toLocation(location=location, fallbacks=fallbacks)
+        self._location : FileLocationConfig = self._toLocation(location=location, fallbacks=fallbacks)
         super().__init__(name=name, other_elements=fallbacks)
 
     @property
@@ -97,6 +99,13 @@ class KeyCredential(CredentialConfig):
         ret_val = f"Key: {self.Filepath}"
         return ret_val
 
+    @property
+    def AsDict(self) -> JSONMap:
+        return {
+            "folder":str(self.Folder),
+            "filename":self.Filename
+        }
+
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "KeyCredential":
         """Create a Key Credential from a dict.
@@ -133,27 +142,27 @@ class KeyCredential(CredentialConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _toLocation(location:Optional[FileLocationSchema | Map | str | Path], fallbacks:Map) -> FileLocationSchema:
-        ret_val: FileLocationSchema
+    def _toLocation(location:Optional[FileLocationConfig | Map | str | Path], fallbacks:Map) -> FileLocationConfig:
+        ret_val: FileLocationConfig
 
-        if isinstance(location, FileLocationSchema):
+        if isinstance(location, FileLocationConfig):
             ret_val = location
         elif isinstance(location, dict):
-            ret_val = FileLocationSchema.FromDict(name="KeyCredentialLocation", unparsed_elements=location)
+            ret_val = FileLocationConfig.FromDict(name="KeyCredentialLocation", unparsed_elements=location)
         elif isinstance(location, Path):
-            ret_val = FileLocationSchema.FromPath(name="KeyCredentialLocation", fullpath=location)
+            ret_val = FileLocationConfig.FromPath(name="KeyCredentialLocation", fullpath=location)
         elif isinstance(location, str):
-            ret_val = FileLocationSchema.FromPath(name="KeyCredentialLocation", fullpath=Path(location))
+            ret_val = FileLocationConfig.FromPath(name="KeyCredentialLocation", fullpath=Path(location))
         else:
             ret_val = KeyCredential._parseLocation(unparsed_elements=fallbacks)
 
         return ret_val
 
     @staticmethod
-    def _parseLocation(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> FileLocationSchema:
+    def _parseLocation(unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None) -> FileLocationConfig:
         default_overrides : Dict[str, str] = {"file" : "key"}
         final_overrides   : Dict[str, str] = default_overrides | (key_overrides or {})
 
-        return FileLocationSchema.FromDict(name="KeyCredentialLocation", unparsed_elements=unparsed_elements, key_overrides=final_overrides)
+        return FileLocationConfig.FromDict(name="KeyCredentialLocation", unparsed_elements=unparsed_elements, key_overrides=final_overrides)
 
     # *** PRIVATE METHODS ***

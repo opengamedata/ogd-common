@@ -1,25 +1,26 @@
 # import standard libraries
 from pathlib import Path
-from typing import Dict, Final, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 # import local files
 from ogd.common.configs.Config import Config
-from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
-from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
-from ogd.common.utils.typing import Map
+from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
+from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
+from ogd.common.utils.typing import JSONMap, Map
+from ogd.common.utils.Logger import Logger
 
 class RepositoryIndexingConfig(Config):
-    _DEFAULT_LOCAL_DIR    : Final[DirectoryLocationSchema] = DirectoryLocationSchema(name="DefaultLocalDir", folder_path=Path("./data/"), other_elements={})
+    _DEFAULT_LOCAL_DIR    : Final[DirectoryLocationConfig] = DirectoryLocationConfig(name="DefaultLocalDir", folder_path=Path("./data/"), other_elements={})
     _DEFAULT_PUB_URL_RAW  : Final[str]                     = "https://opengamedata.fielddaylab.wisc.edu/"
-    _DEFAULT_PUBLIC_URL   : Final[URLLocationSchema]       = URLLocationSchema.FromString(name="DefaultRemoteURL", raw_url=_DEFAULT_PUB_URL_RAW)
+    _DEFAULT_PUBLIC_URL   : Final[URLLocationConfig]       = URLLocationConfig.FromString(name="DefaultRemoteURL", raw_url=_DEFAULT_PUB_URL_RAW)
     _DEFAULT_TEMPLATE_RAW : Final[str]                     = "https://github.com/opengamedata/opengamedata-samples"
-    _DEFAULT_TEMPLATE_URL : Final[URLLocationSchema]       = URLLocationSchema.FromString(name="DefaultTemplateURL", raw_url=_DEFAULT_TEMPLATE_RAW)
+    _DEFAULT_TEMPLATE_URL : Final[URLLocationConfig]       = URLLocationConfig.FromString(name="DefaultTemplateURL", raw_url=_DEFAULT_TEMPLATE_RAW)
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,
-                 local_dir:Optional[DirectoryLocationSchema | Map | Path | str],
-                 public_url:Optional[URLLocationSchema | Map | str],
-                 templates_url:Optional[URLLocationSchema | Map | str],
+                 local_dir:Optional[DirectoryLocationConfig | Map | Path | str],
+                 public_url:Optional[URLLocationConfig | Map | str],
+                 templates_url:Optional[URLLocationConfig | Map | str],
                  other_elements:Optional[Map]=None):
         """Constructor for the `RepositoryIndexingConfig` class.
         
@@ -49,17 +50,17 @@ class RepositoryIndexingConfig(Config):
         """
         fallbacks : Map = other_elements or {}
 
-        self._local_dir     : Optional[DirectoryLocationSchema] = self._toLocalDir(local_dir=local_dir, fallbacks=fallbacks, schema_name=name)
-        self._public_url    : Optional[URLLocationSchema]       = self._toPublicURL(public_url=public_url, fallbacks=fallbacks, schema_name=name)
-        self._templates_url : URLLocationSchema                 = self._toTemplatesURL(templates_url=templates_url, fallbacks=fallbacks, schema_name=name)
+        self._local_dir     : Optional[DirectoryLocationConfig] = self._toLocalDir(local_dir=local_dir, fallbacks=fallbacks, schema_name=name)
+        self._public_url    : Optional[URLLocationConfig]       = self._toPublicURL(public_url=public_url, fallbacks=fallbacks, schema_name=name)
+        self._templates_url : URLLocationConfig                 = self._toTemplatesURL(templates_url=templates_url, fallbacks=fallbacks, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
 
     @property
-    def LocalDirectory(self) -> Optional[DirectoryLocationSchema]:
+    def LocalDirectory(self) -> Optional[DirectoryLocationConfig]:
         return self._local_dir
 
     @property
-    def PublicURL(self) -> Optional[URLLocationSchema]:
+    def PublicURL(self) -> Optional[URLLocationConfig]:
         """The public-facing URL at which this repository can be accessed.
         If the repository is not meant for public access, as is the case for local exports, this property returns None.
 
@@ -69,7 +70,7 @@ class RepositoryIndexingConfig(Config):
         return self._public_url
 
     @property
-    def TemplatesURL(self) -> URLLocationSchema:
+    def TemplatesURL(self) -> URLLocationConfig:
         return self._templates_url
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
@@ -83,6 +84,14 @@ class RepositoryIndexingConfig(Config):
             templates_url   = cls._DEFAULT_TEMPLATE_URL,
             other_elements  = {}
         )
+
+    @property
+    def AsDict(self) -> JSONMap:
+        return {
+            "local_dir":self.LocalDirectory.AsDict if self.LocalDirectory is not None else None,
+            "remote_url":self.PublicURL.AsDict if self.PublicURL is not None else None,
+            "templates_url":self.TemplatesURL.AsDict
+        }
 
     @classmethod
     def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "RepositoryIndexingConfig":
@@ -121,71 +130,72 @@ class RepositoryIndexingConfig(Config):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _toLocalDir(local_dir:Optional[DirectoryLocationSchema | Map | Path | str], fallbacks:Map, schema_name:Optional[str]=None) -> Optional[DirectoryLocationSchema]:
-        ret_val : Optional[DirectoryLocationSchema]
-        if isinstance(local_dir, DirectoryLocationSchema):
+    def _toLocalDir(local_dir:Optional[DirectoryLocationConfig | Map | Path | str], fallbacks:Map, schema_name:Optional[str]=None) -> Optional[DirectoryLocationConfig]:
+        ret_val : Optional[DirectoryLocationConfig]
+        if isinstance(local_dir, DirectoryLocationConfig):
             ret_val = local_dir
         elif isinstance(local_dir, dict):
-            ret_val = DirectoryLocationSchema.FromDict(name=f"{schema_name}Directory", unparsed_elements=local_dir)
+            ret_val = DirectoryLocationConfig.FromDict(name=f"{schema_name}Directory", unparsed_elements=local_dir)
         elif isinstance(local_dir, str) or isinstance(local_dir, str):
-            ret_val = DirectoryLocationSchema(name=f"{schema_name}Directory", folder_path=local_dir)
+            ret_val = DirectoryLocationConfig(name=f"{schema_name}Directory", folder_path=local_dir)
         else:
             ret_val = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
-    def _toPublicURL(public_url:Optional[URLLocationSchema | Map | str], fallbacks:Map, schema_name:Optional[str]=None) -> Optional[URLLocationSchema]:
-        ret_val : Optional[URLLocationSchema]
-        if isinstance(public_url, URLLocationSchema):
+    def _toPublicURL(public_url:Optional[URLLocationConfig | Map | str], fallbacks:Map, schema_name:Optional[str]=None) -> Optional[URLLocationConfig]:
+        ret_val : Optional[URLLocationConfig]
+        if isinstance(public_url, URLLocationConfig):
             ret_val = public_url
         elif isinstance(public_url, dict):
-            ret_val = URLLocationSchema.FromDict(name=f"{schema_name}RemoteRepoURL", unparsed_elements=public_url)
+            ret_val = URLLocationConfig.FromDict(name=f"{schema_name}RemoteRepoURL", unparsed_elements=public_url)
         elif isinstance(public_url, str):
-            ret_val = URLLocationSchema(name=f"{schema_name}RemoteRepoURL", url=public_url)
+            ret_val = URLLocationConfig(name=f"{schema_name}RemoteRepoURL", url=public_url)
         else:
             ret_val = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
-    def _toTemplatesURL(templates_url:Optional[URLLocationSchema | Map | str], fallbacks:Map, schema_name:Optional[str]=None) -> URLLocationSchema:
-        ret_val : URLLocationSchema
-        if isinstance(templates_url, URLLocationSchema):
+    def _toTemplatesURL(templates_url:Optional[URLLocationConfig | Map | str], fallbacks:Map, schema_name:Optional[str]=None) -> URLLocationConfig:
+        ret_val : URLLocationConfig
+        if isinstance(templates_url, URLLocationConfig):
             ret_val = templates_url
         elif isinstance(templates_url, dict):
-            ret_val = URLLocationSchema.FromDict(name=f"{schema_name}TemplatesURL", unparsed_elements=fallbacks)
+            ret_val = URLLocationConfig.FromDict(name=f"{schema_name}TemplatesURL", unparsed_elements=fallbacks)
         elif isinstance(templates_url, str):
-            ret_val = URLLocationSchema(name=f"{schema_name}TemplatesURL", url=templates_url)
+            ret_val = URLLocationConfig(name=f"{schema_name}TemplatesURL", url=templates_url)
         else:
             ret_val = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
-    def _parseLocalDir(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[DirectoryLocationSchema]:
-        ret_val : Optional[DirectoryLocationSchema]
+    def _parseLocalDir(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[DirectoryLocationConfig]:
+        ret_val : Optional[DirectoryLocationConfig]
 
         raw_base = RepositoryIndexingConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["files_base", "local_dir", "folder", "path"],
-            to_type=[Path, str, dict],
+            to_type=[Path, dict],
             default_value=None,
             remove_target=True,
             schema_name=schema_name
         )
         if raw_base:
             if isinstance(raw_base, Path):
-                ret_val = DirectoryLocationSchema(name=f"{schema_name}LocalDir", folder_path=raw_base)
-            elif isinstance(raw_base, str):
-                ret_val = DirectoryLocationSchema(name=f"{schema_name}LocalDir", folder_path=Path(raw_base))
+                ret_val = DirectoryLocationConfig(name=f"{schema_name}LocalDir", folder_path=raw_base)
             elif isinstance(raw_base, dict):
-                ret_val = DirectoryLocationSchema.FromDict(name=f"{schema_name}LocalDir", unparsed_elements=raw_base)
+                ret_val = DirectoryLocationConfig.FromDict(name=f"{schema_name}LocalDir", unparsed_elements=raw_base)
+            else:
+                ret_val = RepositoryIndexingConfig._DEFAULT_LOCAL_DIR
+                Logger.warning(message=f"RepositoryIndexingConfig found raw_base with unexpected type {type(raw_base)}, defaulting to {ret_val}")
         else:
             ret_val = RepositoryIndexingConfig._DEFAULT_LOCAL_DIR
 
         return ret_val
 
     @staticmethod
-    def _parseRemoteURL(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[URLLocationSchema]:
-        ret_val : Optional[URLLocationSchema]
+    def _parseRemoteURL(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[URLLocationConfig]:
+        ret_val : Optional[URLLocationConfig]
 
         raw_url = RepositoryIndexingConfig.ParseElement(
             unparsed_elements=unparsed_elements,
@@ -197,21 +207,21 @@ class RepositoryIndexingConfig(Config):
         )
         if raw_url:
             if isinstance(raw_url, str):
-                ret_val = URLLocationSchema.FromString(name=f"{schema_name}PublicURL", raw_url=raw_url)
+                ret_val = URLLocationConfig.FromString(name=f"{schema_name}PublicURL", raw_url=raw_url)
             elif isinstance(raw_url, dict):
-                ret_val = URLLocationSchema.FromDict(name=f"{schema_name}PublicURL", unparsed_elements=raw_url)
+                ret_val = URLLocationConfig.FromDict(name=f"{schema_name}PublicURL", unparsed_elements=raw_url)
             else:
                 ret_val = RepositoryIndexingConfig._DEFAULT_PUBLIC_URL
 
         return ret_val
 
     @staticmethod
-    def _parseTemplatesURL(unparsed_elements:Map, schema_name:Optional[str]=None) -> URLLocationSchema:
-        ret_val : URLLocationSchema
+    def _parseTemplatesURL(unparsed_elements:Map, schema_name:Optional[str]=None) -> URLLocationConfig:
+        ret_val : URLLocationConfig
 
         raw_url = RepositoryIndexingConfig.ParseElement(
             unparsed_elements=unparsed_elements,
-            valid_keys=["templates_url", "url"],
+            valid_keys=["templates_url", "templates_base", "url"],
             to_type=[str, dict],
             default_value=None,
             remove_target=True,
@@ -219,11 +229,14 @@ class RepositoryIndexingConfig(Config):
         )
         if raw_url:
             if isinstance(raw_url, str):
-                ret_val = URLLocationSchema.FromString(name=f"{schema_name}TemplatesURL", raw_url=raw_url)
+                ret_val = URLLocationConfig.FromString(name=f"{schema_name}TemplatesURL", raw_url=raw_url)
             elif isinstance(raw_url, dict):
-                ret_val = URLLocationSchema.FromDict(name=f"{schema_name}TemplatesURL", unparsed_elements=raw_url)
+                ret_val = URLLocationConfig.FromDict(name=f"{schema_name}TemplatesURL", unparsed_elements=raw_url)
             else:
                 ret_val = RepositoryIndexingConfig._DEFAULT_TEMPLATE_URL
+                Logger.warning(message=f"RepositoryIndexingConfig found raw templates url with unexpected type {type(raw_url)}, defaulting to {ret_val}")
+        else:
+            ret_val = RepositoryIndexingConfig._DEFAULT_TEMPLATE_URL
 
         return ret_val
 

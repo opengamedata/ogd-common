@@ -1,19 +1,18 @@
 # standard imports
 from pathlib import Path
-from urllib.parse import urlparse
-from typing import Dict, Final, Optional, Self, TypeAlias
+from typing import Any, Dict, Final, Optional, Self, TypeAlias
 
 # ogd imports
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
 from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
-from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
-from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
+from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
+from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.schemas.datasets.DatasetCollectionSchema import DatasetCollectionSchema
 from ogd.common.utils.fileio import loadJSONFile
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
-BaseLocation : TypeAlias = URLLocationSchema | DirectoryLocationSchema
+BaseLocation : TypeAlias = URLLocationConfig | DirectoryLocationConfig
 
 # Simple Config-y class to track the base URLs/paths for a list of files and/or file templates.
 class DatasetRepositoryConfig(DataStoreConfig):
@@ -60,7 +59,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         return str(self.Name)
 
     @property
-    def LocalDirectory(self) -> Optional[DirectoryLocationSchema]:
+    def LocalDirectory(self) -> Optional[DirectoryLocationConfig]:
         """Property for the base 'path' to a set of dataset files.
 
         :return: _description_
@@ -69,7 +68,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         return self.Indexing.LocalDirectory
 
     @property
-    def PublicURL(self) -> Optional[URLLocationSchema]:
+    def PublicURL(self) -> Optional[URLLocationConfig]:
         """The public-facing URL at which this repository can be accessed.
         If the repository is not meant for public access, as is the case for local exports, this property returns None.
 
@@ -79,7 +78,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         return self.Indexing.PublicURL
 
     @property
-    def TemplatesBase(self) -> URLLocationSchema:
+    def TemplatesBase(self) -> URLLocationConfig:
         return self.Indexing.TemplatesURL
 
     @property
@@ -98,10 +97,17 @@ class DatasetRepositoryConfig(DataStoreConfig):
         return ret_val
 
     @property
+    def AsDict(self) -> JSONMap:
+        return {
+            "CONFIG":self.Indexing.AsDict,
+            "datasets":{ key:val.AsDict for key,val in self.Games.items() }
+        }
+
+    @property
     def Location(self) -> BaseLocation:
         return self.LocalDirectory if self.LocalDirectory is not None else \
                self.PublicURL      if self.PublicURL      is not None else \
-               DirectoryLocationSchema.Default()
+               DirectoryLocationConfig.Default()
 
     @property
     def Credential(self) -> EmptyCredential:

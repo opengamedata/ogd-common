@@ -1,8 +1,8 @@
 # Custom added
 .tmp
 .vscode/
-tests/config/t_config.py
-tests/config/*.json
+config/t_config.py
+config/*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -129,7 +129,7 @@ celerybeat.pid
 
 # Environments
 .env
-.venv
+.venv*
 env/
 venv/
 ENV/

@@ -7,23 +7,22 @@ and a listing of `"ENABLED"` tests.
 """
 
 # import standard libraries
-from typing import Dict, Final, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 
 # import 3rd-party libraries
 
 # import OGD libraries
 from ogd.common.configs.Config import Config
-from ogd.common.utils.typing import Map, conversions
+from ogd.common.utils.typing import Map, JSONMap
 
 # import local files
 
 class TestConfig(Config):
     _DEFAULT_VERBOSE       : Final[bool]            = False
-    _DEFAULT_ENABLED_TESTS : Final[Dict[str, bool]] = {}
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, name:str, verbose:Optional[bool], enabled_tests:Optional[Dict[str, bool]], other_elements:Optional[Map]=None):
+    def __init__(self, name:str, verbose:Optional[bool], other_elements:Optional[Map]=None):
         """Constructor for the `TestConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
@@ -33,11 +32,6 @@ class TestConfig(Config):
         ```
         {
             "VERBOSE" : False,
-            "ENABLED" : {
-                "TEST1":True,
-                "TEST2":True,
-                ...
-            }
         },
         ```
 
@@ -52,17 +46,12 @@ class TestConfig(Config):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._verbose       : bool            = verbose       if verbose       is not None else self._parseVerbose(unparsed_elements=unparsed_elements, schema_name=name)
-        self._enabled_tests : Dict[str, bool] = enabled_tests if enabled_tests is not None else self._parseEnabledTests(unparsed_elements=unparsed_elements, schema_name=name)
+        self._verbose       : bool = self._getVerbose(raw_val=verbose, unparsed_elements=unparsed_elements, schema_name=name)
         super().__init__(name=name, other_elements=unparsed_elements)
 
     @property
     def Verbose(self) -> bool:
         return self._verbose
-
-    @property
-    def EnabledTests(self) -> Dict[str, bool]:
-        return self._enabled_tests
 
     @property
     def AsMarkdown(self) -> str:
@@ -72,13 +61,18 @@ class TestConfig(Config):
         return ret_val
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
+    @property
+    def AsDict(self) -> JSONMap:
+        return {
+            "VERBOSE":self.Verbose
+        }
     
     @classmethod
     def Default(cls) -> "TestConfig":
         return TestConfig(
             name            = "DefaultTestConfig",
-            verbose         = cls._DEFAULT_VERBOSE,
-            enabled_tests   = cls._DEFAULT_ENABLED_TESTS
+            verbose         = cls._DEFAULT_VERBOSE
         )
 
     # *** PUBLIC STATICS ***
@@ -96,7 +90,7 @@ class TestConfig(Config):
         :return: _description_
         :rtype: TestConfig
         """
-        return TestConfig(name=name, verbose=None, enabled_tests=None, other_elements=unparsed_elements)
+        return TestConfig(name=name, verbose=None, other_elements=unparsed_elements)
 
     # *** PUBLIC METHODS ***
 
@@ -105,8 +99,9 @@ class TestConfig(Config):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseVerbose(unparsed_elements:Map, schema_name:Optional[str]=None) -> bool:
+    def _getVerbose(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> bool:
         return TestConfig.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["VERBOSE"],
             to_type=bool,
@@ -114,21 +109,5 @@ class TestConfig(Config):
             remove_target=True,
             schema_name=schema_name
         )
-
-    @staticmethod
-    def _parseEnabledTests(unparsed_elements:Map, schema_name:Optional[str]=None) -> Dict[str, bool]:
-        ret_val : Dict[str, bool]
-
-        enabled = TestConfig.ParseElement(
-            unparsed_elements=unparsed_elements,
-            valid_keys=["ENABLED"],
-            to_type=dict,
-            default_value=TestConfig._DEFAULT_ENABLED_TESTS,
-            remove_target=True,
-            schema_name=schema_name
-        )
-        ret_val = { str(key) : conversions.ConvertToType(value=val, to_type=bool, name=key) for key, val in enabled.items() }
-
-        return ret_val
 
     # *** PRIVATE METHODS ***

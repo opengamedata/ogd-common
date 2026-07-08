@@ -1,7 +1,7 @@
 import abc
 from typing import Generic, List, Optional, Set, TypeVar
 
-from ogd.common.models.enums.FilterMode import FilterMode
+from ogd.common.filters.FilterMode import FilterMode
 
 T = TypeVar("T")
 class Filter(Generic[T]):

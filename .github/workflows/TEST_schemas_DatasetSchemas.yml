@@ -8,11 +8,12 @@ on:
     paths:
     # repo-wide dependencies
     - '.github/actions/test_config/**'
-    - 'tests/config/**'
+    - 'config/**'
     - 'requirements.txt'
     # specific dependencies
     - '.github/workflows/TEST_schemas_DatasetSchemas.yml'
     - 'tests/cases/schemas/datasets/**'
+    - 'tests/data/schemas/datasets/**'
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}-DatasetSchemas
@@ -26,7 +27,7 @@ jobs:
     strategy:
       matrix:
         testbed: [
-          test_DatasetSchema
+          DatasetSchemaSuite
         ]
       fail-fast: false # we don't want to cancel just because one testbed fails.
       max-parallel: 20
@@ -45,7 +46,6 @@ jobs:
       uses: ./.github/actions/test_config
       with:
           verbose_output: "True"
-          with_schemas: "True"
 
   # 2. Build & configure remote environments
 
@@ -53,8 +53,8 @@ jobs:
     - name: Execute ${{ matrix.testbed }} testbed
       uses: opengamedata/actions-execute-testbed@v1.0
       with:
-        directory: "tests/cases/schemas/datasets"
-        test_file: "${{ matrix.testbed }}.py"
+        directory: "tests/cases/schemas/datasets/${{ matrix.testbed }}"
+        test_file: "*Case.py"
         python_version: ${{ vars.OGD_PYTHON_VERSION }}
 
   # 4. Cleanup & complete

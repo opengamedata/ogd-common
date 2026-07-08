@@ -1,10 +1,10 @@
 """EventTableSchema Module"""
 # import standard libraries
-from typing import Dict, Optional, Self
+from typing import Any, Dict, Final, Optional, Self
 
 # import local files
 from ogd.common.schemas.tables.ColumnMapSchema import ColumnMapSchema, ColumnMapElement
-from ogd.common.utils.typing import Map
+from ogd.common.utils.typing import JSONMap, Map
 
 ## @class TableSchema
 class FeatureMapSchema(ColumnMapSchema):
@@ -17,10 +17,17 @@ class FeatureMapSchema(ColumnMapSchema):
 
     # *** BUILT-INS & PROPERTIES ***
 
+    _DEFAULT_FEAT_NAME     : Final[None] = None
+    _DEFAULT_FEAT_TYPE     : Final[None] = None
+    _DEFAULT_GAME_UNIT     : Final[None] = None
+    _DEFAULT_GAME_UNIT_IDX : Final[None] = None
+    _DEFAULT_SUBFEATS      : Final[None] = None
+    _DEFAULT_VALUES        : Final[None] = None
+
     def __init__(self, name:str,
+                 app_id:Optional[ColumnMapElement],       user_id:Optional[ColumnMapElement],         session_id:Optional[ColumnMapElement],
                  feature_name:Optional[ColumnMapElement], feature_type:Optional[ColumnMapElement],
                  game_unit:Optional[ColumnMapElement],    game_unit_index:Optional[ColumnMapElement],
-                 app_id:Optional[ColumnMapElement],       user_id:Optional[ColumnMapElement],         session_id:Optional[ColumnMapElement],
                  subfeatures:Optional[ColumnMapElement],  values:Optional[ColumnMapElement],
                  other_elements:Optional[Map]=None):
         """Constructor for the TableSchema class.
@@ -65,12 +72,12 @@ class FeatureMapSchema(ColumnMapSchema):
         """
         unparsed_elements : Map = other_elements or {}
 
-        self._feature_name    : ColumnMapElement = feature_name    if feature_name    is not None else self._parseFeatureName(unparsed_elements=unparsed_elements, schema_name=name)
-        self._feature_type    : ColumnMapElement = feature_type    if feature_type    is not None else self._parseFeatureType(unparsed_elements=unparsed_elements, schema_name=name)
-        self._game_unit       : ColumnMapElement = game_unit       if game_unit       is not None else self._parseGameUnit(unparsed_elements=unparsed_elements, schema_name=name)
-        self._game_unit_index : ColumnMapElement = game_unit_index if game_unit_index is not None else self._parseGameUnitIndex(unparsed_elements=unparsed_elements, schema_name=name)
-        self._subfeatures     : ColumnMapElement = subfeatures     if subfeatures     is not None else self._parseSubfeatures(unparsed_elements=unparsed_elements, schema_name=name)
-        self._values          : ColumnMapElement = values          if values          is not None else self._parseValues(unparsed_elements=unparsed_elements, schema_name=name)
+        self._feature_name    : ColumnMapElement = self._getFeatureName(raw_val=feature_name, unparsed_elements=unparsed_elements, schema_name=name)
+        self._feature_type    : ColumnMapElement = self._getFeatureType(raw_val=feature_type, unparsed_elements=unparsed_elements, schema_name=name)
+        self._game_unit       : ColumnMapElement = self._getGameUnit(raw_val=game_unit, unparsed_elements=unparsed_elements, schema_name=name)
+        self._game_unit_index : ColumnMapElement = self._getGameUnitIndex(raw_val=game_unit_index, unparsed_elements=unparsed_elements, schema_name=name)
+        self._subfeatures     : ColumnMapElement = self._getSubfeatures(raw_val=subfeatures, unparsed_elements=unparsed_elements, schema_name=name)
+        self._values          : ColumnMapElement = self._getValues(raw_val=values, unparsed_elements=unparsed_elements, schema_name=name)
 
         super().__init__(name=name, app_id=app_id, user_id=user_id, session_id=session_id,
                          other_elements=unparsed_elements)
@@ -120,6 +127,20 @@ class FeatureMapSchema(ColumnMapSchema):
         return self._values
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
+
+    @property
+    def AsDict(self) -> JSONMap:
+        return {
+            "app_id":self.AppIDColumn,
+            "user_id":self.UserIDColumn,
+            "session_id":self.SessionIDColumn,
+            "feature_name":self.FeatureNameColumn,
+            "feature_type":self.FeatureTypeColumn,
+            "game_unit":self.GameUnitColumn,
+            "game_unit_index":self.GameUnitIndexColumn,
+            "subfeatures":self.SubfeaturesColumn,
+            "values":self.ValuesColumn
+        }
 
     @classmethod
     def Default(cls) -> "FeatureMapSchema":
@@ -187,67 +208,73 @@ class FeatureMapSchema(ColumnMapSchema):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _parseFeatureName(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getFeatureName(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["feature_name", "name", "feature"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=FeatureMapSchema._DEFAULT_FEAT_NAME,
             remove_target=False,
             schema_name=schema_name
         )
 
     @staticmethod
-    def _parseFeatureType(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getFeatureType(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["feature_type", "type"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=FeatureMapSchema._DEFAULT_FEAT_TYPE,
             remove_target=False,
             schema_name=schema_name
         )
 
     @staticmethod
-    def _parseGameUnit(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getGameUnit(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["game_unit", "prefix"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=FeatureMapSchema._DEFAULT_GAME_UNIT,
             remove_target=False,
             schema_name=schema_name
         )
 
     @staticmethod
-    def _parseGameUnitIndex(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getGameUnitIndex(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["game_unit_index", "unit", "level"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=FeatureMapSchema._DEFAULT_GAME_UNIT_IDX,
             remove_target=False,
             schema_name=schema_name
         )
 
     @staticmethod
-    def _parseSubfeatures(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getSubfeatures(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["subfeatures"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=FeatureMapSchema._DEFAULT_SUBFEATS,
             remove_target=False,
             schema_name=schema_name
         )
 
     @staticmethod
-    def _parseValues(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
+    def _getValues(raw_val:Any, unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[ColumnMapElement]:
         return ColumnMapSchema.ParseElement(
+            raw_value=raw_val,
             unparsed_elements=unparsed_elements,
             valid_keys=["values", "value"],
             to_type=[str, list, dict],
-            default_value=None,
+            default_value=FeatureMapSchema._DEFAULT_VALUES,
             remove_target=False,
             schema_name=schema_name
         )

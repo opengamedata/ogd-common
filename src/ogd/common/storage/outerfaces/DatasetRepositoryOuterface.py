@@ -17,11 +17,13 @@ from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexi
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
 from ogd.common.models.DatasetKey import DatasetKey
-from ogd.common.models.enums.ExportMode import ExportMode
+from ogd.common.models.features.AggregationMode import AggregationMode
+from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
-from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
-from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
+from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
+from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.storage.connectors.DatasetRepositoryConnector import DatasetRepositoryConnector
+from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.storage.outerfaces.Outerface import Outerface
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
@@ -31,7 +33,7 @@ class DatasetRepositoryOuterface(Outerface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode],
+    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode | AggregationMode],
                  repository:DatasetRepositoryConfig, dataset_key:str | DatasetKey,
                  with_separate_feature_files:bool=True, with_zipping:bool=True,
                  store:Optional[DatasetRepositoryConnector]=None):
@@ -93,7 +95,7 @@ class DatasetRepositoryOuterface(Outerface):
         # finally, generate file names.
 
     @property
-    def Connector(self) -> CSVConnector:
+    def Connector(self) -> DatasetRepositoryConnector:
         return self._store
 
     @property
@@ -110,8 +112,6 @@ class DatasetRepositoryOuterface(Outerface):
             case _:
                 Logger.Log(f"CSVOuterface has unexpected extension {self.FileExtension}, defaulting to comma-separation!", logging.WARN)
                 return ","
-        
-
 
     # *** IMPLEMENT ABSTRACTS ***
 
@@ -149,7 +149,7 @@ class DatasetRepositoryOuterface(Outerface):
     def _setupSessionTable(self, header:List[str]) -> None:
         cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
-        f = self.Connector.SecondaryFiles.get(ExportMode.SESSION.name, None)
+        f = self.Connector.SecondaryFiles.get(AggregationMode.SESSION.name, None)
         if f is not None:
             f.writelines(cols_line)
         else:
@@ -160,7 +160,7 @@ class DatasetRepositoryOuterface(Outerface):
     def _setupPlayerTable(self, header:List[str]) -> None:
         cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
-        f = self.Connector.SecondaryFiles.get(ExportMode.PLAYER.name, None)
+        f = self.Connector.SecondaryFiles.get(AggregationMode.PLAYER.name, None)
         if f is not None:
             f.writelines(cols_line)
         else:
@@ -171,7 +171,7 @@ class DatasetRepositoryOuterface(Outerface):
     def _setupPopulationTable(self, header:List[str]) -> None:
         cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
-        f = self.Connector.SecondaryFiles.get(ExportMode.POPULATION.name, None)
+        f = self.Connector.SecondaryFiles.get(AggregationMode.POPULATION.name, None)
         if f is not None:
             f.writelines(cols_line)
         else:
@@ -212,7 +212,7 @@ class DatasetRepositoryOuterface(Outerface):
         final_lines = ["\t".join(sess) + "\n" for sess in _clean_lines]
         if self.Connector.File is not None:
             self.Connector.File.writelines(final_lines)
-        f = self.Connector.SecondaryFiles.get(ExportMode.SESSION.name, None)
+        f = self.Connector.SecondaryFiles.get(AggregationMode.SESSION.name, None)
         if f is not None:
             f.writelines(final_lines)
         else:
@@ -225,7 +225,7 @@ class DatasetRepositoryOuterface(Outerface):
         final_lines = ["\t".join(play) + "\n" for play in _clean_lines]
         if self.Connector.File is not None:
             self.Connector.File.writelines(final_lines)
-        f = self.Connector.SecondaryFiles.get(ExportMode.PLAYER.name, None)
+        f = self.Connector.SecondaryFiles.get(AggregationMode.PLAYER.name, None)
         if f is not None:
             f.writelines(final_lines)
         else:
@@ -238,7 +238,7 @@ class DatasetRepositoryOuterface(Outerface):
         final_lines = ["\t".join(pop) + "\n" for pop in _clean_lines]
         if self.Connector.File is not None:
             self.Connector.File.writelines(final_lines)
-        f = self.Connector.SecondaryFiles.get(ExportMode.POPULATION.name, None)
+        f = self.Connector.SecondaryFiles.get(AggregationMode.POPULATION.name, None)
         if f is not None:
             f.writelines(final_lines)
         else:
@@ -255,7 +255,7 @@ class DatasetRepositoryOuterface(Outerface):
             Logger.Log(msg, logging.WARNING)
         else:
             self._writeMetadataFile(dataset_schema=dataset_schema)
-            if isinstance(self._repository.Location, DirectoryLocationSchema):
+            if isinstance(self._repository.Location, DirectoryLocationConfig):
                 _local_dir = self._repository.Location
                 _public_url = None
             else: # we got a URL base
@@ -264,7 +264,7 @@ class DatasetRepositoryOuterface(Outerface):
             _file_index = RepositoryIndexingConfig(name="IndexingConfig",
                                              local_dir=_local_dir,
                                              public_url=_public_url,
-                                             templates_url=URLLocationSchema.FromDict(name="TemplateURL", unparsed_elements={"URL" : self._repository.TemplatesBase.Location})
+                                             templates_url=URLLocationConfig.FromDict(name="TemplateURL", unparsed_elements={"URL" : self._repository.TemplatesBase.Location})
             )
             self._updateFileExportList(file_indexing=_file_index, dataset_schema=dataset_schema)
 
@@ -336,36 +336,39 @@ class DatasetRepositoryOuterface(Outerface):
     #  @param date_range    The range of dates included in the exported data.
     #  @param num_sess      The number of sessions included in the recent export.
     def _updateFileExportList(self, file_indexing:RepositoryIndexingConfig, dataset_schema:DatasetSchema) -> None:
-        DatasetRepositoryOuterface._backupFileExportList(self._repository.LocalDirectory.FolderPath)
-        file_index = {}
-        existing_datasets = {}
-        try:
-            file_index = fileio.loadJSONFile(filename="file_list.json", path=self._repository.LocalDirectory.FolderPath)
-        except FileNotFoundError:
-            Logger.Log("file_list.json does not exist.", logging.WARNING)
-        except json.decoder.JSONDecodeError as err:
-            Logger.Log(f"file_list.json has invalid format: {str(err)}.", logging.WARNING)
-        finally:
-            if not "CONFIG" in file_index.keys():
-                Logger.Log("No CONFIG found in file_list.json, adding default CONFIG...", logging.WARNING)
-                file_index["CONFIG"] = {
-                    "files_base" : file_indexing.PublicURL,
-                    "templates_base" : file_indexing.TemplatesURL
-                }
-            if not dataset_schema.Key.GameID in file_index.keys():
-                file_index[dataset_schema.Key.GameID] = {}
-            existing_datasets  = file_index[dataset_schema.Key.GameID]
-            with open(self._repository.LocalDirectory.FolderPath / "file_list.json", "w") as existing_csv_file:
-                Logger.Log(f"Opened file list for writing at {existing_csv_file.name}", logging.INFO)
-                existing_metadata = existing_datasets.get(dataset_schema.DatasetID, {})
-                new_meta = dataset_schema.AsMetadata
-                new_meta["population_file"] = new_meta["population_file"]   or existing_metadata.get("population_file", existing_metadata.get("population"))
-                new_meta["players_file"] = new_meta["players_file"]         or existing_metadata.get("players_file",    existing_metadata.get("players"))
-                new_meta["sessions_file"] = new_meta["sessions_file"]       or existing_metadata.get("sessions_file",   existing_metadata.get("sessions"))
-                new_meta["game_events_file"] = new_meta["game_events_file"] or existing_metadata.get("game_events",     existing_metadata.get("events", existing_metadata.get("raw_events")))
-                new_meta["all_events_file"] = new_meta["all_events_file"]   or existing_metadata.get("all_events",      existing_metadata.get("processed_events"))
-                file_index[dataset_schema.Key.GameID][dataset_schema.DatasetID] = new_meta
-                existing_csv_file.write(json.dumps(file_index, indent=4))
+        if self._repository.LocalDirectory is not None:
+            DatasetRepositoryOuterface._backupFileExportList(self._repository.LocalDirectory.FolderPath)
+            file_index = {}
+            existing_datasets = {}
+            try:
+                file_index = fileio.loadJSONFile(filename="file_list.json", path=self._repository.LocalDirectory.FolderPath)
+            except FileNotFoundError:
+                Logger.Log("file_list.json does not exist.", logging.WARNING)
+            except json.decoder.JSONDecodeError as err:
+                Logger.Log(f"file_list.json has invalid format: {str(err)}.", logging.WARNING)
+            finally:
+                if not "CONFIG" in file_index.keys():
+                    Logger.Log("No CONFIG found in file_list.json, adding default CONFIG...", logging.WARNING)
+                    file_index["CONFIG"] = {
+                        "files_base" : file_indexing.PublicURL,
+                        "templates_base" : file_indexing.TemplatesURL
+                    }
+                if not dataset_schema.Key.GameID in file_index.keys():
+                    file_index[dataset_schema.Key.GameID] = {}
+                existing_datasets  = file_index[dataset_schema.Key.GameID]
+                with open(self._repository.LocalDirectory.FolderPath / "file_list.json", "w") as existing_csv_file:
+                    Logger.Log(f"Opened file list for writing at {existing_csv_file.name}", logging.INFO)
+                    existing_metadata = existing_datasets.get(dataset_schema.DatasetID, {})
+                    new_meta = dataset_schema.AsMetadata
+                    new_meta["population_file"] = new_meta["population_file"]   or existing_metadata.get("population_file", existing_metadata.get("population"))
+                    new_meta["players_file"] = new_meta["players_file"]         or existing_metadata.get("players_file",    existing_metadata.get("players"))
+                    new_meta["sessions_file"] = new_meta["sessions_file"]       or existing_metadata.get("sessions_file",   existing_metadata.get("sessions"))
+                    new_meta["game_events_file"] = new_meta["game_events_file"] or existing_metadata.get("game_events",     existing_metadata.get("events", existing_metadata.get("raw_events")))
+                    new_meta["all_events_file"] = new_meta["all_events_file"]   or existing_metadata.get("all_events",      existing_metadata.get("processed_events"))
+                    file_index[dataset_schema.Key.GameID][dataset_schema.DatasetID] = new_meta
+                    existing_csv_file.write(json.dumps(file_index, indent=4))
+        else:
+            Logger.Log(f"Could not update file export list, repository {self} does not have a local directory", logging.WARNING)
 
     @staticmethod
     def _backupFileExportList(data_dir:Path) -> bool:

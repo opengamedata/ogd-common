@@ -2,7 +2,7 @@
 from typing import List, Optional, Set, Tuple
 # import local files
 from ogd.common.filters import *
-from ogd.common.models.enums.FilterMode import FilterMode
+from ogd.common.filters.FilterMode import FilterMode
 
 class IDFilterCollection:
     """Dumb struct to hold filters for versioning information
