@@ -107,7 +107,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
     def Location(self) -> BaseLocation:
         return self.LocalDirectory if self.LocalDirectory is not None else \
                self.PublicURL      if self.PublicURL      is not None else \
-               DirectoryLocationConfig.Default()
+               RepositoryIndexingConfig._DEFAULT_LOCAL_DIR
 
     @property
     def Credential(self) -> EmptyCredential:
