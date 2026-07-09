@@ -1,7 +1,7 @@
 import logging
 from collections import defaultdict
 from datetime import datetime
-from typing import Dict, List, Tuple, Optional, Union
+from typing import Dict, List, LiteralString, Optional, Tuple, Union
 # 3rd-party imports
 import numpy as np
 import pandas as pd
@@ -24,19 +24,15 @@ class CSVInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:DataTableConfig, fail_fast:bool, extension:str="tsv", store:Optional[CSVConnector]=None):
+    def __init__(self, config:DataTableConfig, fail_fast:bool, store:Optional[CSVConnector]=None):
         self._store : CSVConnector
 
         super().__init__(config=config, fail_fast=fail_fast)
-        self._extension = extension
         self._data = pd.DataFrame()
         if store:
             self._store = store
         elif isinstance(self.Config.StoreConfig, FileStoreConfig):
-            self._store = CSVConnector(
-                config=self.Config.StoreConfig,
-                with_secondary_files=set(),
-            )
+            self._store = CSVConnector(config=self.Config.StoreConfig)
         else:
             raise ValueError(f"CSVInterface config was for a connector other than CSV/TSV files! Found config type {type(self.Config.StoreConfig)}")
         self.Connector.Open(writeable=False)
@@ -70,7 +66,7 @@ class CSVInterface(Interface):
 
     @property
     def Extension(self) -> str:
-        return self._extension
+        return self.Connector.FileExtension
 
     @property
     def Delimiter(self) -> str:
@@ -93,6 +89,8 @@ class CSVInterface(Interface):
         ret_val : List[str] = []
 
         if not self.DataFrame.empty:
+            id_col : LiteralString = "session_id" if id_type==IDType.SESSION else "user_id"
+            self.Config.TableSchema.
             dates = pd.to_datetime(self.DataFrame['timestamp'], format='ISO8601').dt.tz_convert(None) # HACK : need to handle this better elsewhere, pretty sure we've got someplace else giving us filters with dates rather than datetime
             mask = None
             if filters.Sequences.Timestamps.Active:
@@ -105,7 +103,7 @@ class CSVInterface(Interface):
             # if versions is not None and versions is not []:
             #     mask = mask & (self._data['app_version'].isin(versions))
             data_masked = self.DataFrame.loc[mask] if mask is not None else self.DataFrame
-            ret_val = [str(id) for id in data_masked['session_id'].unique().tolist()]
+            ret_val = [str(id) for id in data_masked[id_col].unique().tolist()]
 
         return ret_val
 
@@ -185,7 +183,16 @@ class CSVInterface(Interface):
         return ret_val
 
     def _getFeatureRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
-        return []
+        """Since CSVInterface just connects to a singular file, the getters for features and events are the same.
+
+        Currently, we just assume you know what kind of dataset you loaded, and are calling the right function.
+
+        :param filters: _description_
+        :type filters: DatasetFilterCollection
+        :return: _description_
+        :rtype: List[Tuple]
+        """
+        return self._getEventRows(filters=filters)
 
     # *** PUBLIC STATICS ***
 
