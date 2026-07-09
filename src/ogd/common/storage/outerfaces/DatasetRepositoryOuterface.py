@@ -134,8 +134,9 @@ class DatasetRepositoryOuterface(Outerface):
     def _setupDetectorEventsTable(self, header:List[str]) -> None:
         cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
-        if self.Connector.File is not None:
-            self.Connector.File.writelines(cols_line)
+        f = self.Connector.SecondaryFiles.get(ExportMode.DETECTORS.name, None)
+        if f is not None:
+            f.writelines(cols_line)
         else:
             Logger.Log("No processed_events file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
