@@ -1,5 +1,6 @@
 # import standard libraries
 from enum import IntEnum
+from typing import List
 
 class AggregationMode(IntEnum):
     """Simple enum to represent the different levels of granularity at which extractions can be carried out:
@@ -16,6 +17,6 @@ class AggregationMode(IntEnum):
     def __str__(self):
         return self.name
 
-    @property
-    def Names(self):
+    @staticmethod
+    def Names() -> List[str]:
         return AggregationMode._member_names_

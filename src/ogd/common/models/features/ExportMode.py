@@ -1,5 +1,6 @@
 # import standard libraries
 from enum import IntEnum
+from typing import List
 
 class ExportMode(IntEnum):
     """An enum representing the various modes that can be part of an OGD export.
@@ -19,6 +20,6 @@ class ExportMode(IntEnum):
     def __str__(self):
         return self.name
 
-    @property
-    def Names(self):
+    @staticmethod
+    def Names() -> List[str]:
         return ExportMode._member_names_
