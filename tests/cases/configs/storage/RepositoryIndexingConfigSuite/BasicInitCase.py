@@ -10,7 +10,7 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 # import locals
-from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryLocationConfig
+from src.ogd.common.configs.storage.RepositoryLocationConfig import RepositoryLocationConfig
 from config.t_config import settings
 
 def setUpModule():
