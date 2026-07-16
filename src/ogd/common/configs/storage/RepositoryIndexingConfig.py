@@ -8,7 +8,7 @@ from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 from ogd.common.utils.typing import JSONMap, Map
 from ogd.common.utils.Logger import Logger
 
-class RepositoryIndexingConfig(Config):
+class RepositoryLocationConfig(Config):
     _DEFAULT_LOCAL_DIR    : Final[DirectoryLocationConfig] = DirectoryLocationConfig(name="DefaultLocalDir", folder_path=Path("./data/"), other_elements={})
     _DEFAULT_PUB_URL_RAW  : Final[str]                     = "https://opengamedata.fielddaylab.wisc.edu/"
     _DEFAULT_PUBLIC_URL   : Final[URLLocationConfig]       = URLLocationConfig.FromString(name="DefaultRemoteURL", raw_url=_DEFAULT_PUB_URL_RAW)
@@ -76,8 +76,8 @@ class RepositoryIndexingConfig(Config):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     @classmethod
-    def Default(cls) -> "RepositoryIndexingConfig":
-        return RepositoryIndexingConfig(
+    def Default(cls) -> "RepositoryLocationConfig":
+        return RepositoryLocationConfig(
             name            = "DefaultFileIndexingConfig",
             local_dir       = cls._DEFAULT_LOCAL_DIR,
             public_url      = cls._DEFAULT_PUBLIC_URL,
@@ -94,7 +94,7 @@ class RepositoryIndexingConfig(Config):
         }
 
     @classmethod
-    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "RepositoryIndexingConfig":
+    def _fromDict(cls, name:str, unparsed_elements:Map, key_overrides:Optional[Dict[str, str]]=None, default_override:Optional[Self]=None)-> "RepositoryLocationConfig":
         """Create a file indexing Configuration from a dict.
 
         Expects dictionary to have the following form:
@@ -113,7 +113,7 @@ class RepositoryIndexingConfig(Config):
         :return: _description_
         :rtype: FileIndexingConfig
         """
-        return RepositoryIndexingConfig(name=name, local_dir=None, public_url=None, templates_url=None, other_elements=unparsed_elements)
+        return RepositoryLocationConfig(name=name, local_dir=None, public_url=None, templates_url=None, other_elements=unparsed_elements)
 
 
     @property
@@ -139,7 +139,7 @@ class RepositoryIndexingConfig(Config):
         elif isinstance(local_dir, str) or isinstance(local_dir, str):
             ret_val = DirectoryLocationConfig(name=f"{schema_name}Directory", folder_path=local_dir)
         else:
-            ret_val = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=fallbacks, schema_name=schema_name)
+            ret_val = RepositoryLocationConfig._parseLocalDir(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
@@ -152,7 +152,7 @@ class RepositoryIndexingConfig(Config):
         elif isinstance(public_url, str):
             ret_val = URLLocationConfig(name=f"{schema_name}RemoteRepoURL", url=public_url)
         else:
-            ret_val = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=fallbacks, schema_name=schema_name)
+            ret_val = RepositoryLocationConfig._parseRemoteURL(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
@@ -165,14 +165,14 @@ class RepositoryIndexingConfig(Config):
         elif isinstance(templates_url, str):
             ret_val = URLLocationConfig(name=f"{schema_name}TemplatesURL", url=templates_url)
         else:
-            ret_val = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=fallbacks, schema_name=schema_name)
+            ret_val = RepositoryLocationConfig._parseTemplatesURL(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
     def _parseLocalDir(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[DirectoryLocationConfig]:
         ret_val : Optional[DirectoryLocationConfig]
 
-        raw_base = RepositoryIndexingConfig.ParseElement(
+        raw_base = RepositoryLocationConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["files_base", "local_dir", "folder", "path"],
             to_type=[Path, dict],
@@ -186,10 +186,10 @@ class RepositoryIndexingConfig(Config):
             elif isinstance(raw_base, dict):
                 ret_val = DirectoryLocationConfig.FromDict(name=f"{schema_name}LocalDir", unparsed_elements=raw_base)
             else:
-                ret_val = RepositoryIndexingConfig._DEFAULT_LOCAL_DIR
+                ret_val = RepositoryLocationConfig._DEFAULT_LOCAL_DIR
                 Logger.warning(message=f"RepositoryIndexingConfig found raw_base with unexpected type {type(raw_base)}, defaulting to {ret_val}")
         else:
-            ret_val = RepositoryIndexingConfig._DEFAULT_LOCAL_DIR
+            ret_val = RepositoryLocationConfig._DEFAULT_LOCAL_DIR
 
         return ret_val
 
@@ -197,7 +197,7 @@ class RepositoryIndexingConfig(Config):
     def _parseRemoteURL(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[URLLocationConfig]:
         ret_val : Optional[URLLocationConfig]
 
-        raw_url = RepositoryIndexingConfig.ParseElement(
+        raw_url = RepositoryLocationConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["public_url", "url", "remote_url"],
             to_type=[str, dict],
@@ -211,7 +211,7 @@ class RepositoryIndexingConfig(Config):
             elif isinstance(raw_url, dict):
                 ret_val = URLLocationConfig.FromDict(name=f"{schema_name}PublicURL", unparsed_elements=raw_url)
             else:
-                ret_val = RepositoryIndexingConfig._DEFAULT_PUBLIC_URL
+                ret_val = RepositoryLocationConfig._DEFAULT_PUBLIC_URL
 
         return ret_val
 
@@ -219,7 +219,7 @@ class RepositoryIndexingConfig(Config):
     def _parseTemplatesURL(unparsed_elements:Map, schema_name:Optional[str]=None) -> URLLocationConfig:
         ret_val : URLLocationConfig
 
-        raw_url = RepositoryIndexingConfig.ParseElement(
+        raw_url = RepositoryLocationConfig.ParseElement(
             unparsed_elements=unparsed_elements,
             valid_keys=["templates_url", "templates_base", "url"],
             to_type=[str, dict],
@@ -233,10 +233,10 @@ class RepositoryIndexingConfig(Config):
             elif isinstance(raw_url, dict):
                 ret_val = URLLocationConfig.FromDict(name=f"{schema_name}TemplatesURL", unparsed_elements=raw_url)
             else:
-                ret_val = RepositoryIndexingConfig._DEFAULT_TEMPLATE_URL
+                ret_val = RepositoryLocationConfig._DEFAULT_TEMPLATE_URL
                 Logger.warning(message=f"RepositoryIndexingConfig found raw templates url with unexpected type {type(raw_url)}, defaulting to {ret_val}")
         else:
-            ret_val = RepositoryIndexingConfig._DEFAULT_TEMPLATE_URL
+            ret_val = RepositoryLocationConfig._DEFAULT_TEMPLATE_URL
 
         return ret_val
 

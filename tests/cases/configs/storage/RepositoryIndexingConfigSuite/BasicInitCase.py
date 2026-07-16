@@ -10,7 +10,7 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 # import locals
-from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
+from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryLocationConfig
 from config.t_config import settings
 
 def setUpModule():
@@ -36,7 +36,7 @@ class BasicInitCase(TestCase):
         Since this class currently just tests properties, we go ahead and use a single instance of `RepositoryIndexingConfig` shared across the class.
         If any tests are added that have expected side effects, initialization of the instance should be moved to a `setUp(self)` function.
         """
-        cls.test_schema = RepositoryIndexingConfig(
+        cls.test_schema = RepositoryLocationConfig(
             name="Indexing Schema",
             local_dir=DirectoryLocationConfig(name="LocalDir", folder_path=Path("./data")),
             public_url=URLLocationConfig(name="RemoteURL", url=urlparse("https://fieldday-web.ad.education.wisc.edu/opengamedata/")),

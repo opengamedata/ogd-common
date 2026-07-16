@@ -5,7 +5,7 @@ from typing import Any, Dict, Final, Optional, Self, TypeAlias
 # ogd imports
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
-from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
+from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryLocationConfig
 from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.schemas.datasets.DatasetCollectionSchema import DatasetCollectionSchema
@@ -39,19 +39,19 @@ class DatasetRepositoryConfig(DataStoreConfig):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    _DEFAULT_INDEXING : Final[RepositoryIndexingConfig] = RepositoryIndexingConfig.Default()
+    _DEFAULT_INDEXING : Final[RepositoryLocationConfig] = RepositoryLocationConfig.Default()
     _DEFAULT_DATASETS : Final[Dict[str, DatasetCollectionSchema]] = {}
 
     def __init__(self, name:str,
                  # params for class
-                 indexing:Optional[RepositoryIndexingConfig | Map | Path | str],
+                 indexing:Optional[RepositoryLocationConfig | Map | Path | str],
                  datasets:Optional[Dict[str, DatasetCollectionSchema]],
                  # dict of leftovers
                  other_elements:Optional[Map]=None
         ):
         fallbacks : Map = other_elements or {}
 
-        self._indexing : RepositoryIndexingConfig           = self._toIndexingConfig(indexing=indexing, fallbacks=fallbacks, schema_name=name)
+        self._indexing : RepositoryLocationConfig           = self._toIndexingConfig(indexing=indexing, fallbacks=fallbacks, schema_name=name)
         self._datasets : Dict[str, DatasetCollectionSchema] = datasets if datasets is not None else self._parseDatasets(unparsed_elements=fallbacks, schema_name=name)
         super().__init__(name=name, store_type="Repository", other_elements=other_elements)
 
@@ -82,7 +82,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
         return self.Indexing.TemplatesURL
 
     @property
-    def Indexing(self) -> RepositoryIndexingConfig:
+    def Indexing(self) -> RepositoryLocationConfig:
         return self._indexing
 
     @property
@@ -107,7 +107,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
     def Location(self) -> BaseLocation:
         return self.LocalDirectory if self.LocalDirectory is not None else \
                self.PublicURL      if self.PublicURL      is not None else \
-               RepositoryIndexingConfig._DEFAULT_LOCAL_DIR
+               RepositoryLocationConfig._DEFAULT_LOCAL_DIR
 
     @property
     def Credential(self) -> EmptyCredential:
@@ -148,21 +148,21 @@ class DatasetRepositoryConfig(DataStoreConfig):
     # *** PRIVATE STATICS ***
 
     @staticmethod
-    def _toIndexingConfig(indexing:Optional[RepositoryIndexingConfig | Map | Path | str], fallbacks:Map, schema_name:Optional[str]=None) -> RepositoryIndexingConfig:
-        ret_val : RepositoryIndexingConfig
-        if isinstance(indexing, RepositoryIndexingConfig):
+    def _toIndexingConfig(indexing:Optional[RepositoryLocationConfig | Map | Path | str], fallbacks:Map, schema_name:Optional[str]=None) -> RepositoryLocationConfig:
+        ret_val : RepositoryLocationConfig
+        if isinstance(indexing, RepositoryLocationConfig):
             ret_val = indexing
         elif isinstance(indexing, dict):
-            ret_val = RepositoryIndexingConfig.FromDict(name=f"{schema_name}Index", unparsed_elements=fallbacks)
+            ret_val = RepositoryLocationConfig.FromDict(name=f"{schema_name}Index", unparsed_elements=fallbacks)
         elif isinstance(indexing, Path) | isinstance(indexing, str):
-            ret_val = RepositoryIndexingConfig(name=f"{schema_name}Index", local_dir=indexing, public_url=None, templates_url=None)
+            ret_val = RepositoryLocationConfig(name=f"{schema_name}Index", local_dir=indexing, public_url=None, templates_url=None)
         else:
             ret_val = DatasetRepositoryConfig._parseIndexingConfig(unparsed_elements=fallbacks, schema_name=schema_name)
         return ret_val
 
     @staticmethod
-    def _parseIndexingConfig(unparsed_elements:Map, schema_name:Optional[str]=None) -> RepositoryIndexingConfig:
-        ret_val : RepositoryIndexingConfig
+    def _parseIndexingConfig(unparsed_elements:Map, schema_name:Optional[str]=None) -> RepositoryLocationConfig:
+        ret_val : RepositoryLocationConfig
 
         raw_config = DatasetRepositoryConfig.ParseElement(
             unparsed_elements=unparsed_elements,
@@ -172,7 +172,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
             remove_target=True,
             schema_name=schema_name
         )
-        ret_val = RepositoryIndexingConfig.FromDict(name=f"{schema_name}Index", unparsed_elements=raw_config)
+        ret_val = RepositoryLocationConfig.FromDict(name=f"{schema_name}Index", unparsed_elements=raw_config)
 
         return ret_val
 

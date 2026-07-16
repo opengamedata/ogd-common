@@ -9,7 +9,7 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 # import locals
-from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
+from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryLocationConfig
 from config.t_config import settings
 
 def setUpModule():
@@ -38,7 +38,7 @@ class EmptyCase(TestCase):
             "REMOTE_URL"    : "https://fieldday-web.ad.education.wisc.edu/opengamedata/",
             "TEMPLATES_URL" : "https://github.com/opengamedata/opengamedata-samples"
         }
-        _schema = RepositoryIndexingConfig.FromDict(name="FILE_INDEXING", unparsed_elements=_dict)
+        _schema = RepositoryLocationConfig.FromDict(name="FILE_INDEXING", unparsed_elements=_dict)
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "FILE_INDEXING")
         self.assertIsInstance(_schema.LocalDirectory, DirectoryLocationConfig)
@@ -53,56 +53,56 @@ class EmptyCase(TestCase):
 
     def test_parseLocalDir_str(self):
         unparsed_elements = { "LOCAL_DIR" : "./data/" }
-        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        result = RepositoryLocationConfig._parseLocalDir(unparsed_elements=unparsed_elements)
         self.assertIsInstance(result, DirectoryLocationConfig)
         self.assertEqual(result.FolderPath, Path("./data"))
 
     def test_parseLocalDir_path(self):
         unparsed_elements = { "LOCAL_DIR" : Path("./data") }
-        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        result = RepositoryLocationConfig._parseLocalDir(unparsed_elements=unparsed_elements)
         self.assertIsInstance(result, DirectoryLocationConfig)
         if result is not None:
             self.assertEqual(result.FolderPath, Path("./data"))
 
     def test_parseLocalDir_dict(self):
         unparsed_elements = { "LOCAL_DIR" : {"folder":"./data"} }
-        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        result = RepositoryLocationConfig._parseLocalDir(unparsed_elements=unparsed_elements)
         self.assertIsInstance(result, DirectoryLocationConfig)
         if result is not None:
             self.assertEqual(result.FolderPath, Path("./data"))
 
     def test_parseLocalDir_key_filesbase(self):
         unparsed_elements = { "files_base" : "./data/" }
-        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        result = RepositoryLocationConfig._parseLocalDir(unparsed_elements=unparsed_elements)
         self.assertIsInstance(result, DirectoryLocationConfig)
         if result is not None:
             self.assertEqual(result.FolderPath, Path("./data"))
 
     def test_parseLocalDir_key_folder(self):
         unparsed_elements = { "folder" : "./data/" }
-        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        result = RepositoryLocationConfig._parseLocalDir(unparsed_elements=unparsed_elements)
         self.assertIsInstance(result, DirectoryLocationConfig)
         if result is not None:
             self.assertEqual(result.FolderPath, Path("./data"))
 
     def test_parseLocalDir_key_path(self):
         unparsed_elements = { "path" : "./data/" }
-        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        result = RepositoryLocationConfig._parseLocalDir(unparsed_elements=unparsed_elements)
         self.assertIsInstance(result, DirectoryLocationConfig)
         if result is not None:
             self.assertEqual(result.FolderPath, Path("./data"))
 
     def test_parseLocalDir_missing(self):
         unparsed_elements = { "fakekey" : "foo" }
-        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        result = RepositoryLocationConfig._parseLocalDir(unparsed_elements=unparsed_elements)
         self.assertIsInstance(result, DirectoryLocationConfig)
-        self.assertEqual(result, RepositoryIndexingConfig._DEFAULT_LOCAL_DIR)
+        self.assertEqual(result, RepositoryLocationConfig._DEFAULT_LOCAL_DIR)
 
     def test_parseLocalDir_badtype(self):
         unparsed_elements = { "LOCAL_DIR" : 42 }
-        result = RepositoryIndexingConfig._parseLocalDir(unparsed_elements=unparsed_elements)
+        result = RepositoryLocationConfig._parseLocalDir(unparsed_elements=unparsed_elements)
         self.assertIsInstance(result, DirectoryLocationConfig)
-        self.assertEqual(result, RepositoryIndexingConfig._DEFAULT_LOCAL_DIR)
+        self.assertEqual(result, RepositoryLocationConfig._DEFAULT_LOCAL_DIR)
 
     # *** Tests for _parseRemoteURL ***
 
@@ -111,7 +111,7 @@ class EmptyCase(TestCase):
             "remote_url":"https://opengamedata.fielddaylab.wisc.edu/",
             "fakekey" : "Bar"
         }
-        url = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=_map)
+        url = RepositoryLocationConfig._parseRemoteURL(unparsed_elements=_map)
         self.assertIsInstance(url, URLLocationConfig)
         self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
         self.assertNotIn("remote_url", _map)
@@ -121,7 +121,7 @@ class EmptyCase(TestCase):
             "remote_url":{"url":"https://opengamedata.fielddaylab.wisc.edu/"},
             "fakekey" : "Bar"
         }
-        url = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=_map)
+        url = RepositoryLocationConfig._parseRemoteURL(unparsed_elements=_map)
         self.assertIsInstance(url, URLLocationConfig)
         self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
         self.assertNotIn("remote_url", _map)
@@ -135,7 +135,7 @@ class EmptyCase(TestCase):
             },
             "fakekey" : "Bar"
         }
-        url = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=_map)
+        url = RepositoryLocationConfig._parseRemoteURL(unparsed_elements=_map)
         self.assertIsInstance(url, URLLocationConfig)
         self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu:443/")
         self.assertNotIn("remote_url", _map)
@@ -147,7 +147,7 @@ class EmptyCase(TestCase):
             "url":"https://opengamedata.fielddaylab.wisc.edu/",
             "fakekey" : "Bar"
         }
-        url = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=_map)
+        url = RepositoryLocationConfig._parseRemoteURL(unparsed_elements=_map)
         self.assertIsInstance(url, URLLocationConfig)
         self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
         self.assertNotIn("url", _map)
@@ -158,9 +158,9 @@ class EmptyCase(TestCase):
         _map = {
             "fakekey" : "Bar"
         }
-        url = RepositoryIndexingConfig._parseRemoteURL(unparsed_elements=_map)
+        url = RepositoryLocationConfig._parseRemoteURL(unparsed_elements=_map)
         self.assertIsInstance(url, URLLocationConfig)
-        self.assertEqual(url, RepositoryIndexingConfig._DEFAULT_PUBLIC_URL)
+        self.assertEqual(url, RepositoryLocationConfig._DEFAULT_PUBLIC_URL)
 
     # *** Tests for _parseTemplatesURL ***
 
@@ -169,7 +169,7 @@ class EmptyCase(TestCase):
             "templates_url":"https://opengamedata.fielddaylab.wisc.edu/",
             "fakekey" : "Bar"
         }
-        url = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=_map)
+        url = RepositoryLocationConfig._parseTemplatesURL(unparsed_elements=_map)
         self.assertIsInstance(url, URLLocationConfig)
         self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
         self.assertNotIn("templates_url", _map)
@@ -179,7 +179,7 @@ class EmptyCase(TestCase):
             "templates_url":{"url":"https://opengamedata.fielddaylab.wisc.edu/"},
             "fakekey" : "Bar"
         }
-        url = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=_map)
+        url = RepositoryLocationConfig._parseTemplatesURL(unparsed_elements=_map)
         self.assertIsInstance(url, URLLocationConfig)
         self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
         self.assertNotIn("templates_url", _map)
@@ -193,7 +193,7 @@ class EmptyCase(TestCase):
             },
             "fakekey" : "Bar"
         }
-        url = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=_map)
+        url = RepositoryLocationConfig._parseTemplatesURL(unparsed_elements=_map)
         self.assertIsInstance(url, URLLocationConfig)
         self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu:443/")
         self.assertNotIn("templates_url", _map)
@@ -205,7 +205,7 @@ class EmptyCase(TestCase):
             "templates_base":"https://opengamedata.fielddaylab.wisc.edu/",
             "fakekey" : "Bar"
         }
-        url = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=_map)
+        url = RepositoryLocationConfig._parseTemplatesURL(unparsed_elements=_map)
         self.assertIsInstance(url, URLLocationConfig)
         self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
         self.assertNotIn("templates_base", _map)
@@ -217,7 +217,7 @@ class EmptyCase(TestCase):
             "url":"https://opengamedata.fielddaylab.wisc.edu/",
             "fakekey" : "Bar"
         }
-        url = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=_map)
+        url = RepositoryLocationConfig._parseTemplatesURL(unparsed_elements=_map)
         self.assertIsInstance(url, URLLocationConfig)
         self.assertEqual(url, "https://opengamedata.fielddaylab.wisc.edu/")
         self.assertNotIn("url", _map)
@@ -228,7 +228,7 @@ class EmptyCase(TestCase):
         _map = {
             "fakekey" : "Bar"
         }
-        url = RepositoryIndexingConfig._parseTemplatesURL(unparsed_elements=_map)
+        url = RepositoryLocationConfig._parseTemplatesURL(unparsed_elements=_map)
         self.assertIsInstance(url, URLLocationConfig)
-        self.assertEqual(url, RepositoryIndexingConfig._DEFAULT_TEMPLATE_URL)
+        self.assertEqual(url, RepositoryLocationConfig._DEFAULT_TEMPLATE_URL)
         self.assertNotIn("url", _map)
