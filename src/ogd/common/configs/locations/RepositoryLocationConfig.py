@@ -2,13 +2,13 @@
 from pathlib import Path
 from typing import Any, Dict, Final, Optional, Self
 # import local files
-from ogd.common.configs.Config import Config
+from ogd.common.configs.locations.LocationConfig import LocationConfig
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 from ogd.common.utils.typing import JSONMap, Map
 from ogd.common.utils.Logger import Logger
 
-class RepositoryLocationConfig(Config):
+class RepositoryLocationConfig(LocationConfig):
     _DEFAULT_LOCAL_DIR    : Final[DirectoryLocationConfig] = DirectoryLocationConfig(name="DefaultLocalDir", folder_path=Path("./data/"), other_elements={})
     _DEFAULT_PUB_URL_RAW  : Final[str]                     = "https://opengamedata.fielddaylab.wisc.edu/"
     _DEFAULT_PUBLIC_URL   : Final[URLLocationConfig]       = URLLocationConfig.FromString(name="DefaultRemoteURL", raw_url=_DEFAULT_PUB_URL_RAW)
@@ -54,6 +54,10 @@ class RepositoryLocationConfig(Config):
         self._public_url    : Optional[URLLocationConfig]       = self._toPublicURL(public_url=public_url, fallbacks=fallbacks, schema_name=name)
         self._templates_url : URLLocationConfig                 = self._toTemplatesURL(templates_url=templates_url, fallbacks=fallbacks, schema_name=name)
         super().__init__(name=name, other_elements=other_elements)
+
+    @property
+    def Location(self) -> str:
+        return str(self.LocalDirectory or self.PublicURL)
 
     @property
     def LocalDirectory(self) -> Optional[DirectoryLocationConfig]:
