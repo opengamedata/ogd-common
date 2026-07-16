@@ -8,11 +8,14 @@ from typing import Dict, Optional, IO, Set
 from urllib import request as urlrequest
 from urllib.error import URLError
 ## import local files
+from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
 from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
-from ogd.common.models.enums.ExportMode import ExportMode
+from ogd.common.models.features.AggregationMode import AggregationMode
+from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetCollectionSchema import DatasetCollectionSchema
-from ogd.common.schemas.locations.DirectoryLocationSchema import DirectoryLocationSchema
-from ogd.common.schemas.locations.URLLocationSchema import URLLocationSchema
+from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
+from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
+from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.storage.connectors.StorageConnector import StorageConnector
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.fileio import loadJSONFile
@@ -23,12 +26,12 @@ class DatasetRepositoryConnector(StorageConnector):
     # *** BUILT-INS & PROPERTIES ***
     _DEFAULT_EXTENSION = "tsv"
     _FILE_SUFFIXES     = {ExportMode.EVENTS.name:"game-events", ExportMode.DETECTORS.name:"all-events",
-                          ExportMode.FEATURES.name:"all-features", ExportMode.SESSION.name:"session-features",
-                          ExportMode.PLAYER.name:"player-features", ExportMode.POPULATION.name:"population-features"}
+                          ExportMode.FEATURES.name:"all-features", AggregationMode.SESSION.name:"session-features",
+                          AggregationMode.PLAYER.name:"player-features", AggregationMode.POPULATION.name:"population-features"}
 
-    def __init__(self, location:DirectoryLocationSchema | URLLocationSchema,
+    def __init__(self, repository:DatasetRepositoryConfig,
                  extension:Optional[str]=None,
-                 with_files:Optional[Set[ExportMode]]=None,
+                 with_files:Optional[Set[AggregationMode | ExportMode]]=None,
                  with_zipping:bool=False):
         """Constructor for the DatasetRepositoryConnector
 
@@ -43,31 +46,28 @@ class DatasetRepositoryConnector(StorageConnector):
         """
         # set up data from params
         super().__init__()
-        self._location      : DirectoryLocationSchema | URLLocationSchema = location or RepositoryIndexingConfig._DEFAULT_LOCAL_DIR
-        self._extension     : str                      = extension or DatasetRepositoryConnector._DEFAULT_EXTENSION
-        self._with_files    : Set[ExportMode]          = with_files or set()
-        self._files         : Dict[str,Optional[IO]]   = {mode.name:None for mode in ExportMode}
-        self._with_zipping  : bool                     = with_zipping
-        self._zip_paths     : Dict[str,Optional[Path]] = {mode.name:None for mode in ExportMode}
+        self._config        : DatasetRepositoryConfig           = repository
+        self._extension     : str                               = extension or DatasetRepositoryConnector._DEFAULT_EXTENSION
+        self._with_files    : Set[AggregationMode | ExportMode] = with_files or set()
+        self._files         : Dict[str,Optional[CSVConnector]]  = {mode:None for mode in AggregationMode.Names() + ExportMode.Names()}
+        self._with_zipping  : bool                              = with_zipping
+        self._zip_paths     : Dict[str,Optional[Path]]          = {mode:None for mode in AggregationMode.Names() + ExportMode.Names()}
         self._existing_meta : Dict
 
     # *** PROPERTIES ***
 
     @property
-    def StoreConfig(self) -> DirectoryLocationSchema | URLLocationSchema:
-        return self._location
+    def StoreConfig(self) -> DatasetRepositoryConfig:
+        return self._config
 
     @property
-    def Files(self) -> Dict[str, Optional[IO]]:
+    def Files(self) -> Dict[str, Optional[CSVConnector]]:
         return self._files
 
     @property
     def FileExtension(self) -> str:
         return self._extension
 
-    @property
-    def SecondaryFiles(self) -> Dict[str, Optional[IO]]:
-        return self._files
     @property
     def ZipPaths(self) -> Dict[str, Optional[Path]]:
         return self._zip_paths
@@ -79,19 +79,35 @@ class DatasetRepositoryConnector(StorageConnector):
 
         datasets_raw : Map
         try:
-            if isinstance(self._location, DirectoryLocationSchema):
-                datasets_raw = loadJSONFile(filename="file_list.json", path=self._location.FolderPath)
-            else:
-                with urlrequest.urlopen(url=f"{self._location.Location}/file_list.json") as remote_datasets_file:
+            if self.StoreConfig.LocalDirectory is not None:
+                datasets_raw = loadJSONFile(filename="file_list.json", path=self.StoreConfig.LocalDirectory.FolderPath)
+            elif self.StoreConfig.PublicURL is not None:
+                # TODO : figure out the right URL joining to do to get the right file_list.json URL set up
+                with urlrequest.urlopen(url=f"{self.StoreConfig.PublicURL.Location}/file_list.json") as remote_datasets_file:
                     datasets_raw = json.loads(remote_datasets_file)
+            else:
+                datasets_raw = loadJSONFile(filename="file_list.json", path=RepositoryIndexingConfig._DEFAULT_LOCAL_DIR.FolderPath)
         except (ModuleNotFoundError, FileNotFoundError, URLError):
-            Logger.Log(f"Could not find dataset information for dataset repository at {self._location.Location}", logging.ERROR)
+            Logger.Log(f"Could not find dataset information for dataset repository at {self.StoreConfig.Location}", logging.ERROR)
         else:
             self._existing_meta = {
                 game_name : DatasetCollectionSchema(name=game_name, datasets=None, other_elements=raw_datasets)
                 for game_name, raw_datasets in datasets_raw.items()
             }
             ret_val = True
+
+        # logic for opening files
+        for mode in self._with_files:
+            suffix = self._FILE_SUFFIXES[mode.name]
+            if isinstance(self._location, DirectoryLocationSchema):
+                filename = self._location.FolderPath / f"{base_file_name}_{suffix}.{self.FileExtension}"
+            _zip  = self.StoreConfig.Folder / f"{base_file_name}_{suffix}.zip"
+            try:
+                self._files[mode.name] = open(file, "w+", encoding="utf-8")
+            except FileNotFoundError:
+                Logger.Log(f"Could not find file {file}.", logging.ERROR)
+            else:
+                self._zip_paths[mode.name] = _zip
 
         return ret_val
 
@@ -103,7 +119,7 @@ class DatasetRepositoryConnector(StorageConnector):
 
     # *** PUBLIC METHODS ***
 
-    def RemoveFile(self, mode:ExportMode):
+    def RemoveFile(self, mode:AggregationMode):
         f = self._files[mode.name]
         if f is not None:
             f.close()
