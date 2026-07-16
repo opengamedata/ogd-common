@@ -5,7 +5,7 @@ from typing import Any, Dict, Final, Optional, Self, TypeAlias
 # ogd imports
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.credentials.EmptyCredential import EmptyCredential
-from ogd.common.configs.storage.RepositoryLocationConfig import RepositoryLocationConfig
+from ogd.common.configs.locations.RepositoryLocationConfig import RepositoryLocationConfig
 from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.schemas.datasets.DatasetCollectionSchema import DatasetCollectionSchema
