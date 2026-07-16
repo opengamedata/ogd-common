@@ -19,10 +19,10 @@ def setUpModule():
     Logger.std_logger.setLevel(_level)
 
 class BasicInitCase(TestCase):
-    """RepositoryIndexingConfig test case where basic initialization is used.
+    """RepositoryLocationConfig test case where basic initialization is used.
     
     Fixture:
-    * Initialize a RepositoryIndexingConfig object with hardcoded values for all `__init__(...)` params
+    * Initialize a RepositoryLocationConfig object with hardcoded values for all `__init__(...)` params
     
     Case Categories:
     * Property functions.
@@ -33,7 +33,7 @@ class BasicInitCase(TestCase):
     def setUpClass(cls) -> None:
         """Set up common attributes across the class.
 
-        Since this class currently just tests properties, we go ahead and use a single instance of `RepositoryIndexingConfig` shared across the class.
+        Since this class currently just tests properties, we go ahead and use a single instance of `RepositoryLocationConfig` shared across the class.
         If any tests are added that have expected side effects, initialization of the instance should be moved to a `setUp(self)` function.
         """
         cls.test_schema = RepositoryLocationConfig(

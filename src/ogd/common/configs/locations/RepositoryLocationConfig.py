@@ -22,7 +22,7 @@ class RepositoryLocationConfig(Config):
                  public_url:Optional[URLLocationConfig | Map | str],
                  templates_url:Optional[URLLocationConfig | Map | str],
                  other_elements:Optional[Map]=None):
-        """Constructor for the `RepositoryIndexingConfig` class.
+        """Constructor for the `RepositoryLocationConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
 
@@ -187,7 +187,7 @@ class RepositoryLocationConfig(Config):
                 ret_val = DirectoryLocationConfig.FromDict(name=f"{schema_name}LocalDir", unparsed_elements=raw_base)
             else:
                 ret_val = RepositoryLocationConfig._DEFAULT_LOCAL_DIR
-                Logger.warning(message=f"RepositoryIndexingConfig found raw_base with unexpected type {type(raw_base)}, defaulting to {ret_val}")
+                Logger.warning(message=f"RepositoryLocationConfig found raw_base with unexpected type {type(raw_base)}, defaulting to {ret_val}")
         else:
             ret_val = RepositoryLocationConfig._DEFAULT_LOCAL_DIR
 
@@ -234,7 +234,7 @@ class RepositoryLocationConfig(Config):
                 ret_val = URLLocationConfig.FromDict(name=f"{schema_name}TemplatesURL", unparsed_elements=raw_url)
             else:
                 ret_val = RepositoryLocationConfig._DEFAULT_TEMPLATE_URL
-                Logger.warning(message=f"RepositoryIndexingConfig found raw templates url with unexpected type {type(raw_url)}, defaulting to {ret_val}")
+                Logger.warning(message=f"RepositoryLocationConfig found raw templates url with unexpected type {type(raw_url)}, defaulting to {ret_val}")
         else:
             ret_val = RepositoryLocationConfig._DEFAULT_TEMPLATE_URL
 

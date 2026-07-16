@@ -18,10 +18,10 @@ def setUpModule():
     Logger.std_logger.setLevel(_level)
 
 class EmptyCase(TestCase):
-    """RepositoryIndexingConfig test case where no initialization is used at class level.
+    """RepositoryLocationConfig test case where no initialization is used at class level.
 
     Fixture:
-    * No initialization of a RepositoryIndexingConfig object
+    * No initialization of a RepositoryLocationConfig object
 
     Case Categories:
     * Loading functions.
