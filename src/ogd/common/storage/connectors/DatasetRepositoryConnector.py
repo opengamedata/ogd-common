@@ -1,10 +1,5 @@
 import json
 import logging
-import os
-import traceback
-import zipfile
-from pathlib import Path
-from typing import Dict, Optional, IO, Set
 from urllib import request as urlrequest
 from urllib.error import URLError
 ## import local files
@@ -12,15 +7,11 @@ from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepository
 from ogd.common.configs.locations.RepositoryLocationConfig import RepositoryLocationConfig
 from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.models.features.ExportMode import ExportMode
-from ogd.common.schemas.datasets.DatasetCollectionSchema import DatasetCollectionSchema
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
 from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
-from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.storage.connectors.StorageConnector import StorageConnector
 from ogd.common.utils.Logger import Logger
-from ogd.common.utils.fileio import loadJSONFile
-from ogd.common.utils.typing import Map
 
 class DatasetRepositoryConnector(StorageConnector):
 
@@ -52,6 +43,9 @@ class DatasetRepositoryConnector(StorageConnector):
         self._loc          : RepositoryLocationConfig
         self._remote_repo  : bool
         match repository_location:
+            case RepositoryLocationConfig():
+                self._loc = repository_location
+                self._remote_repo = self._loc.LocalDirectory is None and self._loc.PublicURL is not None
             case DirectoryLocationConfig():
                 self._loc = RepositoryLocationConfig(name=repository_location.Name, local_dir=repository_location, public_url=None, templates_url=None)
                 self._remote_repo = False
@@ -78,13 +72,16 @@ class DatasetRepositoryConnector(StorageConnector):
         ret_val : bool = False
 
         if self._remote_repo:
-            with urlrequest.urlopen(url=self._loc.Location, data=None) as response:
-                with json.loads(response) as remote_cfg:
-                    self._config = DatasetRepositoryConfig.FromDict(
-                        name=f"{self.ResourceName}Config",
-                        unparsed_elements=remote_cfg
-                    )
-            ret_val = True
+            try:
+                with urlrequest.urlopen(url=self._loc.Location, data=None) as response:
+                    with json.loads(response) as remote_cfg:
+                        self._config = DatasetRepositoryConfig.FromDict(
+                            name=f"{self.ResourceName}Config",
+                            unparsed_elements=remote_cfg
+                        )
+                ret_val = True
+            except URLError as err:
+                Logger.Log(f"Could not find dataset repository information at {self._loc.Location}, failed to open connector to the repository!\nError message: {err}", logging.ERROR)
         else:
             self._config = DatasetRepositoryConfig.FromFile(
                 file_name="file_list.json",
