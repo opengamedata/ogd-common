@@ -13,7 +13,7 @@ from typing import Any, List, Optional, override, Set, Tuple
 # import local files
 # from ogd import games
 from ogd.common.configs.DataTableConfig import DataTableConfig
-from ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
+from ogd.common.configs.locations.RepositoryLocationConfig import RepositoryLocationConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
 from ogd.common.models.DatasetKey import DatasetKey
@@ -34,49 +34,24 @@ class DatasetRepositoryOuterface(Outerface):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode | AggregationMode],
-                 repository:DatasetRepositoryConfig, dataset_key:str | DatasetKey,
-                 with_separate_feature_files:bool=True, with_zipping:bool=True,
+                 dataset_key:str | DatasetKey,       with_zipping:bool=True,
                  store:Optional[DatasetRepositoryConnector]=None):
         self._store : DatasetRepositoryConnector
 
         super().__init__(table_config=table_config, export_modes=export_modes)
-        self._repository                  : DatasetRepositoryConfig = repository
         self._dataset_key                 : DatasetKey              = dataset_key if isinstance(dataset_key, DatasetKey) else DatasetKey.FromString(dataset_key)
-        self._with_separate_feature_files : bool                    = with_separate_feature_files
         self._with_zipping                : bool                    = with_zipping
-        # if store:
-        #     self._store = store
-        # elif isinstance(self.Config.StoreConfig, FileStoreConfig):
-        #     self._store = CSVConnector(
-        #         config=self.Config.StoreConfig,
-        #         extension=self._extension,
-        #         with_secondary_files={ExportMode.EVENTS, ExportMode.DETECTORS, ExportMode.SESSION, ExportMode.PLAYER, ExportMode.POPULATION}
-        #     )
-        # else:
-        #     raise ValueError(f"CSVInterface config was for a connector other than CSV/TSV files! Found config type {type(self.Config.StoreConfig)}")
-
-        existing_datasets = {}
-        try:
-            file_directory = fileio.loadJSONFile(filename="file_list.json", path=self._repository.LocalDirectory.FolderPath)
-            existing_datasets = file_directory.get(self._dataset_key.GameID, {})
-        except FileNotFoundError:
-            Logger.Log("file_list.json does not exist.", logging.WARNING)
-        except json.decoder.JSONDecodeError as err:
-            Logger.Log(f"file_list.json has invalid format: {str(err)}.", logging.WARNING)
-        existing_meta = existing_datasets.get(self._dataset_key, None)
         if store:
             self._store = store
-        elif isinstance(self.Config.StoreConfig, FileStoreConfig):
+        elif isinstance(self.Config.StoreConfig, DatasetRepositoryConfig):
             self._store = DatasetRepositoryConnector(
-                config               = self.Config.StoreConfig,
-                with_secondary_files = export_modes if with_separate_feature_files else set(),
-                with_zipping         = self._with_zipping,
-                existing_meta        = existing_meta
+                repository_location=self.Config.StoreConfig,
+                with_zipping=self._with_zipping
             )
         else:
-            raise ValueError(f"DatasetRepositoryOuterface config was for a connector other than a DatasetRepositoryConnector! Found config type {type(self.Config.StoreConfig)}")
-        self.Connector.Open()
+            raise ValueError(f"DatasetRepository config was for a connector other than a dataset repository! Found config type {type(self.Config.StoreConfig)}")
 
+        self.Connector.Open()
 
         # logic for opening files
         for mode in self._with_files:
@@ -91,16 +66,13 @@ class DatasetRepositoryOuterface(Outerface):
             else:
                 self._zip_paths[mode.name] = _zip
 
-        # then set up our paths, and ensure each exists.
-        # finally, generate file names.
-
     @property
     def Connector(self) -> DatasetRepositoryConnector:
         return self._store
 
     @property
     def FileExtension(self) -> str:
-        return self.Connector.FileExtension
+        return self._extension
 
     @property
     def Delimiter(self) -> str:
@@ -116,14 +88,20 @@ class DatasetRepositoryOuterface(Outerface):
     # *** IMPLEMENT ABSTRACTS ***
 
     @override
-    def _removeExportMode(self, mode:ExportMode):
-        self.Connector.RemoveSecondaryFile(mode=mode)
+    def _removeExportMode(self, mode:ExportMode | AggregationMode):
+        f = self._files[mode.name]
+        if f is not None:
+            f.close()
+
+        self._files[mode.name] = None
+        if mode in self._with_files:
+            self._with_files.remove(mode)
 
     @override
     def _setupGameEventsTable(self, header:List[str]) -> None:
         cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
-        f = self.Connector.SecondaryFiles.get(ExportMode.EVENTS.name, None)
+        f = self.Connector.Files.get(ExportMode.EVENTS.name, None)
         if f is not None:
             f.writelines(cols_line)
         else:
@@ -134,7 +112,7 @@ class DatasetRepositoryOuterface(Outerface):
     def _setupDetectorEventsTable(self, header:List[str]) -> None:
         cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
         cols_line = "\t".join(cols) + "\n"
-        f = self.Connector.SecondaryFiles.get(ExportMode.DETECTORS.name, None)
+        f = self.Connector.Files.get(ExportMode.DETECTORS.name, None)
         if f is not None:
             f.writelines(cols_line)
         else:
@@ -262,7 +240,7 @@ class DatasetRepositoryOuterface(Outerface):
             else: # we got a URL base
                 _local_dir = None
                 _public_url = self._repository.Location
-            _file_index = RepositoryIndexingConfig(name="IndexingConfig",
+            _file_index = RepositoryLocationConfig(name="IndexingConfig",
                                              local_dir=_local_dir,
                                              public_url=_public_url,
                                              templates_url=URLLocationConfig.FromDict(name="TemplateURL", unparsed_elements={"URL" : self._repository.TemplatesBase.Location})
@@ -310,6 +288,98 @@ class DatasetRepositoryOuterface(Outerface):
             meta_file.write(json.dumps(dataset_schema.AsMetadata, indent=4))
             meta_file.close()
 
+    def _zipFiles(self) -> None:
+        # if we have already done this dataset before, rename old zip files
+        # (of course, first check if we ever exported this game before).
+        if self._existing_meta is not None:
+            _existing_game_events_file  = self._existing_meta.get('game_events_file',  self._existing_meta.get('raw_events_file', None))
+            # _existing_all_events_file   = self._existing_meta.get('all_events_file',   self._existing_meta.get('events_file', None))
+            # _existing_all_feats_file    = self._existing_meta.get('all_features_file', self._existing_meta.get('features_file', None))
+            _existing_sess_file    = self._existing_meta.get('sessions_file', None)
+            _existing_players_file = self._existing_meta.get('players_file', None)
+            _existing_pop_file     = self._existing_meta.get('population_file', None)
+            try:
+                if _existing_game_events_file is not None and Path(_existing_game_events_file).is_file() and self._zip_paths['game_events'] is not None:
+                    Logger.Log(f"Renaming {str(_existing_game_events_file)} -> {self._zip_paths['game_events']}", logging.DEBUG)
+                    os.rename(_existing_game_events_file, str(self._zip_paths['game_events']))
+                # if _existing_all_events_file is not None and Path(_existing_all_events_file).is_file() and self._zip_paths['all_events'] is not None:
+                #     Logger.Log(f"Renaming {str(_existing_all_events_file)} -> {self._zip_paths['all_events']}", logging.DEBUG)
+                #     os.rename(_existing_all_events_file, str(self._zip_paths['all_events']))
+                if _existing_sess_file is not None and Path(_existing_sess_file).is_file() and self._zip_paths['sessions'] is not None:
+                    Logger.Log(f"Renaming {str(_existing_sess_file)} -> {self._zip_paths['sessions']}", logging.DEBUG)
+                    os.rename(_existing_sess_file, str(self._zip_paths['sessions']))
+                if _existing_players_file is not None and Path(_existing_players_file).is_file() and self._zip_paths['players'] is not None:
+                    Logger.Log(f"Renaming {str(_existing_players_file)} -> {self._zip_paths['players']}", logging.DEBUG)
+                    os.rename(_existing_players_file, str(self._zip_paths['players']))
+                if _existing_pop_file is not None and Path(_existing_pop_file).is_file() and self._zip_paths['population'] is not None:
+                    Logger.Log(f"Renaming {str(_existing_pop_file)} -> {self._zip_paths['population']}", logging.DEBUG)
+                    os.rename(_existing_pop_file, str(self._zip_paths['population']))
+            except FileExistsError as err:
+                msg = f"Error while setting up zip files, could not rename an existing file because another file is already using the target name! {err}"
+                Logger.Log(msg, logging.ERROR)
+            except Exception as err:
+                msg = f"Unexpected error while setting up zip files! {type(err)} : {err}"
+                Logger.Log(msg, logging.ERROR)
+                traceback.print_tb(err.__traceback__)
+        # for each file, try to save out the csv/tsv to a file - if it's one that should be exported, that is.
+        readme_path = self.StoreConfig.Folder / "README.md"
+        for mode in self._VALID_FILES:
+            z_path = self._zip_paths[mode.name]
+            if z_path is not None:
+                with zipfile.ZipFile(z_path, "w", compression=zipfile.ZIP_DEFLATED) as zip_file:
+            # FIXME : This is dumb, we should have a way to use the DatasetKey. Also, StoreConfig.Filename currently doesn't have the hash included. For features, it at least has _feature at end, though maybe that shouldn't be there yet either...
+                    base_file_name : str = "_".join(self.StoreConfig.Filename.split("_")[:-1]) # everything up to suffix
+                    dataset_id     : str = "_".join(base_file_name.split("_")[:-1]) # everything up to short hash
+                    file_name = f"{base_file_name}_{self._FILE_SUFFIXES[mode.name]}.{self.FileExtension}"
+                    try:
+                        self._addToZip(
+                            path=self.StoreConfig.Folder / file_name,
+                            zip_file=zip_file,
+                            path_in_zip=Path(dataset_id) / file_name
+                        )
+                        if readme_path.is_file():
+                            self._addToZip(
+                                path=self.StoreConfig.Folder / "README.md",
+                                zip_file=zip_file,
+                                path_in_zip=Path(dataset_id) / "README.md"
+                            )
+                        else:
+                            Logger.Log(f"Missing readme in {self.StoreConfig.Folder}, consider generating readme...", logging.WARNING, depth=1)
+                        zip_file.close()
+                        os.remove(self.StoreConfig.Folder / file_name)
+                    except FileNotFoundError as err:
+                        Logger.Log(f"FileNotFoundError Exception: {err}", logging.ERROR)
+                        traceback.print_tb(err.__traceback__)
+        # finally, zip up the primary output file.
+        with zipfile.ZipFile(str(self.StoreConfig.Filepath).split(".")[0]+".zip", "w", compression=zipfile.ZIP_DEFLATED) as zip_file:
+            try:
+                self._addToZip(
+                    path=self.StoreConfig.Filepath,
+                    zip_file=zip_file,
+                    path_in_zip=Path(dataset_id) / self.StoreConfig.Filename
+                )
+                if readme_path.is_file():
+                    self._addToZip(
+                        path=self.StoreConfig.Folder / "README.md",
+                        zip_file=zip_file,
+                        path_in_zip=Path(dataset_id) / "README.md"
+                    )
+                else:
+                    Logger.Log(f"Missing readme in {self.StoreConfig.Folder}, consider generating readme...", logging.WARNING, depth=1)
+                zip_file.close()
+                os.remove(self.StoreConfig.Filepath)
+            except FileNotFoundError as err:
+                Logger.Log(f"FileNotFoundError Exception: {err}", logging.ERROR)
+                traceback.print_tb(err.__traceback__)
+
+    @staticmethod
+    def _addToZip(path, zip_file, path_in_zip) -> None:
+        try:
+            zip_file.write(path, path_in_zip)
+        except FileNotFoundError as err:
+            Logger.Log(str(err), logging.ERROR)
+            traceback.print_tb(err.__traceback__)
+
     # ******* STUFF THAT GOES UP TO PROCESSING LEVEL *********
 
     @staticmethod
@@ -336,7 +406,7 @@ class DatasetRepositoryOuterface(Outerface):
     #  list of files.
     #  @param date_range    The range of dates included in the exported data.
     #  @param num_sess      The number of sessions included in the recent export.
-    def _updateFileExportList(self, file_indexing:RepositoryIndexingConfig, dataset_schema:DatasetSchema) -> None:
+    def _updateFileExportList(self, file_indexing:RepositoryLocationConfig, dataset_schema:DatasetSchema) -> None:
         if self._repository.LocalDirectory is not None:
             DatasetRepositoryOuterface._backupFileExportList(self._repository.LocalDirectory.FolderPath)
             file_index = {}
