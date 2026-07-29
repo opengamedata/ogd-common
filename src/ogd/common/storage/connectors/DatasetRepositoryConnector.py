@@ -2,6 +2,7 @@ import json
 import logging
 from urllib import request as urlrequest
 from urllib.error import URLError
+from typing import Optional
 ## import local files
 from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
@@ -36,7 +37,7 @@ class DatasetRepositoryConnector(StorageConnector):
         # set up data from params
         super().__init__()
 
-        self._config       : DatasetRepositoryConfig
+        self._config       : Optional[DatasetRepositoryConfig] = None
         self._with_zipping : bool = with_zipping
 
         self._loc          : DirectoryLocationConfig | FileLocationConfig | URLLocationConfig
@@ -60,7 +61,7 @@ class DatasetRepositoryConnector(StorageConnector):
             case DatasetRepositoryConfig():
                 return self._config
             case None:
-                raise ValueError(f"DatasetRepositoryConnector for {self.ResourceName} has not been opened, so it does not have a config yet!")
+                raise ValueError(f"DatasetRepositoryConnector for {self._loc.Location} has not been opened, so it does not have a config yet!")
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -70,11 +71,11 @@ class DatasetRepositoryConnector(StorageConnector):
         if self._remote_repo:
             try:
                 with urlrequest.urlopen(url=self._loc.Location, data=None) as response:
-                    with json.loads(response) as remote_cfg:
-                        self._config = DatasetRepositoryConfig.FromDict(
-                            name=f"{self.ResourceName}Config",
-                            unparsed_elements=remote_cfg
-                        )
+                    remote_cfg = json.loads(response.read())
+                    self._config = DatasetRepositoryConfig.FromDict(
+                        name=f"{self._loc.Location}Config",
+                        unparsed_elements=remote_cfg
+                    )
                 ret_val = True
             except URLError as err:
                 Logger.Log(f"Could not find dataset repository information at {self._loc.Location}, failed to open connector to the repository!\nError message: {err}", logging.ERROR)
