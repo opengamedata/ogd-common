@@ -21,7 +21,7 @@ class DatasetRepositoryConnector(StorageConnector):
                           ExportMode.FEATURES.name:"all-features", AggregationMode.SESSION.name:"session-features",
                           AggregationMode.PLAYER.name:"player-features", AggregationMode.POPULATION.name:"population-features"}
 
-    def __init__(self, repository_location: DirectoryLocationConfig | FileLocationConfig | URLLocationConfig,
+    def __init__(self, config: DatasetRepositoryConfig | DirectoryLocationConfig | FileLocationConfig | URLLocationConfig,
                  with_zipping:bool=False):
         """Constructor for the DatasetRepositoryConnector
 
@@ -37,56 +37,42 @@ class DatasetRepositoryConnector(StorageConnector):
         # set up data from params
         super().__init__()
 
-        self._config       : Optional[DatasetRepositoryConfig] = None
+        self._config       : DatasetRepositoryConfig
         self._with_zipping : bool = with_zipping
-
-        self._loc          : DirectoryLocationConfig | FileLocationConfig | URLLocationConfig
-        self._remote_repo  : bool
-        match repository_location:
+        match config:
+            case DatasetRepositoryConfig():
+                self._config = config
             case DirectoryLocationConfig():
-                self._loc = repository_location
-                self._remote_repo = False
+                self._config = DatasetRepositoryConfig.FromFile(
+                    file_name="file_list.json",
+                    directory=config.FolderPath
+                )
             case FileLocationConfig():
-                self._loc = DirectoryLocationConfig(name=repository_location.Name, folder_path=repository_location.Folder)
-                self._remote_repo = False
+                self._config = DatasetRepositoryConfig.FromFile(
+                    file_name=config.Filename,
+                    directory=config.Folder
+                )
             case URLLocationConfig():
-                self._loc = repository_location
-                self._remote_repo = True # if we got a URL, then we're connecting to a remote repo.
+                try:
+                    with urlrequest.urlopen(url=config.Location, data=None) as response:
+                        remote_cfg = json.loads(response.read())
+                        self._config = DatasetRepositoryConfig.FromDict(
+                            name=f"{config.Location}Config",
+                            unparsed_elements=remote_cfg
+                        )
+                except URLError as err:
+                    Logger.Log(f"Could not find dataset repository information at {config.Location}, failed to open connector to the repository!\nError message: {err}", logging.ERROR)
 
     # *** PROPERTIES ***
 
     @property
     def StoreConfig(self) -> DatasetRepositoryConfig:
-        match self._config:
-            case DatasetRepositoryConfig():
-                return self._config
-            case None:
-                raise ValueError(f"DatasetRepositoryConnector for {self._loc.Location} has not been opened, so it does not have a config yet!")
+        return self._config
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     def _open(self, writeable:bool=True) -> bool:
-        ret_val : bool = False
-
-        if self._remote_repo:
-            try:
-                with urlrequest.urlopen(url=self._loc.Location, data=None) as response:
-                    remote_cfg = json.loads(response.read())
-                    self._config = DatasetRepositoryConfig.FromDict(
-                        name=f"{self._loc.Location}Config",
-                        unparsed_elements=remote_cfg
-                    )
-                ret_val = True
-            except URLError as err:
-                Logger.Log(f"Could not find dataset repository information at {self._loc.Location}, failed to open connector to the repository!\nError message: {err}", logging.ERROR)
-        else:
-            self._config = DatasetRepositoryConfig.FromFile(
-                file_name="file_list.json",
-                directory=self._loc.Location
-            )
-            ret_val = True
-
-        return ret_val
+        return True
 
     def _close(self) -> bool:
         self._is_open = False

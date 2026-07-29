@@ -320,6 +320,10 @@ class DatasetRepositoryConfig(DataStoreConfig):
         return self.Indexing.PublicURL
 
     @property
+    def IsRemote(self) -> bool:
+        return self.PublicURL is not None and self.LocalDirectory is None
+
+    @property
     def TemplatesBase(self) -> URLLocationConfig:
         return self.Indexing.TemplatesURL
 
