@@ -3,7 +3,6 @@ import logging
 from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
-from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
 from ogd.common.storage.connectors.DatasetRepositoryConnector import DatasetRepositoryConnector
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.utils.Logger import Logger
