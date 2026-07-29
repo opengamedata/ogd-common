@@ -25,7 +25,6 @@ class UnopenedLocalCase(TestCase):
     * Connection opening function
     """
 
-    @classmethod
     def setUp(self) -> None:
         config = DirectoryLocationConfig(name="TestLocation", folder_path="tests/data/storage/connectors/")
         self.test_connector = DatasetRepositoryConnector(repository_location=config)

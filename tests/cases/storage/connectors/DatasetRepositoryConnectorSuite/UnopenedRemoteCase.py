@@ -25,7 +25,6 @@ class UnopenedRemoteCase(TestCase):
     * Connection opening function
     """
 
-    @classmethod
     def setUp(self) -> None:
         config = URLLocationConfig(name="TestLocation", url="https://opengamedata.fielddaylab.wisc.edu/data/file_list.json")
         self.test_connector = DatasetRepositoryConnector(repository_location=config)
