@@ -45,7 +45,7 @@ class DatasetRepositoryOuterface(Outerface):
             self._store = store
         elif isinstance(self.Config.StoreConfig, DatasetRepositoryConfig):
             self._store = DatasetRepositoryConnector(
-                repository_location=self.Config.StoreConfig,
+                config=self.Config.StoreConfig,
                 with_zipping=self._with_zipping
             )
         else:

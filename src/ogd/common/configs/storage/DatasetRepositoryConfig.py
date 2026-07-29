@@ -1,6 +1,6 @@
 # standard imports
 from pathlib import Path
-from typing import Any, Dict, Final, Optional, Self, TypeAlias
+from typing import Dict, Final, Optional, Self, TypeAlias
 
 # ogd imports
 from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig

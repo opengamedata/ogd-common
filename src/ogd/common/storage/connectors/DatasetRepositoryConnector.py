@@ -2,7 +2,6 @@ import json
 import logging
 from urllib import request as urlrequest
 from urllib.error import URLError
-from typing import Optional
 ## import local files
 from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig

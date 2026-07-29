@@ -26,7 +26,7 @@ class BasicInitCase(TestCase):
 
     def setUp(self) -> None:
         config = DirectoryLocationConfig(name="TestLocation", folder_path="tests/data/storage/connectors/")
-        self.test_connector = DatasetRepositoryConnector(repository_location=config)
+        self.test_connector = DatasetRepositoryConnector(config=config)
         self.test_connector.Open(writeable=False)
 
     def test_Close(self):
