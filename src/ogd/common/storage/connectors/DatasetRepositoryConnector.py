@@ -4,11 +4,11 @@ from urllib import request as urlrequest
 from urllib.error import URLError
 ## import local files
 from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
-from ogd.common.models.features.AggregationMode import AggregationMode
-from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
 from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
+from ogd.common.models.features.AggregationMode import AggregationMode
+from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.storage.connectors.StorageConnector import StorageConnector
 from ogd.common.utils.Logger import Logger
 
