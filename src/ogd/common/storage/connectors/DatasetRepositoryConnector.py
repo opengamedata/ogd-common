@@ -4,7 +4,6 @@ from urllib import request as urlrequest
 from urllib.error import URLError
 ## import local files
 from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
-from ogd.common.configs.locations.RepositoryLocationConfig import RepositoryLocationConfig
 from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
@@ -21,7 +20,7 @@ class DatasetRepositoryConnector(StorageConnector):
                           ExportMode.FEATURES.name:"all-features", AggregationMode.SESSION.name:"session-features",
                           AggregationMode.PLAYER.name:"player-features", AggregationMode.POPULATION.name:"population-features"}
 
-    def __init__(self, repository_location:RepositoryLocationConfig | DirectoryLocationConfig | FileLocationConfig | URLLocationConfig,
+    def __init__(self, repository_location: DirectoryLocationConfig | FileLocationConfig | URLLocationConfig,
                  with_zipping:bool=False):
         """Constructor for the DatasetRepositoryConnector
 
@@ -40,20 +39,17 @@ class DatasetRepositoryConnector(StorageConnector):
         self._config       : DatasetRepositoryConfig
         self._with_zipping : bool = with_zipping
 
-        self._loc          : RepositoryLocationConfig
+        self._loc          : DirectoryLocationConfig | FileLocationConfig | URLLocationConfig
         self._remote_repo  : bool
         match repository_location:
-            case RepositoryLocationConfig():
-                self._loc = repository_location
-                self._remote_repo = self._loc.LocalDirectory is None and self._loc.PublicURL is not None
             case DirectoryLocationConfig():
-                self._loc = RepositoryLocationConfig(name=repository_location.Name, local_dir=repository_location, public_url=None, templates_url=None)
+                self._loc = repository_location
                 self._remote_repo = False
             case FileLocationConfig():
-                self._loc = RepositoryLocationConfig(name=repository_location.Name, local_dir=repository_location.Folder, public_url=None, templates_url=None)
+                self._loc = DirectoryLocationConfig(name=repository_location.Name, folder_path=repository_location.Folder)
                 self._remote_repo = False
             case URLLocationConfig():
-                self._loc = RepositoryLocationConfig(name=repository_location.Name, local_dir=None, public_url=repository_location, templates_url=None)
+                self._loc = repository_location
                 self._remote_repo = True # if we got a URL, then we're connecting to a remote repo.
 
     # *** PROPERTIES ***
