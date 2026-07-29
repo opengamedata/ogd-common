@@ -206,7 +206,7 @@ class RepositoryLocationConfig(LocationConfig):
 
     @staticmethod
     def _parseRemoteURL(unparsed_elements:Map, schema_name:Optional[str]=None) -> Optional[URLLocationConfig]:
-        ret_val : Optional[URLLocationConfig]
+        ret_val : Optional[URLLocationConfig] = None
 
         raw_url = RepositoryLocationConfig.ParseElement(
             unparsed_elements=unparsed_elements,
@@ -214,7 +214,8 @@ class RepositoryLocationConfig(LocationConfig):
             to_type=[str, dict],
             default_value=None,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True
         )
         if raw_url:
             if isinstance(raw_url, str):
@@ -426,7 +427,8 @@ class DatasetRepositoryConfig(DataStoreConfig):
             to_type=[dict, str],
             default_value=None,
             remove_target=True,
-            schema_name=schema_name
+            schema_name=schema_name,
+            optional_element=True # "optional" because we will look for datasets in raw unparsed_elements if we don't find a separate one here.
         )
         if isinstance(_data_elems, dict):
             ret_val = {
@@ -452,6 +454,7 @@ class DatasetRepositoryConfig(DataStoreConfig):
             }
         else:
             ret_val = DatasetRepositoryConfig._DEFAULT_DATASETS
+            Logger.warning(f"{schema_name} file_list.json does not appear to contain any datasets; defaulting to datasets={ret_val}")
 
         return ret_val
 
