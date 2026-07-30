@@ -245,6 +245,7 @@ class DataTableConfig(Schema):
         if raw_val is not None:
             ret_val = raw_val
         else:
+            # TODO : need to handle loading things other than database locations from dictionary.
             raw_location = DataTableConfig.ParseElement(
                 raw_value=raw_val,
                 unparsed_elements=unparsed_elements,
