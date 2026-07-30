@@ -24,15 +24,15 @@ class CSVInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:DataTableConfig, fail_fast:bool, store:Optional[CSVConnector]=None):
-        self._store : CSVConnector
+    def __init__(self, config:DataTableConfig, fail_fast:bool, connector:Optional[CSVConnector]=None):
+        self._connector : CSVConnector
 
         super().__init__(config=config, fail_fast=fail_fast)
         self._data = pd.DataFrame()
-        if store:
-            self._store = store
+        if connector:
+            self._connector = connector
         elif isinstance(self.Config.StoreConfig, FileStoreConfig):
-            self._store = CSVConnector(config=self.Config.StoreConfig)
+            self._connector = CSVConnector(config=self.Config.StoreConfig)
         else:
             raise ValueError(f"CSVInterface config was for a connector other than CSV/TSV files! Found config type {type(self.Config.StoreConfig)}")
         self.Connector.Open(writeable=False)
@@ -83,7 +83,7 @@ class CSVInterface(Interface):
 
     @property
     def Connector(self) -> CSVConnector:
-        return self._store
+        return self._connector
 
     def _availableIDs(self, id_type:IDType, filters:DatasetFilterCollection) -> List[str]:
         ret_val : List[str] = []

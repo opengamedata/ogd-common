@@ -24,12 +24,14 @@ class MySQLInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:DataTableConfig, fail_fast:bool, store:Optional[MySQLConnector]=None):
+    def __init__(self, config:DataTableConfig, fail_fast:bool, connector:Optional[MySQLConnector]=None):
+        self._connector : MySQLConnector
+
         super().__init__(config=config, fail_fast=fail_fast)
-        if store:
-            self._store = store
+        if connector:
+            self._connector = connector
         elif isinstance(self.Config.StoreConfig, MySQLConfig):
-            self._store = MySQLConnector(config=self.Config.StoreConfig)
+            self._connector = MySQLConnector(config=self.Config.StoreConfig)
         else:
             raise ValueError(f"MySQLInterface config was for a connector other than MySQL! Found config type {type(self.Config.StoreConfig)}")
         self.Connector.Open()
@@ -38,7 +40,7 @@ class MySQLInterface(Interface):
 
     @property
     def Connector(self) -> MySQLConnector:
-        return self._store
+        return self._connector
 
     @override
     def _availableIDs(self, id_type:IDType, filters:DatasetFilterCollection) -> List[str]:
