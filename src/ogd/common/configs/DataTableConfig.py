@@ -5,6 +5,7 @@ from ogd.common.schemas.Schema import Schema
 from ogd.common.configs.storage.DatasetRepositoryConfig import DataStoreConfig
 from ogd.common.schemas.tables.TableSchemaFactory import TableSchemaFactory
 from ogd.common.schemas.tables import TableSchema as ts
+from ogd.common.configs.locations.LocationConfig import LocationConfig
 from ogd.common.configs.locations.DatabaseLocationConfig import DatabaseLocationConfig
 from ogd.common.utils.typing import Map, JSONMap
 
@@ -36,10 +37,11 @@ class DataTableConfig(Schema):
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, name:str,
-                 store:Optional[DataStoreConfig | str], table_schema:Optional[ts.TableSchema | str],
-                 table_location:Optional[DatabaseLocationConfig],
-                 data_stores:Dict[str, DataStoreConfig]={},
-                 other_elements:Optional[Map]=None):
+                 store          : Optional[DataStoreConfig | str],
+                 table_schema   : Optional[ts.TableSchema | str],
+                 table_location : Optional[LocationConfig],
+                 data_stores    : Dict[str, DataStoreConfig]={},
+                 other_elements : Optional[Map]=None):
         """Constructor for the `DataTableConfig` class.
         
         If optional params are not given, data is searched for in `other_elements`.
@@ -75,7 +77,7 @@ class DataTableConfig(Schema):
         self._store_config   : Optional[DataStoreConfig]
         self._schema_name    : str
         self._table_schema   : ts.TableSchema
-        self._table_location : DatabaseLocationConfig
+        self._table_location : LocationConfig
 
         if isinstance(store, DataStoreConfig):
             self._store_config = store
@@ -144,7 +146,7 @@ class DataTableConfig(Schema):
         self._table_schema = schema
 
     @property
-    def TableLocation(self) -> DatabaseLocationConfig:
+    def TableLocation(self) -> LocationConfig:
         """The DatabaseLocationConfig for this DataTableConfig.
 
         This DatabaseLocationConfig contains information on how to locate the configured data table within its data store.
@@ -155,24 +157,6 @@ class DataTableConfig(Schema):
         :rtype: DatabaseLocationConfig
         """
         return self._table_location
-
-    @property
-    def DatabaseName(self) -> str:
-        """The database name provided by the DataTableConfig's Location property
-
-        :return: _description_
-        :rtype: str
-        """
-        return self._table_location.DatabaseName
-
-    @property
-    def TableName(self) -> Optional[str]:
-        """The table name provided by the DataTableConfig's Location property
-
-        :return: _description_
-        :rtype: Optional[str]
-        """
-        return self._table_location.TableName
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -188,8 +172,7 @@ class DataTableConfig(Schema):
         return {
             "store":self.StoreName,
             "table_schema":self.TableSchemaName,
-            "database":self.DatabaseName,
-            "table":self.TableName
+            "table_location":self._table_location.AsDict,
         }
 
     @classmethod
@@ -256,15 +239,23 @@ class DataTableConfig(Schema):
         )
 
     @staticmethod
-    def _getTableLocation(raw_val:Optional[DatabaseLocationConfig], unparsed_elements:Map) -> DatabaseLocationConfig:
-        ret_val : DatabaseLocationConfig
+    def _getTableLocation(raw_val:Optional[LocationConfig], unparsed_elements:Map) -> LocationConfig:
+        ret_val : LocationConfig
 
         if raw_val is not None:
             ret_val = raw_val
         else:
+            raw_location = DataTableConfig.ParseElement(
+                raw_value=raw_val,
+                unparsed_elements=unparsed_elements,
+                valid_keys=["table_location"],
+                to_type=dict,
+                default_value=None,
+                optional_element=False
+            )
             ret_val = DatabaseLocationConfig.FromDict(
                 name="TableLocation",
-                unparsed_elements=unparsed_elements,
+                unparsed_elements=raw_location if raw_location is not None else unparsed_elements,
                 default_override=DataTableConfig._DEFAULT_TABLE_LOC
             )
 
