@@ -25,15 +25,21 @@ class DatasetRepositoryInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
     def _getInterface(self, file_type:str, path:Optional[str], fail_fast:bool) -> Optional[CSVInterface]:
-        return CSVInterface(
-            config=DataTableConfig(
-                name=f"{self.Config.Name}-{file_type}",
-                store=self.Config.StoreConfig,
-                table_schema=self.Config.TableSchema,
-                table_location=FileLocationConfig.FromPath(name=f"all-events-location", fullpath=path)
-            ),
-            fail_fast=fail_fast
-        ) if path else None
+        ret_val : Optional[CSVInterface] = None
+
+        if path:
+            cfg_name = f"{self.Config.Name}-{file_type}"
+            return CSVInterface(
+                config=DataTableConfig(
+                    name=cfg_name,
+                    store=self.Config.StoreConfig,
+                    table_schema=self.Config.TableSchema,
+                    table_location=FileLocationConfig.FromPath(name=f"{cfg_name}-location", fullpath=path)
+                ),
+                fail_fast=fail_fast
+            )
+
+        return ret_val
 
     def __init__(self, config:DataTableConfig, fail_fast:bool, connector:Optional[DatasetRepositoryConnector]=None):
         super().__init__(config=config, fail_fast=fail_fast)
@@ -53,7 +59,7 @@ class DatasetRepositoryInterface(Interface):
         else:
             raise TypeError(f"DatasetRepositoryInterface was given a DataTableConfig that does not specify a data table within a repository! It was given a {type(self.Config.TableLocation)} instead!")
 
-        dataset : Optional[DatasetSchema] = self.Connector.StoreConfig.Games.get(loc.GameID, {}).get(str(loc.DatasetID))
+        dataset : Optional[DatasetSchema] = self.Connector.GetDatasetSchema(dataset_id=loc.DatasetID, create=False)
 
         self._all_events    = self._getInterface(file_type="all-events",          path=dataset.AllEventsFile()        if dataset else None, fail_fast=fail_fast)
         self._game_events   = self._getInterface(file_type="game-events",         path=dataset.GameEventsFile()       if dataset else None, fail_fast=fail_fast)
