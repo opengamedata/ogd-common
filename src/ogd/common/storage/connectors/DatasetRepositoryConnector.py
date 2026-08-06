@@ -84,9 +84,24 @@ class DatasetRepositoryConnector(StorageConnector):
 
     # *** PUBLIC METHODS ***
 
-    def GetDatasetSchema(self, game_id:str, dataset_id:DatasetKey) -> Optional[DatasetSchema]:
-        return self.StoreConfig.Games.get(game_id, {}).get(str(dataset_id))
+    def GetDatasetSchema(self, dataset_id:DatasetKey, create:bool) -> Optional[DatasetSchema]:
+        """Function to get the schema associated with a dataset within a repository.
 
+        :param game_id: The game whose dataset we should be looking for.
+        :type game_id: str
+        :param dataset_id: _description_
+        :type dataset_id: DatasetKey
+        :param create: _description_
+        :type create: bool
+        :return: _description_
+        :rtype: Optional[DatasetSchema]
+        """
+        ret_val : Optional[DatasetSchema] = self.StoreConfig.Games.get(dataset_id.GameID, {}).get(str(dataset_id))
+
+        if ret_val is None and create:
+            pass # need to handle this case
+
+        return ret_val
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***

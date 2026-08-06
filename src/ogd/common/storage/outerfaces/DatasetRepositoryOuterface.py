@@ -19,6 +19,7 @@ from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepository
 from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.models.features.ExportMode import ExportMode
+from ogd.common.models.events.EventSet import EventSet
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
@@ -32,17 +33,6 @@ from ogd.common.utils.typing import ExportRow
 class DatasetRepositoryOuterface(Outerface):
 
     # *** BUILT-INS & PROPERTIES ***
-    def _getOuterface(self, file_type:str, path:Optional[str], export_modes:Set[ExportMode | AggregationMode]) -> Optional[CSVOuterface]:
-        return CSVOuterface(
-            table_config=DataTableConfig(
-                name=f"{self.Config.Name}-{file_type}",
-                store=self.Config.StoreConfig,
-                table_schema=self.Config.TableSchema,
-                table_location=FileLocationConfig.FromPath(name=f"all-events-location", fullpath=path)
-            ),
-            export_modes=export_modes,
-            store=None
-        ) if path else None
 
     def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode | AggregationMode],
                  dataset_key:str | DatasetKey,       with_zipping:bool=True,
@@ -61,185 +51,104 @@ class DatasetRepositoryOuterface(Outerface):
             )
         else:
             raise ValueError(f"DatasetRepository config was for a connector other than a dataset repository! Found config type {type(self.Config.StoreConfig)}")
-        self.Connector.Open()
+        if self.Connector.StoreConfig.IsRemote:
+            raise NotImplementedError(f"Could not create outerface! The configured dataset repository at {self.Connector.StoreConfig.Location} is a remote repository, and writing to remote repositories is not yet supported.")
+        else:
+            self.Connector.Open()
 
-        self._all_events    = self._getOuterface(file_type="all-events",          path=dataset.AllEventsFile()        if dataset else None, export_modes=export_modes)
-        self._game_events   = self._getOuterface(file_type="game-events",         path=dataset.GameEventsFile()       if dataset else None, export_modes=export_modes)
-        self._all_feats     = self._getOuterface(file_type="combined-features",   path=dataset.CombinedFeaturesFile() if dataset else None, export_modes=export_modes)
-        self._session_feats = self._getOuterface(file_type="session-features",    path=dataset.SessionsFile()         if dataset else None, export_modes=export_modes)
-        self._player_feats  = self._getOuterface(file_type="player-features",     path=dataset.PlayersFile()          if dataset else None, export_modes=export_modes)
-        self._pop_feats     = self._getOuterface(file_type="population-features", path=dataset.PopulationFile()       if dataset else None, export_modes=export_modes)
+            dataset = self.Connector.GetDatasetSchema(
+                dataset_id=dataset_key if isinstance(dataset_key, DatasetKey) else DatasetKey.FromString(dataset_key),
+                create=True
+            )
 
-        # logic for opening files
-        for mode in self.ExportModes:
-            suffix = self._FILE_SUFFIXES[mode.name]
-            if isinstance(self._location, DirectoryLocationSchema):
-                filename = self._location.FolderPath / f"{base_file_name}_{suffix}.{self.FileExtension}"
-            _zip  = self.StoreConfig.Folder / f"{base_file_name}_{suffix}.zip"
-            try:
-                self._files[mode.name] = open(file, "w+", encoding="utf-8")
-            except FileNotFoundError:
-                Logger.Log(f"Could not find file {file}.", logging.ERROR)
-            else:
-                self._zip_paths[mode.name] = _zip
+            self._all_events    = self._getOuterface(file_type="all-events",          path=dataset.AllEventsFile()        if dataset else None, export_modes=export_modes)
+            self._game_events   = self._getOuterface(file_type="game-events",         path=dataset.GameEventsFile()       if dataset else None, export_modes=export_modes)
+            self._all_feats     = self._getOuterface(file_type="combined-features",   path=dataset.CombinedFeaturesFile() if dataset else None, export_modes=export_modes)
+            self._session_feats = self._getOuterface(file_type="session-features",    path=dataset.SessionsFile()         if dataset else None, export_modes=export_modes)
+            self._player_feats  = self._getOuterface(file_type="player-features",     path=dataset.PlayersFile()          if dataset else None, export_modes=export_modes)
+            self._pop_feats     = self._getOuterface(file_type="population-features", path=dataset.PopulationFile()       if dataset else None, export_modes=export_modes)
 
     @property
     def Connector(self) -> DatasetRepositoryConnector:
         return self._connector
 
-    @property
-    def FileExtension(self) -> str:
-        return self._extension
-
-    @property
-    def Delimiter(self) -> str:
-        match self.FileExtension:
-            case "tsv":
-                return "\t"
-            case "csv":
-                return ","
-            case _:
-                Logger.Log(f"CSVOuterface has unexpected extension {self.FileExtension}, defaulting to comma-separation!", logging.WARN)
-                return ","
-
     # *** IMPLEMENT ABSTRACTS ***
 
     @override
     def _removeExportMode(self, mode:ExportMode | AggregationMode):
-        f = self._files[mode.name]
-        if f is not None:
-            f.close()
-
-        self._files[mode.name] = None
-        if mode in self._with_files:
-            self._with_files.remove(mode)
+        match mode:
+            case ExportMode.EVENTS:
+                self._all_events = None
+                self._game_events = None
+            case ExportMode.FEATURES:
+                self._all_feats = None
+            case AggregationMode.SESSION:
+                self._session_feats = None
+            case AggregationMode.PLAYER:
+                self._player_feats = None
+            case AggregationMode.POPULATION:
+                self._pop_feats = None
+        return
 
     @override
     def _setupGameEventsTable(self, header:List[str]) -> None:
-        cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
-        cols_line = "\t".join(cols) + "\n"
-        f = self.Connector.Files.get(ExportMode.EVENTS.name, None)
-        if f is not None:
-            f.writelines(cols_line)
-        else:
-            Logger.Log("No raw_events file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(cols_line))
+        if self._game_events:
+            self._game_events._setupGameEventsTable(header=header)
 
     @override
     def _setupDetectorEventsTable(self, header:List[str]) -> None:
-        cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
-        cols_line = "\t".join(cols) + "\n"
-        f = self.Connector.Files.get(ExportMode.DETECTORS.name, None)
-        if f is not None:
-            f.writelines(cols_line)
-        else:
-            Logger.Log("No processed_events file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(cols_line))
+        if self._all_events:
+            self._all_events._setupDetectorEventsTable(header=header)
 
     @override
     def _setupAllFeaturesTable(self, header:List[str]) -> None:
-        # TODO : CSVOuterface is currently in this weird hardcoded situation, so not yet supporting the 'all features' format
-        pass
+        if self._all_feats:
+            self._all_feats._setupAllFeaturesTable(header=header)
 
     @override
     def _setupSessionTable(self, header:List[str]) -> None:
-        cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
-        cols_line = "\t".join(cols) + "\n"
-        f = self.Connector.SecondaryFiles.get(AggregationMode.SESSION.name, None)
-        if f is not None:
-            f.writelines(cols_line)
-        else:
-            Logger.Log("No session file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(cols_line))
+        if self._session_feats:
+            self._session_feats._setupSessionTable(header=header)
 
     @override
     def _setupPlayerTable(self, header:List[str]) -> None:
-        cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
-        cols_line = "\t".join(cols) + "\n"
-        f = self.Connector.SecondaryFiles.get(AggregationMode.PLAYER.name, None)
-        if f is not None:
-            f.writelines(cols_line)
-        else:
-            Logger.Log("No player file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(cols_line))
+        if self._player_feats:
+            self._player_feats._setupPlayerTable(header=header)
 
     @override
     def _setupPopulationTable(self, header:List[str]) -> None:
-        cols = DatasetRepositoryOuterface._cleanSpecialChars(vals=header)
-        cols_line = "\t".join(cols) + "\n"
-        f = self.Connector.SecondaryFiles.get(AggregationMode.POPULATION.name, None)
-        if f is not None:
-            f.writelines(cols_line)
-        else:
-            Logger.Log("No population file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(cols_line))
+        if self._pop_feats:
+            self._pop_feats._setupPopulationTable(header=header)
 
     @override
     def _writeGameEventLines(self, events:List[ExportRow]) -> None:
-        event_strs = [DatasetRepositoryOuterface._cleanSpecialChars(vals=[str(item) for item in event]) for event in events]
-        event_lines = ["\t".join(event) + "\n" for event in event_strs]
-        f = self.Connector.SecondaryFiles.get(ExportMode.EVENTS.name, None)
-        if f is not None:
-            f.writelines(event_lines)
-        else:
-            Logger.Log("No raw_events file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(event_lines))
+        if self._game_events:
+            self._game_events._writeGameEventLines(events=events)
 
     @override
     def _writeAllEventLines(self, events:List[ExportRow]) -> None:
-        event_strs = [DatasetRepositoryOuterface._cleanSpecialChars(vals=[str(item) for item in event]) for event in events]
-        event_lines = ["\t".join(event) + "\n" for event in event_strs]
-        f = self.Connector.SecondaryFiles.get(ExportMode.DETECTORS.name, None)
-        if f is not None:
-            f.writelines(event_lines)
-        else:
-            Logger.Log("No processed_events file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(event_lines))
+        if self._all_events:
+            self._all_events._writeAllEventLines(events=events)
 
     @override
     def _writeAllFeatureLines(self, feature_lines:List[ExportRow]) -> None:
-        # TODO : CSVOuterface is currently in this weird hardcoded situation, so not yet supporting the 'all features' format
-        pass
+        if self._all_feats:
+            self._all_feats._writeAllFeatureLines(feature_lines=feature_lines)
 
     @override
     def _writeSessionLines(self, session_lines:List[ExportRow]) -> None:
-        # self._sess_count += len(sessions)
-        _clean_lines = [DatasetRepositoryOuterface._cleanSpecialChars(vals=feat) for feat in session_lines]
-        final_lines = ["\t".join(sess) + "\n" for sess in _clean_lines]
-        if self.Connector.File is not None:
-            self.Connector.File.writelines(final_lines)
-        f = self.Connector.SecondaryFiles.get(AggregationMode.SESSION.name, None)
-        if f is not None:
-            f.writelines(final_lines)
-        else:
-            Logger.Log("No session file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(final_lines))
+        if self._session_feats:
+            self._session_feats._writeSessionLines(session_lines=session_lines)
 
     @override
     def _writePlayerLines(self, player_lines:List[ExportRow]) -> None:
-        _clean_lines = [DatasetRepositoryOuterface._cleanSpecialChars(vals=play) for play in player_lines]
-        final_lines = ["\t".join(play) + "\n" for play in _clean_lines]
-        if self.Connector.File is not None:
-            self.Connector.File.writelines(final_lines)
-        f = self.Connector.SecondaryFiles.get(AggregationMode.PLAYER.name, None)
-        if f is not None:
-            f.writelines(final_lines)
-        else:
-            Logger.Log("No player file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(final_lines))
+        if self._player_feats:
+            self._player_feats._writePlayerLines(player_lines=player_lines)
 
     @override
     def _writePopulationLines(self, population_lines:List[ExportRow]) -> None:
-        _clean_lines = [DatasetRepositoryOuterface._cleanSpecialChars(vals=pop) for pop in population_lines]
-        final_lines = ["\t".join(pop) + "\n" for pop in _clean_lines]
-        if self.Connector.File is not None:
-            self.Connector.File.writelines(final_lines)
-        f = self.Connector.SecondaryFiles.get(AggregationMode.POPULATION.name, None)
-        if f is not None:
-            f.writelines(final_lines)
-        else:
-            Logger.Log("No population file available, writing to standard output instead.", logging.WARN)
-            sys.stdout.write("".join(final_lines))
+        if self._pop_feats:
+            self._pop_feats._writePopulationLines(population_lines=population_lines)
 
     @override
     def _writeMetadata(self, dataset_schema:DatasetSchema):
@@ -272,15 +181,25 @@ class DatasetRepositoryOuterface(Outerface):
 
     # *** PRIVATE STATICS ***
 
-    @staticmethod
-    def _cleanSpecialChars(vals:List[Any] | Tuple[Any], tab_width:int=3) -> Tuple[str,...]:
-        ret_val : List[str] = [""]*len(vals)
-        # check all return values for strings, and ensure no newlines or tabs get through, as they could throw off our outputs.
-        for i,val in enumerate(vals):
-            ret_val[i] = str(val).replace('\n', ' ').replace('\t', ' '*tab_width)
-        return tuple(ret_val)
-
     # *** PRIVATE METHODS ***
+
+    def _getOuterface(self, file_type:str, path:Optional[str], export_modes:Set[ExportMode | AggregationMode]) -> Optional[CSVOuterface]:
+        ret_val : Optional[CSVOuterface] = None
+
+        if path:
+            cfg_name = f"{self.Config.Name}-{file_type}"
+            ret_val = CSVOuterface(
+                table_config=DataTableConfig(
+                    name=cfg_name,
+                    store=self.Config.StoreConfig,
+                    table_schema=self.Config.TableSchema,
+                    table_location=FileLocationConfig.FromPath(name=f"{cfg_name}-location", fullpath=path)
+                ),
+                export_modes=export_modes,
+                store=None
+            )
+
+        return ret_val
 
     ## Public function to write out a tiny metadata file for indexing OGD data files.
     #  Using the paths of the exported files, and given some other variables for
