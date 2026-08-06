@@ -6,7 +6,7 @@ import logging
 import sys
 from datetime import datetime, time, timedelta
 from pprint import pformat
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 
 ## import external libraries
 from deprecated.sphinx import deprecated
@@ -113,7 +113,7 @@ class Interface(abc.ABC):
             Logger.Log(f"Can't retrieve list of {id_type} IDs from {self.Connector.ResourceName}, the storage connection is not open!", logging.WARNING, depth=3)
         return ret_val
 
-    def AvailableDates(self, filters:DatasetFilterCollection) -> Union[Dict[str,datetime], Dict[str,None]]:
+    def AvailableDates(self, filters:DatasetFilterCollection) -> Optional[Dict[str, datetime]]:
         """Retrieve the full range of dates/times covered by data in the connected storage, subject to given filters.
 
         Note, this is different from listing the exact dates in which the data exists.
@@ -122,9 +122,9 @@ class Interface(abc.ABC):
         TODO: Create separate functions for exact dates and date range.
 
         :return: A dictionary mapping `min` and `max` to the range of dates covering all data for the given IDs/versions
-        :rtype: Union[Dict[str,datetime], Dict[str,None]]
+        :rtype: Dict[str,Optional[datetime]]
         """
-        ret_val = {'min':None, 'max':None}
+        ret_val : Optional[Dict[str, datetime]] = None
         if self.Connector.IsOpen:
             self._safeguardFilters(filters=filters)
             _msg = f"Retrieving range of event/feature dates with version(s) {filters.Versions} from {self.Connector.ResourceName}."
