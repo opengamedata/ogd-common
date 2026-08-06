@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 ## import local files
 from ogd.common.filters import *
-from ogd.common.filters.collections import *
+from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.models.features.ExportMode import ExportMode
@@ -89,8 +89,8 @@ class CSVInterface(Interface):
         ret_val : List[str] = []
 
         if not self.DataFrame.empty:
+            # TODO : need a good way to get stuff mapped from TableSchema, instead of hardcoded ID column names.
             id_col : LiteralString = "session_id" if id_type==IDType.SESSION else "user_id"
-            self.Config.TableSchema.
             dates = pd.to_datetime(self.DataFrame['timestamp'], format='ISO8601').dt.tz_convert(None) # HACK : need to handle this better elsewhere, pretty sure we've got someplace else giving us filters with dates rather than datetime
             mask = None
             if filters.Sequences.Timestamps.Active:
