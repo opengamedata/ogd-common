@@ -24,23 +24,6 @@ type PDMask = Union[pd.Series, bool]
 class DatasetRepositoryInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
-    def _getInterface(self, file_type:str, path:Optional[str], fail_fast:bool) -> Optional[CSVInterface]:
-        ret_val : Optional[CSVInterface] = None
-
-        if path:
-            cfg_name = f"{self.Config.Name}-{file_type}"
-            return CSVInterface(
-                config=DataTableConfig(
-                    name=cfg_name,
-                    store=self.Config.StoreConfig,
-                    table_schema=self.Config.TableSchema,
-                    table_location=FileLocationConfig.FromPath(name=f"{cfg_name}-location", fullpath=path)
-                ),
-                fail_fast=fail_fast
-            )
-
-        return ret_val
-
     def __init__(self, config:DataTableConfig, fail_fast:bool, connector:Optional[DatasetRepositoryConnector]=None):
         super().__init__(config=config, fail_fast=fail_fast)
 
@@ -165,3 +148,21 @@ class DatasetRepositoryInterface(Interface):
         return
 
     # *** PRIVATE METHODS ***
+
+    def _getInterface(self, file_type:str, path:Optional[str], fail_fast:bool) -> Optional[CSVInterface]:
+        ret_val : Optional[CSVInterface] = None
+
+        if path:
+            cfg_name = f"{self.Config.Name}-{file_type}"
+            return CSVInterface(
+                config=DataTableConfig(
+                    name=cfg_name,
+                    store=self.Config.StoreConfig,
+                    table_schema=self.Config.TableSchema,
+                    table_location=FileLocationConfig.FromPath(name=f"{cfg_name}-location", fullpath=path)
+                ),
+                fail_fast=fail_fast
+            )
+
+        return ret_val
+
