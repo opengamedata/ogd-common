@@ -54,24 +54,6 @@ class DatasetRepositoryInterface(Interface):
             raise TypeError(f"DatasetRepositoryInterface was given a DataTableConfig that does not specify a data table within a repository! It was given a {type(self.Config.TableLocation)} instead!")
 
         dataset : Optional[DatasetSchema] = self.Connector.StoreConfig.Games.get(loc.GameID, {}).get(str(loc.DatasetID))
-        if dataset:
-            files_map = {
-                "all-events":dataset.EventsFile(),
-                "game-events":dataset.GameEventsFile(),
-                "combined-features":dataset.CombinedFeaturesFile(),
-                "session-features":dataset.SessionsFile(),
-                "player-features":dataset.PlayersFile(),
-                "population-features":dataset.PopulationFile()
-            }
-        else:
-            files_map = {
-                "all-events":None,
-                "events":None,
-                "all-features":None,
-                "session-features":None,
-                "player-features":None,
-                "population-features":None
-            }
 
         self._all_events    = self._getInterface(file_type="all-events",          path=dataset.AllEventsFile()        if dataset else None, fail_fast=fail_fast)
         self._game_events   = self._getInterface(file_type="game-events",         path=dataset.GameEventsFile()       if dataset else None, fail_fast=fail_fast)

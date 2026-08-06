@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Optional
 from urllib import request as urlrequest
 from urllib.error import URLError
 ## import local files
@@ -7,8 +8,10 @@ from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepository
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
 from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
+from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.models.features.ExportMode import ExportMode
+from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.storage.connectors.StorageConnector import StorageConnector
 from ogd.common.utils.Logger import Logger
 
@@ -80,6 +83,9 @@ class DatasetRepositoryConnector(StorageConnector):
     # *** PUBLIC STATICS ***
 
     # *** PUBLIC METHODS ***
+
+    def GetDatasetSchema(self, game_id:str, dataset_id:DatasetKey) -> Optional[DatasetSchema]:
+        return self.StoreConfig.Games.get(game_id, {}).get(str(dataset_id))
 
     # *** PRIVATE STATICS ***
 

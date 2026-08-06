@@ -14,7 +14,7 @@ from typing import Any, List, Optional, override, Set, Tuple
 # from ogd import games
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.locations.RepositoryLocationConfig import RepositoryLocationConfig
-from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
+from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
 from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
 from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.models.features.AggregationMode import AggregationMode
@@ -23,8 +23,8 @@ from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
 from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.storage.connectors.DatasetRepositoryConnector import DatasetRepositoryConnector
-from ogd.common.storage.connectors.CSVConnector import CSVConnector
 from ogd.common.storage.outerfaces.Outerface import Outerface
+from ogd.common.storage.outerfaces.CSVOuterface import CSVOuterface
 from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
@@ -32,29 +32,46 @@ from ogd.common.utils.typing import ExportRow
 class DatasetRepositoryOuterface(Outerface):
 
     # *** BUILT-INS & PROPERTIES ***
+    def _getOuterface(self, file_type:str, path:Optional[str], export_modes:Set[ExportMode | AggregationMode]) -> Optional[CSVOuterface]:
+        return CSVOuterface(
+            table_config=DataTableConfig(
+                name=f"{self.Config.Name}-{file_type}",
+                store=self.Config.StoreConfig,
+                table_schema=self.Config.TableSchema,
+                table_location=FileLocationConfig.FromPath(name=f"all-events-location", fullpath=path)
+            ),
+            export_modes=export_modes,
+            store=None
+        ) if path else None
 
     def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode | AggregationMode],
                  dataset_key:str | DatasetKey,       with_zipping:bool=True,
-                 store:Optional[DatasetRepositoryConnector]=None):
-        self._store : DatasetRepositoryConnector
-
+                 connector:Optional[DatasetRepositoryConnector]=None):
         super().__init__(table_config=table_config, export_modes=export_modes)
-        self._dataset_key                 : DatasetKey              = dataset_key if isinstance(dataset_key, DatasetKey) else DatasetKey.FromString(dataset_key)
-        self._with_zipping                : bool                    = with_zipping
-        if store:
-            self._store = store
+
+        self._connector    : DatasetRepositoryConnector
+        self._dataset_key  : DatasetKey = dataset_key if isinstance(dataset_key, DatasetKey) else DatasetKey.FromString(dataset_key)
+        self._with_zipping : bool       = with_zipping
+        if isinstance(connector, DatasetRepositoryConnector):
+            self._connector = connector
         elif isinstance(self.Config.StoreConfig, DatasetRepositoryConfig):
-            self._store = DatasetRepositoryConnector(
+            self._connector = DatasetRepositoryConnector(
                 config=self.Config.StoreConfig,
                 with_zipping=self._with_zipping
             )
         else:
             raise ValueError(f"DatasetRepository config was for a connector other than a dataset repository! Found config type {type(self.Config.StoreConfig)}")
-
         self.Connector.Open()
 
+        self._all_events    = self._getOuterface(file_type="all-events",          path=dataset.AllEventsFile()        if dataset else None, export_modes=export_modes)
+        self._game_events   = self._getOuterface(file_type="game-events",         path=dataset.GameEventsFile()       if dataset else None, export_modes=export_modes)
+        self._all_feats     = self._getOuterface(file_type="combined-features",   path=dataset.CombinedFeaturesFile() if dataset else None, export_modes=export_modes)
+        self._session_feats = self._getOuterface(file_type="session-features",    path=dataset.SessionsFile()         if dataset else None, export_modes=export_modes)
+        self._player_feats  = self._getOuterface(file_type="player-features",     path=dataset.PlayersFile()          if dataset else None, export_modes=export_modes)
+        self._pop_feats     = self._getOuterface(file_type="population-features", path=dataset.PopulationFile()       if dataset else None, export_modes=export_modes)
+
         # logic for opening files
-        for mode in self._with_files:
+        for mode in self.ExportModes:
             suffix = self._FILE_SUFFIXES[mode.name]
             if isinstance(self._location, DirectoryLocationSchema):
                 filename = self._location.FolderPath / f"{base_file_name}_{suffix}.{self.FileExtension}"
@@ -68,7 +85,7 @@ class DatasetRepositoryOuterface(Outerface):
 
     @property
     def Connector(self) -> DatasetRepositoryConnector:
-        return self._store
+        return self._connector
 
     @property
     def FileExtension(self) -> str:
