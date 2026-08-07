@@ -4,10 +4,11 @@ import logging
 import os
 import re
 import traceback
-from git.repo import Repo
-from git.exc import InvalidGitRepositoryError, NoSuchPathError
 from pathlib import Path
 from typing import List, Optional, override, Set
+# 3rd-party imports
+from git.repo import Repo
+from git.exc import InvalidGitRepositoryError, NoSuchPathError
 # import local files
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
@@ -56,10 +57,6 @@ class DatasetRepositoryOuterface(Outerface):
         self._session_feats = self._getOuterface(dataset_id=self._dataset_key, export_mode=AggregationMode.SESSION)
         self._player_feats  = self._getOuterface(dataset_id=self._dataset_key, export_mode=AggregationMode.PLAYER)
         self._pop_feats     = self._getOuterface(dataset_id=self._dataset_key, export_mode=AggregationMode.POPULATION)
-
-    @property
-    def Connector(self) -> DatasetRepositoryConnector:
-        return self._connector
 
     # *** IMPLEMENT ABSTRACTS ***
 
@@ -153,13 +150,42 @@ class DatasetRepositoryOuterface(Outerface):
         else:
             Logger.Log(f"Could not output a metadata file, the configured dataset repository {self.Connector} does not have a local directory to output files!", logging.WARNING)
 
+    # *** PROPERTIES ***
+
+    @property
+    def Connector(self) -> DatasetRepositoryConnector:
+        return self._connector
+
     # *** PUBLIC STATICS ***
 
     # *** PUBLIC METHODS ***
 
-    # *** PROPERTIES ***
-
     # *** PRIVATE STATICS ***
+
+    @staticmethod
+    def _addToZip(path, zip_file, path_in_zip) -> None:
+        try:
+            zip_file.write(path, path_in_zip)
+        except FileNotFoundError as err:
+            Logger.Log(str(err), logging.ERROR)
+            traceback.print_tb(err.__traceback__)
+
+    @staticmethod
+    def _generateHash():
+        ret_val    : str  = ""
+        # get hash
+        try:
+            repo = Repo(search_parent_directories=True)
+            if repo.git is not None:
+                ret_val = str(repo.git.rev_parse(repo.head.object.hexsha, short=7))
+        except InvalidGitRepositoryError as err:
+            msg = f"Code is not in a valid Git repository:\n{str(err)}"
+            Logger.Log(msg, logging.ERROR)
+        except NoSuchPathError as err:
+            msg = f"Unable to access proper file paths for Git repository:\n{str(err)}"
+            Logger.Log(msg, logging.ERROR)
+
+        return ret_val
 
     # *** PRIVATE METHODS ***
 
@@ -305,31 +331,4 @@ class DatasetRepositoryOuterface(Outerface):
             except FileNotFoundError as err:
                 Logger.Log(f"FileNotFoundError Exception: {err}", logging.ERROR)
                 traceback.print_tb(err.__traceback__)
-
-    @staticmethod
-    def _addToZip(path, zip_file, path_in_zip) -> None:
-        try:
-            zip_file.write(path, path_in_zip)
-        except FileNotFoundError as err:
-            Logger.Log(str(err), logging.ERROR)
-            traceback.print_tb(err.__traceback__)
-
-    # ******* STUFF THAT GOES UP TO PROCESSING LEVEL *********
-
-    @staticmethod
-    def _generateHash():
-        ret_val    : str  = ""
-        # get hash
-        try:
-            repo = Repo(search_parent_directories=True)
-            if repo.git is not None:
-                ret_val = str(repo.git.rev_parse(repo.head.object.hexsha, short=7))
-        except InvalidGitRepositoryError as err:
-            msg = f"Code is not in a valid Git repository:\n{str(err)}"
-            Logger.Log(msg, logging.ERROR)
-        except NoSuchPathError as err:
-            msg = f"Unable to access proper file paths for Git repository:\n{str(err)}"
-            Logger.Log(msg, logging.ERROR)
-
-        return ret_val
 
