@@ -1,5 +1,7 @@
 import json
 import logging
+import shutil
+from pathlib import Path
 from typing import Optional
 from urllib import request as urlrequest
 from urllib.error import URLError
@@ -12,6 +14,7 @@ from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
+from ogd.common.schemas.datasets.DatasetCollectionSchema import DatasetCollectionSchema
 from ogd.common.storage.connectors.StorageConnector import StorageConnector
 from ogd.common.utils.Logger import Logger
 
@@ -39,8 +42,9 @@ class DatasetRepositoryConnector(StorageConnector):
         # set up data from params
         super().__init__()
 
-        self._config       : DatasetRepositoryConfig
-        self._with_zipping : bool = with_zipping
+        self._config           : DatasetRepositoryConfig
+        self._with_zipping     : bool = with_zipping
+        self._has_new_datasets : bool = False
         match config:
             case DatasetRepositoryConfig():
                 self._config = config
@@ -74,9 +78,26 @@ class DatasetRepositoryConnector(StorageConnector):
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     def _open(self, writeable:bool=True) -> bool:
-        return True
+        """Perform an "open" o the repo connector.
+
+        Always returns true, since the config is already loaded, with one exception:
+        If opening as "writable," but configured for a remote-only repository, result is False because we do not yet support writing remote repos.
+
+        :param writeable: Whether to open the connection with write permissions, defaults to True
+        :type writeable: bool, optional
+        :return: True if the function successfully opened a connection to the repository, otherwise False.
+        :rtype: bool
+        """
+        ret_val : bool = True
+
+        if writeable and self.StoreConfig.IsRemote:
+            ret_val = False
+
+        return ret_val
 
     def _close(self) -> bool:
+        if self._has_new_datasets and not self.StoreConfig.IsRemote:
+            self._updateFileExportList()
         self._is_open = False
         return True
 
@@ -84,7 +105,7 @@ class DatasetRepositoryConnector(StorageConnector):
 
     # *** PUBLIC METHODS ***
 
-    def GetDatasetSchema(self, dataset_id:DatasetKey, create:bool) -> Optional[DatasetSchema]:
+    def GetDatasetSchema(self, dataset_id:DatasetKey) -> Optional[DatasetSchema]:
         """Function to get the schema associated with a dataset within a repository.
 
         :param game_id: The game whose dataset we should be looking for.
@@ -96,12 +117,47 @@ class DatasetRepositoryConnector(StorageConnector):
         :return: _description_
         :rtype: Optional[DatasetSchema]
         """
-        ret_val : Optional[DatasetSchema] = self.StoreConfig.Games.get(dataset_id.GameID, {}).get(str(dataset_id))
+        return self.StoreConfig.Games.get(dataset_id.GameID, {}).get(str(dataset_id))
 
-        if ret_val is None and create:
-            pass # need to handle this case
+    def AddDatasetSchema(self, dataset:DatasetSchema):
+        dataset_id = DatasetKey.FromString(dataset.DatasetID)
+        if not dataset_id.GameID in self.StoreConfig.Games.keys():
+            self.StoreConfig.Games[dataset_id.GameID] = DatasetCollectionSchema(name=dataset_id.GameID, datasets={}, other_elements={})
+        self.StoreConfig.Games[dataset_id.GameID].Datasets[str(dataset_id)] = dataset
+        self._has_new_datasets = True
 
-        return ret_val
     # *** PRIVATE STATICS ***
 
     # *** PRIVATE METHODS ***
+
+    def _updateFileExportList(self) -> None:
+        """Update the list of datasets in original `file_list.json`.
+
+        Using the paths of the exported files, and given some other variables for
+        deriving file metadata, this simply updates the JSON file to the latest
+        list of files.
+
+        :param dataset_schema: _description_
+        :type dataset_schema: DatasetSchema
+        """
+        repo_dir = self.StoreConfig.LocalDirectory
+
+        if repo_dir:
+            # 1. Back up the file_list before we update, in case we need to roll back for any reason.
+            try:
+                src  : Path = repo_dir.FolderPath / "file_list.json"
+                dest : Path = repo_dir.FolderPath / "file_list.json.bak"
+                if src.exists():
+                    shutil.copyfile(src=src, dst=dest)
+                else:
+                    Logger.Log("Could not back up file_list.json, because it does not exist!", logging.WARN)
+            except Exception as err:
+                msg = f"{type(err)} {str(err)}"
+                Logger.Log(f"Could not back up file_list.json. Got the following error: {msg}", logging.ERROR)
+            else:
+                Logger.Log(f"Backed up file_list.json to {dest}", logging.INFO)
+            # 2. Write out the latest config to file_list.json
+            with open(repo_dir.FolderPath / "file_list.json", "w") as dataset_index:
+                dataset_index.write(json.dumps(self.StoreConfig.AsDict, indent=4))
+        else:
+            Logger.Log(f"Could not update file export list, repository {self} does not have a local directory", logging.WARNING)

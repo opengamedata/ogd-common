@@ -3,30 +3,22 @@ import json
 import logging
 import os
 import re
-import shutil
-import sys
+import traceback
 from git.repo import Repo
 from git.exc import InvalidGitRepositoryError, NoSuchPathError
 from pathlib import Path
-from typing import Any, List, Optional, override, Set, Tuple
-# 3rd-party imports
+from typing import List, Optional, override, Set
 # import local files
-# from ogd import games
 from ogd.common.configs.DataTableConfig import DataTableConfig
-from ogd.common.configs.locations.RepositoryLocationConfig import RepositoryLocationConfig
 from ogd.common.configs.locations.FileLocationConfig import FileLocationConfig
 from ogd.common.configs.storage.DatasetRepositoryConfig import DatasetRepositoryConfig
 from ogd.common.models.DatasetKey import DatasetKey
 from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.models.features.ExportMode import ExportMode
-from ogd.common.models.events.EventSet import EventSet
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
-from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
-from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.storage.connectors.DatasetRepositoryConnector import DatasetRepositoryConnector
 from ogd.common.storage.outerfaces.Outerface import Outerface
 from ogd.common.storage.outerfaces.CSVOuterface import CSVOuterface
-from ogd.common.utils import fileio
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
 
@@ -56,17 +48,14 @@ class DatasetRepositoryOuterface(Outerface):
         else:
             self.Connector.Open()
 
-            dataset = self.Connector.GetDatasetSchema(
-                dataset_id=dataset_key if isinstance(dataset_key, DatasetKey) else DatasetKey.FromString(dataset_key),
-                create=True
-            )
 
-            self._all_events    = self._getOuterface(file_type="all-events",          path=dataset.AllEventsFile()        if dataset else None, export_modes=export_modes)
-            self._game_events   = self._getOuterface(file_type="game-events",         path=dataset.GameEventsFile()       if dataset else None, export_modes=export_modes)
-            self._all_feats     = self._getOuterface(file_type="combined-features",   path=dataset.CombinedFeaturesFile() if dataset else None, export_modes=export_modes)
-            self._session_feats = self._getOuterface(file_type="session-features",    path=dataset.SessionsFile()         if dataset else None, export_modes=export_modes)
-            self._player_feats  = self._getOuterface(file_type="player-features",     path=dataset.PlayersFile()          if dataset else None, export_modes=export_modes)
-            self._pop_feats     = self._getOuterface(file_type="population-features", path=dataset.PopulationFile()       if dataset else None, export_modes=export_modes)
+        # TODO : technically this will have us fully replacing old files, we actually just need
+        self._all_events    = self._getOuterface(dataset_id=self._dataset_key, export_mode=ExportMode.EVENTS)
+        self._game_events   = self._getOuterface(dataset_id=self._dataset_key, export_mode=ExportMode.DETECTORS)
+        self._all_feats     = self._getOuterface(dataset_id=self._dataset_key, export_mode=ExportMode.FEATURES)
+        self._session_feats = self._getOuterface(dataset_id=self._dataset_key, export_mode=AggregationMode.SESSION)
+        self._player_feats  = self._getOuterface(dataset_id=self._dataset_key, export_mode=AggregationMode.PLAYER)
+        self._pop_feats     = self._getOuterface(dataset_id=self._dataset_key, export_mode=AggregationMode.POPULATION)
 
     @property
     def Connector(self) -> DatasetRepositoryConnector:
@@ -152,26 +141,17 @@ class DatasetRepositoryOuterface(Outerface):
 
     @override
     def _writeMetadata(self, dataset_schema:DatasetSchema):
-        game_dir = self._repository.LocalDirectory.FolderPath / self._dataset_key.GameID
-        try:
-            game_dir.mkdir(exist_ok=True, parents=True)
-        except Exception as err:
-            msg = f"Could not set up folder {game_dir}. {type(err)} {str(err)}"
-            Logger.Log(msg, logging.WARNING)
+        game_dir = self._getDestinationDirectory(dataset_id=dataset_schema.Key)
+        if game_dir:
+            try:
+                game_dir.mkdir(exist_ok=True, parents=True)
+            except Exception as err:
+                msg = f"Could not set up folder {game_dir}. {type(err)} {str(err)}"
+                Logger.Log(msg, logging.WARNING)
+            else:
+                self._writeMetadataFile(dataset_schema=dataset_schema)
         else:
-            self._writeMetadataFile(dataset_schema=dataset_schema)
-            if isinstance(self._repository.Location, DirectoryLocationConfig):
-                _local_dir = self._repository.Location
-                _public_url = None
-            else: # we got a URL base
-                _local_dir = None
-                _public_url = self._repository.Location
-            _file_index = RepositoryLocationConfig(name="IndexingConfig",
-                                             local_dir=_local_dir,
-                                             public_url=_public_url,
-                                             templates_url=URLLocationConfig.FromDict(name="TemplateURL", unparsed_elements={"URL" : self._repository.TemplatesBase.Location})
-            )
-            self._updateFileExportList(file_indexing=_file_index, dataset_schema=dataset_schema)
+            Logger.Log(f"Could not output a metadata file, the configured dataset repository {self.Connector} does not have a local directory to output files!", logging.WARNING)
 
     # *** PUBLIC STATICS ***
 
@@ -183,46 +163,64 @@ class DatasetRepositoryOuterface(Outerface):
 
     # *** PRIVATE METHODS ***
 
-    def _getOuterface(self, file_type:str, path:Optional[str], export_modes:Set[ExportMode | AggregationMode]) -> Optional[CSVOuterface]:
+    def _getOuterface(self, dataset_id:DatasetKey, export_mode:ExportMode | AggregationMode) -> Optional[CSVOuterface]:
         ret_val : Optional[CSVOuterface] = None
 
-        if path:
-            cfg_name = f"{self.Config.Name}-{file_type}"
+        cfg_name = f"{self.Config.Name}-{export_mode}"
+        directory = self._getDestinationDirectory(dataset_id=dataset_id)
+        if directory:
+            location = FileLocationConfig(
+                name=f"{cfg_name}-location",
+                folder_path=directory,
+                filename=f"{dataset_id}_{self._generateHash()}.tsv"
+            )
             ret_val = CSVOuterface(
                 table_config=DataTableConfig(
                     name=cfg_name,
                     store=self.Config.StoreConfig,
                     table_schema=self.Config.TableSchema,
-                    table_location=FileLocationConfig.FromPath(name=f"{cfg_name}-location", fullpath=path)
+                    table_location=location
                 ),
-                export_modes=export_modes,
+                export_modes={export_mode},
                 store=None
             )
 
         return ret_val
 
-    ## Public function to write out a tiny metadata file for indexing OGD data files.
-    #  Using the paths of the exported files, and given some other variables for
-    #  deriving file metadata, this simply outputs a new file_name.meta file.
-    #  @param date_range    The range of dates included in the exported data.
-    #  @param num_sess      The number of sessions included in the recent export.
+    def _getDestinationDirectory(self, dataset_id:DatasetKey) -> Optional[Path]:
+        ret_val : Optional[Path] = None
+
+        directory = self.Connector.StoreConfig.LocalDirectory
+        if directory:
+            ret_val = directory.FolderPath / dataset_id.GameID
+
+        return ret_val
+
     def _writeMetadataFile(self, dataset_schema:DatasetSchema) -> None:
-        game_dir = self._repository.LocalDirectory.FolderPath / self._dataset_key.GameID
-        match_string = f"{self._dataset_key}_\\w*\\.meta"
-        old_metas = [f for f in os.listdir(game_dir) if re.match(match_string, f)]
-        for old_meta in old_metas:
-            try:
-                Logger.Log(f"Removing old meta file, {old_meta}")
-                os.remove(game_dir / old_meta)
-            except Exception as err:
-                msg = f"Could not remove old meta file {old_meta}. {type(err)} {str(err)}"
-                Logger.Log(msg, logging.WARNING)
-        # Third, write the new meta file.
-        # calculate the path and name of the metadata file, and open/make it.
-        meta_file_path : Path = game_dir / f"{self._dataset_key}_{self._generateHash()}.meta"
-        with open(meta_file_path, "w", encoding="utf-8") as meta_file :
-            meta_file.write(json.dumps(dataset_schema.AsMetadata, indent=4))
-            meta_file.close()
+        """Function to write out a tiny metadata file for indexing OGD data files.
+        Using the paths of the exported files, and given some other variables for
+        deriving file metadata, this simply outputs a new file_name.meta file.
+
+        :param dataset_schema: the dataset schema containing the metadata.
+        :type dataset_schema: DatasetSchema
+        """
+        game_dir = self._getDestinationDirectory(dataset_id=dataset_schema.Key)
+        if game_dir:
+            match_string = f"{self._dataset_key}_\\w*\\.meta"
+            old_metas = [f for f in os.listdir(game_dir) if re.match(match_string, f)]
+            for old_meta in old_metas:
+                try:
+                    Logger.Log(f"Removing old meta file, {old_meta}")
+                    os.remove(game_dir / old_meta)
+                except Exception as err:
+                    msg = f"Could not remove old meta file {old_meta}. {type(err)} {str(err)}"
+                    Logger.Log(msg, logging.WARNING)
+            # Third, write the new meta file.
+            # calculate the path and name of the metadata file, and open/make it.
+            meta_file_path : Path = game_dir / f"{self._dataset_key}_{self._generateHash()}.meta"
+            with open(meta_file_path, "w", encoding="utf-8") as meta_file :
+                meta_file.write(json.dumps(dataset_schema.AsMetadata, indent=4))
+                meta_file.close()
 
     def _zipFiles(self) -> None:
         # if we have already done this dataset before, rename old zip files
@@ -335,61 +333,3 @@ class DatasetRepositoryOuterface(Outerface):
 
         return ret_val
 
-
-    ## Public function to update the list of exported files.
-    #  Using the paths of the exported files, and given some other variables for
-    #  deriving file metadata, this simply updates the JSON file to the latest
-    #  list of files.
-    #  @param date_range    The range of dates included in the exported data.
-    #  @param num_sess      The number of sessions included in the recent export.
-    def _updateFileExportList(self, file_indexing:RepositoryLocationConfig, dataset_schema:DatasetSchema) -> None:
-        if self._repository.LocalDirectory is not None:
-            DatasetRepositoryOuterface._backupFileExportList(self._repository.LocalDirectory.FolderPath)
-            file_index = {}
-            existing_datasets = {}
-            try:
-                file_index = fileio.loadJSONFile(filename="file_list.json", path=self._repository.LocalDirectory.FolderPath)
-            except FileNotFoundError:
-                Logger.Log("file_list.json does not exist.", logging.WARNING)
-            except json.decoder.JSONDecodeError as err:
-                Logger.Log(f"file_list.json has invalid format: {str(err)}.", logging.WARNING)
-            finally:
-                if not "CONFIG" in file_index.keys():
-                    Logger.Log("No CONFIG found in file_list.json, adding default CONFIG...", logging.WARNING)
-                    file_index["CONFIG"] = {
-                        "files_base" : file_indexing.PublicURL,
-                        "templates_base" : file_indexing.TemplatesURL
-                    }
-                if not dataset_schema.Key.GameID in file_index.keys():
-                    file_index[dataset_schema.Key.GameID] = {}
-                existing_datasets  = file_index[dataset_schema.Key.GameID]
-                with open(self._repository.LocalDirectory.FolderPath / "file_list.json", "w") as existing_csv_file:
-                    Logger.Log(f"Opened file list for writing at {existing_csv_file.name}", logging.INFO)
-                    existing_metadata = existing_datasets.get(dataset_schema.DatasetID, {})
-                    new_meta = dataset_schema.AsMetadata
-                    new_meta["population_file"] = new_meta["population_file"]   or existing_metadata.get("population_file", existing_metadata.get("population"))
-                    new_meta["players_file"] = new_meta["players_file"]         or existing_metadata.get("players_file",    existing_metadata.get("players"))
-                    new_meta["sessions_file"] = new_meta["sessions_file"]       or existing_metadata.get("sessions_file",   existing_metadata.get("sessions"))
-                    new_meta["game_events_file"] = new_meta["game_events_file"] or existing_metadata.get("game_events",     existing_metadata.get("events", existing_metadata.get("raw_events")))
-                    new_meta["all_events_file"] = new_meta["all_events_file"]   or existing_metadata.get("all_events",      existing_metadata.get("processed_events"))
-                    file_index[dataset_schema.Key.GameID][dataset_schema.DatasetID] = new_meta
-                    existing_csv_file.write(json.dumps(file_index, indent=4))
-        else:
-            Logger.Log(f"Could not update file export list, repository {self} does not have a local directory", logging.WARNING)
-
-    @staticmethod
-    def _backupFileExportList(data_dir:Path) -> bool:
-        try:
-            src  : Path = data_dir / "file_list.json"
-            dest : Path = data_dir / "file_list.json.bak"
-            if src.exists():
-                shutil.copyfile(src=src, dst=dest)
-            else:
-                Logger.Log("Could not back up file_list.json, because it does not exist!", logging.WARN)
-        except Exception as err:
-            msg = f"{type(err)} {str(err)}"
-            Logger.Log(f"Could not back up file_list.json. Got the following error: {msg}", logging.ERROR)
-            return False
-        else:
-            Logger.Log(f"Backed up file_list.json to {dest}", logging.INFO)
-            return True
