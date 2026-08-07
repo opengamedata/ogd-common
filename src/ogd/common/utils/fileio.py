@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from zipfile import ZipFile
 # import 3rd-party libraries
-import numpy as np
 import pandas as pd
 # import locals
 from ogd.common.utils.Logger import Logger
@@ -32,6 +31,19 @@ def loadJSONFile(filename:str, path:Path = Path("./"), search_in_src:bool = Fals
     :return: A python object parsed from the JSON.
     :rtype: Dict[Any, Any]
     """
+    def _fromPackage():
+        package_file_path = None
+        try:
+            package_file_path = files(".".join(path.parts)).joinpath(filename)
+            with package_file_path.open() as json_file:
+                return json.loads(json_file.read())
+        except ModuleNotFoundError as mod_err:
+            Logger.Log(f"Could not load JSON file, unable to search in module for {path}, got the following error:\n{mod_err.msg}.", logging.WARNING)
+            raise mod_err
+        except FileNotFoundError as file_err:
+            Logger.Log(f"Could not load JSON file from package, {package_file_path} does not exist.", logging.WARNING)
+            raise file_err
+
     if autocorrect_extension and not filename.lower().endswith(".json"):
         Logger.Log(f"Got a filename that didn't end with .json: {filename}, appending .json", logging.DEBUG)
         filename = filename + ".json"
@@ -40,19 +52,12 @@ def loadJSONFile(filename:str, path:Path = Path("./"), search_in_src:bool = Fals
     try:
         with open(file_path, "r") as json_file:
             return json.loads(json_file.read())
-    except FileNotFoundError as err:
+    except FileNotFoundError:
         Logger.Log(f"Could not load JSON file, {file_path} could not be found from {os.getcwd()}, trying to find within package.", logging.WARNING)
-        package_file_path = None
-        try:
-            package_file_path = files(".".join(path.parts)).joinpath(filename)
-            with package_file_path.open() as json_file:
-                return json.loads(json_file.read())
-        except ModuleNotFoundError as err:
-            Logger.Log(f"Could not load JSON file, unable to search in module for {path}, got the following error:\n{err.msg}.", logging.WARNING)
-            raise err
-        except FileNotFoundError as err:
-            Logger.Log(f"Could not load JSON file from package, {package_file_path} does not exist.", logging.WARNING)
-            raise err
+        return _fromPackage()
+    except json.decoder.JSONDecodeError as err:
+        Logger.Log(f"Could not load JSON file, {file_path} has invalid format: {str(err)}. Trying to find within package.", logging.WARNING)
+        return _fromPackage()
 
 class FileTypes(Enum):
     SESSION = "sessions"
@@ -140,7 +145,7 @@ class FileAPI:
                 print(f"Didn't find the file {zip_path} locally, downloading from {_server}...")
                 with urlrequest.urlopen(file_url) as remote_file, open(zip_path, 'wb') as local_file:
                     shutil.copyfileobj(remote_file, local_file)
-                    print(f"Successfully downloaded a copy of the file.")
+                    print("Successfully downloaded a copy of the file.")
             else:
                 print(f"Found the file {zip_name} locally, nothing will be downloaded.")
             zip_file = ZipFile(Path(f'./{zip_name}'))
@@ -177,7 +182,6 @@ def readCSVFromPath(path, index_cols):
     :param path: path pointing to a csv
     :return: dataframe, List[str] of metadata lines
     """
-    import os
     print(os.getcwd())
     metadata = [f'Import from f{path}']
     df = pd.read_csv(path, index_col=index_cols, comment='#')
