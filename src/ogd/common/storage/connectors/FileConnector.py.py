@@ -1,19 +1,20 @@
 import logging
-from pathlib import Path
-from typing import Final, IO, Optional, Set
+from typing import IO, Optional
 from zipfile import ZipFile
 ## import local files
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
-from ogd.common.models.features.AggregationMode import AggregationMode
-from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.storage.connectors.StorageConnector import StorageConnector
 from ogd.common.utils.Logger import Logger
 
-class CSVConnector(StorageConnector):
+class FileConnector(StorageConnector):
+    """Base class for connecting to a file.
+
+    The FileConnector and its corresponding interface and outerface handle things like file compression,
+    which may apply across different file types for various file-based datasets.
+    Subclasses will implement the details of writing to and from specific formats.
+    """
 
     # *** BUILT-INS & PROPERTIES ***
-    _DEFAULT_EXTENSION : Final[str]      = "tsv"
-    _VALID_EXTENSIONS  : Final[Set[str]] = {"tsv", "csv"}
 
     def __init__(self, config:FileStoreConfig):
         # set up data from params
@@ -34,8 +35,7 @@ class CSVConnector(StorageConnector):
 
     @property
     def FileExtension(self) -> str:
-        candidate_ext = self.StoreConfig.FileExtension
-        return candidate_ext if candidate_ext in CSVConnector._VALID_EXTENSIONS else CSVConnector._DEFAULT_EXTENSION
+        return self.StoreConfig.FileExtension
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
@@ -44,11 +44,8 @@ class CSVConnector(StorageConnector):
 
         if self.StoreConfig.IsZipped:
             ret_val = self._openZip(writeable=writeable)
-        elif self.StoreConfig.FileExtension in CSVConnector._VALID_EXTENSIONS:
-            ret_val = self._openCSV(writeable=writeable)
         else:
-            msg = f"Can not open CSVConnector for configured file {self.StoreConfig.Filename}, it has invalid extension {self.StoreConfig.FileExtension}!"
-            Logger.Log(message=msg, level=logging.WARN)
+            ret_val = self._openFile(writeable=writeable)
 
         return ret_val
 
@@ -69,7 +66,7 @@ class CSVConnector(StorageConnector):
 
     # *** PRIVATE METHODS ***
 
-    def _openCSV(self, writeable:bool) -> bool:
+    def _openFile(self, writeable:bool) -> bool:
         ret_val = True
 
         path = self.StoreConfig.Filepath
