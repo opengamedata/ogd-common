@@ -5,6 +5,8 @@ from unittest import TestCase
 # import ogd libraries.
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.configs.locations.DatabaseLocationConfig import DatabaseLocationConfig
+from ogd.common.schemas.tables.TableSchema import TableSchema
+from ogd.common.schemas.tables.TableSchemaFactory import TableSchemaFactory
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.configs.DataTableConfig import DataTableConfig
@@ -58,22 +60,24 @@ class BasicInitCase(TestCase):
         # self.assertIsInstance(_str, str)
         # self.assertEqual(_str, "AQUALAB_BQ")
 
-    def test_DatabaseName(self):
-        _str = self.test_schema.DatabaseName
-        self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "aqualab")
-
-    def test_TableName(self):
-        _str = self.test_schema.TableName
-        self.assertIsInstance(_str, str)
-        self.assertEqual(_str, "aqualab_daily")
+    def test_TableSchema(self):
+        _sch = self.test_schema.TableSchema
+        expected = TableSchemaFactory.FromFile(filename="OPENGAMEDATA_BIGQUERY", path="tests/data/configs")
+        self.assertIsInstance(_sch, TableSchema)
+        self.assertEqual(_sch, expected)
 
     def test_SchemaName(self):
-        """Test the correctness of TableConfig property
+        """Test the correctness of TableSchemaName property
         """
         _str = self.test_schema.TableSchemaName
         self.assertIsInstance(_str, str)
         self.assertEqual(_str, "OPENGAMEDATA_BIGQUERY")
+
+    def test_TableLocation(self):
+        _str = self.test_schema.TableLocation
+        self.assertIsInstance(_str, DatabaseLocationConfig)
+        expected = DatabaseLocationConfig(name="DBLocation", database_name="aqualab", table_name="aqualab_daily")
+        self.assertEqual(_str, expected)
 
     def test_NonStandardElements(self):
         _elems = {
