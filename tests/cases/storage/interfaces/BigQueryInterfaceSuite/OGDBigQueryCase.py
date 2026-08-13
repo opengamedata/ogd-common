@@ -58,7 +58,7 @@ class OGDBigQueryCase(TestCase):
         config.StoreConfig = store_config
         config.TableSchema = table_schema
 
-        self.test_interface = BigQueryInterface(config=config, fail_fast=True, store=None)
+        self.test_interface = BigQueryInterface(config=config, fail_fast=True, connector=None)
 
     def test_AvailableIDs_sessions(self):
         _start_date = datetime(year=2025, month=7, day=1, hour=0, minute=0, second=0)

@@ -68,7 +68,7 @@ class BacteriaCase(TestCase):
         _store = CSVConnector(
             config=FileStoreConfig(name="file", location=f, file_credential=None)
         )
-        self.CSVI = CSVInterface(config=_cfg, fail_fast=False, extension='\t', store=_store)
+        self.CSVI = CSVInterface(config=_cfg, fail_fast=False, extension='\t', connector=_store)
         self.zipped_file = ZipFile(Path("tests/data/storage/interfaces/BACTERIA_20210201_to_20210202_5c61198_events.zip"))
 
     @unittest.skip("Not up-to-date with implementation")
