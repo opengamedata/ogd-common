@@ -1,12 +1,16 @@
 import abc
 import sys
-from typing import Optional, Union
+from datetime import datetime
+from typing import Dict, List, LiteralString, Optional, Tuple, Union
 # 3rd-party imports
 import pandas as pd
 ## import local files
-from ogd.common.filters import *
 from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
 from ogd.common.configs.DataTableConfig import DataTableConfig
+from ogd.common.storage.IDType import IDType
+from ogd.common.filters.FilterMode import FilterMode
+from ogd.common.storage.VersionType import VersionType
+from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.storage.connectors.FileConnector import FileConnector
@@ -30,7 +34,6 @@ class FileInterface(Interface):
         self._connector : FileConnector
 
         super().__init__(config=config, fail_fast=fail_fast)
-        self._data : pd.DataFrame
         if connector:
             self._connector = connector
         elif isinstance(self.Config.StoreConfig, FileStoreConfig):
@@ -38,6 +41,10 @@ class FileInterface(Interface):
         else:
             raise ValueError(f"CSVInterface config was for a connector other than CSV/TSV files! Found config type {type(self.Config.StoreConfig)}")
         self.Connector.Open(writeable=False)
+
+        # We always just read the file right away.
+        if self.Connector.IsOpen and self.Connector.File:
+            self._data = self._read()
 
     @property
     def DataFrame(self) -> pd.DataFrame:
@@ -52,6 +59,115 @@ class FileInterface(Interface):
     @property
     def Connector(self) -> FileConnector:
         return self._connector
+
+    def _availableIDs(self, id_type:IDType, filters:DatasetFilterCollection) -> List[str]:
+        ret_val : List[str] = []
+
+        if not self.DataFrame.empty:
+            # TODO : need a good way to get stuff mapped from TableSchema, instead of hardcoded ID column names.
+            id_col : LiteralString = "session_id" if id_type==IDType.SESSION else "user_id"
+            dates = pd.to_datetime(self.DataFrame['timestamp'], format='ISO8601').dt.tz_convert(None) # HACK : need to handle this better elsewhere, pretty sure we've got someplace else giving us filters with dates rather than datetime
+            mask = None
+            if filters.Sequences.Timestamps.Active:
+                if filters.Sequences.Timestamps.Min and filters.Sequences.Timestamps.Max:
+                    mask = (dates >= filters.Sequences.Timestamps.Min) & (dates <= filters.Sequences.Timestamps.Max)
+                if filters.Sequences.Timestamps.Min:
+                    mask = dates >= filters.Sequences.Timestamps.Min
+                if filters.Sequences.Timestamps.Min and filters.Sequences.Timestamps.Max:
+                    mask = dates <= filters.Sequences.Timestamps.Max
+            # if versions is not None and versions is not []:
+            #     mask = mask & (self._data['app_version'].isin(versions))
+            data_masked = self.DataFrame.loc[mask] if mask is not None else self.DataFrame
+            ret_val = [str(id) for id in data_masked[id_col].unique().tolist()]
+
+        return ret_val
+
+    def _availableDates(self, filters:DatasetFilterCollection) -> Dict[str,datetime]:
+        ret_val : Dict[str,datetime] = {}
+
+        if self.Connector.IsOpen:
+            sess_mask : PDMask = True
+            if filters.IDFilters.Sessions.AsSet is not None:
+                match filters.IDFilters.Sessions.FilterMode:
+                    case FilterMode.INCLUDE:
+                        sess_mask = self.DataFrame['session_id'].isin(filters.IDFilters.Sessions.AsSet)
+                    case FilterMode.EXCLUDE:
+                        sess_mask = ~self.DataFrame['session_id'].isin(filters.IDFilters.Sessions.AsSet)
+                    case FilterMode.NOFILTER:
+                        pass
+            user_mask : PDMask = True
+            if filters.IDFilters.Players.AsSet is not None:
+                match filters.IDFilters.Players.FilterMode:
+                    case FilterMode.INCLUDE:
+                        user_mask = self.DataFrame['user_id'].isin(filters.IDFilters.Players.AsSet)
+                    case FilterMode.EXCLUDE:
+                        user_mask = ~self.DataFrame['user_id'].isin(filters.IDFilters.Players.AsSet)
+                    case FilterMode.NOFILTER:
+                        pass
+
+            _col  = self.DataFrame[sess_mask & user_mask]['timestamp']
+            min_date = _col.min()
+            max_date = _col.max()
+            ret_val = {'min':pd.to_datetime(min_date), 'max':pd.to_datetime(max_date)}
+
+        return ret_val
+
+    def _availableVersions(self, mode:VersionType, filters:DatasetFilterCollection) -> List[SemanticVersion | str]:
+        ret_val : List[SemanticVersion | str] = []
+
+        if self.Connector.IsOpen:
+            version_col  : str = "log_version" if mode==VersionType.LOG else "app_version" if mode==VersionType.APP else "app_branch"
+            ret_val = [SemanticVersion.FromString(str(ver)) for ver in self.DataFrame[version_col].unique().tolist()]
+
+        return ret_val
+
+
+    def _getEventRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
+        ret_val : List[Tuple] = []
+
+        if self.Connector.IsOpen and not self.DataFrame.empty:
+            sess_mask : PDMask = True
+            if filters.IDFilters.Sessions.AsSet is not None:
+                match filters.IDFilters.Sessions.FilterMode:
+                    case FilterMode.INCLUDE:
+                        sess_mask = self.DataFrame['session_id'].isin(filters.IDFilters.Sessions.AsSet)
+                    case FilterMode.EXCLUDE:
+                        sess_mask = ~self.DataFrame['session_id'].isin(filters.IDFilters.Sessions.AsSet)
+                    case FilterMode.NOFILTER:
+                        pass
+            user_mask : PDMask = True
+            if filters.IDFilters.Players.AsSet is not None:
+                match filters.IDFilters.Players.FilterMode:
+                    case FilterMode.INCLUDE:
+                        user_mask = self.DataFrame['user_id'].isin(filters.IDFilters.Players.AsSet)
+                    case FilterMode.EXCLUDE:
+                        user_mask = ~self.DataFrame['user_id'].isin(filters.IDFilters.Players.AsSet)
+                    case FilterMode.NOFILTER:
+                        pass
+            event_mask : PDMask = True
+            if filters.Events.EventNames.AsSet is not None:
+                match filters.Events.EventNames.FilterMode:
+                    case FilterMode.INCLUDE:
+                        event_mask = self.DataFrame['event_name'].isin(filters.Events.EventNames.AsSet)
+                    case FilterMode.EXCLUDE:
+                        event_mask = ~self.DataFrame['event_name'].isin(filters.Events.EventNames.AsSet)
+                    case FilterMode.NOFILTER:
+                        pass
+            _data = self.DataFrame[sess_mask & user_mask & event_mask]
+            ret_val = list(_data.itertuples(index=False, name=None))
+        return ret_val
+
+    def _getFeatureRows(self, filters:DatasetFilterCollection) -> List[Tuple]:
+        """Since CSVInterface just connects to a singular file, the getters for features and events are the same.
+
+        Currently, we just assume you know what kind of dataset you loaded, and are calling the right function.
+
+        :param filters: _description_
+        :type filters: DatasetFilterCollection
+        :return: _description_
+        :rtype: List[Tuple]
+        """
+        return self._getEventRows(filters=filters)
 
     # *** PUBLIC STATICS ***
 

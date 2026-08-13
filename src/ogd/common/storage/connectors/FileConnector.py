@@ -30,8 +30,11 @@ class FileConnector(StorageConnector):
         return self._config
 
     @property
-    def File(self) -> Optional[IO]:
-        return self._file
+    def File(self) -> IO:
+        if self._file and self.IsOpen:
+            return self._file
+        else:
+            raise RuntimeError(f"Can not access {self._config.Filename}, the FileConnector is not open!")
 
     @property
     def FileExtension(self) -> str:
