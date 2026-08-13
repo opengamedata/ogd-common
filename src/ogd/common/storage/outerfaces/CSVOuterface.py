@@ -10,6 +10,7 @@ from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
+from ogd.common.storage.connectors.FileConnector import FileConnector
 from ogd.common.storage.outerfaces.FileOuterface import FileOuterface
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
@@ -21,7 +22,7 @@ class CSVOuterface(FileOuterface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode | AggregationMode], store:Optional[CSVConnector]=None):
+    def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode | AggregationMode], store:Optional[FileConnector]=None):
         super().__init__(table_config=table_config, export_modes=export_modes, store=store)
 
     @property
