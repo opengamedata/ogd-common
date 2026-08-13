@@ -18,25 +18,6 @@ class CSVInterface(FileInterface):
     def __init__(self, config:DataTableConfig, fail_fast:bool, connector:Optional[FileConnector]=None):
         super().__init__(config=config, fail_fast=fail_fast, connector=connector)
 
-    @property
-    def DataFrame(self) -> pd.DataFrame:
-        return self._data
-
-    @property
-    def Extension(self) -> str:
-        return self.Connector.FileExtension
-
-    @property
-    def Delimiter(self) -> str:
-        match self.Extension:
-            case "tsv":
-                return "\t"
-            case "csv":
-                return ","
-            case _:
-                Logger.Log(f"CSVInterface has unexpected extension {self.Extension}, defaulting to comma-separation!", logging.WARN)
-                return ","
-
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***
 
     def _read(self) -> pd.DataFrame:
