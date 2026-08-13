@@ -1,58 +1,44 @@
 ## import standard libraries
 import logging
 import sys
+from enum import StrEnum
 from typing import Any, List, Optional, override, Set, Tuple
 # 3rd-party imports
 # import local files
 # from ogd import games
 from ogd.common.configs.DataTableConfig import DataTableConfig
-from ogd.common.configs.storage.FileStoreConfig import FileStoreConfig
 from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.models.features.ExportMode import ExportMode
 from ogd.common.schemas.datasets.DatasetSchema import DatasetSchema
-from ogd.common.storage.connectors.CSVConnector import CSVConnector
-from ogd.common.storage.outerfaces.Outerface import Outerface
+from ogd.common.storage.outerfaces.FileOuterface import FileOuterface
 from ogd.common.utils.Logger import Logger
 from ogd.common.utils.typing import ExportRow
 
-class CSVOuterface(Outerface):
+class CSVOuterface(FileOuterface):
+    class ValidExtensions(StrEnum):
+        TSV = "tsv"
+        CSV = "csv"
 
     # *** BUILT-INS & PROPERTIES ***
 
     def __init__(self, table_config:DataTableConfig, export_modes:Set[ExportMode | AggregationMode], store:Optional[CSVConnector]=None):
-        self._store : CSVConnector
-
-        super().__init__(table_config=table_config, export_modes=export_modes)
-        if store:
-            self._store = store
-        elif isinstance(self.Config.StoreConfig, FileStoreConfig):
-            self._store = CSVConnector(
-                config=self.Config.StoreConfig,
-            )
-        else:
-            raise ValueError(f"CSVInterface config was for a connector other than CSV/TSV files! Found config type {type(self.Config.StoreConfig)}")
-        self.Connector.Open()
-
-    @property
-    def Connector(self) -> CSVConnector:
-        return self._store
-
-    @property
-    def FileExtension(self) -> str:
-        return self.Connector.FileExtension
+        super().__init__(table_config=table_config, export_modes=export_modes, store=store)
 
     @property
     def Delimiter(self) -> str:
-        match self.FileExtension:
-            case "tsv":
+        match self.Extension.lower():
+            case CSVOuterface.ValidExtensions.TSV:
                 return "\t"
-            case "csv":
+            case CSVOuterface.ValidExtensions.CSV:
                 return ","
             case _:
-                Logger.Log(f"CSVOuterface has unexpected extension {self.FileExtension}, defaulting to comma-separation!", logging.WARN)
+                Logger.Log(f"CSVOuterface has unexpected extension {self.Extension}, defaulting to comma-separation!", logging.WARN)
                 return ","
 
     # *** IMPLEMENT ABSTRACTS ***
+
+    # TODO : probably not the best idea for an outerface to write everything to just the one file.
+    # Should have a smarter approach to this.
 
     @override
     def _removeExportMode(self, mode:ExportMode):
@@ -65,7 +51,7 @@ class CSVOuterface(Outerface):
         if self.Connector.File is not None:
             self.Connector.File.writelines(cols_line)
         else:
-            Logger.Log(f"No {self.FileExtension} file available, writing to standard output instead.", logging.WARN)
+            Logger.Log(f"No {self.Extension} file available, writing to standard output instead.", logging.WARN)
             sys.stdout.write("".join(cols_line))
 
     @override
