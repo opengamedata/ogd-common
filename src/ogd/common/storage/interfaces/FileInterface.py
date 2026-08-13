@@ -17,6 +17,16 @@ from ogd.common.storage.connectors.FileConnector import FileConnector
 
 type PDMask = Union[pd.Series, bool]
 class FileInterface(Interface):
+    """Intermediate base class for all interfaces that read from a file (through a FileConnector).
+
+    They just need to implement a "read" function to pull the data into a pandas DataFrame (with appropriate columns),
+    and the base class handles all the conversion to OGD data structures from there.
+
+    :raises NotImplementedError: _description_
+    :raises ValueError: _description_
+    :return: _description_
+    :rtype: _type_
+    """
 
     @abc.abstractmethod
     def _read(self) -> pd.DataFrame:
