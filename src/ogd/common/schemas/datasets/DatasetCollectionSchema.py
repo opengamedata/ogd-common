@@ -59,6 +59,9 @@ class DatasetCollectionSchema(Schema):
     def __str__(self) -> str:
         return str(self.Name)
 
+    def get(self, dataset:str, default:Any=None):
+        return self.Datasets.get(dataset, default)
+
     @property
     def Datasets(self) -> Dict[str, DatasetSchema]:
         return self._datasets

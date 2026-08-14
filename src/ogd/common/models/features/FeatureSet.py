@@ -2,7 +2,7 @@
 from itertools import chain
 from typing import Callable, List, Optional
 # import local files
-from ogd.common.filters.collections import *
+from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
 from ogd.common.models.features.AggregationMode import AggregationMode
 from ogd.common.models.features.Feature import Feature
 from ogd.common.schemas.tables.FeatureTableSchema import FeatureTableSchema

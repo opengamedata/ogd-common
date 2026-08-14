@@ -12,13 +12,13 @@ from google.cloud import bigquery
 from google.api_core.exceptions import BadRequest
 # OGD imports
 from ogd.common.filters import *
+from ogd.common.filters.FilterMode import FilterMode
 from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
 from ogd.common.filters.collections.SequencingFilterCollection import SequencingFilterCollection
 from ogd.common.configs.DataTableConfig import DataTableConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.models.SemanticVersion import SemanticVersion
 from ogd.common.storage.IDType import IDType
-from ogd.common.filters.FilterMode import FilterMode
 from ogd.common.storage.VersionType import VersionType
 from ogd.common.storage.interfaces.Interface import Interface
 from ogd.common.storage.connectors.BigQueryConnector import BigQueryConnector
@@ -38,14 +38,14 @@ class BigQueryInterface(Interface):
 
     # *** BUILT-INS & PROPERTIES ***
 
-    def __init__(self, config:DataTableConfig, fail_fast:bool, store:Optional[BigQueryConnector]=None):
-        self._store : BigQueryConnector
+    def __init__(self, config:DataTableConfig, fail_fast:bool, connector:Optional[BigQueryConnector]=None):
+        self._connector : BigQueryConnector
 
         super().__init__(config=config, fail_fast=fail_fast)
-        if store:
-            self._store = store
+        if connector:
+            self._connector = connector
         elif isinstance(self.Config.StoreConfig, BigQueryConfig):
-            self._store = BigQueryConnector(config=self.Config.StoreConfig)
+            self._connector = BigQueryConnector(config=self.Config.StoreConfig)
         else:
             raise ValueError(f"BigQueryInterface config was for a connector other than BigQuery! Found config type {type(self.Config.StoreConfig)}")
         self.Connector.Open()
@@ -67,7 +67,7 @@ class BigQueryInterface(Interface):
 
     @property
     def Connector(self) -> BigQueryConnector:
-        return self._store
+        return self._connector
 
     def _availableIDs(self, id_type:IDType, filters:DatasetFilterCollection) -> List[str]:
         """

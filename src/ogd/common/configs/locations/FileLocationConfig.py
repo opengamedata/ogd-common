@@ -15,7 +15,7 @@ class FileLocationConfig(LocationConfig):
     while DatabaseLocation refers to the location of a specific database or table within such a system.
     """
 
-    _DEFAULT_PATH     : Final[Path] = Path("./file.tsv")
+    _DEFAULT_PATH     : Final[Path] = Path("./")
     _DEFAULT_FILENAME : Final[None] = None
 
     # *** BUILT-INS & PROPERTIES ***

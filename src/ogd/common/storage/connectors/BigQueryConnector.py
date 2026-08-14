@@ -20,6 +20,11 @@ class BigQueryConnector(StorageConnector):
 
     @property
     def Client(self) -> Optional[bigquery.Client]:
+        """BigQuery client that interfaces/outerfaces may use to communicate with the connected BigQuery project
+
+        :return: _description_
+        :rtype: Optional[bigquery.Client]
+        """
         return self._client
 
     # *** IMPLEMENT ABSTRACT FUNCTIONS ***

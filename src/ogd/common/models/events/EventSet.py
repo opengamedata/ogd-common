@@ -1,7 +1,7 @@
 ## import standard libraries
 from typing import Callable, List, Optional
 # import local files
-from ogd.common.filters.collections import *
+from ogd.common.filters.collections.DatasetFilterCollection import DatasetFilterCollection
 from ogd.common.models.events.Event import Event, EventSource
 from ogd.common.schemas.tables.EventTableSchema import EventTableSchema
 from ogd.common.utils.typing import ExportRow

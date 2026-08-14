@@ -10,7 +10,7 @@ from ogd.common.utils.Logger import Logger
 from ogd.common.configs.locations.DirectoryLocationConfig import DirectoryLocationConfig
 from ogd.common.configs.locations.URLLocationConfig import URLLocationConfig
 # import locals
-from src.ogd.common.configs.storage.RepositoryIndexingConfig import RepositoryIndexingConfig
+from src.ogd.common.configs.locations.RepositoryLocationConfig import RepositoryLocationConfig
 from config.t_config import settings
 
 def setUpModule():
@@ -19,10 +19,10 @@ def setUpModule():
     Logger.std_logger.setLevel(_level)
 
 class BasicInitCase(TestCase):
-    """RepositoryIndexingConfig test case where basic initialization is used.
+    """RepositoryLocationConfig test case where basic initialization is used.
     
     Fixture:
-    * Initialize a RepositoryIndexingConfig object with hardcoded values for all `__init__(...)` params
+    * Initialize a RepositoryLocationConfig object with hardcoded values for all `__init__(...)` params
     
     Case Categories:
     * Property functions.
@@ -33,13 +33,13 @@ class BasicInitCase(TestCase):
     def setUpClass(cls) -> None:
         """Set up common attributes across the class.
 
-        Since this class currently just tests properties, we go ahead and use a single instance of `RepositoryIndexingConfig` shared across the class.
+        Since this class currently just tests properties, we go ahead and use a single instance of `RepositoryLocationConfig` shared across the class.
         If any tests are added that have expected side effects, initialization of the instance should be moved to a `setUp(self)` function.
         """
-        cls.test_schema = RepositoryIndexingConfig(
+        cls.test_schema = RepositoryLocationConfig(
             name="Indexing Schema",
             local_dir=DirectoryLocationConfig(name="LocalDir", folder_path=Path("./data")),
-            remote_url=URLLocationConfig(name="RemoteURL", url=urlparse("https://fieldday-web.ad.education.wisc.edu/opengamedata/")),
+            public_url=URLLocationConfig(name="RemoteURL", url=urlparse("https://fieldday-web.ad.education.wisc.edu/opengamedata/")),
             templates_url=URLLocationConfig(name="TemplateURL", url=urlparse("https://github.com/opengamedata/opengamedata-samples")),
             other_elements={ "foo":"bar" }
         )
@@ -52,11 +52,12 @@ class BasicInitCase(TestCase):
     def test_LocalDirectory(self):
         _dir = self.test_schema.LocalDirectory
         self.assertIsInstance(_dir, DirectoryLocationConfig)
-        self.assertIsInstance(_dir.FolderPath, Path)
-        self.assertEqual(_dir.FolderPath, Path("./data/"))
+        if _dir is not None:
+            self.assertIsInstance(_dir.FolderPath, Path)
+            self.assertEqual(_dir.FolderPath, Path("./data/"))
 
     def test_RemoteURL(self):
-        _url = self.test_schema.RemoteURL
+        _url = self.test_schema.PublicURL
         self.assertIsNotNone(_url)
         self.assertIsInstance(_url, URLLocationConfig)
         if _url:

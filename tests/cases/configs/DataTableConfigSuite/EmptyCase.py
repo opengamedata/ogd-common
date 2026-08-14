@@ -8,6 +8,8 @@ from ogd.common.configs.storage.DataStoreConfig import DataStoreConfig
 from ogd.common.configs.storage.BigQueryConfig import BigQueryConfig
 from ogd.common.configs.TestConfig import TestConfig
 from ogd.common.configs.locations.DatabaseLocationConfig import DatabaseLocationConfig
+from ogd.common.schemas.tables.TableSchema import TableSchema
+from ogd.common.schemas.tables.TableSchemaFactory import TableSchemaFactory
 from ogd.common.utils.Logger import Logger
 # import locals
 from src.ogd.common.configs.DataTableConfig import DataTableConfig
@@ -34,28 +36,17 @@ class EmptyCase(TestCase):
     def test_DefaultInit(self):
         """Test case for whether initializing without parameters (using defaults) results in each item matching the defined default.
         """
-        _dict = {
-            "source":"AQUALAB_BQ",
-            "database":"aqualab",
-            "table":"aqualab_daily",
-            "schema":"OPENGAMEDATA_BIGQUERY"
-        }
-        source_elems = {
-            "DB_TYPE"    : "FIREBASE",
-            "PROJECT_ID" : "aqualab-project",
-            "PROJECT_KEY": "./key.txt"
-        }
         _schema = DataTableConfig.Default()
         self.assertIsInstance(_schema.Name, str)
         self.assertEqual(_schema.Name, "DefaultDataTableConfig")
         self.assertIsInstance(_schema.StoreName, str)
         self.assertEqual(_schema.StoreName, DataTableConfig._DEFAULT_STORE_NAME)
-        self.assertIsInstance(_schema.DatabaseName, str)
-        self.assertEqual(_schema.DatabaseName, DataTableConfig._DEFAULT_DB_NAME)
-        self.assertIsInstance(_schema.TableName, str)
-        self.assertEqual(_schema.TableName, DataTableConfig._DEFAULT_TABLE_NAME)
+        self.assertIsInstance(_schema.TableSchema, TableSchema)
+        self.assertEqual(_schema.TableSchema, TableSchemaFactory.FromFile(filename=DataTableConfig._DEFAULT_TABLE_SCHEMA_NAME, path="tests/data/configs"))
         self.assertIsInstance(_schema.TableSchemaName, str)
         self.assertEqual(_schema.TableSchemaName, DataTableConfig._DEFAULT_TABLE_SCHEMA_NAME)
+        self.assertIsInstance(_schema.TableLocation, DatabaseLocationConfig)
+        self.assertEqual(_schema.TableLocation, DataTableConfig._DEFAULT_TABLE_LOC)
 
     def test_FromDict(self):
         """Test case for whether the FromDict function is working properly.
@@ -80,12 +71,12 @@ class EmptyCase(TestCase):
         self.assertEqual(_schema.Name, "AQUALAB")
         self.assertIsInstance(_schema.StoreName, str)
         self.assertEqual(_schema.StoreName, "AQUALAB_BQ")
-        self.assertIsInstance(_schema.DatabaseName, str)
-        self.assertEqual(_schema.DatabaseName, "aqualab")
-        self.assertIsInstance(_schema.TableName, str)
-        self.assertEqual(_schema.TableName, "aqualab_daily")
+        self.assertIsInstance(_schema.TableSchema, TableSchema)
+        self.assertEqual(_schema.TableSchema, TableSchemaFactory.FromFile(filename=DataTableConfig._DEFAULT_TABLE_SCHEMA_NAME, path="tests/data/configs"))
         self.assertIsInstance(_schema.TableSchemaName, str)
         self.assertEqual(_schema.TableSchemaName, "OPENGAMEDATA_BIGQUERY")
+        self.assertIsInstance(_schema.TableLocation, DatabaseLocationConfig)
+        self.assertEqual(_schema.TableLocation, DatabaseLocationConfig(name="aqualab_daily", database_name="aqualab", table_name="aqualab_daily"))
 
     def test_parseSourceName(self):
         _map = {
@@ -133,7 +124,8 @@ class EmptyCase(TestCase):
         }
         _loc = DataTableConfig._getTableLocation(raw_val=None, unparsed_elements=_map)
         self.assertIsInstance(_loc, DatabaseLocationConfig)
-        self.assertIsInstance(_loc.DatabaseName, str)
-        self.assertEqual(_loc.DatabaseName, "Foo")
-        self.assertIsInstance(_loc.TableName, str)
-        self.assertEqual(_loc.TableName, "Bar")
+        if isinstance(_loc, DatabaseLocationConfig):
+            self.assertIsInstance(_loc.DatabaseName, str)
+            self.assertEqual(_loc.DatabaseName, "Foo")
+            self.assertIsInstance(_loc.TableName, str)
+            self.assertEqual(_loc.TableName, "Bar")

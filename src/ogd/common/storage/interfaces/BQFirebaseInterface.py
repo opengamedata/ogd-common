@@ -24,8 +24,8 @@ class BQFirebaseInterface(BigQueryInterface):
 
     # *** BUILT-INS ***
 
-    def __init__(self, config:DataTableConfig, fail_fast:bool, store:Optional[BigQueryConnector]=None):
-        super().__init__(config=config, fail_fast=fail_fast, store=store)
+    def __init__(self, config:DataTableConfig, fail_fast:bool, connector:Optional[BigQueryConnector]=None):
+        super().__init__(config=config, fail_fast=fail_fast, connector=connector)
 
     # *** RE-IMPLEMENT ABSTRACT FUNCTIONS ***
 
